@@ -1,5 +1,5 @@
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import "../globals.css";
 import Footer from "@/app/account/components/Footer";
 import Image from "next/image";
 
@@ -20,22 +20,27 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body
+    
+      <div
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
               {/* Logo */}
       <div className="w-full items-center m-auto">
-   
+        <Image
+          src="/logo.svg"
+          alt="Swift Connect"
+          width={180}
+          height={48}
+          priority
+        />
       </div>
       <div className="">
 
         {children}
       </div>
       <div className="items-center">
-        
+        <Footer />
       </div>
-      </body>
-    </html>
+      </div>
   );
 }
