@@ -1,3 +1,5 @@
+import Button from "@/components/common/Button";
+
 export default function KYCForm({ title, fields, onSubmit }) {
     return (
         <div className="max-w-md mx-auto p-4 bg-white rounded-lg shadow">
