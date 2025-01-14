@@ -10,7 +10,7 @@ export default function Home() {
       <Sidebar />
       <main className="flex-1 bg-secondary">
         <Header />
-        <div className="py-6 px-10">
+        <div className="py-6 px-10 h-[80vh] overflow-y-auto custom-scroll">
           <div className=" flex gap-4">
             <WalletCard />
             <div className="grid grid-cols-2 gap-4">
