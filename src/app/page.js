@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -8,7 +8,7 @@ export default function Home() {
 
   useEffect(() => {
     const token = localStorage.getItem("token"); // Replace "token" with your actual token key
-    if (token) {
+    if (!token) {
       router.push("/dashboard"); // Redirect to the dashboard if token is present
     } else {
       router.push("/account/login"); // Redirect to the login page if no token
