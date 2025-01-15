@@ -1,9 +1,10 @@
 // app/page.js
 "use client";
 import Image from "next/image";
-import React from "react";
+import React, { useState } from "react";
 
 const TransactionsTable = () => {
+  const [activeTransactionTab, setActiveTransactionTab] = useState("all");
   const transactions = [
     {
       product: "Airtime",
@@ -61,19 +62,49 @@ const TransactionsTable = () => {
     },
   ];
 
+  const filteredTransactions =
+    activeTransactionTab === "all"
+      ? transactions
+      : activeTransactionTab === "Credit"
+      ? transactions.filter((transaction) => transaction.amount.startsWith("+"))
+      : transactions.filter((transaction) =>
+          transaction.amount.startsWith("-")
+        );
+
   return (
     <div className="pt-8 w-[90%]">
       <div className="">
         <h1 className="text-[22px] font-semibold mb-4">Recent Transactions</h1>
         <div className="flex  flex-col justify-between mb-4">
           <ul className="flex items-center gap-[5em] mb-4 border-b-[1px] border-gray-200">
-            <li className="font-medium text-[16px] px-2 text-green-600 border-b-2 border-green-600 cursor-pointer">
+            <li
+              className={`font-medium text-[16px] px-2 cursor-pointer ${
+                activeTransactionTab === "all"
+                  ? "text-green-600 border-b-2 border-green-600"
+                  : "text-gray-500"
+              }`}
+              onClick={() => setActiveTransactionTab("all")}
+            >
               All Transactions
             </li>
-            <li className="text-gray-500 font-medium cursor-pointer text-[16px]">
+            <li
+              className={`font-medium text-[16px] px-2 cursor-pointer ${
+                activeTransactionTab === "Credit"
+                  ? "text-green-600 border-b-2 border-green-600"
+                  : "text-gray-500"
+              }`}
+              onClick={() => setActiveTransactionTab("Credit")}
+            >
               Credit
             </li>
-            <li className="text-gray-500 font-medium cursor-pointer text-[16px]">
+            <li
+              className={`font-medium text-[16px] px-2 cursor-pointer ${
+                activeTransactionTab === "Debit"
+                  ? "text-green-600 border-b-2 border-green-600"
+                  : "text-gray-500"
+              }`}
+              onClick={() => setActiveTransactionTab("Debit")}
+            >
               Debit
             </li>
           </ul>
@@ -89,15 +120,31 @@ const TransactionsTable = () => {
               <input
                 type="text"
                 placeholder="Search for something"
-                className="border-none outline-none rounded-md px-3 py-1 text-sm bg-transparent"
+                className="border-none outline-none rounded-md px-3 py-1 text-sm bg-transparent w-full"
               />
             </div>
             <div className="flex items-center space-x-2 ">
-              <button className="flex items-center text-gray-500 text-sm">
+              <button className="flex items-center text-gray-500 text-sm gap-3 px-4 py-3 border rounded-[4em]">
+                <Image
+                  src={"/calendar.svg"}
+                  alt="calendar"
+                  width={100}
+                  height={100}
+                  className="w-[1.6em]"
+                />
                 {/* <span className="material-icons">calendar_today</span> */}
-                <span className="ml-1">Nov 1, 2024 - Nov 24, 2024</span>
+                <span className="ml-1 text-[16px]">
+                  Nov 1, 2024 - Nov 24, 2024
+                </span>
               </button>
-              <button className="text-gray-500 text-sm flex items-center">
+              <button className="text-gray-500 text-sm flex items-center gap-3 px-4 py-3 border rounded-[4em]">
+                <Image
+                  src={"/filter.svg"}
+                  alt="calendar"
+                  width={100}
+                  height={100}
+                  className="w-[1.6em]"
+                />
                 {/* <span className="material-icons">filter_list</span> */}
                 <span className="ml-1">Filter</span>
               </button>
@@ -118,7 +165,7 @@ const TransactionsTable = () => {
               </tr>
             </thead>
             <tbody>
-              {transactions.map((transaction, idx) => (
+              {filteredTransactions.map((transaction, idx) => (
                 <tr
                   key={idx}
                   className={`border-t ${

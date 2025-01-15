@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 
-export default function Sidebar() {
+export default function Sidebar({ setActiveSidebar }) {
   const [active, setActive] = useState("Dashboard");
 
   const MenutItems = [
@@ -30,7 +30,7 @@ export default function Sidebar() {
             {MenutItems.map(({ label, icon }) => (
               <button
                 key={label}
-                onClick={() => setActive(label)}
+                onClick={() => { setActive(label); setActiveSidebar(label)}}
                 className={`flex px-4 py-2 text-[18px] text-gray-600 hover:bg-gray-200 hover:text-primary items-center gap-4 w-full rounded-r-md ${
                   active === label ? "bg-[#0E1318] text-white" : ""
                 }`}
