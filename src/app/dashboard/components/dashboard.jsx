@@ -9,7 +9,7 @@ import AgentKycComponent from "./agentKycComponent";
 const Dashboard = () => {
   return (
     <>
-      <div className=" flex gap-4">
+      <div className=" flex gap-4 w-[90%] justify-between">
         <WalletCard />
         <div className="grid grid-cols-2 gap-4">
           <DashboardCard

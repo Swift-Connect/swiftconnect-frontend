@@ -32,7 +32,7 @@ export default function Home() {
       <Sidebar setActiveSidebar={setActiveSidebar} />
       <main className="flex-1 bg-secondary">
         <Header />
-        <div className="py-6 px-10 h-[80vh] overflow-y-auto custom-scroll">
+        <div className="py-6 px-10 h-[80vh]  overflow-y-auto custom-scroll">
           {renderComponent()}
         </div>
       </main>
