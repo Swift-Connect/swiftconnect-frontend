@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import SendMoneyModal from "./sendMoney/sendToSwift";
-import SwiftConnectModal from "./sendMoney/SwiftConnectModal";
+import SendMoneyModal from "./sendMoney/sendToSwiftConnectAccount";
+import SwiftConnectModal from "./sendMoney/sendMoneyTo";
 // import { FaChevronDown } from "react-icons/fa";
 
 export default function WalletCard() {

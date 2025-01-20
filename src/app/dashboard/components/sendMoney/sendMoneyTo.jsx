@@ -1,11 +1,50 @@
-import React, { useState } from "react";
+import Image from "next/image";
+import React, { useEffect, useState } from "react";
 
 const SwiftConnectModal = ({ onClose, onBack }) => {
   const [sendTo, setSendTo] = useState("Account Number");
 
+  const [inputValue, setInputValue] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [matchedAccount, setMatchedAccount] = useState(null);
+
+  const userAccounts = [
+    {
+      name: "John Doe",
+      username: "@johndoe",
+      accountNumber: "123456789",
+    },
+    {
+      name: "Jane Smith",
+      username: "@janesmith",
+      accountNumber: "987654321",
+    },
+    {
+      name: "Alice Johnson",
+      username: "@alicej",
+      accountNumber: "567890123",
+    },
+  ];
+
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setInputValue(value);
+    setIsLoading(true);
+
+    setTimeout(() => {
+      const account = userAccounts.find((account) =>
+        sendTo === "Account Number"
+          ? account.accountNumber === value
+          : account.username === value
+      );
+      setMatchedAccount(account || null);
+      setIsLoading(false);
+    }, 500); // Simulates loading delay
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white rounded-xl shadow-lg  p-[2em]">
+      <div className="bg-white rounded-xl shadow-lg  p-6">
         {/* Header */}
         <div className="flex items-center justify-between gap-12 pb-8">
           <button
@@ -32,12 +71,18 @@ const SwiftConnectModal = ({ onClose, onBack }) => {
             Send to Swift Connect Account
           </h2>
         </div>
-        <div className="flex gap-4 mt-4 pb-8">
+        <div
+          className={`flex gap-4 mt-4 mb-[3em] ${
+            sendTo === "username"
+              ? "flex-row-reverse items-start justify-end"
+              : ""
+          }`}
+        >
           <h2
             className={`text-[20px] text-[gray] rounded-[4em] cursor-pointer py-[0.5em] px-[1em] ${
               sendTo === "Account Number"
                 ? "bg-[#d2d2d2]   text-[#0E1318] font-bold"
-                : "hover:bg-gray-200"
+                : "hover:bg-[#f2f2f2]"
             }`}
             onClick={() => setSendTo("Account Number")}
           >
@@ -47,7 +92,7 @@ const SwiftConnectModal = ({ onClose, onBack }) => {
             className={`text-[20px] text-[gray] cursor-pointer rounded-[4em]  py-[0.5em] px-[1em] ${
               sendTo === "username"
                 ? "bg-[#d2d2d2]  text-[#0E1318] font-bold"
-                : "hover:bg-gray-200"
+                : "hover:bg-[#f2f2f2]"
             }`}
             onClick={() => setSendTo("username")}
           >
@@ -56,30 +101,36 @@ const SwiftConnectModal = ({ onClose, onBack }) => {
         </div>
         {/* Form */}
         <div className="space-y-4 mt-4">
-          {sendTo === "Account Number" ? (
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Account Number
-              </label>
-              <input
-                type="text"
-                placeholder="Type in the Account number of the recipient."
-                className="mt-1 block w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 p-4"
-              />
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              {sendTo === "Account Number" ? "Account Number" : "Username"}
+            </label>
+            <input
+              type="text"
+              value={inputValue}
+              onChange={handleInputChange}
+              placeholder={`Type in the ${sendTo.toLowerCase()} of the recipient.`}
+              className="mt-1 block w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 p-4"
+            />
+            <div className="flex mt-2 gap-2 items-center">
+              {isLoading && <p>Loading...</p>}
+              {!isLoading && matchedAccount && (
+                <div className="flex gap-2 items-center">
+                  <Image
+                    src={"green-checked.svg"}
+                    alt="confirmation icon"
+                    width={16}
+                    height={16}
+                    className="w-[1em]"
+                  />
+                  <p>{matchedAccount.name}</p>
+                </div>
+              )}
+              {!isLoading && !matchedAccount && inputValue && (
+                <p className="text-red-500">No Account Found</p>
+              )}
             </div>
-          ) : (
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Username
-              </label>
-              <input
-                type="text"
-                placeholder="Type in the username of the recipient."
-                className="mt-1 block w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 p-4"
-              />
-            </div>
-          )}
-
+          </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Amount
