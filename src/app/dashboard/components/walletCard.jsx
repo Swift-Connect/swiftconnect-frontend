@@ -3,12 +3,14 @@
 import Image from "next/image";
 import { useState } from "react";
 import SendMoneyModal from "./sendMoney/sendToSwift";
+import SwiftConnectModal from "./sendMoney/SwiftConnectModal";
 // import { FaChevronDown } from "react-icons/fa";
 
 export default function WalletCard() {
   const [cardNumber] = useState("**** 3241");
   const [balance] = useState("N22,880.50");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentView, setCurrentView] = useState("main");
 
   return (
     <div className="p-8 bg-[#ffffff] rounded-[1.5em] border-[0.5px] border-[#efefef] max-w-s w-[50%] flex flex-col justify-between">
@@ -41,10 +43,23 @@ export default function WalletCard() {
           Receive <span className="ml-1">↓</span>
         </button>
       </div>
-      <SendMoneyModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
+      {isModalOpen && (
+        <>
+          {currentView === "main" && (
+            <SendMoneyModal
+              isOpen={isModalOpen}
+              onNext={() => setCurrentView("swiftConnect")}
+              onClose={() => setIsModalOpen(false)}
+            />
+          )}
+          {currentView === "swiftConnect" && (
+            <SwiftConnectModal
+              onClose={isModalOpen}
+              onBack={() => setCurrentView("main")}
+            />
+          )}
+        </>
+      )}
     </div>
   );
 }

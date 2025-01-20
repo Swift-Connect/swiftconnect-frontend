@@ -1,7 +1,7 @@
 import Image from "next/image";
 import React from "react";
 
-const SendMoneyModal = ({ isOpen, onClose }) => {
+const SendMoneyModal = ({ isOpen, onClose, onNext }) => {
   if (!isOpen) return null;
 
   return (
@@ -34,7 +34,10 @@ const SendMoneyModal = ({ isOpen, onClose }) => {
         {/* Options */}
         <div className="space-y-4 mt-4">
           {/* Option 1 */}
-          <div className="flex items-center justify-between p-4 border-[0.5px] border-[#efefef] rounded-[1.5em] cursor-pointer hover:bg-gray-200">
+          <div
+            className="flex items-center justify-between p-4 border-[0.5px] border-[#efefef] rounded-[1.5em] cursor-pointer hover:bg-gray-200"
+            onClick={onNext}
+          >
             <div className="flex items-center space-x-4">
               <Image
                 src="/swiftconnect-favicon.svg"
