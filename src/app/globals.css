@@ -2,14 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
-
-
-
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
 
 .scrollbar-hide {
-  -ms-overflow-style: none;  /* For Internet Explorer and Edge */
-  scrollbar-width: none;  /* For Firefox */
+  -ms-overflow-style: none; /* For Internet Explorer and Edge */
+  scrollbar-width: none; /* For Firefox */
+}
+
+/* Add scrollbar styling for Firefox */
+.custom-scroll {
+  scrollbar-width: thin; /* Thin scrollbar */
+  scrollbar-color: #888 transparent; /* Thumb color and transparent track */
+}
+
+.header-shadow {
+ box-shadow: 0 2px 2px -2px rgba(0, 0, 0, 0.2); 
+  
 }
