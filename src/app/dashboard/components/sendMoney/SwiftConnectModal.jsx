@@ -7,7 +7,7 @@ const SwiftConnectModal = ({ onClose, onBack }) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white rounded-xl shadow-lg  p-[2em]">
         {/* Header */}
-        <div className="flex items-center justify-between gap-12 border-b pb-8">
+        <div className="flex items-center justify-between gap-12 pb-8">
           <button
             onClick={onBack}
             className="text-gray-400 hover:text-gray-600 flex items-center space-x-2 text-[24px]"
@@ -32,22 +32,22 @@ const SwiftConnectModal = ({ onClose, onBack }) => {
             Send to Swift Connect Account
           </h2>
         </div>
-        <div className="flex gap-4 mt-4 ">
+        <div className="flex gap-4 mt-4 pb-8">
           <h2
-            className={`text-[20px] text-[gray] cursor-pointer py-[0.5em] px-[1em] ${
+            className={`text-[20px] text-[gray] rounded-[4em] cursor-pointer py-[0.5em] px-[1em] ${
               sendTo === "Account Number"
-                ? "bg-[#d2d2d2]  rounded-[4em] text-[#0E1318] font-bold"
-                : ""
+                ? "bg-[#d2d2d2]   text-[#0E1318] font-bold"
+                : "hover:bg-gray-200"
             }`}
             onClick={() => setSendTo("Account Number")}
           >
             Account Number
           </h2>
           <h2
-            className={`text-[20px] text-[gray] cursor-pointer py-[0.5em] px-[1em] ${
+            className={`text-[20px] text-[gray] cursor-pointer rounded-[4em]  py-[0.5em] px-[1em] ${
               sendTo === "username"
-                ? "bg-[#d2d2d2]  rounded-[4em] text-[#0E1318] font-bold"
-                : ""
+                ? "bg-[#d2d2d2]  text-[#0E1318] font-bold"
+                : "hover:bg-gray-200"
             }`}
             onClick={() => setSendTo("username")}
           >
