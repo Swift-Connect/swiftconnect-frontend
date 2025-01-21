@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import SendMoneyModal from "./sendMoney/sendToSwiftConnectAccount";
 import SwiftConnectModal from "./sendMoney/sendMoneyTo";
+import ConfirmDetials from "./sendMoney/confirmDetails";
 // import { FaChevronDown } from "react-icons/fa";
 
 export default function WalletCard() {
@@ -11,6 +12,8 @@ export default function WalletCard() {
   const [balance] = useState("N22,880.50");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentView, setCurrentView] = useState("main");
+  const [narration, setNarration] = useState();
+  const [username, setUsername] = useState();
 
   return (
     <div className="p-8 bg-[#ffffff] rounded-[1.5em] border-[0.5px] border-[#efefef] max-w-s w-[50%] flex flex-col justify-between">
@@ -56,6 +59,17 @@ export default function WalletCard() {
             <SwiftConnectModal
               onClose={isModalOpen}
               onBack={() => setCurrentView("main")}
+              onNext={() => setCurrentView("confirmDetails")}
+              setNarrationn={setNarration}
+              setUsername={setUsername}
+            />
+          )}
+          {currentView === "confirmDetails" && (
+            <ConfirmDetials
+              onClose={isModalOpen}
+              onBack={() => setCurrentView("swiftConnect")}
+              narration={narration}
+              username={username}
             />
           )}
         </>

@@ -1,12 +1,20 @@
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 
-const SwiftConnectModal = ({ onClose, onBack }) => {
+const SwiftConnectModal = ({
+  onClose,
+  onBack,
+  onNext,
+  setNarrationn,
+  setUsername,
+}) => {
   const [sendTo, setSendTo] = useState("Account Number");
-
   const [inputValue, setInputValue] = useState("");
+  const [amount, setAmount] = useState("");
+  const [narration, setNarration] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [matchedAccount, setMatchedAccount] = useState(null);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
 
   const userAccounts = [
     {
@@ -41,6 +49,14 @@ const SwiftConnectModal = ({ onClose, onBack }) => {
       setIsLoading(false);
     }, 500); // Simulates loading delay
   };
+
+  useEffect(() => {
+    if (inputValue && amount && narration && matchedAccount) {
+      setIsButtonDisabled(false);
+    } else {
+      setIsButtonDisabled(true);
+    }
+  }, [inputValue, amount, narration, matchedAccount]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
@@ -137,6 +153,8 @@ const SwiftConnectModal = ({ onClose, onBack }) => {
             </label>
             <input
               type="text"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
               placeholder="How much do you want to send?"
               className="mt-1 block w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 p-4"
             />
@@ -148,14 +166,25 @@ const SwiftConnectModal = ({ onClose, onBack }) => {
             </label>
             <input
               type="text"
+              value={narration}
+              onChange={(e) => setNarration(e.target.value)}
               placeholder="What is this transaction for?"
               className="mt-1 block w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 p-4"
             />
           </div>
 
           <button
-            className="w-full text-white py-4 bg-[#d2d2d2] rounded-lg shadow-sm hover:bg-blue-600"
-            disabled
+            className={`w-full text-white py-4 rounded-lg shadow-sm ${
+              isButtonDisabled
+                ? "bg-[#d2d2d2]"
+                : "bg-blue-600 hover:bg-blue-700"
+            }`}
+            disabled={isButtonDisabled}
+            onClick={() => {
+              setNarrationn(narration);
+              setUsername(matchedAccount ? matchedAccount.username : inputValue);
+              onNext()
+            }}
           >
             Continue
           </button>
