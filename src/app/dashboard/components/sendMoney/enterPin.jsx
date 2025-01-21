@@ -1,7 +1,7 @@
 import Image from "next/image";
 import React, { useState } from "react";
 
-const EnterPinModal = ({ onClose, onConfirm }) => {
+const EnterPinModal = ({ onClose, onConfirm, onNext }) => {
   const [pin, setPin] = useState(["", "", "", ""]);
 
   const handleChange = (e, index) => {
@@ -59,7 +59,10 @@ const EnterPinModal = ({ onClose, onConfirm }) => {
             isPinComplete ? "bg-black hover:bg-[#484848]" : "bg-[#d2d2d2]"
           }`}
           disabled={!isPinComplete}
-          onClick={() => onConfirm(pin.join(""))}s
+          onClick={() => {
+            onConfirm(pin.join(""));
+            onNext()
+          }}
         >
           Send Funds
         </button>

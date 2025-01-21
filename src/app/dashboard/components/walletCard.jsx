@@ -6,6 +6,7 @@ import SendMoneyModal from "./sendMoney/sendToSwiftConnectAccount";
 import SwiftConnectModal from "./sendMoney/sendMoneyTo";
 import ConfirmDetials from "./sendMoney/confirmDetails";
 import EnterPinModal from "./sendMoney/enterPin";
+import SuccessModal from "./sendMoney/successModal";
 // import { FaChevronDown } from "react-icons/fa";
 
 export default function WalletCard() {
@@ -15,6 +16,10 @@ export default function WalletCard() {
   const [currentView, setCurrentView] = useState("main");
   const [narration, setNarration] = useState();
   const [username, setUsername] = useState();
+
+  const onConfirm = (pin) => {
+    console.log(pin);
+  };
 
   return (
     <div className="p-8 bg-[#ffffff] rounded-[1.5em] border-[0.5px] border-[#efefef] max-w-s w-[50%] flex flex-col justify-between">
@@ -76,11 +81,22 @@ export default function WalletCard() {
           )}
           {currentView === "enterPin" && (
             <EnterPinModal
-            //   onClose={isModalOpen}
-            //   onBack={() => setCurrentView("swiftConnect")}
-            //   narration={narration}
-            //   username={username}
-            //   onNext={() => setCurrentView("enterPin")}
+              //   onClose={isModalOpen}
+              //   onBack={() => setCurrentView("swiftConnect")}
+              //   narration={narration}
+              //   username={username}
+              onConfirm={onConfirm}
+              onNext={() => setCurrentView("success")}
+            />
+          )}
+          {currentView === "success" && (
+            <SuccessModal
+              //   onClose={isModalOpen}
+              //   onBack={() => setCurrentView("swiftConnect")}
+              //   narration={narration}
+              //   username={username}
+              //   onNext={() => setCurrentView("enterPin")}
+              onClose={() => setIsModalOpen(false)}
             />
           )}
         </>
