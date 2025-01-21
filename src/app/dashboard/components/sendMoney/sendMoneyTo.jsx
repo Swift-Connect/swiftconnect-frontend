@@ -182,8 +182,10 @@ const SwiftConnectModal = ({
             disabled={isButtonDisabled}
             onClick={() => {
               setNarrationn(narration);
-              setUsername(matchedAccount ? matchedAccount.username : inputValue);
-              onNext()
+              setUsername(
+                matchedAccount ? matchedAccount.username : inputValue
+              );
+              onNext();
             }}
           >
             Continue

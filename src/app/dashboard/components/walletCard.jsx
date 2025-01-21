@@ -5,6 +5,7 @@ import { useState } from "react";
 import SendMoneyModal from "./sendMoney/sendToSwiftConnectAccount";
 import SwiftConnectModal from "./sendMoney/sendMoneyTo";
 import ConfirmDetials from "./sendMoney/confirmDetails";
+import EnterPinModal from "./sendMoney/enterPin";
 // import { FaChevronDown } from "react-icons/fa";
 
 export default function WalletCard() {
@@ -70,6 +71,16 @@ export default function WalletCard() {
               onBack={() => setCurrentView("swiftConnect")}
               narration={narration}
               username={username}
+              onNext={() => setCurrentView("enterPin")}
+            />
+          )}
+          {currentView === "enterPin" && (
+            <EnterPinModal
+            //   onClose={isModalOpen}
+            //   onBack={() => setCurrentView("swiftConnect")}
+            //   narration={narration}
+            //   username={username}
+            //   onNext={() => setCurrentView("enterPin")}
             />
           )}
         </>

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 
-const ConfirmDetials = ({ onClose, onBack, narration, username }) => {
+const ConfirmDetials = ({ onClose, onBack, narration, username, onNext }) => {
   const [isEnabled, setIsEnabled] = useState(false);
 
   return (
@@ -69,7 +69,7 @@ const ConfirmDetials = ({ onClose, onBack, narration, username }) => {
           </div>
           <button
             className="w-full text-white py-4 bg-[#000] cursor-pointer rounded-lg shadow-sm hover:bg-[#6c6c6c]"
-            disabled
+            onClick={onNext}
           >
             Continue
           </button>
