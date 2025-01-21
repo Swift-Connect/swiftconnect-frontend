@@ -1,7 +1,7 @@
 import Image from "next/image";
 import React from "react";
 
-const SendMoneyModal = ({ isOpen, onClose, onNext }) => {
+const SendMoneyModal = ({ isOpen, onClose, onNext, setView }) => {
   if (!isOpen) return null;
 
   return (
@@ -36,7 +36,7 @@ const SendMoneyModal = ({ isOpen, onClose, onNext }) => {
           {/* Option 1 */}
           <div
             className="flex items-center justify-between p-4 border-[0.5px] border-[#efefef] rounded-[1.5em] cursor-pointer hover:bg-gray-200"
-            onClick={onNext}
+            onClick={() => setView("swiftConnect")}
           >
             <div className="flex items-center space-x-4">
               <Image
@@ -72,7 +72,10 @@ const SendMoneyModal = ({ isOpen, onClose, onNext }) => {
           </div>
 
           {/* Option 2 */}
-          <div className="flex items-center justify-between p-4  border-[0.5px] border-[#efefef] rounded-[1.5em] cursor-pointer hover:bg-gray-200">
+          <div
+            className="flex items-center justify-between p-4  border-[0.5px] border-[#efefef] rounded-[1.5em] cursor-pointer hover:bg-gray-200"
+            onClick={() => setView("toOtherBank")}
+          >
             <div className="flex items-center space-x-4">
               <Image
                 src="/sender.svg"

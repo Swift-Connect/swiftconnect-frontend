@@ -1,12 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
-import SendMoneyModal from "./sendMoney/sendToSwiftConnectAccount";
-import SwiftConnectModal from "./sendMoney/sendMoneyTo";
+import { useEffect, useState } from "react";
+import SendMoneyModal from "./sendMoney/sendtoSwiftConnect/sendToSwiftConnectAccount";
+import SwiftConnectModal from "./sendMoney/sendtoSwiftConnect/sendMoneyTo";
 import ConfirmDetials from "./sendMoney/confirmDetails";
 import EnterPinModal from "./sendMoney/enterPin";
 import SuccessModal from "./sendMoney/successModal";
+import SendToOtherBanksModal from "./sendMoney/sendToOtherBank/SendToOtherBank";
+import SendToOtherBanksModalSecondStep from "./sendMoney/sendToOtherBank/sendToOtherBankSecond";
 // import { FaChevronDown } from "react-icons/fa";
 
 export default function WalletCard() {
@@ -16,6 +18,12 @@ export default function WalletCard() {
   const [currentView, setCurrentView] = useState("main");
   const [narration, setNarration] = useState();
   const [username, setUsername] = useState();
+  const [name, setName] = useState();
+  const [acctNum, setAcctNum] = useState();
+
+  useEffect(() => {
+    console.log(currentView);
+  }, [currentView]);
 
   const onConfirm = (pin) => {
     console.log(pin);
@@ -57,17 +65,38 @@ export default function WalletCard() {
           {currentView === "main" && (
             <SendMoneyModal
               isOpen={isModalOpen}
-              onNext={() => setCurrentView("swiftConnect")}
+              setView={setCurrentView}
+              //   onNext={() => setCurrentView("swiftConnect")}
               onClose={() => setIsModalOpen(false)}
             />
           )}
-          {currentView === "swiftConnect" && (
-            <SwiftConnectModal
+          {(currentView === "swiftConnect" || currentView === "toOtherBank") &&
+            (currentView === "swiftConnect" ? (
+              <SwiftConnectModal
+                onClose={isModalOpen}
+                onBack={() => setCurrentView("main")}
+                onNext={() => setCurrentView("confirmDetails")}
+                setNarrationn={setNarration}
+                setUsername={setUsername}
+              />
+            ) : (
+              <SendToOtherBanksModal
+                onClose={isModalOpen}
+                onBack={() => setCurrentView("main")}
+                onNext={() => setCurrentView("ToOtherBankSecondStep")}
+                setName={setName}
+                setAcctNum={setAcctNum}
+              />
+            ))}
+
+          {currentView === "ToOtherBankSecondStep" && (
+            <SendToOtherBanksModalSecondStep
               onClose={isModalOpen}
-              onBack={() => setCurrentView("main")}
-              onNext={() => setCurrentView("confirmDetails")}
-              setNarrationn={setNarration}
-              setUsername={setUsername}
+              onBack={() => setCurrentView("toOtherBank")}
+              //   narration={narration}
+              name={name}
+              acctNum={acctNum}
+            //   onNext={() => setCurrentView("confirmDetails")}
             />
           )}
           {currentView === "confirmDetails" && (
@@ -81,23 +110,12 @@ export default function WalletCard() {
           )}
           {currentView === "enterPin" && (
             <EnterPinModal
-              //   onClose={isModalOpen}
-              //   onBack={() => setCurrentView("swiftConnect")}
-              //   narration={narration}
-              //   username={username}
               onConfirm={onConfirm}
               onNext={() => setCurrentView("success")}
             />
           )}
           {currentView === "success" && (
-            <SuccessModal
-              //   onClose={isModalOpen}
-              //   onBack={() => setCurrentView("swiftConnect")}
-              //   narration={narration}
-              //   username={username}
-              //   onNext={() => setCurrentView("enterPin")}
-              onClose={() => setIsModalOpen(false)}
-            />
+            <SuccessModal onClose={() => setIsModalOpen(false)} />
           )}
         </>
       )}
