@@ -9,7 +9,6 @@ import EnterPinModal from "./sendMoney/enterPin";
 import SuccessModal from "./sendMoney/successModal";
 import SendToOtherBanksModal from "./sendMoney/sendToOtherBank/SendToOtherBank";
 import SendToOtherBanksModalSecondStep from "./sendMoney/sendToOtherBank/sendToOtherBankSecond";
-// import { FaChevronDown } from "react-icons/fa";
 
 export default function WalletCard() {
   const [cardNumber] = useState("**** 3241");
@@ -29,6 +28,76 @@ export default function WalletCard() {
     console.log(pin);
   };
 
+  const renderModalContent = () => {
+    switch (currentView) {
+      case "main":
+        return (
+          <SendMoneyModal
+            isOpen={isModalOpen}
+            setView={setCurrentView}
+            onClose={() => setIsModalOpen(false)}
+          />
+        );
+      case "swiftConnect":
+        return (
+          <SwiftConnectModal
+            onClose={() => setIsModalOpen(false)}
+            onBack={() => setCurrentView("main")}
+            onNext={() => setCurrentView("confirmDetails")}
+            setNarrationn={setNarration}
+            setUsername={setUsername}
+          />
+        );
+      case "toOtherBank":
+        return (
+          <SendToOtherBanksModal
+            onClose={() => setIsModalOpen(false)}
+            onBack={() => setCurrentView("main")}
+            onNext={() => setCurrentView("ToOtherBankSecondStep")}
+            setName={setName}
+            setAcctNum={setAcctNum}
+          />
+        );
+      case "ToOtherBankSecondStep":
+        return (
+          <SendToOtherBanksModalSecondStep
+            onClose={() => setIsModalOpen(false)}
+            onBack={() => setCurrentView("toOtherBank")}
+            name={name}
+            acctNum={acctNum}
+            setNarrationn={setNarration}
+            setUsername={setUsername}
+            onNext={() => setCurrentView("confirmDetails")}
+          />
+        );
+      case "confirmDetails":
+        return (
+          <ConfirmDetials
+            onClose={() => setIsModalOpen(false)}
+            onBack={() =>
+              currentView === "swiftConnect"
+                ? setCurrentView("swiftConnect")
+                : setCurrentView("toOtherBank")
+            }
+            narration={narration}
+            username={username}
+            onNext={() => setCurrentView("enterPin")}
+          />
+        );
+      case "enterPin":
+        return (
+          <EnterPinModal
+            onConfirm={onConfirm}
+            onNext={() => setCurrentView("success")}
+          />
+        );
+      case "success":
+        return <SuccessModal onClose={() => setIsModalOpen(false)} />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="p-8 bg-[#ffffff] rounded-[1.5em] border-[0.5px] border-[#efefef] max-w-s w-[50%] flex flex-col justify-between">
       <div className="flex justify-between items-center">
@@ -42,16 +111,14 @@ export default function WalletCard() {
             alt="mastercard logo"
             width={100}
             height={100}
-            className="
-         w-[2.4em]"
+            className="w-[2.4em]"
           />
           <span className="text-gray-500 text-[18px]">{cardNumber}</span>
-          {/* <FaChevronDown className="text-gray-500 text-sm" /> */}
         </div>
       </div>
       <div className="flex gap-4 mt-4 text-[#104F01] ">
         <button
-          className="flex-1 bg-[#D3F1CC] py-4  rounded-lg font-bold shadow hover:bg-green-200"
+          className="flex-1 bg-[#D3F1CC] py-4 rounded-lg font-bold shadow hover:bg-green-200"
           onClick={() => setIsModalOpen(true)}
         >
           Send <span className="ml-1">↑</span>
@@ -60,65 +127,7 @@ export default function WalletCard() {
           Receive <span className="ml-1">↓</span>
         </button>
       </div>
-      {isModalOpen && (
-        <>
-          {currentView === "main" && (
-            <SendMoneyModal
-              isOpen={isModalOpen}
-              setView={setCurrentView}
-              //   onNext={() => setCurrentView("swiftConnect")}
-              onClose={() => setIsModalOpen(false)}
-            />
-          )}
-          {(currentView === "swiftConnect" || currentView === "toOtherBank") &&
-            (currentView === "swiftConnect" ? (
-              <SwiftConnectModal
-                onClose={isModalOpen}
-                onBack={() => setCurrentView("main")}
-                onNext={() => setCurrentView("confirmDetails")}
-                setNarrationn={setNarration}
-                setUsername={setUsername}
-              />
-            ) : (
-              <SendToOtherBanksModal
-                onClose={isModalOpen}
-                onBack={() => setCurrentView("main")}
-                onNext={() => setCurrentView("ToOtherBankSecondStep")}
-                setName={setName}
-                setAcctNum={setAcctNum}
-              />
-            ))}
-
-          {currentView === "ToOtherBankSecondStep" && (
-            <SendToOtherBanksModalSecondStep
-              onClose={isModalOpen}
-              onBack={() => setCurrentView("toOtherBank")}
-              //   narration={narration}
-              name={name}
-              acctNum={acctNum}
-              onNext={() => setCurrentView("confirmDetails")}
-            />
-          )}
-          {currentView === "confirmDetails" && (
-            <ConfirmDetials
-              onClose={isModalOpen}
-              onBack={() => setCurrentView("swiftConnect")}
-              narration={narration}
-              username={username}
-              onNext={() => setCurrentView("enterPin")}
-            />
-          )}
-          {currentView === "enterPin" && (
-            <EnterPinModal
-              onConfirm={onConfirm}
-              onNext={() => setCurrentView("success")}
-            />
-          )}
-          {currentView === "success" && (
-            <SuccessModal onClose={() => setIsModalOpen(false)} />
-          )}
-        </>
-      )}
+      {isModalOpen && renderModalContent()}
     </div>
   );
 }

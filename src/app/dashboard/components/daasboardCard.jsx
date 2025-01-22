@@ -1,7 +1,13 @@
-export default function DashboardCard({ title, icon, bgColor }) {
+export default function DashboardCard({
+  title,
+  icon,
+  bgColor,
+  setPayBillsType,
+}) {
   return (
     <div
-      className={`flex gap-4 justify-between flex-col rounded-[1.5em] p-4 bg-[#ffffff] border-[0.5px] border-[#efefef]`}
+      className={`flex gap-4 justify-between flex-col rounded-[1.5em] p-4 bg-[#ffffff] border-[0.5px] border-[#efefef] cursor-pointer hover:bg-[#dfdfdf]`}
+      onClick={() => setPayBillsType(title)}
     >
       <div className="flex items-center gap-6 justify-between">
         <h1 className="text-[24px] font-semibold">{title}</h1>
