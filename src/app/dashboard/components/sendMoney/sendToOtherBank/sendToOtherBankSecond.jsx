@@ -3,7 +3,8 @@ import Image from "next/image";
 
 export default function SendToOtherBanksModalSecondStep({
   onBack,
-  onClose,
+    onClose,
+  onNext,
   name,
   acctNum,
 }) {
@@ -85,8 +86,9 @@ export default function SendToOtherBanksModalSecondStep({
         <div className="px-6 py-4">
           <button
             className={
-              "w-full text-white py-4 rounded-lg shadow-sm bg-[#d2d2d2]  "
+              "w-full text-white py-4 rounded-lg shadow-sm bg-[#000]  "
             }
+            onClick={onNext}
             // disabled={isButtonDisabled}
           >
             Continue

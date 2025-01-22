@@ -96,7 +96,7 @@ export default function WalletCard() {
               //   narration={narration}
               name={name}
               acctNum={acctNum}
-            //   onNext={() => setCurrentView("confirmDetails")}
+              onNext={() => setCurrentView("confirmDetails")}
             />
           )}
           {currentView === "confirmDetails" && (
