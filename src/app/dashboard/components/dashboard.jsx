@@ -17,7 +17,7 @@ const Dashboard = () => {
   // const payBills = (billType) => {
   switch (payBillsType) {
     case "Airtime":
-      return <Airtime />;
+      return <Airtime setBillType={setPayBillsType} />;
     case "Internet":
       return <p>{payBillsType}</p>;
     case "Electricity":

@@ -1,20 +1,72 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import ConfirmPayment from "./confirmPayment";
+import EnterPinModal from "../sendMoney/enterPin";
+import SuccessModal from "../sendMoney/successModal";
 
-const Airtime = () => {
+const Airtime = ({ onNext, setBillType }) => {
   const [network, setNetwork] = useState("GLO NG");
   const [airtimeType, setAirtimeType] = useState("VTU");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [amount, setAmount] = useState("");
+  const [isConfirming, setIsConfirming] = useState(false);
+  const [isEnteringPin, setIsEnteringPin] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+//   const [BT, setPayBillsType] = useState();
+
+//   useEffect(() => {
+//     setBillType(BT);
+//   }, [BT]);
 
   const handlePay = () => {
-    // Add payment functionality here
-    console.log({ network, airtimeType, phoneNumber, amount });
+    setIsConfirming(true);
   };
 
-  return (
-    <div className="min-h-screen bg-gray-100 flex justify-center items-center p-4">
+  const handleBack = () => {
+    setIsConfirming(false);
+  };
+
+  const handleConfirm = () => {
+    console.log({ network, airtimeType, phoneNumber, amount });
+    setIsEnteringPin(true);
+  };
+
+  const handlePinConfirm = (pin) => {
+    console.log("Entered PIN:", pin);
+    setIsSuccess(true);
+  };
+
+  const handleSuccessClose = () => {
+      setIsSuccess(false);
+      setBillType("dashboard")
+    // onNext();
+  };
+
+  return isSuccess ? (
+    <SuccessModal
+      onClose={handleSuccessClose}
+    //   setPayBillsType={setBillType}
+    />
+  ) : isEnteringPin ? (
+    <EnterPinModal
+      onConfirm={handlePinConfirm}
+      onNext={() => setIsEnteringPin(false)}
+    />
+  ) : isConfirming ? (
+    <ConfirmPayment
+      network={network}
+      airtimeType={airtimeType}
+      phoneNumber={phoneNumber}
+      amount={amount}
+      onBack={handleBack}
+      onConfirm={handleConfirm}
+    />
+  ) : (
+    <div className="min-h-screen bg-gray-100 flex justify-center items-center">
       <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
-        <button className="text-gray-500 mb-4 flex items-center">
+        <button
+          className="text-gray-500 mb-4 flex items-center"
+          onClick={() => setBillType("dashboard")}
+        >
           <span className="material-icons-outlined">arrow_back</span>
           <span className="ml-2">Back</span>
         </button>
