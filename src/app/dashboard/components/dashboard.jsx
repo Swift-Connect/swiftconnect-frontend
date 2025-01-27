@@ -8,6 +8,7 @@ import AgentKycComponent from "./agentKycComponent";
 import Airtime from "./paybills/airtime";
 import Internet from "./paybills/internet";
 import CableTv from "./paybills/cableTv";
+import ElectricityPayment from "./paybills/electricity";
 
 const Dashboard = () => {
   const [payBillsType, setPayBillsType] = useState("dashboard");
@@ -23,7 +24,7 @@ const Dashboard = () => {
     case "Internet":
       return <Internet setBillType={setPayBillsType} />;
     case "Electricity":
-      return <p>{payBillsType}</p>;
+      return <ElectricityPayment setBillType={setPayBillsType} />;
     case "Cable TV":
       return <CableTv setBillType={setPayBillsType} />;
     case "dashboard":

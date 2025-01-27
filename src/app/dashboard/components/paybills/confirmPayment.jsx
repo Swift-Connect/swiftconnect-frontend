@@ -13,10 +13,12 @@ const ConfirmPayment = ({
   service,
   provider,
   plan,
+  metreNumber,
+  packageType,
 }) => {
   return (
     <div className="flex justify-center">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
+      <div className="w-full max-w-[70%] bg-white rounded-lg shadow-md p-6">
         <button
           className="text-gray-500 mb-4 flex items-center"
           onClick={onBack}
@@ -60,19 +62,29 @@ const ConfirmPayment = ({
               <p className="text-[#0E1318] text-[24px]">{description}</p>
             </div>
           </>
-        ) : description === "Cable TV" ? (
+        ) : description === "Cable TV" || description === "Electricity" ? (
           <>
+            {description === "Electricity" && (
+              <div className="mb-4 flex justify-between text-[24px]">
+                <p className="text-[#6B7280] font-medium">Meter Number</p>
+                <p className="text-[#0E1318] text-[24px]">{metreNumber}</p>
+              </div>
+            )}
             <div className="mb-4 flex justify-between text-[24px]">
               <p className="text-[#6B7280] font-medium">Service:</p>
-              <p className="text-[#0E1318] text-[24px]">{service}</p>
+              <p className="text-[#0E1318] text-[24px]">{description}</p>
             </div>
             <div className="mb-4 flex justify-between text-[24px]">
               <p className="text-[#6B7280] font-medium">Provider:</p>
               <p className="text-[#0E1318] text-[24px]">{provider}</p>
             </div>
             <div className="mb-4 flex justify-between text-[24px]">
-              <p className="text-[#6B7280] font-medium">Plan</p>
-              <p className="text-[#0E1318] text-[24px]">{plan}</p>
+              <p className="text-[#6B7280] font-medium">
+                {description === "Electricity" ? "Package" : "Plan"}
+              </p>
+              <p className="text-[#0E1318] text-[24px]">
+                {description === "Electricity" ? packageType : plan}
+              </p>
             </div>
             <div className="mb-4 flex justify-between text-[24px]">
               <p className="text-[#6B7280] font-medium">Amount</p>

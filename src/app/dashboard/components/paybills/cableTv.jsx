@@ -63,7 +63,7 @@ const CableTv = ({ onNext, setBillType }) => {
       plan={plan}
     />
   ) : (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+    <div className="flex justify-center">
       <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
         <button
           className="text-sm text-gray-600 mb-4 flex items-center"
@@ -87,40 +87,41 @@ const CableTv = ({ onNext, setBillType }) => {
               Select Provider
             </label>
             <select
-              name="service"
-              className="w-full border border-gray-300 rounded-lg p-2"
-              value={service}
-              onChange={handleInputChange}
-            >
-              <option value="">Select Service</option>
-              <option value="service1">Service 1</option>
-              <option value="service2">Service 2</option>
-              <option value="service3">Service 3</option>
-            </select>
-          </div>
-
-          {/* Select Provider */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Select Provider
-            </label>
-            <select
               name="provider"
               className="w-full border border-gray-300 rounded-lg p-2"
               value={provider}
               onChange={handleInputChange}
             >
-              <option value="">--Select Provider--</option>
-              <option value="provider1">Provider 1</option>
-              <option value="provider2">Provider 2</option>
-              <option value="provider3">Provider 3</option>
+              <option value="">Select a Provider</option>
+              <option value="dstv">DSTV NG</option>
+              <option value="gotv">GOTV</option>
+              <option value="startimes">Startimes</option>
             </select>
+          </div>
+
+          {/* Smartcard Number */}
+          <div className="mb-4">
+            <label
+              className="block text-sm text-gray-700 mb-2"
+              htmlFor="smartcard"
+            >
+              Smartcard Number
+            </label>
+            <input
+              type="text"
+              id="smartcard"
+              placeholder={`Enter DSTV smartcard number`}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring focus:ring-green-200"
+            />
+            <p className="text-green-600 text-sm mt-2">
+              ✔ AKINDE PRAISE OLUWATOBILOBA
+            </p>
           </div>
 
           {/* Select Plan */}
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Select Plan
+              Select Package
             </label>
             <select
               name="plan"
@@ -128,10 +129,16 @@ const CableTv = ({ onNext, setBillType }) => {
               value={plan}
               onChange={handleInputChange}
             >
-              <option value="">--Select Plan--</option>
-              <option value="plan1">Plan 1</option>
-              <option value="plan2">Plan 2</option>
-              <option value="plan3">Plan 3</option>
+              <option value="">Select Package</option>
+              <option value="DStv Padi for 30 Days">
+                DStv Padi for 30 Days ₦1,500
+              </option>
+              <option value="DStv Compact for 30 Days">
+                DStv Compact for 30 Days ₦4,000
+              </option>
+              <option value="DStv Premium for 30 Days">
+                DStv Premium for 30 Days ₦10,000
+              </option>
             </select>
           </div>
 
