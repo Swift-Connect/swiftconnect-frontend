@@ -3,11 +3,15 @@ import Image from "next/image";
 
 export default function SendToOtherBanksModalSecondStep({
   onBack,
-    onClose,
+  onClose,
   onNext,
   name,
   acctNum,
+  setNarrationn,
+  setUsername,
 }) {
+  const [narration, setNarration] = useState("");
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white w-[45%] rounded-xl shadow-lg p-6">
@@ -75,6 +79,8 @@ export default function SendToOtherBanksModalSecondStep({
             </label>
             <input
               type="text"
+              value={narration}
+              onChange={(e) => setNarration(e.target.value)}
               id="narration"
               placeholder="What is this transaction for?"
               className="w-full mt-1 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 outline-none p-4"
@@ -88,7 +94,11 @@ export default function SendToOtherBanksModalSecondStep({
             className={
               "w-full text-white py-4 rounded-lg shadow-sm bg-[#000]  "
             }
-            onClick={onNext}
+            onClick={() => {
+              setUsername(name);
+              setNarrationn(narration);
+              onNext();
+            }}
             // disabled={isButtonDisabled}
           >
             Continue
