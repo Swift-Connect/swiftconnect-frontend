@@ -8,6 +8,7 @@ import Sidebar from "./components/sidebar";
 import TransactionsTable from "./components/transactionTable";
 import WalletCard from "./components/walletCard";
 import PayBills from "../payBills/page";
+import CardPage from "../card/page";
 
 export default function Home() {
   const [activeSidebar, setActiveSidebar] = useState("Dashboard");
@@ -19,7 +20,7 @@ export default function Home() {
       case "Pay Bills":
         return <PayBills />;
       case "Cards":
-        return <p>Cards</p>;
+        return <CardPage />;
       case "Reward":
         return <p>Reward</p>;
       case "Settings":
