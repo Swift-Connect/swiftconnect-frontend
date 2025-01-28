@@ -3,6 +3,7 @@ export default function DashboardCard({
   icon,
   bgColor,
   setPayBillsType,
+  description
 }) {
   return (
     <div
@@ -14,7 +15,9 @@ export default function DashboardCard({
 
         <img src={icon} alt={title} className="h-6 w-6" />
       </div>
-      <span className="text-[#9CA3AF]">Pay Bills</span>
+      <span className="text-[#9CA3AF]">
+        {description ? description : "Pay Bills"}
+      </span>
     </div>
   );
 }
