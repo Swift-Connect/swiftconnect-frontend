@@ -1,6 +1,6 @@
 import { Poppins } from "next/font/google";
 import "./globals.css";
-import Footer from "@/app/account/components/Footer";
+// import Footer from "@/app/account/components/Footer";
 import Image from "next/image";
 
 const poppins = Poppins({
@@ -8,9 +8,6 @@ const poppins = Poppins({
   subsets: ["latin"],
   display: "swap",
 });
-
-
-
 
 export const metadata = {
   title: "Create Next App",
@@ -20,20 +17,11 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body
-        className={` ${poppins.className} antialiased`}
-      >
-              {/* Logo */}
-      <div className="w-full items-center m-auto">
-   
-      </div>
-      <div className="">
-
-        {children}
-      </div>
-      <div className="items-center">
-        
-      </div>
+      <body className={` ${poppins.className} antialiased`}>
+        {/* Logo */}
+        <div className="w-full items-center m-auto"></div>
+        <div className="">{children}</div>
+        <div className="items-center"></div>
       </body>
     </html>
   );
