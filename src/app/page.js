@@ -7,11 +7,11 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem("token"); // Replace "token" with your actual token key
+    const token = localStorage.getItem("token"); 
     if (!token) {
-      router.push("/dashboard"); // Redirect to the dashboard if token is present
+      router.push("/dashboard");
     } else {
-      router.push("/account/login"); // Redirect to the login page if no token
+      router.push("/account/login");
     }
   }, [router]);
 

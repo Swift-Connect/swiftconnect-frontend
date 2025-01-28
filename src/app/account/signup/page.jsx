@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import CountrySelector from '@/utils/countrySelector'
+import CountrySelector from '../../../utils/countrySelector'
 import Footer from '../components/Footer'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
