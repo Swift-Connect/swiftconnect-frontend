@@ -55,7 +55,10 @@ const PayBills = () => {
             </div>
           </div>
           <AgentKycComponent />
-          <TransactionsTable />
+              <TransactionsTable />
+              
+
+              xs
         </>
       );
   }
