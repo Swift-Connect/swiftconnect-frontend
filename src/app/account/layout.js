@@ -1,6 +1,6 @@
 import { Poppins } from "next/font/google";
 import "../globals.css";
-import Footer from "@/app/account/components/Footer";
+import Footer from "./components/Footer";
 import Image from "next/image";
 
 const poppins = Poppins({
@@ -21,21 +21,18 @@ export default function RootLayout({ children }) {
         className={`${poppins.className} antialiased`}
       >
               {/* Logo */}
-      <div className="w-full items-center m-auto">
+      <div className="w-full items-center justify-center p-4 flex m-auto">
         <Image
           src="/logo.svg"
           alt="Swift Connect"
-          width={180}
-          height={48}
-          priority
+          width={280}
+          height={100}
+          className=""
         />
       </div>
       <div className="">
 
         {children}
-      </div>
-      <div className="items-center">
-        <Footer />
       </div>
       </div>
   );
