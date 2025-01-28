@@ -185,7 +185,7 @@ const SwiftConnectModal = ({
               setUsername(
                 matchedAccount ? matchedAccount.username : inputValue
               );
-              onNext();
+              onNext(); 
             }}
           >
             Continue
