@@ -9,6 +9,7 @@ import TransactionsTable from "./components/transactionTable";
 import WalletCard from "./components/walletCard";
 import PayBills from "../payBills/page";
 import CardPage from "../card/page";
+import Rewards from "../rewards/page";
 
 export default function Home() {
   const [activeSidebar, setActiveSidebar] = useState("Dashboard");
@@ -22,7 +23,7 @@ export default function Home() {
       case "Cards":
         return <CardPage />;
       case "Reward":
-        return <p>Reward</p>;
+        return <Rewards />;
       case "Settings":
         return <p>Settings</p>;
       case "Developer API":
