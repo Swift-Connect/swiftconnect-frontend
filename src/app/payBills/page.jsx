@@ -1,3 +1,4 @@
+"use client"
 import { useState } from "react";
 import DashboardCard from "../dashboard/components/daasboardCard";
 import Airtime from "../dashboard/components/paybills/airtime";
