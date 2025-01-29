@@ -8,7 +8,7 @@ export default function Home() {
 
   useEffect(() => {
     const token = localStorage.getItem("token"); 
-    if (!token) {
+    if (token) {
       router.push("/dashboard");
     } else {
       router.push("/account/login");
