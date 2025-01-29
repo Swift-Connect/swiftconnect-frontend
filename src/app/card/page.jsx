@@ -21,6 +21,7 @@ const CardPage = () => {
 
   const handleBankCard = () => {
     setIsModalOpen(true);
+    console.log("Add Card");
   };
 
   const onClose = () => {
@@ -57,6 +58,8 @@ const CardPage = () => {
     />
   ) : showAddCardForm ? (
     <AddCardForm onClose={onClose} handlePayCharges={handlePayCharges} />
+  ) : isModalOpen ? (
+    <AddCard onClose={onClose} onNext={onNext} />
   ) : (
     <div
       className={`flex flex-col h-full  ${
@@ -72,26 +75,24 @@ const CardPage = () => {
             <ChevronLeft size={32} />
             Back
           </button>
-          <div className="flex items-center  gap-x-2">
+          <div className="flex items-center  gap-x-2 mb-6">
             <div className="w-[3em] h-[3em] rounded-full bg-red-500"></div>
-            <h1 className="text-[42px   ] font-bold ">{selectedBank.bank}</h1>
+            <h1 className="text-[42px] font-bold ">{selectedBank.bank}</h1>
           </div>
           <div className="flex gap-[4em]">
-            <p>Account Details</p>
-            <div className="bg-white p-4 rounded-lg border border-[#c7c7c7]">
-              <p className="text-lg mb-2">
-                Account Number: {selectedBank.accountNumber}
-              </p>
-              <p className="text-lg mb-2">Name: {selectedBank.name}</p>
+            <p className="font-bold">Account Details</p>
+            <div className="bg-white p-4 w-[30%] rounded-lg border border-[#c7c7c7]">
+              <p className="text-[24px] ">{selectedBank.accountNumber}</p>
+              <p className="text-[14px] mb-2 uppercase">{selectedBank.name}</p>
             </div>
           </div>
         </div>
       ) : linkedBanks.length > 0 ? (
-        <div className="h-full flex flex-col gap-[3em]">
+        <div className="h-full flex flex-col gap-[3em] ">
           {linkedBanks.map((bank, index) => (
             <div
               key={index}
-              className="flex justify-between items-center gap-y-[1em] border p-4 rounded-lg bg-white w-[50%]"
+              className="flex justify-between hover:cursor-pointer hover:bg-[#dedede] items-center gap-y-[1em] border px-4 py-8 rounded-lg bg-white w-[50%]"
               onClick={() => handleCardClick(bank)}
             >
               <div className="flex items-center gap-x-2">
