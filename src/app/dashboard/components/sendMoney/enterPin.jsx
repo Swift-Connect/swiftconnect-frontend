@@ -1,8 +1,10 @@
 import Image from "next/image";
 import React, { useState } from "react";
 
-const EnterPinModal = ({ onClose, onConfirm, onNext }) => {
-  const [pin, setPin] = useState(["", "", "", ""]);
+const EnterPinModal = ({ onClose, onConfirm, onNext, addCard }) => {
+  const [pin, setPin] = useState(
+    addCard ? ["", "", "", "", "", ""] : ["", "", "", ""]
+  );
 
   const handleChange = (e, index) => {
     const value = e.target.value;
@@ -12,9 +14,9 @@ const EnterPinModal = ({ onClose, onConfirm, onNext }) => {
       setPin(newPin);
 
       // Move to the next input box if the current one is filled
-      if (value && index < 3) {
-        document.getElementById(`pin-${index + 1}`).focus();
-      }
+     if (value && index < (addCard ? 5 : 3)) {
+       document.getElementById(`pin-${index + 1}`).focus();
+     }
     }
   };
 
@@ -38,7 +40,9 @@ const EnterPinModal = ({ onClose, onConfirm, onNext }) => {
         />
         <h2 className="text-[48px] font-bold text-gray-800 mb-4">Enter PIN</h2>
         <p className="text-[16px] text-[#6B7280] w-[50%] text-center mb-10">
-          Proceed with your 4 digit pin to complete this process
+          {addCard
+            ? "Kindly enter the otp sent to *******2312"
+            : "Proceed with your 4 digit pin to complete this process"}
         </p>
         <div className="flex gap-2 justify-center mb-4">
           {pin.map((digit, index) => (
@@ -61,7 +65,7 @@ const EnterPinModal = ({ onClose, onConfirm, onNext }) => {
           disabled={!isPinComplete}
           onClick={() => {
             onConfirm(pin.join(""));
-            onNext()
+            onNext();
           }}
         >
           Send Funds
