@@ -6,9 +6,6 @@ import WalletCard from "./walletCard";
 import TransactionsTable from "./transactionTable";
 import AgentKycComponent from "./agentKycComponent";
 import Airtime from "./paybills/airtime";
-import Internet from "./paybills/internet";
-import CableTv from "./paybills/cableTv";
-import ElectricityPayment from "./paybills/electricity";
 
 const Dashboard = () => {
   const [payBillsType, setPayBillsType] = useState("dashboard");
@@ -22,11 +19,11 @@ const Dashboard = () => {
     case "Airtime":
       return <Airtime setBillType={setPayBillsType} />;
     case "Internet":
-      return <Internet setBillType={setPayBillsType} />;
+      return <p>{payBillsType}</p>;
     case "Electricity":
-      return <ElectricityPayment setBillType={setPayBillsType} />;
+      return <p>{payBillsType}</p>;
     case "Cable TV":
-      return <CableTv setBillType={setPayBillsType} />;
+      return <p>{payBillsType}</p>;
     case "dashboard":
       return (
         <>
