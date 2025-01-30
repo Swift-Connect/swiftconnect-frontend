@@ -1,9 +1,15 @@
 "use client";
 
-import {  EyeOff } from "lucide-react";
+import { EyeOff } from "lucide-react";
 import Image from "next/image";
-
+import { useState } from "react";
+import Referrals from "./components/viewMyReferrals";
+import ReferralModal from "./components/referAFriendModal";
 export default function Rewards() {
+  const [showReferrals, setShowReferrals] = useState(false);
+
+  const [showReferralModal, setShowReferralModal] = useState(false);
+
   const earnings = [
     {
       name: "Chiamaka Nwankwo",
@@ -16,41 +22,59 @@ export default function Rewards() {
       name: "Aisha Abdullahi",
       date: "08 Sep, 2024 09:58",
       amount: "₦2000.00",
-      image: "https://plus.unsplash.com/premium_photo-1689977927774-401b12d137d6?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      image:
+        "https://plus.unsplash.com/premium_photo-1689977927774-401b12d137d6?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
     {
       name: "Tochukwu Okeke",
       date: "05 Sep, 2024 09:58",
       amount: "₦2000.00",
-      image: "https://plus.unsplash.com/premium_photo-1689977927774-401b12d137d6?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      image:
+        "https://plus.unsplash.com/premium_photo-1689977927774-401b12d137d6?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
     {
       name: "Zainab Bello",
       date: "03 Sep, 2024 09:58",
       amount: "₦2000.00",
-      image: "https://plus.unsplash.com/premium_photo-1689977927774-401b12d137d6?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      image:
+        "https://plus.unsplash.com/premium_photo-1689977927774-401b12d137d6?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
     {
       name: "Nneka Umeh",
       date: "18 Aug, 2024 09:58",
       amount: "₦2000.00",
-      image: "https://plus.unsplash.com/premium_photo-1689977927774-401b12d137d6?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      image:
+        "https://plus.unsplash.com/premium_photo-1689977927774-401b12d137d6?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
     {
       name: "Tolu Ojo",
       date: "12 Aug, 2024 09:58",
       amount: "₦2000.00",
-      image: "https://plus.unsplash.com/premium_photo-1689977927774-401b12d137d6?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      image:
+        "https://plus.unsplash.com/premium_photo-1689977927774-401b12d137d6?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
     {
       name: "Boluwatife Falade",
       date: "03 Aug, 2024 09:58",
       amount: "₦2000.00",
-      image: "https://plus.unsplash.com/premium_photo-1689977927774-401b12d137d6?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      image:
+        "https://plus.unsplash.com/premium_photo-1689977927774-401b12d137d6?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
   ];
 
-  return (
+  const handleShowReferalModal = () => {
+    setShowReferralModal(true);
+    
+  };
+
+  const handleViewReferrals = () => {
+    setShowReferrals(true);
+    console.log("View Referrals");
+  };
+
+  return showReferrals ? (
+    <Referrals onBack={() => setShowReferrals(false)} /> // Render Referrals component with onBack prop
+  ) : (
     <div className="flex flex-col lg:flex-row gap-6 min-h-screen ">
       {/* Left Section */}
       <div className="w-full lg:w-[50%]">
@@ -78,7 +102,10 @@ export default function Rewards() {
                 Track your growing network of referrals in one place.
               </p>
             </div>
-            <button className="bg-[#00613A] text-white px-4 py-1 rounded-[2em]">
+            <button
+              className="bg-[#00613A] text-white px-4 py-1 rounded-[2em]"
+              onClick={() => handleViewReferrals()}
+            >
               View
             </button>
           </div>
@@ -94,9 +121,16 @@ export default function Rewards() {
                   <span className="text-[18px] text-[#0E1318]">Cash</span>
                 </p>
               </div>
-              <button className="bg-[#00613A] text-white w-[65%] px-4 py-1 rounded-[3em]">
+              <button
+                className="bg-[#00613A] text-white w-[65%] px-4 py-1 rounded-[3em]"
+                onClick={handleShowReferalModal}
+              >
                 Refer Now
               </button>
+
+              {showReferralModal && (
+                <ReferralModal onClose={() => setShowReferralModal(false)} />
+              )}
             </div>
             <Image
               src={"hand-holding-cash.svg"}
