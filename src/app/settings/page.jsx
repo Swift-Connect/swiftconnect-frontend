@@ -1,9 +1,13 @@
-import React from 'react'
+import React from 'react';
+import EditProfile from './components/editProfile';
 
-const page = () => {
+const SettingsPage = () => {
   return (
-    <div>page</div>
-  )
-}
+    <div>
+      <EditProfile />
+      {/* Add your settings components here */}
+    </div>
+  );
+};
 
-export default page
+export default SettingsPage;

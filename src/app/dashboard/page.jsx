@@ -10,6 +10,8 @@ import WalletCard from "./components/walletCard";
 import PayBills from "../payBills/page";
 import CardPage from "../card/page";
 import Rewards from "../rewards/page";
+import SettingsPage from "../settings/page";
+import { Settings } from "lucide-react";
 
 export default function Home() {
   const [activeSidebar, setActiveSidebar] = useState("Dashboard");
@@ -25,7 +27,7 @@ export default function Home() {
       case "Reward":
         return <Rewards />;
       case "Settings":
-        return <p>Settings</p>;
+        return <SettingsPage />;
       case "Developer API":
         return <p>Developer API</p>;
     }
