@@ -6,24 +6,19 @@ export default function EditProfile() {
   const [profileImage, setProfileImage] = useState("/profile-image.png");
 
   return (
-    <div className="max-w-3xl mx-auto bg-white rounded-lg shadow p-6 border border-gray-200">
-      <div className="border-b pb-2 flex space-x-6">
-        <button className="text-black font-medium border-b-2 border-black pb-2">
-          Edit Profile
-        </button>
-        <button className="text-gray-400 font-medium">Security</button>
-      </div>
-
-      <div className="mt-6 flex items-center space-x-6">
-        <div className="relative w-20 h-20">
+    <>
+      <div className="mt-6 flex space-x-6">
+        <div className="relative w-[6em] h-[5em]">
           <Image
-            src={profileImage}
+            src={
+              "https://plus.unsplash.com/premium_photo-1689977927774-401b12d137d6?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            }
             alt="Profile"
-            width={80}
-            height={80}
-            className="rounded-full object-cover border border-gray-300"
+            width={100}
+            height={100}
+            className="rounded-full w-[6em] h-[5em] object-cover border border-gray-300"
           />
-          <label className="absolute bottom-0 right-0 bg-black text-white rounded-full p-1 cursor-pointer">
+          <label className="absolute bottom-0 right-0 w-[1em] h-[1em] fle bg-black text-white rounded-full p-1 cursor-pointer">
             ✎
             <input type="file" className="hidden" onChange={() => {}} />
           </label>
@@ -83,6 +78,6 @@ export default function EditProfile() {
           Save
         </button>
       </div>
-    </div>
+    </>
   );
 }
