@@ -2,11 +2,13 @@
 import { useState } from "react";
 import ChangePasswordModal from "./changePassword";
 import ChangePinModal from "./changePin";
+import OtpModal from "./otpModal";
 
 export default function Security() {
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [showModalPin, setShowModalPin] = useState(false);
+  const [nextStep, setNextStep] = useState("");
 
   return (
     <div>
@@ -67,7 +69,18 @@ export default function Security() {
           </button>
         </div>
       </div>
-      {showModalPin && <ChangePinModal onClose={() => setShowModalPin(false)} />}
+      {showModalPin && (
+        <ChangePinModal
+          onClose={() => setShowModalPin(false)}
+          onNext={(nextStep) => {
+            setNextStep(nextStep);
+            setShowModalPin(false);
+            // console.log(otp);
+          }}
+        />
+      )}
+
+      {nextStep === "OTP" && <OtpModal onClose={() => setShowModalPin(false)} />}
       {showModal && <ChangePasswordModal onClose={() => setShowModal(false)} />}
     </div>
   );

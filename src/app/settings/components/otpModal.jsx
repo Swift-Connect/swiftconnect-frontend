@@ -1,25 +1,24 @@
 import { useState, useRef } from "react";
-import { Lock, X } from "lucide-react";
-import { FaLock } from "react-icons/fa";
+import { X } from "lucide-react";
 
-export default function ChangePinModal({ onClose, onNext }) {
-  const [pin, setPin] = useState(["", "", "", ""]);
+export default function OtpModal({ onClose }) {
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const inputRefs = useRef([]);
 
   const handleChange = (index, value) => {
     if (!/^\d*$/.test(value)) return; // Allow only numbers
-    const newPin = [...pin];
-    newPin[index] = value;
-    setPin(newPin);
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
 
-    // Move focus to the next input field if a digit is entered
-    if (value && index < 3) {
+    // Move focus to next input if a digit is entered
+    if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
   };
 
   const handleKeyDown = (index, e) => {
-    if (e.key === "Backspace" && !pin[index] && index > 0) {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
   };
@@ -35,25 +34,21 @@ export default function ChangePinModal({ onClose, onNext }) {
           <X className="w-5 h-5" />
         </button>
 
-        {/* Lock Icon */}
-        <div className="flex justify-center mb-4">
-          <Lock className="w-[5em] h-[5em] text-gray-700" />
-        </div>
-
         {/* Title */}
         <h2 className="text-lg font-semibold text-gray-900 text-center">
-          Change PIN
+          Enter your 6-digit OTP
         </h2>
         <p className="text-gray-500 text-center text-sm mb-6">
-          Enter your old Swiftconnect PIN
+          Enter the code sent to{" "}
+          <span className="font-medium">Cho********@gmail.com</span>
         </p>
 
-        {/* PIN Input Fields */}
+        {/* OTP Input Fields */}
         <div className="flex justify-center space-x-3 mb-4">
-          {pin.map((digit, index) => (
+          {otp.map((digit, index) => (
             <input
               key={index}
-              type="password"
+              type="text"
               maxLength="1"
               value={digit}
               onChange={(e) => handleChange(index, e.target.value)}
@@ -64,26 +59,13 @@ export default function ChangePinModal({ onClose, onNext }) {
           ))}
         </div>
 
-        {/* Forgot PIN */}
+        {/* Resend Code */}
         <p className="text-center text-gray-500 text-sm">
-          Forgot PIN?{" "}
+          Didn’t get any code?{" "}
           <button className="text-green-700 font-medium hover:underline">
-            Reset your PIN
+            Resend Code
           </button>
         </p>
-
-        {/* Next Button */}
-        <button
-          className={`w-full mt-6 py-2 rounded-lg text-white font-semibold transition ${
-            pin.includes("")
-              ? "bg-gray-300 cursor-not-allowed"
-              : "bg-blue-600 hover:bg-blue-700"
-          }`}
-          disabled={pin.includes("")}
-          onClick={() =>onNext("OTP")}
-        >
-          Next
-        </button>
       </div>
     </div>
   );
