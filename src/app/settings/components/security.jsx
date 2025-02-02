@@ -82,7 +82,7 @@ export default function Security() {
 
       {nextStep === "new pin" && (
         <ChangePinModal
-          onClose={() => setShowModalPin(false)}
+          onClose={() => setNextStep("")}
           text={"new pin"}
           // onNext={(nextStep) => {
           //   setNextStep(nextStep);
