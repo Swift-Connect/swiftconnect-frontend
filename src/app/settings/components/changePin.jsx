@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { Lock, X } from "lucide-react";
 import { FaLock } from "react-icons/fa";
 
-export default function ChangePinModal({ onClose, onNext }) {
+export default function ChangePinModal({ onClose, onNext, text }) {
   const [pin, setPin] = useState(["", "", "", ""]);
   const inputRefs = useRef([]);
 
@@ -45,7 +45,7 @@ export default function ChangePinModal({ onClose, onNext }) {
           Change PIN
         </h2>
         <p className="text-gray-500 text-center text-sm mb-6">
-          Enter your old Swiftconnect PIN
+          Enter your {text === "new pin" ? "new" : "old"} Swiftconnect PIN
         </p>
 
         {/* PIN Input Fields */}
@@ -65,12 +65,14 @@ export default function ChangePinModal({ onClose, onNext }) {
         </div>
 
         {/* Forgot PIN */}
-        <p className="text-center text-gray-500 text-sm">
-          Forgot PIN?{" "}
-          <button className="text-green-700 font-medium hover:underline">
-            Reset your PIN
-          </button>
-        </p>
+        {text !== "new pin" && (
+          <p className="text-center text-gray-500 text-sm">
+            Forgot PIN?{" "}
+            <button className="text-green-700 font-medium hover:underline">
+              Reset your PIN
+            </button>
+          </p>
+        )}
 
         {/* Next Button */}
         <button
@@ -80,7 +82,7 @@ export default function ChangePinModal({ onClose, onNext }) {
               : "bg-blue-600 hover:bg-blue-700"
           }`}
           disabled={pin.includes("")}
-          onClick={() =>onNext("OTP")}
+          onClick={() => onNext("OTP")}
         >
           Next
         </button>

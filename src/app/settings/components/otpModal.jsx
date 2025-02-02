@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { X } from "lucide-react";
 
-export default function OtpModal({ onClose }) {
+export default function OtpModal({ onClose, onNext }) {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const inputRefs = useRef([]);
 
@@ -14,13 +14,23 @@ export default function OtpModal({ onClose }) {
     // Move focus to next input if a digit is entered
     if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
-    }
+      } 
+      
+      if (newOtp.every((digit) => digit !== "")) {
+          console.log("Move To Next step");
+          onClose()
+          onNext()
+          
+          
+      }
   };
 
   const handleKeyDown = (index, e) => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
-    }
+      }
+      
+
   };
 
   return (

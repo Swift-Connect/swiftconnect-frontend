@@ -80,7 +80,23 @@ export default function Security() {
         />
       )}
 
-      {nextStep === "OTP" && <OtpModal onClose={() => setShowModalPin(false)} />}
+      {nextStep === "new pin" && (
+        <ChangePinModal
+          onClose={() => setShowModalPin(false)}
+          text={"new pin"}
+          // onNext={(nextStep) => {
+          //   setNextStep(nextStep);
+          //   setShowModalPin(false);
+          //   // console.log(otp);
+          // }}
+        />
+      )}
+      {nextStep === "OTP" && (
+        <OtpModal
+          onClose={() => setNextStep("")}
+          onNext={() => setNextStep("new pin")}
+        />
+      )}
       {showModal && <ChangePasswordModal onClose={() => setShowModal(false)} />}
     </div>
   );
