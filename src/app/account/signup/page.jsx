@@ -12,7 +12,7 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa';
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
 
 const SignupPage = () => {
-  const [step, setStep] = useState(3)
+  const [step, setStep] = useState(1)
   const [selectedCountry, setSelectedCountry] = useState(null)
   const [phoneNumber, setPhoneNumber] = useState('')
   const [email, setEmail] = useState('')
