@@ -12,7 +12,7 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa';
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
 
 const SignupPage = () => {
-  const [step, setStep] = useState(4)
+  const [step, setStep] = useState(3)
   const [selectedCountry, setSelectedCountry] = useState(null)
   const [phoneNumber, setPhoneNumber] = useState('')
   const [email, setEmail] = useState('')
@@ -60,7 +60,9 @@ const SignupPage = () => {
   }, [canResendOtp, countdown]);
 
   const validateStep1 = () => {
+    setIsStep1Valid(true)
     const newErrors = {}
+    console.log('errororrs',newErrors)
     if (!email && !phoneNumber) {
       newErrors.contact = 'Email or Phone number is required'
     }
@@ -140,9 +142,9 @@ const SignupPage = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        const fieldErrors = errorData.errors || {};
+        const fieldErrors = errorData.error || {};
         setErrors(fieldErrors);
-        toast.error(fieldErrors.otp || 'OTP verification failed');
+        toast.error(fieldErrors || 'OTP verification failed');
         throw new Error('OTP verification failed');
       }
 
@@ -153,7 +155,7 @@ const SignupPage = () => {
       setStep(3); // Change to step 3 for profile completion
     } catch (error) {
       console.error('Error during OTP verification:', error);
-      toast.error('An error occurred during OTP verification. Please try again.');
+      // toast.error('An error occurred during OTP verification. Please try again.');
     }
   }
 
@@ -296,6 +298,15 @@ const SignupPage = () => {
     }
   
   }, [confirmTxnPin, txnPin])
+
+  useEffect(() => {
+    validateStep1();
+  }, [email, phoneNumber]);
+
+  useEffect(() => {
+    validateStep2();
+  }, [otp]);
+
   useEffect(() => {
     
 
@@ -321,7 +332,7 @@ const SignupPage = () => {
     e.preventDefault();
     // if (!validateTxnPins()) return; // Validate before proceeding
 
-    const pinString = txnPin.join(''); // Join the PIN array into a string
+    const pinString = txnPin.join(''); 
 
     try {
       const response = await fetch(`${BASE_URL}/users/create-transaction-pin/`, {
@@ -347,6 +358,7 @@ const SignupPage = () => {
       toast.error('An error occurred while creating the transaction PIN. Please try again.');
     }
   }
+
 
   return (
     <div className="flex min-h-[80vh] flex-col items-center justify-center align-baseline bg-white gap-16 px-4">
