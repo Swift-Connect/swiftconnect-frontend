@@ -7,8 +7,8 @@ import TransactionsTable from "./transactionTable";
 import AgentKycComponent from "./agentKycComponent";
 import Airtime from "./paybills/airtime";
 import Internet from "./paybills/internet";
-import CableTv from "./paybills/cableTv";
 import ElectricityPayment from "./paybills/electricity";
+import CableTv from "./paybills/cableTv";
 
 const Dashboard = () => {
   const [payBillsType, setPayBillsType] = useState("dashboard");

@@ -26,7 +26,7 @@ const SuccessModal = ({ onClose }) => {
           </button>
           <button
             className="w-full text-white py-4 rounded-lg shadow-sm bg-black hover:bg-[#8f8f8f]"
-            onClick={onClose}
+            onClick={() => onClose()}
           >
             Back to Home
           </button>

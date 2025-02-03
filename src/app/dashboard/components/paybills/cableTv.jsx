@@ -68,7 +68,8 @@ const CableTv = ({ onNext, setBillType }) => {
         <button
           className="text-sm text-gray-600 mb-4 flex items-center"
           onClick={() => setBillType("dashboard")}
-        >
+              >
+           
           <Image
             src={"backArrow.svg"}
             alt="confirmation icon"
