@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import ConfirmPayment from "./confirmPayment";
 import EnterPinModal from "../sendMoney/enterPin";
 import SuccessModal from "../sendMoney/successModal";
+import Image from "next/image";
 
 const Airtime = ({ onNext, setBillType }) => {
   const [network, setNetwork] = useState("GLO NG");
@@ -11,11 +12,11 @@ const Airtime = ({ onNext, setBillType }) => {
   const [isConfirming, setIsConfirming] = useState(false);
   const [isEnteringPin, setIsEnteringPin] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-//   const [BT, setPayBillsType] = useState();
+  //   const [BT, setPayBillsType] = useState();
 
-//   useEffect(() => {
-//     setBillType(BT);
-//   }, [BT]);
+  //   useEffect(() => {
+  //     setBillType(BT);
+  //   }, [BT]);
 
   const handlePay = () => {
     setIsConfirming(true);
@@ -36,15 +37,15 @@ const Airtime = ({ onNext, setBillType }) => {
   };
 
   const handleSuccessClose = () => {
-      setIsSuccess(false);
-      setBillType("dashboard")
+    setIsSuccess(false);
+    setBillType("dashboard");
     // onNext();
   };
 
   return isSuccess ? (
     <SuccessModal
       onClose={handleSuccessClose}
-    //   setPayBillsType={setBillType}
+      //   setPayBillsType={setBillType}
     />
   ) : isEnteringPin ? (
     <EnterPinModal
@@ -67,7 +68,13 @@ const Airtime = ({ onNext, setBillType }) => {
           className="text-gray-500 mb-4 flex items-center"
           onClick={() => setBillType("dashboard")}
         >
-          <span className="material-icons-outlined">arrow_back</span>
+          <Image
+            src={"backArrow.svg"}
+            alt="confirmation icon"
+            width={16}
+            height={16}
+            className="w-[0.6em]"
+          />
           <span className="ml-2">Back</span>
         </button>
         <h2 className="text-xl font-semibold mb-6 text-center">Airtime</h2>
