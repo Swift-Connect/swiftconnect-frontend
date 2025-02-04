@@ -18,6 +18,7 @@ const Page = () => {
   const [authMode, setAuthMode] = useState('mobile')
   const [position, SetPosition] = useState(null)
   const [errors, setErrors] = useState({})
+  const [isLoading, setIsLoading] = useState(false)
 
   // Set default country (Nigeria) on component mount
   useEffect(() => {
@@ -64,6 +65,10 @@ const Page = () => {
       password,
     };
 
+    // Set loading state and show loading toast
+    setIsLoading(true)
+    const loadingToast = toast.loading('Logging in...')
+
     try {
       const response = await fetch(`https://swiftconnect-backend.onrender.com/users/signin/`, {
         method: 'POST',
@@ -78,7 +83,13 @@ const Page = () => {
         console.log(errorData)
         const errorMessage = errorData.error || 'Unknown error occurred';
         setErrors({});
-        toast.error('Login failed: ' + errorMessage);
+        // Update loading toast to error
+        toast.update(loadingToast, {
+          render: 'Login failed: ' + errorMessage,
+          type: 'error',
+          isLoading: false,
+          autoClose: 3000,
+        });
         throw new Error('Login failed');
       }
 
@@ -87,12 +98,19 @@ const Page = () => {
       
       localStorage.setItem('user', JSON.stringify(data.user));
       localStorage.setItem('access_token', data.access_token);
-      toast.success('Login successful!');
+      // Update loading toast to success
+      toast.update(loadingToast, {
+        render: 'Login successful!',
+        type: 'success',
+        isLoading: false,
+        autoClose: 3000,
+      });
       window.location.href='/dashboard'
       
     } catch (error) {
       console.error('Error during login:', error);
-      // Handle error (e.g., show error message)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -164,15 +182,17 @@ const Page = () => {
             <button
               type="button"
               onClick={() => setAuthMode(authMode === 'mobile' ? 'email' : 'mobile')}
-              className="flex-1 bg-[#0E131833] text-[#3d3d3d] py-3 px-4 rounded-lg hover:bg-gray-300 transition-colors"
+              disabled={isLoading}
+              className="flex-1 bg-[#0E131833] text-[#3d3d3d] py-3 px-4 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {authMode === 'mobile' ? 'Use email' : 'Use mobile'}
             </button>
             <button
               type="submit"
-              className="flex-1 bg-[#0E1318] text-[#FAFAFA] py-3 px-4 rounded-lg hover:bg-gray-800 transition-colors"
+              disabled={isLoading || Object.keys(errors).length > 0}
+              className="flex-1 bg-[#0E1318] text-[#FAFAFA] py-3 px-4 rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Continue
+              {isLoading ? 'Loading...' : 'Continue'}
             </button>
           </div>
         </form>

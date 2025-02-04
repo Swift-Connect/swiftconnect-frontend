@@ -32,6 +32,10 @@ const SignupPage = () => {
   const [isStep2Valid, setIsStep2Valid] = useState(false);
   const [isStep3Valid, setIsStep3Valid] = useState(false);
   const [isTxnPinValid, setIsTxnPinValid] = useState(false);
+  const [isLoadingStep1, setIsLoadingStep1] = useState(false);
+  const [isLoadingStep2, setIsLoadingStep2] = useState(false);
+  const [isLoadingStep3, setIsLoadingStep3] = useState(false);
+  const [isLoadingPin, setIsLoadingPin] = useState(false);
 
   // Set default country (Nigeria) on component mount
   useEffect(() => {
@@ -79,13 +83,16 @@ const SignupPage = () => {
     e.preventDefault()
     if (!validateStep1()) return
 
+    setIsLoadingStep1(true)
+    const loadingToast = toast.loading('Sending OTP...')
+
     const signupData = {
       email,
       phone_number: `${phoneNumber ? selectedCountry.code + phoneNumber: ''}`,
     };
 
     try {
-      const response = await fetch(`${BASE_URL ? BASE_URL : 'https://swiftconnect-backend.onrender.com/users/get-otp/'}`, {
+      const response = await fetch(`${BASE_URL ? `${BASE_URL}/users/get-otp/`: 'https://swiftconnect-backend.onrender.com/users/get-otp/'}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -97,17 +104,29 @@ const SignupPage = () => {
         const errorData = await response.json();
         const fieldErrors = errorData.errors || {};
         setErrors(fieldErrors);
-        toast.error(fieldErrors.contact || 'Failed to send OTP');
+        toast.update(loadingToast, {
+          render: fieldErrors.contact || 'Failed to send OTP',
+          type: 'error',
+          isLoading: false,
+          autoClose: 3000,
+        });
         throw new Error('Failed to send OTP');
       }
 
-      toast.success('OTP sent successfully!');
-      setStep(2) // Move to OTP input step
+      toast.update(loadingToast, {
+        render: 'OTP sent successfully!',
+        type: 'success',
+        isLoading: false,
+        autoClose: 3000,
+      });
+      setStep(2)
       setCanResendOtp(false);
-      setCountdown(30); // Reset countdown
+      setCountdown(30);
     } catch (error) {
       console.error('Error during signup:', error);
       toast.error('An error occurred during signup. Please try again.');
+    } finally {
+      setIsLoadingStep1(false)
     }
   }
 
@@ -126,13 +145,16 @@ const SignupPage = () => {
     e.preventDefault()
     if (!validateStep2()) return
 
+    setIsLoadingStep2(true)
+    const loadingToast = toast.loading('Verifying OTP...')
+
     const otpData = {
       email: email || `${selectedCountry.code}${phoneNumber}`,
       otp,
     };
 
     try {
-      const response = await fetch(`${BASE_URL ? BASE_URL : "https://swiftconnect-backend.onrender.com/users/verify-otp/" }`, {
+      const response = await fetch(BASE_URL ? `${BASE_URL}/users/verify-otp/` : "https://swiftconnect-backend.onrender.com/users/verify-otp/", {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -144,18 +166,29 @@ const SignupPage = () => {
         const errorData = await response.json();
         const fieldErrors = errorData.error || {};
         setErrors(fieldErrors);
-        toast.error(fieldErrors || 'OTP verification failed');
+        toast.update(loadingToast, {
+          render: fieldErrors || 'OTP verification failed',
+          type: 'error',
+          isLoading: false,
+          autoClose: 3000,
+        });
         throw new Error('OTP verification failed');
       }
 
       const userData = await response.json();
-      localStorage.setItem('user', JSON.stringify(userData.user)); // Save user data
-      toast.success('OTP verified successfully!');
-
-      setStep(3); // Change to step 3 for profile completion
+      localStorage.setItem('user', JSON.stringify(userData.user));
+      toast.update(loadingToast, {
+        render: 'OTP verified successfully!',
+        type: 'success',
+        isLoading: false,
+        autoClose: 3000,
+      });
+      setStep(3);
     } catch (error) {
       console.error('Error during OTP verification:', error);
-      // toast.error('An error occurred during OTP verification. Please try again.');
+      toast.error('An error occurred during OTP verification. Please try again.');
+    } finally {
+      setIsLoadingStep2(false)
     }
   }
 
@@ -169,7 +202,7 @@ const SignupPage = () => {
     };
 
     try {
-      const response = await fetch(`${BASE_URL ? BASE_URL :" https://swiftconnect-backend.onrender.com/users/get-otp/"}`, {
+      const response = await fetch(`${BASE_URL ? `${BASE_URL}/users/get-otp/` :" https://swiftconnect-backend.onrender.com/users/get-otp/"}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -216,8 +249,11 @@ const SignupPage = () => {
     e.preventDefault();
     if (!validateStep3()) return
 
-    const user = JSON.parse(localStorage.getItem('user')); // Retrieve user data
-    const user_id = user.id; // Get user ID from the retrieved user data
+    setIsLoadingStep3(true)
+    const loadingToast = toast.loading('Setting up your profile...')
+
+    const user = JSON.parse(localStorage.getItem('user'));
+    const user_id = user.id;
 
     const completeProfileData = {
       username,
@@ -225,6 +261,7 @@ const SignupPage = () => {
       email: user.email,
       referral_code: referralCode,
     };
+
     try {
       const response = await fetch(`https://swiftconnect-backend.onrender.com/users/complete-profile/${user_id}/`, {
         method: 'PATCH',
@@ -238,16 +275,29 @@ const SignupPage = () => {
         const errorData = await response.json();
         const fieldErrors = errorData.errors || {};
         setErrors(fieldErrors);
-        toast.error(fieldErrors.username || 'Profile completion failed');
+        toast.update(loadingToast, {
+          render: fieldErrors.username || 'Profile completion failed',
+          type: 'error',
+          isLoading: false,
+          autoClose: 3000,
+        });
         throw new Error('Profile completion failed');
       }
+
       const data = await response.json()
       localStorage.setItem('access_token', data.access_token);
-      toast.success('Profile completed successfully!');
+      toast.update(loadingToast, {
+        render: 'Profile completed successfully!',
+        type: 'success',
+        isLoading: false,
+        autoClose: 3000,
+      });
       setStep(4);
     } catch (error) {
       console.error('Error during profile completion:', error);
       toast.error('An error occurred during profile completion. Please try again.');
+    } finally {
+      setIsLoadingStep3(false)
     }
   }
 
@@ -330,32 +380,46 @@ const SignupPage = () => {
 
   const handleTxnPinSubmit = async (e) => {
     e.preventDefault();
-    // if (!validateTxnPins()) return; // Validate before proceeding
 
-    const pinString = txnPin.join(''); 
+    setIsLoadingPin(true)
+    const loadingToast = toast.loading('Creating your PIN...')
+
+    const pinString = txnPin.join('');
 
     try {
-      const response = await fetch(`${BASE_URL ? BASE_URL : 'https://swiftconnect-backend.onrender.com/users/create-transaction-pin/'}`, {
+      const response = await fetch(`${BASE_URL ? `${BASE_URL}/users/create-transaction-pin/` : 'https://swiftconnect-backend.onrender.com/users/create-transaction-pin/'}`, {
         method: 'POST',
         headers: {
           'accept': 'application/json',
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}` 
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
         },
-        body: JSON.stringify({ pin: pinString }), // Send the PIN in the request body
+        body: JSON.stringify({ pin: pinString }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        toast.error(errorData.error || 'Failed to create transaction PIN');
+        toast.update(loadingToast, {
+          render: errorData.error || 'Failed to create transaction PIN',
+          type: 'error',
+          isLoading: false,
+          autoClose: 3000,
+        });
         throw new Error('Failed to create transaction PIN');
       }
 
-      toast.success('Transaction PIN created successfully!');
+      toast.update(loadingToast, {
+        render: 'Transaction PIN created successfully!',
+        type: 'success',
+        isLoading: false,
+        autoClose: 3000,
+      });
       window.location.href='/account/login'
     } catch (error) {
       console.error('Error during transaction PIN creation:', error);
       toast.error('An error occurred while creating the transaction PIN. Please try again.');
+    } finally {
+      setIsLoadingPin(false)
     }
   }
 
@@ -413,10 +477,10 @@ const SignupPage = () => {
               <div className="flex gap-4">
                 <button
                   type="submit"
-                  disabled={!isStep1Valid}
-                  className={`flex-1 bg-[#0E1318] text-[#FAFAFA] py-3 px-4 rounded-lg hover:bg-gray-800 transition-colors ${!isStep1Valid ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  disabled={!isStep1Valid || isLoadingStep1}
+                  className={`flex-1 bg-[#0E1318] text-[#FAFAFA] py-3 px-4 rounded-lg hover:bg-gray-800 transition-colors ${(!isStep1Valid || isLoadingStep1) ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
-                  Continue
+                  {isLoadingStep1 ? 'Sending OTP...' : 'Continue'}
                 </button>
               </div>
             </form>
@@ -444,10 +508,10 @@ const SignupPage = () => {
               <div className="flex gap-4">
                 <button
                   type="submit"
-                  disabled={!isStep2Valid}
-                  className={`flex-1 bg-[#0E1318] text-[#FAFAFA] py-3 px-4 rounded-lg hover:bg-gray-800 transition-colors ${!isStep2Valid ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  disabled={!isStep2Valid || isLoadingStep2}
+                  className={`flex-1 bg-[#0E1318] text-[#FAFAFA] py-3 px-4 rounded-lg hover:bg-gray-800 transition-colors ${(!isStep2Valid || isLoadingStep2) ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
-                  Continue
+                  {isLoadingStep2 ? 'Verifying...' : 'Continue'}
                 </button>
               </div>
             </form>
@@ -510,10 +574,10 @@ const SignupPage = () => {
               <div className="flex gap-4">
                 <button
                   type="submit"
-                  disabled={!isStep3Valid}
-                  className={`flex-1 bg-[#0E1318] text-[#FAFAFA] py-3 px-4 rounded-lg hover:bg-gray-800 transition-colors ${!isStep3Valid ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  disabled={!isStep3Valid || isLoadingStep3}
+                  className={`flex-1 bg-[#0E1318] text-[#FAFAFA] py-3 px-4 rounded-lg hover:bg-gray-800 transition-colors ${(!isStep3Valid || isLoadingStep3) ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
-                  Continue
+                  {isLoadingStep3 ? 'Setting up...' : 'Continue'}
                 </button>
               </div>
             </form>
@@ -566,10 +630,10 @@ const SignupPage = () => {
               <div className="flex pt-8">
                 <button
                   type="submit"
-                  disabled={!isTxnPinValid}
-                  className={`flex-1 bg-[#0E1318] text-[#FAFAFA] py-3 px-4 rounded-lg hover:bg-gray-800 transition-colors ${!isTxnPinValid ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  disabled={!isTxnPinValid || isLoadingPin}
+                  className={`flex-1 bg-[#0E1318] text-[#FAFAFA] py-3 px-4 rounded-lg hover:bg-gray-800 transition-colors ${(!isTxnPinValid || isLoadingPin) ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
-                  Create PIN
+                  {isLoadingPin ? 'Creating PIN...' : 'Create PIN'}
                 </button>
               </div>
             </form>
