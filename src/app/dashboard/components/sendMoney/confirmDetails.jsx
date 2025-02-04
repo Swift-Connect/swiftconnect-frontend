@@ -6,9 +6,9 @@ const ConfirmDetials = ({ onClose, onBack, narration, username, onNext }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center  bg-black bg-opacity-50">
-      <div className="bg-white rounded-xl shadow-lg w-[45%] p-6">
+      <div className="bg-white rounded-xl shadow-lg w-[45%] p-6 max-md-[400px]:w-full max-md-[400px]:p-4">
         {/* Header */}
-        <div className="flex items-center justify-between gap-12 pb-8">
+        <div className="flex items-center justify-between gap-12  pb-8">
           <button
             onClick={onBack}
             className="text-gray-400 hover:text-gray-600 flex items-center space-x-2 text-[24px]"
@@ -34,7 +34,7 @@ const ConfirmDetials = ({ onClose, onBack, narration, username, onNext }) => {
           </h2>
         </div>
         <div>
-          <div className="flex flex-col gap-[3em]">
+          <div className="flex flex-col gap-[3em] max-md-[400px]:gap-6">
             <div className="flex justify-between text-[#6B7280] text-[24px]">
               <p>To </p>
               <p>{username}</p>

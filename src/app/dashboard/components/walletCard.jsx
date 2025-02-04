@@ -2,13 +2,14 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import SendMoneyModal from "./sendMoney/sendtoSwiftConnect/sendToSwiftConnectAccount";
+import SendMoneyModal from "./sendMoney/sendMoney";
 import SwiftConnectModal from "./sendMoney/sendtoSwiftConnect/sendMoneyTo";
 import ConfirmDetials from "./sendMoney/confirmDetails";
 import EnterPinModal from "./sendMoney/enterPin";
 import SuccessModal from "./sendMoney/successModal";
 import SendToOtherBanksModal from "./sendMoney/sendToOtherBank/SendToOtherBank";
 import SendToOtherBanksModalSecondStep from "./sendMoney/sendToOtherBank/sendToOtherBankSecond";
+import ReceiveMoneyModal from "./recieveMoney";
 
 export default function WalletCard() {
   const [cardNumber] = useState("**** 3241");
@@ -19,6 +20,8 @@ export default function WalletCard() {
   const [username, setUsername] = useState();
   const [name, setName] = useState();
   const [acctNum, setAcctNum] = useState();
+    const [isRecieveMoneyModalOpen, setIsRecieveMoneyModalOpen] =
+      useState(false);
 
   useEffect(() => {
     console.log(currentView);
@@ -125,11 +128,18 @@ export default function WalletCard() {
         >
           Send <span className="ml-1">↑</span>
         </button>
-        <button className="flex-1 bg-[#D3F1CC] py-2 rounded-lg font-bold shadow hover:bg-green-200">
+        <button
+          className="flex-1 bg-[#D3F1CC] py-2 rounded-lg font-bold shadow hover:bg-green-200"
+          onClick={() => setIsRecieveMoneyModalOpen(true)}
+        >
           Receive <span className="ml-1">↓</span>
         </button>
       </div>
       {isModalOpen && renderModalContent()}
+      <ReceiveMoneyModal
+        isOpen={isRecieveMoneyModalOpen}
+        onClose={() => setIsRecieveMoneyModalOpen(false)}
+      />
     </div>
   );
 }

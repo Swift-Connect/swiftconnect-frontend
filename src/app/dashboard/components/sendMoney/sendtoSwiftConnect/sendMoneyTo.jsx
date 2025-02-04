@@ -62,10 +62,10 @@ const SwiftConnectModal = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white rounded-xl shadow-lg  p-6">
         {/* Header */}
-        <div className="flex items-center justify-between gap-12 pb-8">
+        <div className="flex items-center justify-between gap-12 pb-8 ">
           <button
             onClick={onBack}
-            className="text-gray-400 hover:text-gray-600 flex items-center space-x-2 text-[24px]"
+            className="text-gray-400 hover:text-gray-600 flex items-center space-x-2 text-[24px] max-md-[400px]:text-[18px]"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -83,7 +83,7 @@ const SwiftConnectModal = ({
             </svg>
             <span>Back</span>
           </button>
-          <h2 className="text-[24px] font-bold text-gray-800">
+          <h2 className="text-[24px] font-bold text-gray-800 max-md-[400px]:text-[18px]">
             Send to Swift Connect Account
           </h2>
         </div>
@@ -95,7 +95,7 @@ const SwiftConnectModal = ({
           }`}
         >
           <h2
-            className={`text-[20px] text-[gray] rounded-[4em] cursor-pointer py-[0.5em] px-[1em] ${
+            className={`text-[20px] text-[gray] flex items-center justify-center rounded-[4em] cursor-pointer py-[0.5em] px-[1em] max-md-[400px]:text-[14px] ${
               sendTo === "Account Number"
                 ? "bg-[#d2d2d2]   text-[#0E1318] font-bold"
                 : "hover:bg-[#f2f2f2]"
@@ -105,7 +105,7 @@ const SwiftConnectModal = ({
             Account Number
           </h2>
           <h2
-            className={`text-[20px] text-[gray] cursor-pointer rounded-[4em]  py-[0.5em] px-[1em] ${
+            className={`text-[20px] text-[gray] flex items-center justify-center cursor-pointer rounded-[4em]  py-[0.5em] px-[1em] max-md-[400px]:text-[18px] ${
               sendTo === "username"
                 ? "bg-[#d2d2d2]  text-[#0E1318] font-bold"
                 : "hover:bg-[#f2f2f2]"
@@ -185,7 +185,7 @@ const SwiftConnectModal = ({
               setUsername(
                 matchedAccount ? matchedAccount.username : inputValue
               );
-              onNext(); 
+              onNext();
             }}
           >
             Continue
