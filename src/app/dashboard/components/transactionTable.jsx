@@ -72,7 +72,7 @@ const TransactionsTable = () => {
         );
 
   return (
-    <div className="pt-8 w-[90%]">
+    <div className="pt-8 w-[90%] max-md-[400px]:hidden">
       <div className="">
         <h1 className="text-[22px] font-semibold mb-4">Recent Transactions</h1>
         <div className="flex  flex-col justify-between mb-4">
