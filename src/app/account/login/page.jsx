@@ -65,7 +65,7 @@ const Page = () => {
     };
 
     try {
-      const response = await fetch(`${BASE_URL}/users/signin/`, {
+      const response = await fetch(`https://swiftconnect-backend.onrender.com/users/signin/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -88,7 +88,7 @@ const Page = () => {
       localStorage.setItem('user', JSON.stringify(data.user));
       localStorage.setItem('access_token', data.access_token);
       toast.success('Login successful!');
-      window.location.href='/user/dashboard'
+      window.location.href='/dashboard'
       
     } catch (error) {
       console.error('Error during login:', error);
