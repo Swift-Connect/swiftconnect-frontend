@@ -85,7 +85,7 @@ const SignupPage = () => {
     };
 
     try {
-      const response = await fetch(`${BASE_URL}/users/get-otp/`, {
+      const response = await fetch(`${BASE_URL ? BASE_URL : 'https://swiftconnect-backend.onrender.com/users/get-otp/'}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -132,7 +132,7 @@ const SignupPage = () => {
     };
 
     try {
-      const response = await fetch(`${BASE_URL}/users/verify-otp/`, {
+      const response = await fetch(`${BASE_URL ? BASE_URL : "https://swiftconnect-backend.onrender.com/users/verify-otp/" }`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -169,7 +169,7 @@ const SignupPage = () => {
     };
 
     try {
-      const response = await fetch(`${BASE_URL}/users/get-otp/`, {
+      const response = await fetch(`${BASE_URL ? BASE_URL :" https://swiftconnect-backend.onrender.com/users/get-otp/"}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -226,7 +226,7 @@ const SignupPage = () => {
       referral_code: referralCode,
     };
     try {
-      const response = await fetch(`${BASE_URL}/users/complete-profile/${user_id}/`, {
+      const response = await fetch(`{https://swiftconnect-backend.onrender.com/users/complete-profile/${user_id}/}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -335,7 +335,7 @@ const SignupPage = () => {
     const pinString = txnPin.join(''); 
 
     try {
-      const response = await fetch(`${BASE_URL}/users/create-transaction-pin/`, {
+      const response = await fetch(`${BASE_URL ? BASE_URL : 'https://swiftconnect-backend.onrender.com/users/create-transaction-pin/'}`, {
         method: 'POST',
         headers: {
           'accept': 'application/json',
