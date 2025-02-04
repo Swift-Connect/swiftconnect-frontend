@@ -99,11 +99,13 @@ export default function WalletCard() {
   };
 
   return (
-    <div className="p-8 bg-[#ffffff]  rounded-[1.5em] border-[0.5px] border-[#efefef] max-w-s w-[50%] max-md-[400px]:w-full flex flex-col justify-between">
+    <div className="p-8 max-md-[400px]:p-4 bg-[#ffffff]  rounded-[1.5em] border-[0.5px] border-[#efefef] max-w-s w-[50%] max-md-[400px]:w-full  flex flex-col justify-between">
       <div className="flex justify-between items-center">
         <div>
           <p className="text-gray-500 text-[18px]">Total Balance</p>
-          <p className="text-[36px] font-semibold text-gray-900">{balance}</p>
+          <p className="text-[36px] font-semibold text-gray-900 max-md-[400px]:text-[24px]">
+            {balance}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <Image
@@ -118,7 +120,7 @@ export default function WalletCard() {
       </div>
       <div className="flex gap-4 mt-4 text-[#104F01] ">
         <button
-          className="flex-1 bg-[#D3F1CC] py-4 rounded-lg font-bold shadow hover:bg-green-200"
+          className="flex-1 bg-[#D3F1CC] py-4 rounded-lg font-bold shadow hover:bg-green-200 max-md-[400px]:py-2"
           onClick={() => setIsModalOpen(true)}
         >
           Send <span className="ml-1">↑</span>
