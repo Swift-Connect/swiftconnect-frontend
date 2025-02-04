@@ -226,7 +226,7 @@ const SignupPage = () => {
       referral_code: referralCode,
     };
     try {
-      const response = await fetch(`{https://swiftconnect-backend.onrender.com/users/complete-profile/${user_id}/}`, {
+      const response = await fetch(`https://swiftconnect-backend.onrender.com/users/complete-profile/${user_id}/`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
