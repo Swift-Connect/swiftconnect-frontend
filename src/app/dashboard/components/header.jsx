@@ -1,12 +1,15 @@
 import { Menu } from "lucide-react";
 import Image from "next/image";
 
-export default function Header({ setHideSideMenu }) {
+export default function Header({ setHideSideMenu, user }) {
   return (
-    <header className="flex max-md-[400px]:w-full justify-between items-center  bg-white py-4 px-8 max-md-[400px]:px-2 header-shadow max-md-[400px]:gap-4">
-      <Menu onClick={() => setHideSideMenu(false)} />
+    <header className="flex max-md-[400px]:w-full justify-between  items-center  bg-white py-4 px-8 max-md-[400px]:px-2 header-shadow max-md-[400px]:gap-4">
+      <Menu
+        onClick={() => setHideSideMenu(false)}
+        className="max-[400px]:block hidden"
+      />
       <h1 className="text-[28px] text-[#101828] font-semibold max-md-[400px]:text-[14px]">
-        Welcome back, Chosenfolio
+        Welcome back, {user.username}
       </h1>
       <div className="flex items-center gap-4 ">
         <div className="flex items-center  border rounded-md px-3 py-1 max-md-[400px]:hidden bg-[#D3F1CC33]">

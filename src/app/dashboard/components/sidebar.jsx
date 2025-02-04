@@ -43,7 +43,7 @@ export default function Sidebar({
             console.log(hideSideMenu);
           }}
         >
-          <X />
+          <X  className="max-[400px]:block hidden"/>
           
         </p>
         {/* <span className="ml-2 font-bold text-xl">Swift Connect</span> */}
