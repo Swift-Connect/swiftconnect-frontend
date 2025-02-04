@@ -30,7 +30,7 @@ const Dashboard = () => {
     case "dashboard":
       return (
         <>
-          <div className=" flex gap-4 justify-between max-md-[400px]:flex-col max-md-[400px]:w-full w-[90%] ">
+          <div className="flex gap-4 justify-between max-md-[400px]:flex-col max-md-[400px]:w-full w-[90%] ">
             <WalletCard />
             <div className="grid grid-cols-2 gap-4 max-md-[400px]:grid-cols-2">
               <DashboardCard

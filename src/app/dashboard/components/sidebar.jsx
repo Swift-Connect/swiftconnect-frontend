@@ -44,7 +44,7 @@ export default function Sidebar({
           }}
         >
           <X />
-          Close
+          
         </p>
         {/* <span className="ml-2 font-bold text-xl">Swift Connect</span> */}
       </div>
