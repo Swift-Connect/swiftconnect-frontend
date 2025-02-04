@@ -30,16 +30,18 @@ const EnterPinModal = ({ onClose, onConfirm, onNext, addCard }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white w-[45%] rounded-xl shadow-lg px-6 py-16 flex items-center justify-center flex-col">
+      <div className="bg-white w-[45%] rounded-xl shadow-lg px-6 py-16 flex items-center justify-center flex-col max-md-[400px]:w-full">
         <Image
           src={"padlock.svg"}
           alt="padlock"
           width={100}
           height={100}
-          className="w-[8em]"
+          className="w-[8em] max-md-[400px]:w-[6em]"
         />
-        <h2 className="text-[48px] font-bold text-gray-800 mb-4">Enter PIN</h2>
-        <p className="text-[16px] text-[#6B7280] w-[50%] text-center mb-10">
+        <h2 className="text-[48px] font-bold text-gray-800 mb-4 max-md-[400px]:text-[32px]">
+          Enter PIN
+        </h2>
+        <p className="text-[16px] text-[#6B7280] w-[50%] max-md-[400px]:w-full text-center mb-10">
           {addCard
             ? "Kindly enter the otp sent to *******2312"
             : "Proceed with your 4 digit pin to complete this process"}

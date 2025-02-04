@@ -6,9 +6,9 @@ const SendMoneyModal = ({ isOpen, onClose, onNext, setView }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white rounded-xl shadow-lg p-6 ">
+      <div className="bg-white rounded-xl shadow-lg p-6 max-md-[400px]:p-4">
         {/* Header */}
-        <div className="flex items-center justify-between border-b pb-4">
+        <div className="flex items-center justify-between border-b pb-4 ">
           <h2 className="text-lg font-bold text-gray-800">Send Money</h2>
           <button
             onClick={onClose}
@@ -44,7 +44,7 @@ const SendMoneyModal = ({ isOpen, onClose, onNext, setView }) => {
                 alt="Agent Icon"
                 width={100}
                 height={100}
-                className="h-[4em] w-[4em]"
+                className="h-[4em] w-[4em] max-md-[400px]:w-[2em] max-md-[400px]:h-[2em]  "
               />
               <div>
                 <h3 className="font-semibold text-gray-800">
@@ -82,7 +82,7 @@ const SendMoneyModal = ({ isOpen, onClose, onNext, setView }) => {
                 alt="Agent Icon"
                 width={100}
                 height={100}
-                className="h-[4em] w-[4em]"
+                className="h-[4em] w-[4em] max-md-[400px]:w-[2em] max-md-[400px]:h-[2em]"
               />
               <div>
                 <h3 className="font-semibold text-gray-800">
@@ -119,7 +119,7 @@ const SendMoneyModal = ({ isOpen, onClose, onNext, setView }) => {
               alt="Agent Icon"
               width={100}
               height={100}
-              className="h-[4em] w-[4em]"
+              className="h-[4em] w-[4em] max-md-[400px]:w-[2em] max-md-[400px]:h-[2em] "
             />
             <p className="text-sm text-gray-600 mt-2">Nothing to see yet.</p>
             <p className="text-sm text-gray-500">
