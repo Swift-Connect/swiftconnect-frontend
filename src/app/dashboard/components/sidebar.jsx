@@ -1,10 +1,19 @@
 "use client";
 
+import { X } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 
-export default function Sidebar({ setActiveSidebar }) {
+export default function Sidebar({
+  setActiveSidebar,
+  setHideSideMenu,
+  hideSideMenu,
+}) {
   const [active, setActive] = useState("Dashboard");
+
+  // const handleHideSideMenu = () => {
+  //   setHideSideMenu(true);
+  // };
 
   const MenutItems = [
     {
@@ -19,9 +28,24 @@ export default function Sidebar({ setActiveSidebar }) {
   ];
 
   return (
-    <aside className="w-[18%] bg-white shadow-md h-screen flex flex-col justify-between ">
-      <div className="flex items-center p-4">
+    <aside
+      className={`w-[18%]  bg-white shadow-md h-screen flex flex-col justify-between ${
+        hideSideMenu
+          ? "max-md-[400px]:hidden "
+          : "max-md-[400px]:absolute max-md-[400px]:w-[70%] max-md-[400px]:z-20"
+      }`}
+    >
+      <div className="flex items-center p-4 gap-4">
         <img src="/logo.svg" alt="Logo" className=" w-30" />
+        <p
+          onClick={() => {
+            setHideSideMenu(true);
+            console.log(hideSideMenu);
+          }}
+        >
+          <X />
+          Close
+        </p>
         {/* <span className="ml-2 font-bold text-xl">Swift Connect</span> */}
       </div>
       <div className="overflow-y-scroll custom-scroll">
@@ -30,7 +54,10 @@ export default function Sidebar({ setActiveSidebar }) {
             {MenutItems.map(({ label, icon }) => (
               <button
                 key={label}
-                onClick={() => { setActive(label); setActiveSidebar(label)}}
+                onClick={() => {
+                  setActive(label);
+                  setActiveSidebar(label);
+                }}
                 className={`flex px-4 py-2 text-[18px] text-gray-600 hover:bg-gray-200 hover:text-primary items-center gap-4 w-full rounded-r-md ${
                   active === label ? "bg-[#0E1318] text-white" : ""
                 }`}

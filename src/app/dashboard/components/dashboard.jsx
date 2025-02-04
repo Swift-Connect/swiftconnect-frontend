@@ -30,9 +30,9 @@ const Dashboard = () => {
     case "dashboard":
       return (
         <>
-          <div className=" flex gap-4 w-[90%] justify-between">
+          <div className=" flex gap-4 justify-between max-md-[400px]:flex-col max-md-[400px]:w-full w-[90%] ">
             <WalletCard />
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 max-md-[400px]:grid-cols-2">
               <DashboardCard
                 title="Airtime"
                 icon="/airtime.svg"

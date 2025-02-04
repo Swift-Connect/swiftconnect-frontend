@@ -1,13 +1,15 @@
+import { Menu } from "lucide-react";
 import Image from "next/image";
 
-export default function Header() {
+export default function Header({ setHideSideMenu }) {
   return (
-    <header className="flex justify-between items-center  bg-white py-4 px-8 header-shadow" >
-      <h1 className="text-[28px] text-[#101828] font-semibold">
+    <header className="flex max-md-[400px]:w-fit justify-between items-center  bg-white py-4 px-8 max-md-[400px]:justify-start max-md-[400px]:px-2 header-shadow max-md-[400px]:gap-4">
+      <Menu onClick={() => setHideSideMenu(false)} />
+      <h1 className="text-[28px] text-[#101828] font-semibold max-md-[400px]:text-[14px]">
         Welcome back, Chosenfolio
       </h1>
-      <div className="flex items-center gap-4">
-        <div className="flex items-center  border rounded-md px-3 py-1 bg-[#D3F1CC33]">
+      <div className="flex items-center gap-4 ">
+        <div className="flex items-center  border rounded-md px-3 py-1 max-md-[400px]:hidden bg-[#D3F1CC33]">
           <Image
             src={"/search.svg"}
             alt="search icon"

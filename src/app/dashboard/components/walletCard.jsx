@@ -99,7 +99,7 @@ export default function WalletCard() {
   };
 
   return (
-    <div className="p-8 bg-[#ffffff] rounded-[1.5em] border-[0.5px] border-[#efefef] max-w-s w-[50%] flex flex-col justify-between">
+    <div className="p-8 bg-[#ffffff]  rounded-[1.5em] border-[0.5px] border-[#efefef] max-w-s w-[50%] max-md-[400px]:w-full flex flex-col justify-between">
       <div className="flex justify-between items-center">
         <div>
           <p className="text-gray-500 text-[18px]">Total Balance</p>
