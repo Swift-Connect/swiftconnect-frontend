@@ -10,6 +10,7 @@ import SuccessModal from "./sendMoney/successModal";
 import SendToOtherBanksModal from "./sendMoney/sendToOtherBank/SendToOtherBank";
 import SendToOtherBanksModalSecondStep from "./sendMoney/sendToOtherBank/sendToOtherBankSecond";
 import ReceiveMoneyModal from "./recieveMoney";
+import axiosInstance from "../../../utils/axiosInstance";
 
 export default function WalletCard() {
   const [cardNumber] = useState("**** 3241");
@@ -20,8 +21,8 @@ export default function WalletCard() {
   const [username, setUsername] = useState();
   const [name, setName] = useState();
   const [acctNum, setAcctNum] = useState();
-    const [isRecieveMoneyModalOpen, setIsRecieveMoneyModalOpen] =
-      useState(false);
+  const [isRecieveMoneyModalOpen, setIsRecieveMoneyModalOpen] = useState(false);
+  
 
   useEffect(() => {
     console.log(currentView);
@@ -30,6 +31,21 @@ export default function WalletCard() {
   const onConfirm = (pin) => {
     console.log(pin);
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axiosInstance.get("/payments/wallet/");
+        setData(response.data);
+      } catch (error) {
+        setError(error.response ? error.response.data.message : error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const renderModalContent = () => {
     switch (currentView) {

@@ -6,14 +6,9 @@ import WalletCard from "./walletCard";
 import TransactionsTable from "./transactionTable";
 import AgentKycComponent from "./agentKycComponent";
 import Airtime from "./paybills/airtime";
-import Internet from "./paybills/internet";
-import ElectricityPayment from "./paybills/electricity";
-import CableTv from "./paybills/cableTv";
-
 
 const Dashboard = () => {
   const [payBillsType, setPayBillsType] = useState("dashboard");
-  
 
   useEffect(() => {
     console.log(payBillsType);
@@ -24,17 +19,17 @@ const Dashboard = () => {
     case "Airtime":
       return <Airtime setBillType={setPayBillsType} />;
     case "Internet":
-      return <Internet setBillType={setPayBillsType} />;
+      return <p>{payBillsType}</p>;
     case "Electricity":
-      return <ElectricityPayment setBillType={setPayBillsType} />;
+      return <p>{payBillsType}</p>;
     case "Cable TV":
-      return <CableTv setBillType={setPayBillsType} />;
+      return <p>{payBillsType}</p>;
     case "dashboard":
       return (
         <>
-          <div className="flex gap-4 justify-between max-md-[400px]:flex-col max-md-[400px]:w-full w-[90%] ">
+          <div className=" flex gap-4 w-[90%] justify-between">
             <WalletCard />
-            <div className="grid grid-cols-2 gap-4 max-md-[400px]:grid-cols-2">
+            <div className="grid grid-cols-2 gap-4">
               <DashboardCard
                 title="Airtime"
                 icon="/airtime.svg"

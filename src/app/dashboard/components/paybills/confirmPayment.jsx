@@ -1,4 +1,3 @@
-import { Image } from "lucide-react";
 import React from "react";
 
 const ConfirmPayment = ({
@@ -16,24 +15,11 @@ const ConfirmPayment = ({
           className="text-gray-500 mb-4 flex items-center"
           onClick={onBack}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
+          <span className="material-icons-outlined">arrow_back</span>
           <span className="ml-2">Back</span>
         </button>
         <h2 className="text-xl font-semibold mb-6 text-center">
-          Confirm Payment
+          Confirm Payment 
         </h2>
 
         <div className="mb-4">
