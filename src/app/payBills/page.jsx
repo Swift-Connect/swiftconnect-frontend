@@ -23,7 +23,7 @@ const PayBills = () => {
     case "dashboard":
       return (
         <>
-          <div className=" flex gap-4 w-[90%] justify-between">
+          <div className=" flex gap-4 w-[90%] justify-between max-md-[400px]:w-full">
             <div className="grid grid-cols-2 w-full gap-4">
               <DashboardCard
                 title="Airtime"
@@ -56,7 +56,7 @@ const PayBills = () => {
             </div>
           </div>
           <AgentKycComponent />
-              <TransactionsTable />
+          <TransactionsTable />
         </>
       );
   }

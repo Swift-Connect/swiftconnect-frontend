@@ -11,6 +11,7 @@ import SendToOtherBanksModal from "./sendMoney/sendToOtherBank/SendToOtherBank";
 import SendToOtherBanksModalSecondStep from "./sendMoney/sendToOtherBank/sendToOtherBankSecond";
 import ReceiveMoneyModal from "./recieveMoney";
 import axiosInstance from "../../../utils/axiosInstance";
+import { FaHashtag } from "react-icons/fa";
 
 export default function WalletCard() {
   const [cardNumber] = useState("**** 3241");
@@ -22,7 +23,9 @@ export default function WalletCard() {
   const [name, setName] = useState();
   const [acctNum, setAcctNum] = useState();
   const [isRecieveMoneyModalOpen, setIsRecieveMoneyModalOpen] = useState(false);
-  
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     console.log(currentView);
@@ -46,6 +49,8 @@ export default function WalletCard() {
 
     fetchData();
   }, []);
+
+  console.log(data);
 
   const renderModalContent = () => {
     switch (currentView) {
@@ -123,7 +128,7 @@ export default function WalletCard() {
         <div>
           <p className="text-gray-500 text-[18px]">Total Balance</p>
           <p className="text-[36px] font-semibold text-gray-900 max-md-[400px]:text-[24px]">
-            {balance}
+            ₦{data?.balance}
           </p>
         </div>
         <div className="flex items-center gap-2">

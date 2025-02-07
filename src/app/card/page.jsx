@@ -79,23 +79,23 @@ const CardPage = () => {
             <div className="w-[3em] h-[3em] rounded-full bg-red-500"></div>
             <h1 className="text-[42px] font-bold ">{selectedBank.bank}</h1>
           </div>
-          <div className="flex gap-[4em]">
+          <div className="flex gap-[4em] max-md-[400px]:flex-col max-md-[400px]:gap-2">
             <p className="font-bold">Account Details</p>
-            <div className="bg-white p-4 w-[30%] rounded-lg border border-[#c7c7c7]">
+            <div className="bg-white p-4 w-[30%] rounded-lg border border-[#c7c7c7] max-md-[400px]:w-fit">
               <p className="text-[24px] ">{selectedBank.accountNumber}</p>
               <p className="text-[14px] mb-2 uppercase">{selectedBank.name}</p>
             </div>
           </div>
         </div>
       ) : linkedBanks.length > 0 ? (
-        <div className="h-full flex flex-col gap-[3em] ">
+        <div className="h-full flex flex-col gap-[3em] w-full  ">
           {linkedBanks.map((bank, index) => (
             <div
               key={index}
-              className="flex justify-between hover:cursor-pointer hover:bg-[#dedede] items-center gap-y-[1em] border px-4 py-8 rounded-lg bg-white w-[50%]"
+              className="flex justify-between hover:cursor-pointer hover:bg-[#dedede] items-center gap-y-[1em] border px-4 py-8 rounded-lg bg-white w-[50%] max-md-[400px]:w-full"
               onClick={() => handleCardClick(bank)}
             >
-              <div className="flex items-center gap-x-2">
+              <div className="flex items-center gap-x-2 ">
                 <div className="w-[3em] h-[3em] rounded-full bg-red-500"></div>
                 <h1 className="text-[32px] font-extrabold">{bank.bank}</h1>
               </div>

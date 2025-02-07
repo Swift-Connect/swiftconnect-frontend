@@ -1,38 +1,65 @@
 "use client";
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import Image from "next/image";
 
 export default function EditProfile() {
-  const [profileImage, setProfileImage] = useState("/profile-image.png");
+  // Initial values (can be set from an API)
+  const initialProfile = {
+    name: "Akinde Praise",
+    username: "Chosenfolio",
+    email: "Chosenfolio@gmail.com",
+    phoneNumber: "(1) 8976 4567 666",
+  };
+
+  // State for input fields
+  const [profile, setProfile] = useState(initialProfile);
+  const [isChanged, setIsChanged] = useState(false);
+
+  // Handle input change
+  const handleInputChange = (field) => (e) => {
+    const newValue = e.target.value;
+    setProfile((prev) => {
+      const updatedProfile = { ...prev, [field]: newValue };
+
+      // Compare updatedProfile with initialProfile
+      const hasChanges = Object.keys(initialProfile).some(
+        (key) => updatedProfile[key] !== initialProfile[key]
+      );
+
+      setIsChanged(hasChanges);
+      return updatedProfile;
+    });
+  };
+
+  // Handle save button
+  const handleSave = () => {
+    console.log("Updated Profile:", profile);
+  };
 
   return (
     <>
-      <div className="mt-6 flex space-x-6">
-        <div className="relative w-[6em] h-[5em]">
+      <div className="mt-6 flex flex-col space-y-6 md:flex-row md:space-x-6 md:space-y-0">
+        <div className="relative w-[6em] h-[5em] mx-auto md:mx-0">
           <Image
-            src={
-              "https://plus.unsplash.com/premium_photo-1689977927774-401b12d137d6?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-            }
+            src="https://plus.unsplash.com/premium_photo-1689977927774-401b12d137d6?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8MHx8fA%3D%3D"
             alt="Profile"
             width={100}
             height={100}
             className="rounded-full w-[6em] h-[5em] object-cover border border-gray-300"
           />
-          <label className="absolute bottom-0 right-0 w-[1em] h-[1em] fle bg-black text-white rounded-full p-1 cursor-pointer">
-            ✎
-            <input type="file" className="hidden" onChange={() => {}} />
-          </label>
         </div>
 
         <div className="flex flex-col w-full space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 Your Name
               </label>
               <input
                 type="text"
-                value="Akinde Praise"
+                value={profile.name}
+                onChange={handleInputChange("name")}
                 className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:border-black focus:ring-black"
               />
             </div>
@@ -42,20 +69,22 @@ export default function EditProfile() {
               </label>
               <input
                 type="text"
-                value="Chosenfolio"
+                value={profile.username}
+                onChange={handleInputChange("username")}
                 className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:border-black focus:ring-black"
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 Email
               </label>
               <input
                 type="email"
-                value="Chosenfolio@gmail.com"
+                value={profile.email}
+                onChange={handleInputChange("email")}
                 className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:border-black focus:ring-black"
               />
             </div>
@@ -65,7 +94,8 @@ export default function EditProfile() {
               </label>
               <input
                 type="text"
-                value="(1) 8976 4567 666"
+                value={profile.phoneNumber}
+                onChange={handleInputChange("phoneNumber")}
                 className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:border-black focus:ring-black"
               />
             </div>
@@ -74,7 +104,13 @@ export default function EditProfile() {
       </div>
 
       <div className="mt-6 flex justify-end">
-        <button className="bg-black text-white px-6 py-3 rounded-md shadow">
+        <button
+          onClick={handleSave}
+          className={`bg-black text-white px-6 py-3 rounded-md shadow ${
+            !isChanged ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+          disabled={!isChanged}
+        >
           Save
         </button>
       </div>
