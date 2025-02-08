@@ -13,10 +13,14 @@ import Rewards from "../rewards/page";
 import SettingsPage from "../settings/page";
 import { Settings } from "lucide-react";
 import { useRouter } from "next/navigation";
+import axiosInstance from "../../utils/axiosInstance";
 
 export default function Home() {
   const [activeSidebar, setActiveSidebar] = useState("Dashboard");
   const [hideSideMenu, setHideSideMenu] = useState(true);
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const [user, setUser] = useState({});
 
@@ -32,10 +36,30 @@ export default function Home() {
     }
   }, [router]);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axiosInstance.get("/payments/wallet/");
+       
+        console.log("dddddddd",response.data);
+        
+        setData(response.data);
+      } catch (error) {
+        setError(error.response ? error.response.data.message : error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // console.log(data);
+
   const renderComponent = () => {
     switch (activeSidebar) {
       case "Dashboard":
-        return <Dashboard />;
+        return <Dashboard data={data} />;
       case "Pay Bills":
         return <PayBills />;
       case "Cards":
@@ -43,7 +67,7 @@ export default function Home() {
       case "Reward":
         return <Rewards />;
       case "Settings":
-        return <SettingsPage />;
+        return <SettingsPage user={user} />;
       case "Developer API":
         return <p>Developer API</p>;
     }
@@ -54,6 +78,8 @@ export default function Home() {
         setActiveSidebar={setActiveSidebar}
         setHideSideMenu={setHideSideMenu}
         hideSideMenu={hideSideMenu}
+        data={data}
+        user={user}
       />
       <main className="flex-1 ">
         <Header setHideSideMenu={setHideSideMenu} user={user} />

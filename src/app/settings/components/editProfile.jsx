@@ -3,13 +3,15 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 
-export default function EditProfile() {
+export default function EditProfile({ user }) {
   // Initial values (can be set from an API)
+  // console.log(user);
+
   const initialProfile = {
-    name: "Akinde Praise",
-    username: "Chosenfolio",
-    email: "Chosenfolio@gmail.com",
-    phoneNumber: "(1) 8976 4567 666",
+    name: user.fullname,
+    username: user.username,
+    email: user.email,
+    phoneNumber: user.phone_number,
   };
 
   // State for input fields

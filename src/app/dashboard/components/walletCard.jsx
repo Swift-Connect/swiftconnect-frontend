@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import SendMoneyModal from "./sendMoney/sendMoney";
 import SwiftConnectModal from "./sendMoney/sendtoSwiftConnect/sendMoneyTo";
 import ConfirmDetials from "./sendMoney/confirmDetails";
@@ -10,10 +10,9 @@ import SuccessModal from "./sendMoney/successModal";
 import SendToOtherBanksModal from "./sendMoney/sendToOtherBank/SendToOtherBank";
 import SendToOtherBanksModalSecondStep from "./sendMoney/sendToOtherBank/sendToOtherBankSecond";
 import ReceiveMoneyModal from "./recieveMoney";
-import axiosInstance from "../../../utils/axiosInstance";
-import { FaHashtag } from "react-icons/fa";
 
-export default function WalletCard() {
+
+export default function WalletCard({data}) {
   const [cardNumber] = useState("**** 3241");
   const [balance] = useState("N22,880.50");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -23,34 +22,16 @@ export default function WalletCard() {
   const [name, setName] = useState();
   const [acctNum, setAcctNum] = useState();
   const [isRecieveMoneyModalOpen, setIsRecieveMoneyModalOpen] = useState(false);
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    console.log(currentView);
-  }, [currentView]);
+
+//  console.log(data);
+ 
 
   const onConfirm = (pin) => {
     console.log(pin);
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axiosInstance.get("/payments/wallet/");
-        setData(response.data);
-      } catch (error) {
-        setError(error.response ? error.response.data.message : error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  console.log(data);
+ 
 
   const renderModalContent = () => {
     switch (currentView) {

@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import EditProfile from "./components/editProfile";
 import Security from "./components/security"; // Make sure to import Security
 
-const SettingsPage = () => {
+const SettingsPage = ({user}) => {
   const [activeTab, setActiveTab] = useState("editProfile");
 
   return (
@@ -31,7 +31,7 @@ const SettingsPage = () => {
         </button>
       </div>
 
-      {activeTab === "editProfile" ? <EditProfile /> : <Security />}
+      {activeTab === "editProfile" ? <EditProfile user={user} /> : <Security />}
     </div>
   );
 };
