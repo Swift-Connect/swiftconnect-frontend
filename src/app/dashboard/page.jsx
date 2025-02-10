@@ -56,7 +56,7 @@ export default function Home() {
   const renderComponent = () => {
     switch (activeSidebar) {
       case "Dashboard":
-        return <Dashboard setActiveSidebar={setActiveSidebar} data={data} />;
+        return <Dashboard setActiveSidebar={setActiveSidebar} data={data} user={user} />;
       case "Pay Bills":
         return <PayBills setActiveSidebar={setActiveSidebar} />;
       case "Cards":

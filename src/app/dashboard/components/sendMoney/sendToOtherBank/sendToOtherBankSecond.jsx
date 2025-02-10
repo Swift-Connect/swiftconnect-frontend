@@ -14,12 +14,12 @@ export default function SendToOtherBanksModalSecondStep({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white w-[45%] rounded-xl shadow-lg p-6">
+      <div className="bg-white w-[45%] rounded-xl shadow-lg p-6 max-md-[400px]:w-full">
         {/* Header */}
-        <div className="flex items-center gap-10 px-4 py-3 border-b">
+        <div className="flex items-center gap-10 px-4 py-3 border-b ">
           <button
             onClick={onBack}
-            className="text-gray-400 hover:text-gray-600 flex items-center space-x-2 text-[24px]"
+            className="text-gray-400 hover:text-gray-600 flex items-center space-x-2 text-[24px] max-md-[400px]:text-[18px]"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -37,7 +37,7 @@ export default function SendToOtherBanksModalSecondStep({
             </svg>{" "}
             Back
           </button>
-          <h2 className="text-[24px] font-bold text-gray-800">
+          <h2 className="text-[24px] font-bold text-gray-800 max-md-[400px]:text-[18px]">
             Send to other banks
           </h2>
         </div>
@@ -48,8 +48,10 @@ export default function SendToOtherBanksModalSecondStep({
           <div className="flex items-center gap-5">
             <div className="w-[4em] h-[4em] bg-slate-300 rounded-full"></div>{" "}
             <div>
-              <h1 className="text-[24px] font-bold text-[#101010]">{name}</h1>
-              <p className="text-[18px] text-[#6B7280]">
+              <h1 className="text-[24px] font-bold text-[#101010] max-md-[400px]:text-[18px]">
+                {name}
+              </h1>
+              <p className="text-[18px] text-[#6B7280] max-md-[400px]:text-[14px]">
                 {acctNum} | Guaranty TrustBank
               </p>
             </div>

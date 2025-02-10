@@ -1,7 +1,7 @@
 import Image from "next/image";
 import React from "react";
 
-const AgentKycComponent = ({ setActiveSidebar }) => {
+const AgentKycComponent = ({ setActiveSidebar, kycVerified }) => {
   return (
     <div className="space-y-4 pt-4 bg-gray-5 w-[90%] max-md-[400px]:w-full">
       {/* Become an Agent Card */}
@@ -34,7 +34,7 @@ const AgentKycComponent = ({ setActiveSidebar }) => {
       </div>
 
       {/* Complete KYC Card */}
-      <div className="flex items-center justify-between bg-white shadow-lg rounded-[1.4em] p-4 border border-gray-200">
+      <div className={`flex items-center justify-between bg-white shadow-lg rounded-[1.4em] p-4 border border-gray-200 ${kycVerified ? "hidden" : ""}`}>
         <div className="flex items-start space-x-4">
           <Image
             src="/rounded-exclamation.svg"

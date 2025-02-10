@@ -8,9 +8,10 @@ import Internet from "./paybills/internet";
 import ElectricityPayment from "./paybills/electricity";
 import CableTv from "./paybills/cableTv";
 
-
-const Dashboard = ({setActiveSidebar, data }) => {
+const Dashboard = ({ setActiveSidebar, data, user }) => {
   const [payBillsType, setPayBillsType] = useState("dashboard");
+
+  console.log(data);
 
   // useEffect(() => {
   //   console.log(payBillsType);
@@ -58,7 +59,12 @@ const Dashboard = ({setActiveSidebar, data }) => {
               />
             </div>
           </div>
-          <AgentKycComponent setActiveSidebar={setActiveSidebar} />
+
+          <AgentKycComponent
+            kycVerified={user?.kyc_verified}
+            setActiveSidebar={setActiveSidebar}
+          />
+
           <TransactionsTable />
         </>
       );
