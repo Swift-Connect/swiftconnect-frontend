@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import SendMoneyModal from "./sendMoney/sendMoney";
 import SwiftConnectModal from "./sendMoney/sendtoSwiftConnect/sendMoneyTo";
 import ConfirmDetials from "./sendMoney/confirmDetails";
@@ -11,7 +11,8 @@ import SendToOtherBanksModal from "./sendMoney/sendToOtherBank/SendToOtherBank";
 import SendToOtherBanksModalSecondStep from "./sendMoney/sendToOtherBank/sendToOtherBankSecond";
 import ReceiveMoneyModal from "./recieveMoney";
 
-export default function WalletCard() {
+
+export default function WalletCard({data}) {
   const [cardNumber] = useState("**** 3241");
   const [balance] = useState("N22,880.50");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -20,16 +21,17 @@ export default function WalletCard() {
   const [username, setUsername] = useState();
   const [name, setName] = useState();
   const [acctNum, setAcctNum] = useState();
-    const [isRecieveMoneyModalOpen, setIsRecieveMoneyModalOpen] =
-      useState(false);
+  const [isRecieveMoneyModalOpen, setIsRecieveMoneyModalOpen] = useState(false);
 
-  useEffect(() => {
-    console.log(currentView);
-  }, [currentView]);
+
+//  console.log(data);
+ 
 
   const onConfirm = (pin) => {
     console.log(pin);
   };
+
+ 
 
   const renderModalContent = () => {
     switch (currentView) {
@@ -107,7 +109,7 @@ export default function WalletCard() {
         <div>
           <p className="text-gray-500 text-[18px]">Total Balance</p>
           <p className="text-[36px] font-semibold text-gray-900 max-md-[400px]:text-[24px]">
-            {balance}
+            ₦{data?.balance}
           </p>
         </div>
         <div className="flex items-center gap-2">

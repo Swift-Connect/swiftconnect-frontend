@@ -8,6 +8,8 @@ export default function Sidebar({
   setActiveSidebar,
   setHideSideMenu,
   hideSideMenu,
+  data,
+  user
 }) {
   const [active, setActive] = useState("Dashboard");
 
@@ -43,8 +45,7 @@ export default function Sidebar({
             console.log(hideSideMenu);
           }}
         >
-          <X />
-          
+          <X className="max-[400px]:block hidden" />
         </p>
         {/* <span className="ml-2 font-bold text-xl">Swift Connect</span> */}
       </div>
@@ -109,8 +110,8 @@ export default function Sidebar({
             </div>
             <div>
               {" "}
-              <p className="text-sm font-bold text-[#525252]">Chosenfolio</p>
-              <p className="text-xs text-gray-500">Agent | N22,880.50</p>
+              <p className="text-sm font-bold text-[#525252]">{user?.username}</p>
+              <p className="text-xs text-gray-500">Agent | ₦{data?.balance}</p>
             </div>
           </div>
           <div>

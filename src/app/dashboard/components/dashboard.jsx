@@ -10,12 +10,14 @@ import Internet from "./paybills/internet";
 import ElectricityPayment from "./paybills/electricity";
 import CableTv from "./paybills/cableTv";
 
-const Dashboard = () => {
-  const [payBillsType, setPayBillsType] = useState("dashboard");
 
-  useEffect(() => {
-    console.log(payBillsType);
-  }, [payBillsType]);
+const Dashboard = ({data}) => {
+  const [payBillsType, setPayBillsType] = useState("dashboard");
+  
+
+  // useEffect(() => {
+  //   console.log(payBillsType);
+  // }, [payBillsType]);
 
   // const payBills = (billType) => {
   switch (payBillsType) {
@@ -31,7 +33,7 @@ const Dashboard = () => {
       return (
         <>
           <div className="flex gap-4 justify-between max-md-[400px]:flex-col max-md-[400px]:w-full w-[90%] ">
-            <WalletCard />
+            <WalletCard data={data} />
             <div className="grid grid-cols-2 gap-4 max-md-[400px]:grid-cols-2">
               <DashboardCard
                 title="Airtime"
