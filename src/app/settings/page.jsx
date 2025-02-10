@@ -3,8 +3,10 @@ import React, { useState } from "react";
 import EditProfile from "./components/editProfile";
 import Security from "./components/security"; // Make sure to import Security
 
-const SettingsPage = ({user}) => {
+export default function SettingsPage(props) {
   const [activeTab, setActiveTab] = useState("editProfile");
+  // console.log(props.user);
+  
 
   return (
     <div className=" bg-white rounded-lg shadow p-6 border border-gray-200">
@@ -31,9 +33,11 @@ const SettingsPage = ({user}) => {
         </button>
       </div>
 
-      {activeTab === "editProfile" ? <EditProfile user={user} /> : <Security />}
+      {activeTab === "editProfile" ? (
+        <EditProfile user={props?.user} />
+      ) : (
+        <Security />
+      )}
     </div>
   );
-};
-
-export default SettingsPage;
+}

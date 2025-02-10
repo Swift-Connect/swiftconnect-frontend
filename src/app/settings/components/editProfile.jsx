@@ -8,10 +8,10 @@ export default function EditProfile({ user }) {
   // console.log(user);
 
   const initialProfile = {
-    name: user.fullname,
-    username: user.username,
-    email: user.email,
-    phoneNumber: user.phone_number,
+    name: user?.fullname,
+    username: user?.username,
+    email: user?.email,
+    phoneNumber: user?.phone_number,
   };
 
   // State for input fields

@@ -1,17 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import DashboardCard from "./components/daasboardCard";
 import Dashboard from "./components/dashboard";
 import Header from "./components/header";
 import Sidebar from "./components/sidebar";
-import TransactionsTable from "./components/transactionTable";
-import WalletCard from "./components/walletCard";
 import PayBills from "../payBills/page";
 import CardPage from "../card/page";
 import Rewards from "../rewards/page";
 import SettingsPage from "../settings/page";
-import { Settings } from "lucide-react";
 import { useRouter } from "next/navigation";
 import axiosInstance from "../../utils/axiosInstance";
 
