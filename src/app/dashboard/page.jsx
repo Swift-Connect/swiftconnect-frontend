@@ -8,6 +8,7 @@ import PayBills from "../payBills/page";
 import CardPage from "../card/page";
 import Rewards from "../rewards/page";
 import SettingsPage from "../settings/page";
+import KYC from "../kyc/kyc";
 import { useRouter } from "next/navigation";
 import axiosInstance from "../../utils/axiosInstance";
 
@@ -36,9 +37,9 @@ export default function Home() {
     const fetchData = async () => {
       try {
         const response = await axiosInstance.get("/payments/wallet/");
-       
-        console.log("dddddddd",response.data);
-        
+
+        console.log("dddddddd", response.data);
+
         setData(response.data);
       } catch (error) {
         setError(error.response ? error.response.data.message : error.message);
@@ -55,15 +56,17 @@ export default function Home() {
   const renderComponent = () => {
     switch (activeSidebar) {
       case "Dashboard":
-        return <Dashboard data={data} />;
+        return <Dashboard setActiveSidebar={setActiveSidebar} data={data} />;
       case "Pay Bills":
-        return <PayBills />;
+        return <PayBills setActiveSidebar={setActiveSidebar} />;
       case "Cards":
         return <CardPage />;
       case "Reward":
         return <Rewards />;
       case "Settings":
         return <SettingsPage user={user} />;
+      case "KYC":
+        return <KYC user={user} setActiveSidebar={setActiveSidebar} />;
       case "Developer API":
         return <p>Developer API</p>;
     }
@@ -79,9 +82,9 @@ export default function Home() {
       />
       <main className="flex-1 ">
         <Header setHideSideMenu={setHideSideMenu} user={user} />
-        <div className="py-6 px-10 max-md-[400px]:px-5 h-[80vh] max-md-[400px]:h-[90vh] fixed max-md-[400px]:w-full w-[80%] overflow-y-auto custom-scroll bg-[#F6FCF5]">
+        <section className="py-6 px-10 max-md-[400px]:px-5 h-[80vh] max-md-[400px]:h-[90vh] fixed max-md-[400px]:w-full w-[80%] overflow-y-auto custom-scroll bg-[#F6FCF5]">
           {renderComponent()}
-        </div>
+        </section>
       </main>
     </div>
   );

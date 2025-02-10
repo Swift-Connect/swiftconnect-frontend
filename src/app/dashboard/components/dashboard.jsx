@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
 import DashboardCard from "./daasboardCard";
-import Sidebar from "./sidebar";
-import Header from "./header";
 import WalletCard from "./walletCard";
 import TransactionsTable from "./transactionTable";
 import AgentKycComponent from "./agentKycComponent";
@@ -11,9 +9,8 @@ import ElectricityPayment from "./paybills/electricity";
 import CableTv from "./paybills/cableTv";
 
 
-const Dashboard = ({data}) => {
+const Dashboard = ({setActiveSidebar, data }) => {
   const [payBillsType, setPayBillsType] = useState("dashboard");
-  
 
   // useEffect(() => {
   //   console.log(payBillsType);
@@ -61,7 +58,7 @@ const Dashboard = ({data}) => {
               />
             </div>
           </div>
-          <AgentKycComponent />
+          <AgentKycComponent setActiveSidebar={setActiveSidebar} />
           <TransactionsTable />
         </>
       );

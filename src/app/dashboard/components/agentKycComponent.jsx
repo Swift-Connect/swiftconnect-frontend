@@ -1,7 +1,7 @@
 import Image from "next/image";
 import React from "react";
 
-const AgentKycComponent = () => {
+const AgentKycComponent = ({ setActiveSidebar }) => {
   return (
     <div className="space-y-4 pt-4 bg-gray-5 w-[90%] max-md-[400px]:w-full">
       {/* Become an Agent Card */}
@@ -49,13 +49,19 @@ const AgentKycComponent = () => {
             </h2>
             <p className="text-[14px] text-[#525252] max-md-[400px]:text-[10px]">
               Complete your KYC to receive your Swift Connect account number.{" "}
-              <a href="/kyc" className="text-orange-500 hover:underline">
+              <span
+                onClick={() => setActiveSidebar("KYC")}
+                className="text-orange-500 hover:underline"
+              >
                 Click here to complete
-              </a>
+              </span>
             </p>
           </div>
         </div>
-        <button className="bg-orange-500 text-white w-[20%] rounded-lg hover:bg-orange-600 p-4 max-md-[400px]:hidden  ">
+        <button
+          className="bg-orange-500 text-white w-[20%] rounded-lg hover:bg-orange-600 p-4 max-md-[400px]:hidden  "
+          onClick={() => setActiveSidebar("KYC")}
+        >
           Complete KYC
         </button>
       </div>
