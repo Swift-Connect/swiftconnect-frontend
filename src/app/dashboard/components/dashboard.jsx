@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import DashboardCard from "./daasboardCard";
 import WalletCard from "./walletCard";
 import TransactionsTable from "./transactionTable";
+import MobileTransaction from "./mobileTRX";
 import AgentKycComponent from "./agentKycComponent";
 import Airtime from "./paybills/airtime";
 import Internet from "./paybills/internet";
@@ -64,7 +65,7 @@ const Dashboard = ({ setActiveSidebar, data, user }) => {
             kycVerified={user?.kyc_verified}
             setActiveSidebar={setActiveSidebar}
           />
-
+          <MobileTransaction />
           <TransactionsTable />
         </>
       );
