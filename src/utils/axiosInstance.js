@@ -4,6 +4,7 @@ const axiosInstance = axios.create({
   baseURL: "https://swiftconnect-backend.onrender.com",
   headers: {
     "Content-Type": "application/json",
+    // "Content-Type": "multipart/form-data",
   },
 });
 

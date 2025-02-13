@@ -56,12 +56,12 @@ export default function SendToOtherBanksModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white w-[45%] rounded-xl shadow-lg p-6">
+      <div className="bg-white w-[45%] rounded-xl shadow-lg p-6 max-md-[400px]:w-full max-md-[400px]:p-2">
         {/* Header */}
         <div className="flex items-center gap-10 px-4 py-3 border-b">
           <button
             onClick={onBack}
-            className="text-gray-400 hover:text-gray-600 flex items-center space-x-2 text-[24px]"
+            className="text-gray-400 hover:text-gray-600 flex items-center space-x-2 text-[24px] max-md-[400px]:text-[18px]"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -79,7 +79,7 @@ export default function SendToOtherBanksModal({
             </svg>{" "}
             Back
           </button>
-          <h2 className="text-[24px] font-bold text-gray-800">
+          <h2 className="text-[24px] font-bold text-gray-800 max-md-[400px]:text-[18px]">
             Send to other banks
           </h2>
         </div>

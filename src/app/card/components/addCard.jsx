@@ -6,7 +6,7 @@ const AddCard = ({ onClose, onBack, narration, username, onNext }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center  bg-black bg-opacity-50">
-      <div className="bg-white rounded-xl shadow-lg w-[45%] p-6">
+      <div className="bg-white rounded-xl shadow-lg w-[45%] p-6 max-md-[400px]:w-full">
         <div>
           <div className="flex flex-col mb-8">
             <h1 className="text-[#0E1318] text-[32px] font-bold">Add Card</h1>

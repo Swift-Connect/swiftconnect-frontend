@@ -1,19 +1,18 @@
 import React, { useEffect, useState } from "react";
 import DashboardCard from "./daasboardCard";
-import Sidebar from "./sidebar";
-import Header from "./header";
 import WalletCard from "./walletCard";
 import TransactionsTable from "./transactionTable";
+import MobileTransaction from "./mobileTRX";
 import AgentKycComponent from "./agentKycComponent";
 import Airtime from "./paybills/airtime";
 import Internet from "./paybills/internet";
 import ElectricityPayment from "./paybills/electricity";
 import CableTv from "./paybills/cableTv";
 
-
-const Dashboard = ({data}) => {
+const Dashboard = ({ setActiveSidebar, data, user }) => {
   const [payBillsType, setPayBillsType] = useState("dashboard");
-  
+
+  console.log(data);
 
   // useEffect(() => {
   //   console.log(payBillsType);
@@ -61,7 +60,12 @@ const Dashboard = ({data}) => {
               />
             </div>
           </div>
-          <AgentKycComponent />
+
+          <AgentKycComponent
+            kycVerified={user?.kyc_verified}
+            setActiveSidebar={setActiveSidebar}
+          />
+          <MobileTransaction />
           <TransactionsTable />
         </>
       );

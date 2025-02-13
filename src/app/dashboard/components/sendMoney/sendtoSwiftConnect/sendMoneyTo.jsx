@@ -65,7 +65,7 @@ const SwiftConnectModal = ({
         <div className="flex items-center justify-between gap-12 pb-8 ">
           <button
             onClick={onBack}
-            className="text-gray-400 hover:text-gray-600 flex items-center space-x-2 text-[24px] max-md-[400px]:text-[18px]"
+            className="text-gray-400 hover:text-gray-600 flex items-center space-x- text-[24px] max-md-[400px]:text-[18px]"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

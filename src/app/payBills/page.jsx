@@ -8,7 +8,7 @@ import CableTv from "../dashboard/components/paybills/cableTv";
 import AgentKycComponent from "../dashboard/components/agentKycComponent";
 import TransactionsTable from "../dashboard/components/transactionTable";
 
-const PayBills = () => {
+const PayBills = ({ setActiveSidebar }) => {
   const [payBillsType, setPayBillsType] = useState("dashboard");
 
   switch (payBillsType) {
@@ -55,7 +55,7 @@ const PayBills = () => {
               />
             </div>
           </div>
-          <AgentKycComponent />
+          <AgentKycComponent setActiveSidebar={setActiveSidebar} />
           <TransactionsTable />
         </>
       );
