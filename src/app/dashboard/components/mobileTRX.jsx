@@ -53,7 +53,7 @@ export default function MobileTransactions() {
   ];
 
   return (
-    <div className="max-w-md mx-auto  p-4 ">
+    <div className="max-w-md mx-auto  p-4 md-[400px]:hidden">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Transactions</h2>
         <a href="#" className="text-blue-500 text-sm">
