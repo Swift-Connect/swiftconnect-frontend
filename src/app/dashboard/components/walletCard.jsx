@@ -134,7 +134,7 @@ export default function WalletCard({data}) {
           className="flex-1 bg-[#D3F1CC] py-2 rounded-lg font-bold shadow hover:bg-green-200"
           onClick={() => setIsRecieveMoneyModalOpen(true)}
         >
-          Receive <span className="ml-1">↓</span>
+        Top Up <span className="ml-1">↓</span>
         </button>
       </div>
       {isModalOpen && renderModalContent()}
