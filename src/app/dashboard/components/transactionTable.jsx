@@ -145,7 +145,7 @@ const TransactionsTable = () => {
                     </td>
                     <td
                       className={`py-[1.3em] px-[1.8em] font-medium text-${
-                        transaction.amount.startsWith("+") ? "green" : "red"
+                        transaction?.amount.toString().startsWith("+") ? "green" : "red"
                       }-600`}
                     >
                       {transaction.amount}
