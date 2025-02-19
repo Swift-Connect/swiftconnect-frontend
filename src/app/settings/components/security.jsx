@@ -87,7 +87,7 @@ export default function Security() {
       )}
 
       {nextStep === "new pin" && (
-        <ChangePinModal onClose={() => setNextStep("")} text={"new pin"} />
+        <ChangePinModal onClose={() => setNextStep("")}   text={"new pin"} />
       )}
 
       {nextStep === "OTP" && (

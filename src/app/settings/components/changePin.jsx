@@ -82,7 +82,7 @@ export default function ChangePinModal({ onClose, onNext, text }) {
               : "bg-blue-600 hover:bg-blue-700"
           }`}
           disabled={pin.includes("")}
-          onClick={() => onNext("OTP")}
+          onClick={text === "new pin" ? () => onClose() : () => onNext("OTP")}
         >
           Next
         </button>
