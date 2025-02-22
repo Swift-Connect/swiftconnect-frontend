@@ -1,5 +1,6 @@
 import Image from "next/image";
 import React, { useState } from "react";
+import { FaTimes } from "react-icons/fa";
 
 const EnterPinModal = ({ onClose, onConfirm, onNext, addCard }) => {
   const [pin, setPin] = useState(
@@ -29,8 +30,15 @@ const EnterPinModal = ({ onClose, onConfirm, onNext, addCard }) => {
   const isPinComplete = pin.every((digit) => digit !== "");
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white w-[45%] rounded-xl shadow-lg px-6 py-16 flex items-center justify-center flex-col max-md-[400px]:w-full">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" onClick={onClose}>
+      
+      <div className="bg-white relative w-[45%] rounded-xl shadow-lg px-6 py-16 flex items-center justify-center flex-col max-md-[400px]:w-full">
+         <button
+                  className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+                  onClick={onClose}
+                >
+                  <FaTimes size={20} />
+                </button>
         <Image
           src={"padlock.svg"}
           alt="padlock"
