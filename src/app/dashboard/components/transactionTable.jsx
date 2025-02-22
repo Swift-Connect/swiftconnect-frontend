@@ -11,6 +11,7 @@ const TransactionsTable = () => {
   const fetchData = async () => {
     try {
       const response = await axiosInstance.get("/payments/transactions/");
+      console.log("Transactions:", response.data);
       setTransactions(response.data);
     } catch (error) {
       console.error("Error fetching transactions:", error);
@@ -134,26 +135,33 @@ const TransactionsTable = () => {
                       idx % 2 === 0 ? "bg-white" : "bg-gray-50"
                     }`}
                   >
+                    {console.log(transaction)}
                     <td className="py-[1.3em] px-[1.8em] font-semibold text-[#232323]">
-                      {transaction.product}
+                      {transaction.reason === "Wallet funding"?"Transfer":""}
                     </td>
                     <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                      {transaction.id}
+                      #{transaction.transaction_id}
                     </td>
                     <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                      {transaction.date}
+                      {new Date(transaction.created_at).toLocaleDateString(
+                        "en-GB"
+                      )}
                     </td>
+
                     <td
                       className={`py-[1.3em] px-[1.8em] font-medium text-${
-                        transaction?.amount.toString().startsWith("+") ? "green" : "red"
+                        transaction.transaction_type === "credit"
+                          ? "green"
+                          : "red"
                       }-600`}
                     >
+                      {transaction.transaction_type === "credit" ? "+" : "-"}₦
                       {transaction.amount}
                     </td>
                     <td className="py-[1.3em] px-[1.8em]">
                       <div
                         className={`py-1 text-center text-xs font-medium rounded-full ${
-                          transaction.status === "Success"
+                          transaction.status === "completed"
                             ? "bg-green-100 text-green-600"
                             : transaction.status === "Failed"
                             ? "bg-red-100 text-red-600"
