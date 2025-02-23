@@ -135,7 +135,7 @@ const TransactionsTable = () => {
                       idx % 2 === 0 ? "bg-white" : "bg-gray-50"
                     }`}
                   >
-                    {console.log(transaction)}
+                    {/* {console.log(transaction)} */}
                     <td className="py-[1.3em] px-[1.8em] font-semibold text-[#232323]">
                       {transaction.reason === "Wallet funding"?"Transfer":""}
                     </td>
