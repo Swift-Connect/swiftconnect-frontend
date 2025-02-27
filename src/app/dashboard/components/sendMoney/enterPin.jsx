@@ -4,7 +4,14 @@ import { FaTimes } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const EnterPinModal = ({ onClose, onConfirm, onNext, addCard, message }) => {
+const EnterPinModal = ({
+  onClose,
+  onConfirm,
+  onNext,
+  addCard,
+  message,
+  isLoading,
+}) => {
   const [pin, setPin] = useState(
     addCard ? ["", "", "", "", "", ""] : ["", "", "", ""]
   );
@@ -31,7 +38,7 @@ const EnterPinModal = ({ onClose, onConfirm, onNext, addCard, message }) => {
 
   const isPinComplete = pin.every((digit) => digit !== "");
   if (message) {
-     toast.error(message);
+    toast.error(message);
   }
 
   return (
@@ -80,7 +87,7 @@ const EnterPinModal = ({ onClose, onConfirm, onNext, addCard, message }) => {
           className={`w-full text-white py-4 rounded-lg shadow-sm ${
             isPinComplete ? "bg-black hover:bg-[#484848]" : "bg-[#d2d2d2]"
           }`}
-          disabled={!isPinComplete}
+          disabled={!isPinComplete || isLoading}
           onClick={() => {
             onConfirm(pin.join(""));
             // onNext();

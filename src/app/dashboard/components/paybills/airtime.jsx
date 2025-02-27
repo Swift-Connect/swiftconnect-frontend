@@ -5,6 +5,7 @@ import SuccessModal from "../sendMoney/successModal";
 import Image from "next/image";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { handleBillsConfirm } from "@/utils/handleBillsConfirm";
 
 const Airtime = ({ onNext, setBillType }) => {
   const [network, setNetwork] = useState("GLO");
@@ -44,66 +45,81 @@ const Airtime = ({ onNext, setBillType }) => {
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
   // const [transactionPin, setTransactionPin] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
   const handlePinConfirm = async (pin) => {
-    console.log("Entered PIN:", pin);
-    // setTransactionPin(pin);
-    // setIsPinModalOpen(false);
-
-    // Make the API request with the entered PIN
-    setIsLoading(true);
-    const loadingToast = toast.loading("Processing payment...");
-    try {
-      const response = await fetch(
-        "https://swiftconnect-backend.onrender.com/services/airtime-topups-transactions/",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Transaction-PIN": pin,
-            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-          },
-          body: JSON.stringify({
-            network,
-
-            phone_number: phoneNumber,
-            amount,
-          }),
-        }
-      );
-      const data = await response.json();
-      console.log(data);
-
-      if (response.ok) {
-        toast.update(loadingToast, {
-          render: "Payment processed successfully!",
-          type: "success",
-          isLoading: false,
-          autoClose: 3000,
-        });
-        // window.location.href = data.payment_link;
-      } else {
-        console.log(data);
-
-        toast.update(loadingToast, {
-          render: data.detail || "Failed to process payment",
-          type: "error",
-          isLoading: false,
-          autoClose: 3000,
-        });
-      }
-      console.log(data);
-    } catch (err) {
-      toast.update(loadingToast, {
-        render: "Fetch error: " + err.message,
-        type: "error",
-        isLoading: false,
-        autoClose: 3000,
-      });
-      console.error("Fetch error:", err);
-    } finally {
-      setIsLoading(false);
-    }
+    handleBillsConfirm(
+      pin,
+      {
+        network,
+        phone_number: phoneNumber,
+        amount,
+      },
+      "https://swiftconnect-backend.onrender.com/services/airtime-topups-transactions/",
+      setIsLoading,
+      isLoading
+    );
   };
+
+  // const handlePinConfirm = async (pin) => {
+  //   console.log("Entered PIN:", pin);
+  //   // setTransactionPin(pin);
+  //   // setIsPinModalOpen(false);
+
+  //   // Make the API request with the entered PIN
+  //   setIsLoading(true);
+  //   const loadingToast = toast.loading("Processing payment...");
+  //   try {
+  //     const response = await fetch(
+  //       "https://swiftconnect-backend.onrender.com/services/airtime-topups-transactions/",
+  //       {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           "X-Transaction-PIN": pin,
+  //           Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+  //         },
+  //         body: JSON.stringify({
+  //           network,
+
+  //           phone_number: phoneNumber,
+  //           amount,
+  //         }),
+  //       }
+  //     );
+  //     const data = await response.json();
+  //     console.log(data);
+
+  //     if (response.ok) {
+  //       toast.update(loadingToast, {
+  //         render: "Payment processed successfully!",
+  //         type: "success",
+  //         isLoading: false,
+  //         autoClose: 3000,
+  //       });
+  //       // window.location.href = data.payment_link;
+  //     } else {
+  //       console.log(data);
+
+  //       toast.update(loadingToast, {
+  //         render: data.detail || "Failed to process payment",
+  //         type: "error",
+  //         isLoading: false,
+  //         autoClose: 3000,
+  //       });
+  //     }
+  //     console.log(data);
+  //   } catch (err) {
+  //     toast.update(loadingToast, {
+  //       render: "Fetch error: " + err.message,
+  //       type: "error",
+  //       isLoading: false,
+  //       autoClose: 3000,
+  //     });
+  //     console.error("Fetch error:", err);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   const handleSuccessClose = () => {
     setIsSuccess(false);
@@ -120,7 +136,8 @@ const Airtime = ({ onNext, setBillType }) => {
     <EnterPinModal
       onConfirm={handlePinConfirm}
       // onNext={() => setIsEnteringPin(false)}
-      onClose={() => setIsEnteringPin(false)}
+        onClose={() => setIsEnteringPin(false)}
+        isLoading={isLoading}
     />
   ) : isConfirming ? (
     <ConfirmPayment

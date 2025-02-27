@@ -1,10 +1,10 @@
-"use client"
-import { useEffect, useState, useRef } from "react";
+"use client";
+import { useEffect, useState, useRef, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-const VerifyPaymentPage = () => {
+const VerifyPaymentContent = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
@@ -13,9 +13,9 @@ const VerifyPaymentPage = () => {
   useEffect(() => {
     if (hasVerified.current) return;
 
-    const tx_ref = searchParams.get('tx_ref');
-    const transaction_id = searchParams.get('transaction_id');
-    const payment_type = searchParams.get('payment_type');
+    const tx_ref = searchParams.get("tx_ref");
+    const transaction_id = searchParams.get("transaction_id");
+    const payment_type = searchParams.get("payment_type");
 
     if (!tx_ref) {
       toast.error("Transaction reference is missing.");
@@ -31,18 +31,20 @@ const VerifyPaymentPage = () => {
     const verifyPayment = async () => {
       try {
         hasVerified.current = true;
-        const response = await fetch("https://swiftconnect-backend.onrender.com/payments/payment-callback/", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        });
-
+        const response = await fetch(
+          "https://swiftconnect-backend.onrender.com/payments/payment-callback/",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          }
+        );
 
         if (response.status === 200 || response.ok) {
           toast.success("Payment verified successfully!");
-          router.push('/dashboard');
+          router.push("/dashboard");
         } else {
           const data = await response.json();
           toast.error(data.message || "Failed to verify payment.");
@@ -80,6 +82,14 @@ const VerifyPaymentPage = () => {
         </div>
       )}
     </div>
+  );
+};
+
+const VerifyPaymentPage = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <VerifyPaymentContent />
+    </Suspense>
   );
 };
 
