@@ -36,14 +36,14 @@ const EnterPinModal = ({ onClose, onConfirm, onNext, addCard, message }) => {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-      onClick={onClose}
+      className="fixed inset-0 z-10 flex items-center justify-center bg-black bg-opacity-50"
+      // onClick={() => onClose()}
     >
-       <ToastContainer />
-      <div className="bg-white relative w-[45%] rounded-xl shadow-lg px-6 py-16 flex items-center justify-center flex-col max-md-[400px]:w-full">
+      <ToastContainer />
+      <div className="bg-white relative z-50 w-[45%] rounded-xl shadow-lg px-6 py-16 flex items-center justify-center flex-col max-md-[400px]:w-full">
         <button
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-          onClick={onClose}
+          onClick={() => onClose()}
         >
           <FaTimes size={20} />
         </button>

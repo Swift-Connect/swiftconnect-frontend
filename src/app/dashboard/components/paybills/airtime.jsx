@@ -47,7 +47,7 @@ const Airtime = ({ onNext, setBillType }) => {
   const handlePinConfirm = async (pin) => {
     console.log("Entered PIN:", pin);
     // setTransactionPin(pin);
-    setIsPinModalOpen(false);
+    // setIsPinModalOpen(false);
 
     // Make the API request with the entered PIN
     setIsLoading(true);
@@ -119,7 +119,8 @@ const Airtime = ({ onNext, setBillType }) => {
   ) : isEnteringPin ? (
     <EnterPinModal
       onConfirm={handlePinConfirm}
-      onNext={() => setIsEnteringPin(false)}
+      // onNext={() => setIsEnteringPin(false)}
+      onClose={() => setIsEnteringPin(false)}
     />
   ) : isConfirming ? (
     <ConfirmPayment
