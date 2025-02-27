@@ -1,7 +1,17 @@
 import Image from "next/image";
 import React, { useState } from "react";
+import { FaTimes } from "react-icons/fa";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-const EnterPinModal = ({ onClose, onConfirm, onNext, addCard }) => {
+const EnterPinModal = ({
+  onClose,
+  onConfirm,
+  onNext,
+  addCard,
+  message,
+  isLoading,
+}) => {
   const [pin, setPin] = useState(
     addCard ? ["", "", "", "", "", ""] : ["", "", "", ""]
   );
@@ -14,9 +24,9 @@ const EnterPinModal = ({ onClose, onConfirm, onNext, addCard }) => {
       setPin(newPin);
 
       // Move to the next input box if the current one is filled
-     if (value && index < (addCard ? 5 : 3)) {
-       document.getElementById(`pin-${index + 1}`).focus();
-     }
+      if (value && index < (addCard ? 5 : 3)) {
+        document.getElementById(`pin-${index + 1}`).focus();
+      }
     }
   };
 
@@ -27,10 +37,23 @@ const EnterPinModal = ({ onClose, onConfirm, onNext, addCard }) => {
   };
 
   const isPinComplete = pin.every((digit) => digit !== "");
+  if (message) {
+    toast.error(message);
+  }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white w-[45%] rounded-xl shadow-lg px-6 py-16 flex items-center justify-center flex-col max-md-[400px]:w-full">
+    <div
+      className="fixed inset-0 z-10 flex items-center justify-center bg-black bg-opacity-50"
+      // onClick={() => onClose()}
+    >
+      <ToastContainer />
+      <div className="bg-white relative z-50 w-[45%] rounded-xl shadow-lg px-6 py-16 flex items-center justify-center flex-col max-md-[400px]:w-full">
+        <button
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+          onClick={() => onClose()}
+        >
+          <FaTimes size={20} />
+        </button>
         <Image
           src={"padlock.svg"}
           alt="padlock"
@@ -64,10 +87,10 @@ const EnterPinModal = ({ onClose, onConfirm, onNext, addCard }) => {
           className={`w-full text-white py-4 rounded-lg shadow-sm ${
             isPinComplete ? "bg-black hover:bg-[#484848]" : "bg-[#d2d2d2]"
           }`}
-          disabled={!isPinComplete}
+          disabled={!isPinComplete || isLoading}
           onClick={() => {
             onConfirm(pin.join(""));
-            onNext();
+            // onNext();
           }}
         >
           Send Funds

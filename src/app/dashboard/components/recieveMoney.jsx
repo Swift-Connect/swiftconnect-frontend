@@ -4,9 +4,9 @@ import axiosInstance from "@/utils/axiosInstance";
 import axios from "axios";
 import { useState } from "react";
 import { FaTimes, FaShareAlt, FaCopy } from "react-icons/fa";
-import EnterPinModal from "./sendMoney/enterPin"; 
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import EnterPinModal from "./sendMoney/enterPin";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ReceiveMoneyModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
@@ -17,7 +17,7 @@ const ReceiveMoneyModal = ({ isOpen, onClose }) => {
     reason: "",
   });
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
-  const [transactionPin, setTransactionPin] = useState(""); 
+  const [transactionPin, setTransactionPin] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const paymentTypes = ["flutterwave", "monify", "paystack"];
@@ -34,39 +34,42 @@ const ReceiveMoneyModal = ({ isOpen, onClose }) => {
   const handlePinConfirm = async (pin) => {
     console.log("Entered PIN:", pin);
     setTransactionPin(pin);
-    setIsPinModalOpen(false); 
+    setIsPinModalOpen(false);
 
     // Make the API request with the entered PIN
     setIsLoading(true);
-    const loadingToast = toast.loading('Processing payment...');
+    const loadingToast = toast.loading("Processing payment...");
     try {
-      const response = await fetch("https://swiftconnect-backend.onrender.com/payments/credit-wallet/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Transaction-PIN": pin,
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-        body: JSON.stringify({
-          amount: formData.amount,
-          payment_type: formData.payment_type,
-          currency: formData.currency,
-          reason: formData.reason,
-        }),
-      });
+      const response = await fetch(
+        "https://swiftconnect-backend.onrender.com/payments/credit-wallet/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Transaction-PIN": pin,
+            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          },
+          body: JSON.stringify({
+            amount: formData.amount,
+            payment_type: formData.payment_type,
+            currency: formData.currency,
+            reason: formData.reason,
+          }),
+        }
+      );
       const data = await response.json();
       if (response.ok) {
         toast.update(loadingToast, {
-          render: 'Payment processed successfully!',
-          type: 'success',
+          render: "Payment processed successfully!",
+          type: "success",
           isLoading: false,
           autoClose: 3000,
         });
         window.location.href = data.payment_link;
       } else {
         toast.update(loadingToast, {
-          render: data.detail || 'Failed to process payment',
-          type: 'error',
+          render: data.detail || "Failed to process payment",
+          type: "error",
           isLoading: false,
           autoClose: 3000,
         });
@@ -74,8 +77,8 @@ const ReceiveMoneyModal = ({ isOpen, onClose }) => {
       console.log(data);
     } catch (err) {
       toast.update(loadingToast, {
-        render: 'Fetch error: ' + err.message,
-        type: 'error',
+        render: "Fetch error: " + err.message,
+        type: "error",
         isLoading: false,
         autoClose: 3000,
       });
@@ -86,9 +89,21 @@ const ReceiveMoneyModal = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+    <div
+      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+      onClick={onClose}
+    >
       <ToastContainer />
-      <div className="bg-white rounded-2xl p-6 w-full max-w-lg">
+      <div
+        className="bg-white rounded-2xl p-6 w-full max-w-lg relative"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+          onClick={onClose}
+        >
+          <FaTimes size={20} />
+        </button>
         <h2 className="text-xl font-bold mb-4">Credit Wallet</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -155,7 +170,7 @@ const ReceiveMoneyModal = ({ isOpen, onClose }) => {
             className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600"
             disabled={isLoading}
           >
-            {isLoading ? 'Processing...' : 'Submit'}
+            {isLoading ? "Processing..." : "Submit"}
           </button>
         </form>
       </div>
