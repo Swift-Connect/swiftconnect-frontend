@@ -3,6 +3,9 @@ import React, { useState } from "react";
 import SuccessModal from "../sendMoney/successModal";
 import EnterPinModal from "../sendMoney/enterPin";
 import ConfirmPayment from "./confirmPayment";
+import { handleBillsConfirm } from "@/utils/handleBillsConfirm";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Internet = ({ onNext, setBillType }) => {
   const [network, setNetwork] = useState("");
@@ -13,12 +16,17 @@ const Internet = ({ onNext, setBillType }) => {
   const [isConfirming, setIsConfirming] = useState(false);
   const [isEnteringPin, setIsEnteringPin] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = (e) => {
-    setIsConfirming(true);
-    // console.log(dataPlan);
-    
     e.preventDefault();
+    // setIsConfirming(true);
+    // console.log(dataPlan);
+    if (!network || !dataPlan || !dataType || !phoneNumber || !amount) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+    setIsConfirming(true);
     console.log({ network, dataPlan, dataType, phoneNumber, amount });
   };
 
@@ -35,11 +43,21 @@ const Internet = ({ onNext, setBillType }) => {
   const handleBack = () => {
     setIsConfirming(false);
   };
-  const handlePinConfirm = (pin) => {
-    console.log("Entered PIN:", pin);
-    setIsSuccess(true);
+
+  const handlePinConfirm = async (pin) => {
+   
+    handleBillsConfirm(
+      pin,
+      {
+        network,
+        phone_number: phoneNumber,
+        amount,
+      },
+      "data-plan-transactions/",
+      setIsLoading,
+      isLoading
+    );
   };
-  
 
   return isSuccess ? (
     <SuccessModal
@@ -49,7 +67,9 @@ const Internet = ({ onNext, setBillType }) => {
   ) : isEnteringPin ? (
     <EnterPinModal
       onConfirm={handlePinConfirm}
-      onNext={() => setIsEnteringPin(false)}
+      // onNext={() => setIsEnteringPin(false)}
+      onClose={() => setIsEnteringPin(false)}
+      isLoading={isLoading}
     />
   ) : isConfirming ? (
     <ConfirmPayment
@@ -63,6 +83,7 @@ const Internet = ({ onNext, setBillType }) => {
     />
   ) : (
     <div className="min-h-screen flex justify-center items-center">
+      <ToastContainer />
       <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
         <button
           className="text-gray-500 mb-4 flex items-center"
@@ -91,10 +112,10 @@ const Internet = ({ onNext, setBillType }) => {
               onChange={(e) => setNetwork(e.target.value)}
             >
               <option value="Select a Network">Select a Network</option>
-              <option value="GLO NG">GLO NG</option>
-              <option value="MTN NG">MTN NG</option>
-              <option value="AIRTEL NG">AIRTEL NG</option>
-              <option value="9MOBILE NG">9MOBILE NG</option>
+              <option value="GLO">GLO NG</option>
+              <option value="MTN">MTN NG</option>
+              <option value="AIRTEL">AIRTEL NG</option>
+              <option value="9MOBILE">9MOBILE NG</option>
             </select>
           </div>
 

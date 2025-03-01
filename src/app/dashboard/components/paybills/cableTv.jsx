@@ -3,9 +3,12 @@ import ConfirmPayment from "./confirmPayment";
 import EnterPinModal from "../sendMoney/enterPin";
 import SuccessModal from "../sendMoney/successModal";
 import Image from "next/image";
+import { handleBillsConfirm } from "@/utils/handleBillsConfirm";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const CableTv = ({ onNext, setBillType }) => {
-  const [service, setService] = useState("");
+  const [ setService] = useState("");
   const [provider, setProvider] = useState("");
   const [plan, setPlan] = useState("");
   const [amount, setAmount] = useState("");
@@ -15,7 +18,7 @@ const CableTv = ({ onNext, setBillType }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (name === "service") setService(value);
+    // if (name === ") setService(value);
     if (name === "provider") setProvider(value);
     if (name === "plan") setPlan(value);
     if (name === "amount") setAmount(value);
@@ -23,17 +26,32 @@ const CableTv = ({ onNext, setBillType }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if ( !provider || !plan || !amount) {
+      console.log({  provider, plan, amount });
+      toast.error("Please fill in all fields");
+      return;
+    }
     setIsConfirming(true);
   };
 
   const handleConfirm = () => {
-    console.log({ service, provider, plan, amount });
+    console.log({  provider, plan, amount });
     setIsEnteringPin(true);
   };
 
   const handlePinConfirm = (pin) => {
     console.log("Entered PIN:", pin);
-    setIsSuccess(true);
+    handleBillsConfirm(
+      pin,
+      {
+        network,
+        phone_number: phoneNumber,
+        amount,
+      },
+      "data-plan-transactions/",
+      setIsLoading,
+      isLoading
+    );
   };
 
   const handleSuccessClose = () => {
@@ -50,7 +68,7 @@ const CableTv = ({ onNext, setBillType }) => {
   ) : isEnteringPin ? (
     <EnterPinModal
       onConfirm={handlePinConfirm}
-      onNext={() => setIsEnteringPin(false)}
+      onClose={() => setIsEnteringPin(false)}
     />
   ) : isConfirming ? (
     <ConfirmPayment
@@ -58,18 +76,18 @@ const CableTv = ({ onNext, setBillType }) => {
       description="Cable TV"
       onBack={handleBack}
       onConfirm={handleConfirm}
-      service={service}
+      // {service}
       provider={provider}
       plan={plan}
     />
   ) : (
     <div className="flex justify-center">
+      <ToastContainer />
       <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
         <button
           className="text-sm text-gray-600 mb-4 flex items-center"
           onClick={() => setBillType("dashboard")}
-              >
-           
+        >
           <Image
             src={"backArrow.svg"}
             alt="confirmation icon"
@@ -83,6 +101,22 @@ const CableTv = ({ onNext, setBillType }) => {
 
         <form onSubmit={handleSubmit}>
           {/* Select Service */}
+          {/* <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Select Service
+            </label>
+            <select
+              name="service"
+              className="w-full border border-gray-300 rounded-lg p-2"
+              value={service}
+              onChange={handleInputChange}
+            >
+              <option value="">Select a Service</option>
+              <option value="cable">Cable TV</option>
+            </select>
+          </div> */}
+
+          {/* Select Provider */}
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Select Provider

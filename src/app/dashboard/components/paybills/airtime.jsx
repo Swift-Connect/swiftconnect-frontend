@@ -47,14 +47,15 @@ const Airtime = ({ onNext, setBillType }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handlePinConfirm = async (pin) => {
+    const data = {
+      network,
+      phone_number: phoneNumber,
+      amount,
+    };
     handleBillsConfirm(
       pin,
-      {
-        network,
-        phone_number: phoneNumber,
-        amount,
-      },
-      "https://swiftconnect-backend.onrender.com/services/airtime-topups-transactions/",
+      data,
+      "airtime-topups-transactions/",
       setIsLoading,
       isLoading
     );
@@ -136,8 +137,8 @@ const Airtime = ({ onNext, setBillType }) => {
     <EnterPinModal
       onConfirm={handlePinConfirm}
       // onNext={() => setIsEnteringPin(false)}
-        onClose={() => setIsEnteringPin(false)}
-        isLoading={isLoading}
+      onClose={() => setIsEnteringPin(false)}
+      isLoading={isLoading}
     />
   ) : isConfirming ? (
     <ConfirmPayment
@@ -147,6 +148,7 @@ const Airtime = ({ onNext, setBillType }) => {
       amount={amount}
       onBack={handleBack}
       onConfirm={handleConfirm}
+      description={"Airtime"}
     />
   ) : (
     <div className="min-h-screen flex justify-center items-center">
