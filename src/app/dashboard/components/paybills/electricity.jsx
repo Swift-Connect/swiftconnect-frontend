@@ -3,6 +3,9 @@ import { useState } from "react";
 import ConfirmPayment from "./confirmPayment";
 import EnterPinModal from "../sendMoney/enterPin";
 import SuccessModal from "../sendMoney/successModal";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { handleBillsConfirm } from "@/utils/handleBillsConfirm";
 
 export default function ElectricityPayment({ setBillType }) {
   const [serviceProvider, setServiceProvider] = useState("");
@@ -13,6 +16,7 @@ export default function ElectricityPayment({ setBillType }) {
   const [isConfirming, setIsConfirming] = useState(false);
   const [isEnteringPin, setIsEnteringPin] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -24,6 +28,10 @@ export default function ElectricityPayment({ setBillType }) {
 
   const handlePay = (e) => {
     e.preventDefault();
+    if (!serviceProvider || !packageType || !metreNumber || !amount) {
+      toast.error("Please fill in all fields");
+      return;
+    }
     setIsConfirming(true);
   };
 
@@ -39,7 +47,17 @@ export default function ElectricityPayment({ setBillType }) {
 
   const handlePinConfirm = (pin) => {
     console.log("Entered PIN:", pin);
-    setIsSuccess(true);
+    handleBillsConfirm(
+      pin,
+      {
+        meter_number: metreNumber,
+        // phone_number: phoneNumber,w
+        amount,
+      },
+      "electricity-transactions/",
+      setIsLoading,
+      isLoading
+    );
   };
 
   const handleSuccessClose = () => {
@@ -56,7 +74,8 @@ export default function ElectricityPayment({ setBillType }) {
   ) : isEnteringPin ? (
     <EnterPinModal
       onConfirm={handlePinConfirm}
-      onNext={() => setIsEnteringPin(false)}
+      // onNext={() => setIsEnteringPin(false)}
+      onClose={() => setIsEnteringPin(false)}
     />
   ) : isConfirming ? (
     <ConfirmPayment
@@ -70,6 +89,7 @@ export default function ElectricityPayment({ setBillType }) {
     />
   ) : (
     <div className="flex justify-center">
+      <ToastContainer />
       <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-md">
         <button
           className="text-sm text-gray-600 mb-4 flex items-center"
