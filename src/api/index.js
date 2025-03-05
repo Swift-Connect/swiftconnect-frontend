@@ -70,7 +70,26 @@ export async function deleteData(url) {
     }
 }
 
-
+export async function validateSmartCard(smartCardNumber, cableName) {
+    console.log('validate triggered...')
+    const url = `https://vtukonnect.com/ajax/validate_iuc?smart_card_number=${smartCardNumber}&cablename=${cableName}`;
+    try {
+        const response = await fetch(url, {
+            headers: {
+                Authorization: `Token ${process.env.CABLE_VALIDATOR}`,
+                "Content-Type": "application/json",
+            },
+        });
+        if (!response.ok) {
+            throw new Error(`Validation failed: ${response.statusText}`);
+        }
+        console.log('response....', await response.json())
+        return await response.json();
+    } catch (error) {
+        console.error('Error in smart card validation:', error);
+        throw error;
+    }
+}
 
 /**
  * @dev 
