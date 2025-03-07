@@ -21,15 +21,16 @@ const TransactionsTable = () => {
   useEffect(() => {
     fetchData();
   }, []);
-
-  const filteredTransactions =
-    activeTransactionTab === "all"
-      ? transactions
-      : activeTransactionTab === "Credit"
-      ? transactions.filter((transaction) => transaction.amount.startsWith("+"))
-      : transactions.filter((transaction) =>
-          transaction.amount.startsWith("-")
-        );
+const filteredTransactions =
+  activeTransactionTab === "all"
+    ? transactions
+    : activeTransactionTab === "Credit"
+    ? transactions.filter((transaction) =>
+        String(transaction?.amount).startsWith("+")
+      )
+    : transactions.filter((transaction) =>
+        String(transaction?.amount).startsWith("-")
+      );
 
   return (
     <div className="pt-8 w-[90%] max-md-[400px]:hidden">
@@ -108,7 +109,7 @@ const TransactionsTable = () => {
               </button>
             </div>
           </div>
-        </div>
+        </div>        
 
         <div className="rounded-t-[1em] overflow-hidden border border-gray-200">
           {filteredTransactions.length === 0 ? (
