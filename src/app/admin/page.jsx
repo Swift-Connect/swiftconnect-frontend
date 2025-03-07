@@ -28,7 +28,7 @@ const AdminPage = () => {
   };
 
   return (
-    <div className="flex bg-full bg-[#F6FCF5] ">
+    <div className="flex  bg-[#F6FCF5] ">
       <Sidebar
         setActiveSidebar={setActiveSidebar}
         setHideSideMenu={setHideSideMenu}
@@ -39,7 +39,7 @@ const AdminPage = () => {
       />
       <main className="flex-1 ">
         <Header setHideSideMenu={setHideSideMenu} user={user} />
-        <section className="py-6 px-4 max-md-[400px]:px-5 h-[80vh] max-md-[400px]:h-[90vh] fixed max-md-[400px]:w-full w- overflow-y-auto custom-scroll bg-[#F6FCF5]">
+        <section className="py-6 px-4 max-md-[400px]:px-5 h-[80vh] max-md-[400px]:h-[90vh] fixed max-md-[400px]:w-full  overflow-y-auto custom-scroll bg-[#F6FCF5] overflow-x-auto">
           {renderComponent()}
         </section>
       </main>
