@@ -1,6 +1,6 @@
 // app/page.js
 "use client";
-import axiosInstance from "@/utils/axiosInstance";
+import axiosInstance from "../../../utils/axiosInstance";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 
@@ -21,16 +21,16 @@ const TransactionsTable = () => {
   useEffect(() => {
     fetchData();
   }, []);
-const filteredTransactions =
-  activeTransactionTab === "all"
-    ? transactions
-    : activeTransactionTab === "Credit"
-    ? transactions.filter((transaction) =>
-        String(transaction?.amount).startsWith("+")
-      )
-    : transactions.filter((transaction) =>
-        String(transaction?.amount).startsWith("-")
-      );
+  const filteredTransactions =
+    activeTransactionTab === "all"
+      ? transactions
+      : activeTransactionTab === "Credit"
+      ? transactions.filter((transaction) =>
+          String(transaction?.amount).startsWith("+")
+        )
+      : transactions.filter((transaction) =>
+          String(transaction?.amount).startsWith("-")
+        );
 
   return (
     <div className="pt-8 w-[90%] max-md-[400px]:hidden">
@@ -109,7 +109,7 @@ const filteredTransactions =
               </button>
             </div>
           </div>
-        </div>        
+        </div>
 
         <div className="rounded-t-[1em] overflow-hidden border border-gray-200">
           {filteredTransactions.length === 0 ? (
@@ -138,7 +138,9 @@ const filteredTransactions =
                   >
                     {/* {console.log(transaction)} */}
                     <td className="py-[1.3em] px-[1.8em] font-semibold text-[#232323]">
-                      {transaction.reason === "Wallet funding"?"Transfer":""}
+                      {transaction.reason === "Wallet funding"
+                        ? "Transfer"
+                        : ""}
                     </td>
                     <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
                       #{transaction.transaction_id}

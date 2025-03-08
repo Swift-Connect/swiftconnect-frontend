@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { FaDollarSign } from "react-icons/fa";
 import { IoIosStats } from "react-icons/io";
 import { HiOutlineDocumentText } from "react-icons/hi";
-import axiosInstance from "@/utils/axiosInstance";
 import Image from "next/image";
 import {
   LineChart,
@@ -147,8 +146,8 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="overflow-hidden ">
- 
+    <div className="overflow-hidden">
+      <div className="overflow-x-auto">
         <div className="flex gap-4">
           {stats.map((stat, index) => (
             <Card
@@ -161,112 +160,112 @@ const Dashboard = () => {
             />
           ))}
         </div>
-        <div className="p-6 bg-gray-50 flex gap-6">
-          {/* Income Chart */}
-          <div className="bg-white p-4 rounded-lg shadow w-1/3">
-            <p className="text-gray-500 text-sm">This Week ▼</p>
-            <h2 className="text-2xl font-bold">₦6,000,000</h2>
-            <p className="text-green-500 text-sm">Total Income +2.45%</p>
+      </div>
+      <div className="p-6 bg-gray-50 flex gap-6">
+        {/* Income Chart */}
+        <div className="bg-white p-4 rounded-lg shadow w-1/3">
+          <p className="text-gray-500 text-sm">This Week ▼</p>
+          <h2 className="text-2xl font-bold">₦6,000,000</h2>
+          <p className="text-green-500 text-sm">Total Income +2.45%</p>
 
-            <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={incomeData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Line
-                  type="monotone"
-                  dataKey="transactions"
-                  stroke="#1D4ED8"
-                  strokeWidth={2}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="utility"
-                  stroke="#60A5FA"
-                  strokeWidth={2}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="agents"
-                  stroke="#FB923C"
-                  strokeWidth={2}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+          <ResponsiveContainer width="100%" height={200}>
+            <LineChart data={incomeData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Line
+                type="monotone"
+                dataKey="transactions"
+                stroke="#1D4ED8"
+                strokeWidth={2}
+              />
+              <Line
+                type="monotone"
+                dataKey="utility"
+                stroke="#60A5FA"
+                strokeWidth={2}
+              />
+              <Line
+                type="monotone"
+                dataKey="agents"
+                stroke="#FB923C"
+                strokeWidth={2}
+              />
+            </LineChart>
+          </ResponsiveContainer>
 
-            <div className="flex justify-between text-sm mt-4">
-              <p className="text-blue-700">● Transactions</p>
-              <p className="text-blue-400">● Utility Bills</p>
-              <p className="text-orange-500">● Agent Subscription</p>
-            </div>
+          <div className="flex justify-between text-sm mt-4">
+            <p className="text-blue-700">● Transactions</p>
+            <p className="text-blue-400">● Utility Bills</p>
+            <p className="text-orange-500">● Agent Subscription</p>
           </div>
+        </div>
 
-          {/* Traffic Chart */}
-          <div className="bg-white p-4 rounded-lg shadow w-1/3">
-            <p className="text-gray-500 text-sm">Daily Traffic</p>
-            <h2 className="text-2xl font-bold">25,000 Visitors</h2>
-            <p className="text-green-500 text-sm">+2.45%</p>
+        {/* Traffic Chart */}
+        <div className="bg-white p-4 rounded-lg shadow w-1/3">
+          <p className="text-gray-500 text-sm">Daily Traffic</p>
+          <h2 className="text-2xl font-bold">25,000 Visitors</h2>
+          <p className="text-green-500 text-sm">+2.45%</p>
 
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={trafficData}>
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="visitors" fill="url(#gradient)" barSize={30} />
-                <defs>
-                  <linearGradient id="gradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#1D4ED8" stopOpacity={1} />
-                    <stop offset="100%" stopColor="#60A5FA" stopOpacity={1} />
-                  </linearGradient>
-                </defs>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={trafficData}>
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="visitors" fill="url(#gradient)" barSize={30} />
+              <defs>
+                <linearGradient id="gradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#1D4ED8" stopOpacity={1} />
+                  <stop offset="100%" stopColor="#60A5FA" stopOpacity={1} />
+                </linearGradient>
+              </defs>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
 
-          {/* User Breakdown */}
-          <div className="bg-white p-4 rounded-lg shadow w-1/3">
-            <p className="text-gray-500 text-sm">Users Breakdown</p>
+        {/* User Breakdown */}
+        <div className="bg-white p-4 rounded-lg shadow w-1/3">
+          <p className="text-gray-500 text-sm">Users Breakdown</p>
 
-            <ResponsiveContainer width="100%" height={200}>
-              <PieChart>
-                <Pie
-                  data={userData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={50}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {userData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index]} />
-                  ))}
-                </Pie>
-                <Legend verticalAlign="bottom" height={36} />
-              </PieChart>
-            </ResponsiveContainer>
+          <ResponsiveContainer width="100%" height={200}>
+            <PieChart>
+              <Pie
+                data={userData}
+                cx="50%"
+                cy="50%"
+                innerRadius={50}
+                outerRadius={80}
+                fill="#8884d8"
+                dataKey="value"
+              >
+                {userData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index]} />
+                ))}
+              </Pie>
+              <Legend verticalAlign="bottom" height={36} />
+            </PieChart>
+          </ResponsiveContainer>
 
-            <div className="flex justify-between text-sm mt-4">
-              <div className="flex items-center">
-                <span className="w-3 h-3 bg-blue-700 rounded-full mr-2"></span>{" "}
-                Active User
-              </div>
-              <p>70%</p>
+          <div className="flex justify-between text-sm mt-4">
+            <div className="flex items-center">
+              <span className="w-3 h-3 bg-blue-700 rounded-full mr-2"></span>{" "}
+              Active User
             </div>
-            <div className="flex justify-between text-sm">
-              <div className="flex items-center">
-                <span className="w-3 h-3 bg-blue-400 rounded-full mr-2"></span>{" "}
-                Inactive User
-              </div>
-              <p>30%</p>
-            </div>
+            <p>70%</p>
           </div>
-       
+          <div className="flex justify-between text-sm">
+            <div className="flex items-center">
+              <span className="w-3 h-3 bg-blue-400 rounded-full mr-2"></span>{" "}
+              Inactive User
+            </div>
+            <p>30%</p>
+          </div>
+        </div>
       </div>
 
       <div className="pt-8 w-[90%] max-md-[400px]:hidden">
-        <h1 className="text-[22px] font-semibold mb-4">Pending Transactions</h1>
+        <h1 className="text-[22px] font-semibold mb-4">Pending Tasks</h1>
 
         <div className="flex  flex-col justify-between mb-4">
           <ul className="flex items-center gap-[5em] mb-4 border-b-[1px] border-gray-200">
