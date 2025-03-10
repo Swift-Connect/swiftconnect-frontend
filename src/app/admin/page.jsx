@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Header from "../dashboard/components/header";
 import Sidebar from "../dashboard/components/sidebar";
 import Dashboard from "./components/dashboard";
+import UserManagement from "./components/user_management";
 
 const AdminPage = () => {
   const [hideSideMenu, setHideSideMenu] = useState(true);
@@ -17,6 +18,14 @@ const AdminPage = () => {
       case "Dashboard":
         return (
           <Dashboard
+            setActiveSidebar={setActiveSidebar}
+            data={data}
+            user={user}
+          />
+        );
+      case "User Management":
+        return (
+          <UserManagement
             setActiveSidebar={setActiveSidebar}
             data={data}
             user={user}
@@ -39,7 +48,7 @@ const AdminPage = () => {
       />
       <main className="flex-1 ">
         <Header setHideSideMenu={setHideSideMenu} user={user} />
-        <section className="py-6 px-4 max-md-[400px]:px-5 h-[80vh] max-md-[400px]:h-[90vh] fixed max-md-[400px]:w-full  overflow-y-auto custom-scroll bg-[#F6FCF5] overflow-x-auto">
+        <section className="p-6">
           {renderComponent()}
         </section>
       </main>

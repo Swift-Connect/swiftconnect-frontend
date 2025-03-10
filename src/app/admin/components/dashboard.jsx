@@ -14,11 +14,13 @@ import {
 } from "recharts";
 import { BarChart, Bar } from "recharts";
 import { PieChart, Pie, Cell, Legend } from "recharts";
+import UsersTable from "./userTable";
+import TransactionsTable from "./TransactionsTable";
 
 const Card = ({ icon, title, value, bgColor, textColor }) => {
   return (
     <div
-      className={`p-4 rounded-2xl flex items-center gap-4 shadow w-[18em]  ${bgColor}`}
+      className={`p-4 rounded-2xl flex items-center gap-4 shadow  ${bgColor}`}
     >
       <div className="bg-gray-200 p-2 rounded-full">{icon}</div>
       <div>
@@ -147,8 +149,8 @@ const Dashboard = () => {
 
   return (
     <div className="overflow-hidden">
-      <div className="overflow-x-auto">
-        <div className="flex gap-4">
+      <div className="overflow-x-aut">
+        <div className="flex gap-4 justify-between">
           {stats.map((stat, index) => (
             <Card
               key={index}
@@ -161,7 +163,7 @@ const Dashboard = () => {
           ))}
         </div>
       </div>
-      <div className="p-6 bg-gray-50 flex gap-6">
+      <div className="py-6 bg-gray-50 flex gap-6">
         {/* Income Chart */}
         <div className="bg-white p-4 rounded-lg shadow w-1/3">
           <p className="text-gray-500 text-sm">This Week ▼</p>
@@ -264,7 +266,7 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div className="pt-8 w-[90%] max-md-[400px]:hidden">
+      <div className="pt-8 max-md-[400px]:hidden">
         <h1 className="text-[22px] font-semibold mb-4">Pending Tasks</h1>
 
         <div className="flex  flex-col justify-between mb-4">
@@ -342,47 +344,11 @@ const Dashboard = () => {
           </div>
         </div>
         <div className="rounded-t-[1em] overflow-hidden border border-gray-200">
-          {users.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">No Users yet</div>
-          ) : (
-            <table className="w-full text-sm border-collapse">
-              <thead>
-                <tr className="bg-[#F9F8FA] text-left text-[#525252]">
-                  <th className="py-[1.3em] px-[1.8em]">Username</th>
-                  <th className="py-[1.3em] px-[1.8em]">Account Id</th>
-                  <th className="py-[1.3em] px-[1.8em]">Date</th>
-                  <th className="py-[1.3em] px-[1.8em]">API Response</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((user, idx) => (
-                  <tr
-                    key={idx}
-                    className={`border-t ${
-                      idx % 2 === 0 ? "bg-white" : "bg-gray-50"
-                    }`}
-                  >
-                    <td className="py-[1.3em] px-[1.8em] font-semibold text-[#232323]">
-                      {user.username}
-                    </td>
-                    <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                      #{user.account_id}
-                    </td>
-                    <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                      {new Date(user.created_at).toLocaleDateString("en-GB")}
-                    </td>
-                    <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                      {user.api_response}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+          <UsersTable />
         </div>
       </div>
 
-      <div className="pt-8 w-[90%] max-md-[400px]:hidden">
+      <div className="pt-8 max-md-[400px]:hidden">
         <h1 className="text-[22px] font-semibold mb-4">Recent Transactions</h1>
         <div className="flex  flex-col justify-between mb-4">
           <ul className="flex items-center gap-[5em] mb-4 border-b-[1px] border-gray-200">
@@ -459,80 +425,7 @@ const Dashboard = () => {
           </div>
         </div>
         <div className="rounded-t-[1em] overflow-hidden border border-gray-200">
-          {filteredTransactions.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              No Transactions yet
-            </div>
-          ) : (
-            <table className="w-full text-sm border-collapse">
-              <thead>
-                <tr className="bg-[#F9F8FA] text-left text-[#525252]">
-                  <th className="py-[1.3em] px-[1.8em]">Product</th>
-                  <th className="py-[1.3em] px-[1.8em]">Transaction ID</th>
-                  <th className="py-[1.3em] px-[1.8em]">Date</th>
-                  <th className="py-[1.3em] px-[1.8em]">Amount</th>
-                  <th className="py-[1.3em] px-[1.8em]">Status</th>
-                  <th className="py-[1.3em] px-[1.8em]">Receipt</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredTransactions.map((transaction, idx) => (
-                  <tr
-                    key={idx}
-                    className={`border-t ${
-                      idx % 2 === 0 ? "bg-white" : "bg-gray-50"
-                    }`}
-                  >
-                    <td className="py-[1.3em] px-[1.8em] font-semibold text-[#232323]">
-                      {transaction.reason === "Wallet funding"
-                        ? "Transfer"
-                        : ""}
-                    </td>
-                    <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                      #{transaction.transaction_id}
-                    </td>
-                    <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                      {new Date(transaction.created_at).toLocaleDateString(
-                        "en-GB"
-                      )}
-                    </td>
-                    <td
-                      className={`py-[1.3em] px-[1.8em] font-medium text-${
-                        transaction.transaction_type === "credit"
-                          ? "green"
-                          : "red"
-                      }-600`}
-                    >
-                      {transaction.transaction_type === "credit" ? "+" : "-"}₦
-                      {transaction.amount}
-                    </td>
-                    <td className="py-[1.3em] px-[1.8em]">
-                      <div
-                        className={`py-1 text-center text-xs font-medium rounded-full ${
-                          transaction.status === "completed"
-                            ? "bg-green-100 text-green-600"
-                            : transaction.status === "Failed"
-                            ? "bg-red-100 text-red-600"
-                            : transaction.status === "Pending"
-                            ? "bg-yellow-100 text-yellow-600"
-                            : transaction.status === "Refunded"
-                            ? "bg-[#52525233] text-[#525252]"
-                            : ""
-                        }`}
-                      >
-                        {transaction.status}
-                      </div>
-                    </td>
-                    <td className="py-[1.3em] px-[1.8em]">
-                      <button className="text-green-600 text-sm font-semibold">
-                        View
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+         <TransactionsTable/>
         </div>
       </div>
     </div>
