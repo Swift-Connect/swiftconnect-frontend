@@ -56,7 +56,13 @@ export default function Home() {
   const renderComponent = () => {
     switch (activeSidebar) {
       case "Dashboard":
-        return <Dashboard setActiveSidebar={setActiveSidebar} data={data} user={user} />;
+        return (
+          <Dashboard
+            setActiveSidebar={setActiveSidebar}
+            data={data}
+            user={user}
+          />
+        );
       case "Pay Bills":
         return <PayBills setActiveSidebar={setActiveSidebar} />;
       case "Cards":
@@ -79,6 +85,7 @@ export default function Home() {
         hideSideMenu={hideSideMenu}
         data={data}
         user={user}
+        role="user"
       />
       <main className="flex-1 ">
         <Header setHideSideMenu={setHideSideMenu} user={user} />

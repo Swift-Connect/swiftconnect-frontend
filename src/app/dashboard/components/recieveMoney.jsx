@@ -1,6 +1,6 @@
 "use client";
 
-import axiosInstance from "@/utils/axiosInstance";
+import axiosInstance from "../../../utils/axiosInstance";
 import axios from "axios";
 import { useState } from "react";
 import { FaTimes, FaShareAlt, FaCopy } from "react-icons/fa";

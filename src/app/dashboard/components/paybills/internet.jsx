@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import SuccessModal from "../sendMoney/successModal";
 import EnterPinModal from "../sendMoney/enterPin";
 import ConfirmPayment from "./confirmPayment";
-import { handleBillsConfirm } from "@/utils/handleBillsConfirm";
+import { handleBillsConfirm } from "../../../../utils/handleBillsConfirm";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 

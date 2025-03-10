@@ -5,7 +5,7 @@ import EnterPinModal from "../sendMoney/enterPin";
 import SuccessModal from "../sendMoney/successModal";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { handleBillsConfirm } from "@/utils/handleBillsConfirm";
+import { handleBillsConfirm } from "../../../../utils/handleBillsConfirm";
 
 export default function ElectricityPayment({ setBillType }) {
   const [serviceProvider, setServiceProvider] = useState("");
