@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Table from "../../components/Table";
+
 
 const UsersTable = () => {
   const columns = ["ID", "Name", "Email", "Status"];

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import React, { useState } from "react";
 import UsersTable from "../dashboard/components/userTable";
-import TransactionsTable from "../dashboard/components/TransactionsTable";
+
 
 const UserManagement = () => {
   const [activeTab, setActiveTab] = useState("Approve KYC");
