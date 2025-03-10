@@ -1,4 +1,4 @@
-import Table from "./Table";
+import Table from "../../components/Table";
 
 const TransactionsTable = () => {
   const columns = ["ID", "User", "Product", "Amount", "Date", "Status"];

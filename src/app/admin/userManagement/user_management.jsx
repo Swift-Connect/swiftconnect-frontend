@@ -1,18 +1,17 @@
 import Image from "next/image";
 import React, { useState } from "react";
-import UsersTable from "./userTable";
-import TransactionsTable from "./TransactionsTable";
+import UsersTable from "../dashboard/components/userTable";
+import TransactionsTable from "../dashboard/components/TransactionsTable";
 
 const UserManagement = () => {
-      const [activeTab, setActiveTab] = useState("Approve KYC");
-      const [activeTransactionTab, setActiveTransactionTab] = useState("all");
-      const [transactions, setTransactions] = useState([]);
-      const [users, setUsers] = useState([]);
+  const [activeTab, setActiveTab] = useState("Approve KYC");
+  const [activeTransactionTab, setActiveTransactionTab] = useState("all");
+  const [transactions, setTransactions] = useState([]);
+  const [users, setUsers] = useState([]);
   return (
-    <div className="overflow-hidden p-6">
-
-      <div className="pt-8 max-md-[400px]:hidden">
-        <h1 className="text-[22px] font-semibold mb-4">User Management</h1>
+    <div className="overflow-hidden ">
+      <div className="max-md-[400px]:hidden">
+        <h1 className="text-[22px] font-semibold mb-8">User Management</h1>
 
         <div className="flex  flex-col justify-between mb-4">
           <ul className="flex items-center gap-[5em] mb-4 border-b-[1px] border-gray-200">
@@ -92,8 +91,6 @@ const UserManagement = () => {
           <UsersTable />
         </div>
       </div>
-
-
     </div>
   );
 };

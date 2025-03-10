@@ -2,8 +2,8 @@
 import React, { useState } from "react";
 import Header from "../dashboard/components/header";
 import Sidebar from "../dashboard/components/sidebar";
-import Dashboard from "./components/dashboard";
-import UserManagement from "./components/user_management";
+import UserManagement from "./userManagement/user_management";
+import Dashboard from "./dashboard/dashboard";
 
 const AdminPage = () => {
   const [hideSideMenu, setHideSideMenu] = useState(true);
@@ -48,9 +48,7 @@ const AdminPage = () => {
       />
       <main className="flex-1 ">
         <Header setHideSideMenu={setHideSideMenu} user={user} />
-        <section className="p-6">
-          {renderComponent()}
-        </section>
+        <section className="p-6 h-[80vh] overflow-y-auto">{renderComponent()}</section>
       </main>
     </div>
   );

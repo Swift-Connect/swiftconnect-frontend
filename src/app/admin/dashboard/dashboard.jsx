@@ -14,8 +14,10 @@ import {
 } from "recharts";
 import { BarChart, Bar } from "recharts";
 import { PieChart, Pie, Cell, Legend } from "recharts";
-import UsersTable from "./userTable";
-import TransactionsTable from "./TransactionsTable";
+import UsersTable from "./components/userTable";
+import TransactionsTable from "./components/TransactionsTable";
+// import UsersTable from "./userTable";
+// import TransactionsTable from "./TransactionsTable";
 
 const Card = ({ icon, title, value, bgColor, textColor }) => {
   return (
