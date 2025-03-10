@@ -21,7 +21,6 @@ const TableTabs = ({ setActiveTab, activeTab, header, tabs }) => {
               </li>
             </>
           ))}
-        
         </ul>
         <div className="flex items-center justify-between">
           <div className="flex items-center w-[50%] border rounded-[4em] px-3 py-1 ">

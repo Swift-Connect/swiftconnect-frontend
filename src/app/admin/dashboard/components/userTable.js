@@ -1,5 +1,6 @@
 import { useState } from "react";
-
+import { FaArrowDown, FaChevronDown } from "react-icons/fa";
+import ActionPopUp from "./actionPopUp";
 
 const UsersTable = () => {
   const columns = ["ID", "Name", "Email", "Status"];
@@ -131,10 +132,12 @@ const UsersTable = () => {
       api_response: "Api Response",
     },
   ];
+
   const [checkedItems, setCheckedItems] = useState(
     new Array(data.length).fill(false)
   );
   const [isAllChecked, setIsAllChecked] = useState(false);
+  const [activeRow, setActiveRow] = useState(null);
 
   const handleHeaderCheckboxChange = () => {
     const newCheckedState = !isAllChecked;
@@ -147,6 +150,10 @@ const UsersTable = () => {
     newCheckedItems[index] = !newCheckedItems[index];
     setCheckedItems(newCheckedItems);
     setIsAllChecked(newCheckedItems.every((item) => item));
+  };
+
+  const handleActionClick = (index) => {
+    setActiveRow(activeRow === index ? null : index);
   };
 
   return (
@@ -195,8 +202,14 @@ const UsersTable = () => {
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
                   {new Date(user.created_at).toLocaleDateString("en-GB")}
                 </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  Processing
+                <td className="py-[1.3em] px-[1.8em] text-[#fff] relative">
+                  <span
+                    className="bg-[#00613A] rounded-xl flex w-fit items-center justify-center gap-2 py-1 px-2 cursor-pointer"
+                    onClick={() => handleActionClick(idx)}
+                    >
+                    Approved <FaChevronDown />
+                  </span>
+                    {activeRow === idx && <ActionPopUp />}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
                   {user.api_response}
@@ -209,4 +222,5 @@ const UsersTable = () => {
     </>
   );
 };
+
 export default UsersTable;
