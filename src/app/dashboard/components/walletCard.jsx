@@ -11,8 +11,7 @@ import SendToOtherBanksModal from "./sendMoney/sendToOtherBank/SendToOtherBank";
 import SendToOtherBanksModalSecondStep from "./sendMoney/sendToOtherBank/sendToOtherBankSecond";
 import ReceiveMoneyModal from "./recieveMoney";
 
-
-export default function WalletCard({data}) {
+export default function WalletCard({ data }) {
   const [cardNumber] = useState("**** 3241");
   const [balance] = useState("N22,880.50");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -23,15 +22,11 @@ export default function WalletCard({data}) {
   const [acctNum, setAcctNum] = useState();
   const [isRecieveMoneyModalOpen, setIsRecieveMoneyModalOpen] = useState(false);
 
-
-//  console.log(data);
- 
+  //  console.log(data);
 
   const onConfirm = (pin) => {
     console.log(pin);
   };
-
- 
 
   const renderModalContent = () => {
     switch (currentView) {
@@ -51,6 +46,7 @@ export default function WalletCard({data}) {
             onNext={() => setCurrentView("confirmDetails")}
             setNarrationn={setNarration}
             setUsername={setUsername}
+            // transferType="internal"
           />
         );
       case "toOtherBank":
@@ -61,6 +57,7 @@ export default function WalletCard({data}) {
             onNext={() => setCurrentView("ToOtherBankSecondStep")}
             setName={setName}
             setAcctNum={setAcctNum}
+            // transferType="bank"
           />
         );
       case "ToOtherBankSecondStep":
@@ -92,8 +89,11 @@ export default function WalletCard({data}) {
       case "enterPin":
         return (
           <EnterPinModal
+            onClose={() => setIsModalOpen(false)}
             onConfirm={onConfirm}
             onNext={() => setCurrentView("success")}
+            transferType={currentView === "swiftConnect" ? "internal" : "bank"}
+            data={currentView === "swiftConnect" ? {} : {}}
           />
         );
       case "success":
@@ -134,7 +134,7 @@ export default function WalletCard({data}) {
           className="flex-1 bg-[#D3F1CC] py-2 rounded-lg font-bold shadow hover:bg-green-200"
           onClick={() => setIsRecieveMoneyModalOpen(true)}
         >
-        Top Up <span className="ml-1">↓</span>
+          Top Up <span className="ml-1">↓</span>
         </button>
       </div>
       {isModalOpen && renderModalContent()}

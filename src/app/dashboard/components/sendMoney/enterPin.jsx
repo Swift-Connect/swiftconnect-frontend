@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { FaTimes } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import axios from "axios";
 
 const EnterPinModal = ({
   onClose,
@@ -11,6 +12,11 @@ const EnterPinModal = ({
   addCard,
   message,
   isLoading,
+  transferType,
+  recipientEmail,
+  accountNumber,
+  narration,
+  amount,
 }) => {
   const [pin, setPin] = useState(
     addCard ? ["", "", "", "", "", ""] : ["", "", "", ""]
@@ -33,6 +39,50 @@ const EnterPinModal = ({
   const handleKeyDown = (e, index) => {
     if (e.key === "Backspace" && !pin[index] && index > 0) {
       document.getElementById(`pin-${index - 1}`).focus();
+    }
+  };
+
+  const handleSubmit = async () => {
+    const enteredPin = pin.join("");
+    onConfirm(enteredPin);
+
+    // Make the API request with the entered PIN
+    const loadingToast = toast.loading("Processing transfer...");
+    try {
+      const response = await axios.post(
+        "https://swiftconnect-backend.onrender.com/payments/transfer-funds/",
+        {
+          transfer_type: transferType,
+          payment_type: "flutterwave",
+          recipient_email: recipientEmail,
+          account_bank: "string", // Replace with actual bank code if needed
+          account_number: accountNumber,
+          narration: narration,
+          amount: amount,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "X-Transaction-PIN": enteredPin,
+            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          },
+        }
+      );
+      toast.update(loadingToast, {
+        render: "Transfer processed successfully!",
+        type: "success",
+        isLoading: false,
+        autoClose: 3000,
+      });
+      onNext();
+    } catch (err) {
+      toast.update(loadingToast, {
+        render: "Failed to process transfer: " + err.message,
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+      });
+      console.error("Transfer error:", err);
     }
   };
 
@@ -88,19 +138,10 @@ const EnterPinModal = ({
             isPinComplete ? "bg-black hover:bg-[#484848]" : "bg-[#d2d2d2]"
           }`}
           disabled={!isPinComplete || isLoading}
-          onClick={() => {
-            onConfirm(pin.join(""));
-            // onNext();
-          }}
+          onClick={handleSubmit}
         >
           Send Funds
         </button>
-        {/* <button
-          className="w-full text-gray-700 py-4 mt-2 rounded-lg shadow-sm bg-gray-200 hover:bg-gray-300"
-          onClick={onClose}
-        >
-          Cancel
-        </button> */}
       </div>
     </div>
   );
