@@ -7,6 +7,7 @@ const SwiftConnectModal = ({
   onNext,
   setNarrationn,
   setUsername,
+  // transferType
 }) => {
   const [sendTo, setSendTo] = useState("Account Number");
   const [inputValue, setInputValue] = useState("");

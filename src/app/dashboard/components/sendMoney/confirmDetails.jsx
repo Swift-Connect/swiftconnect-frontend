@@ -1,7 +1,14 @@
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 
-const ConfirmDetials = ({ onClose, onBack, narration, username, onNext }) => {
+const ConfirmDetials = ({
+  onClose,
+  onBack,
+  narration,
+  username,
+  onNext,
+  transferType,
+}) => {
   const [isEnabled, setIsEnabled] = useState(false);
 
   return (
