@@ -14,15 +14,66 @@ import ReceiveMoneyModal from "./recieveMoney";
 export default function WalletCard({ data }) {
   const [cardNumber] = useState("**** 3241");
   const [balance] = useState("N22,880.50");
+  const [amount, setAmount] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentView, setCurrentView] = useState("main");
   const [narration, setNarration] = useState();
   const [username, setUsername] = useState();
   const [name, setName] = useState();
   const [acctNum, setAcctNum] = useState();
+  const [inputValue, setInputValue] = useState("");
   const [isRecieveMoneyModalOpen, setIsRecieveMoneyModalOpen] = useState(false);
+  const [pin, setPin] = useState( ["", "", "", ""]);
+  const [isInternal, setIsInternal] = useState(false);
 
   //  console.log(data);
+
+
+
+  const makeTransfer = async () => {
+    console.log('view', currentView)
+    const enteredPin = pin.join("");
+    onConfirm(enteredPin);
+    const transferData = {
+      transfer_type: isInternal ? "internal" : "bank",
+      narration,
+      amount,
+      ...(isInternal
+        ? { recipient_email: inputValue }
+        : { account_number: inputValue , payment_type: "paystack", }),
+    };
+
+    // Remove any fields that are empty
+    Object.keys(transferData).forEach(
+      (key) => transferData[key] === "" && delete transferData[key]
+    );
+
+    try {
+      const response = await fetch(
+        "https://swiftconnect-backend.onrender.com/payments/transfer-funds/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Transaction-PIN": enteredPin,
+            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          },
+          body: JSON.stringify(transferData),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to make transfer");
+      }
+
+      const data = await response.json();
+      console.log("Transfer successful:", data);
+    } catch (error) {
+      console.error("Error during transfer:", error);
+    }
+  };
+
 
   const onConfirm = (pin) => {
     console.log(pin);
@@ -46,6 +97,12 @@ export default function WalletCard({ data }) {
             onNext={() => setCurrentView("confirmDetails")}
             setNarrationn={setNarration}
             setUsername={setUsername}
+            setInputValue={setInputValue}
+            setNarration={setNarration}
+            setAmount={setAmount}
+            inputValue={inputValue}
+            amount={amount}
+            narration={narration}
             // transferType="internal"
           />
         );
@@ -94,6 +151,9 @@ export default function WalletCard({ data }) {
             onNext={() => setCurrentView("success")}
             transferType={currentView === "swiftConnect" ? "internal" : "bank"}
             data={currentView === "swiftConnect" ? {} : {}}
+            setPin={setPin}
+            pin={pin}
+            handleSubmit={makeTransfer}
           />
         );
       case "success":
@@ -126,7 +186,10 @@ export default function WalletCard({ data }) {
       <div className="flex gap-4 mt-4 text-[#104F01] ">
         <button
           className="flex-1 bg-[#D3F1CC] py-4 rounded-lg font-bold shadow hover:bg-green-200 max-md-[400px]:py-2"
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => {
+            setIsModalOpen(true);
+            setIsInternal(true);
+          }}
         >
           Send <span className="ml-1">↑</span>
         </button>

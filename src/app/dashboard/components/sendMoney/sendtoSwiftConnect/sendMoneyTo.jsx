@@ -7,12 +7,16 @@ const SwiftConnectModal = ({
   onNext,
   setNarrationn,
   setUsername,
-  // transferType
+  setInputValue,
+  setAmount,
+  inputValue,
+  amount,
+  narration,
 }) => {
   const [sendTo, setSendTo] = useState("Account Number");
-  const [inputValue, setInputValue] = useState("");
-  const [amount, setAmount] = useState("");
-  const [narration, setNarration] = useState("");
+  
+  
+  
   const [isLoading, setIsLoading] = useState(false);
   const [matchedAccount, setMatchedAccount] = useState(null);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
@@ -38,26 +42,16 @@ const SwiftConnectModal = ({
   const handleInputChange = (e) => {
     const value = e.target.value;
     setInputValue(value);
-    setIsLoading(true);
-
-    setTimeout(() => {
-      const account = userAccounts.find((account) =>
-        sendTo === "Account Number"
-          ? account.accountNumber === value
-          : account.username === value
-      );
-      setMatchedAccount(account || null);
-      setIsLoading(false);
-    }, 500); // Simulates loading delay
+    // setIsLoading(true);
   };
 
   useEffect(() => {
-    if (inputValue && amount && narration && matchedAccount) {
+    if (inputValue && amount) {
       setIsButtonDisabled(false);
     } else {
       setIsButtonDisabled(true);
     }
-  }, [inputValue, amount, narration, matchedAccount]);
+  }, [inputValue, amount]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
@@ -95,7 +89,7 @@ const SwiftConnectModal = ({
               : ""
           }`}
         >
-          <h2
+          {/* <h2
             className={`text-[20px] text-[gray] flex items-center justify-center rounded-[4em] cursor-pointer py-[0.5em] px-[1em] max-md-[400px]:text-[14px] ${
               sendTo === "Account Number"
                 ? "bg-[#d2d2d2]   text-[#0E1318] font-bold"
@@ -104,34 +98,34 @@ const SwiftConnectModal = ({
             onClick={() => setSendTo("Account Number")}
           >
             Account Number
-          </h2>
+          </h2> */}
           <h2
             className={`text-[20px] text-[gray] flex items-center justify-center cursor-pointer rounded-[4em]  py-[0.5em] px-[1em] max-md-[400px]:text-[18px] ${
-              sendTo === "username"
+              sendTo
                 ? "bg-[#d2d2d2]  text-[#0E1318] font-bold"
                 : "hover:bg-[#f2f2f2]"
             }`}
-            onClick={() => setSendTo("username")}
+            onClick={() => setSendTo("email")}
           >
-            @username
+            @email
           </h2>
         </div>
         {/* Form */}
         <div className="space-y-4 mt-4">
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              {sendTo === "Account Number" ? "Account Number" : "Username"}
+              {sendTo === "email" ? "" : "email"}
             </label>
             <input
-              type="text"
+              type="email"
               value={inputValue}
               onChange={handleInputChange}
-              placeholder={`Type in the ${sendTo.toLowerCase()} of the recipient.`}
+              placeholder={`Type in the email of the recipient.`}
               className="mt-1 block w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 p-4"
             />
             <div className="flex mt-2 gap-2 items-center">
               {isLoading && <p>Loading...</p>}
-              {!isLoading && matchedAccount && (
+              {/* {!isLoading && matchedAccount && (
                 <div className="flex gap-2 items-center">
                   <Image
                     src={"green-checked.svg"}
@@ -142,10 +136,10 @@ const SwiftConnectModal = ({
                   />
                   <p>{matchedAccount.name}</p>
                 </div>
-              )}
-              {!isLoading && !matchedAccount && inputValue && (
+              )} */}
+              {/* {!isLoading && !matchedAccount && inputValue && (
                 <p className="text-red-500">No Account Found</p>
-              )}
+              )} */}
             </div>
           </div>
           <div>
@@ -161,18 +155,18 @@ const SwiftConnectModal = ({
             />
           </div>
 
-          <div>
+          {/* <div>
             <label className="block text-sm font-medium text-gray-700">
               Narration
             </label>
             <input
               type="text"
               value={narration}
-              onChange={(e) => setNarration(e.target.value)}
+              onChange={(e) => setNarrationn(e.target.value)}
               placeholder="What is this transaction for?"
               className="mt-1 block w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 p-4"
             />
-          </div>
+          </div> */}
 
           <button
             className={`w-full text-white py-4 rounded-lg shadow-sm ${
@@ -182,11 +176,7 @@ const SwiftConnectModal = ({
             }`}
             disabled={isButtonDisabled}
             onClick={() => {
-              setNarrationn(narration);
-              setUsername(
-                matchedAccount ? matchedAccount.username : inputValue
-              );
-              onNext();
+            onNext();
             }}
           >
             Continue
