@@ -10,10 +10,11 @@ import SuccessModal from "./sendMoney/successModal";
 import SendToOtherBanksModal from "./sendMoney/sendToOtherBank/SendToOtherBank";
 import SendToOtherBanksModalSecondStep from "./sendMoney/sendToOtherBank/sendToOtherBankSecond";
 import ReceiveMoneyModal from "./recieveMoney";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function WalletCard({ data }) {
   const [cardNumber] = useState("**** 3241");
-  const [balance] = useState("N22,880.50");
   const [amount, setAmount] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentView, setCurrentView] = useState("main");
@@ -23,18 +24,17 @@ export default function WalletCard({ data }) {
   const [acctNum, setAcctNum] = useState();
   const [inputValue, setInputValue] = useState("");
   const [isRecieveMoneyModalOpen, setIsRecieveMoneyModalOpen] = useState(false);
-  const [pin, setPin] = useState( ["", "", "", ""]);
+  const [pin, setPin] = useState(["", "", "", ""]);
   const [isInternal, setIsInternal] = useState(false);
-  const [bankcode, setBankCode] = useState('')
-  const [ channel, setchannel] = useState('')
-  const [bank_name, setBankName] = useState('')
+  const [bankcode, setBankCode] = useState("");
+  const [channel, setchannel] = useState("");
+  const [bank_name, setBankName] = useState("");
 
   //  console.log(data);
 
-
-
   const makeTransfer = async () => {
-    console.log('view', currentView)
+    const loadingToast = toast.loading("Processing payment...");
+    console.log("view", currentView);
     const enteredPin = pin.join("");
     onConfirm(enteredPin);
     const transferData = {
@@ -43,7 +43,12 @@ export default function WalletCard({ data }) {
       amount,
       ...(isInternal
         ? { recipient_email: inputValue }
-        : { account_number: acctNum , payment_type: "paystack", bank_code : bankcode, account_bank: bank_name }),
+        : {
+            account_number: acctNum,
+            payment_type: "paystack",
+            bank_code: bankcode,
+            account_bank: bank_name,
+          }),
     };
 
     // Remove any fields that are empty
@@ -67,16 +72,33 @@ export default function WalletCard({ data }) {
 
       if (!response.ok) {
         const errorData = await response.json();
+        toast.update(loadingToast, {
+          render: data.detail || "Failed to process payment",
+          type: "error",
+          isLoading: false,
+          autoClose: 3000,
+        });
         throw new Error(errorData.message || "Failed to make transfer");
       }
 
       const data = await response.json();
       console.log("Transfer successful:", data);
+      toast.update(loadingToast, {
+        render: "Transfer successful",
+        type: "success",
+        isLoading: false,
+        autoClose: 3000,
+      });
     } catch (error) {
-      console.error("Error during transfer:", error);
+      toast.update(loadingToast, {
+        render: "Fetch error: " + error.message,
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+      });
+      console.error("Fetch error:", error);
     }
   };
-
 
   const onConfirm = (pin) => {
     console.log(pin);
@@ -155,16 +177,23 @@ export default function WalletCard({ data }) {
         );
       case "enterPin":
         return (
-          <EnterPinModal
-            onClose={() => setIsModalOpen(false)}
-            onConfirm={onConfirm}
-            onNext={() => setCurrentView("success")}
-            transferType={currentView === "swiftConnect" ? "internal" : "bank"}
-            data={currentView === "swiftConnect" ? {} : {}}
-            setPin={setPin}
-            pin={pin}
-            handleSubmit={makeTransfer}
-          />
+          <>
+            <ToastContainer />
+            <EnterPinModal
+              onClose={() =>
+                setIsModalOpen(false) || setCurrentView("main")
+              }
+              onConfirm={onConfirm}
+              onNext={() => setCurrentView("success")}
+              transferType={
+                currentView === "swiftConnect" ? "internal" : "bank"
+              }
+              data={currentView === "swiftConnect" ? {} : {}}
+              setPin={setPin}
+              pin={pin}
+              handleSubmit={makeTransfer}
+            />
+          </>
         );
       case "success":
         return <SuccessModal onClose={() => setIsModalOpen(false)} />;
@@ -198,7 +227,6 @@ export default function WalletCard({ data }) {
           className="flex-1 bg-[#D3F1CC] py-4 rounded-lg font-bold shadow hover:bg-green-200 max-md-[400px]:py-2"
           onClick={() => {
             setIsModalOpen(true);
-            
           }}
         >
           Send <span className="ml-1">↑</span>

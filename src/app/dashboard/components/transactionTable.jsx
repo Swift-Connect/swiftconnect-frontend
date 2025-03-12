@@ -26,10 +26,11 @@ const TransactionsTable = () => {
       ? transactions
       : activeTransactionTab === "Credit"
       ? transactions.filter((transaction) =>
-          String(transaction?.amount).startsWith("+")
+          // String(transaction?.amount).startsWith("+")
+          transaction.transaction_type === "credit" ? transaction.amount : ""
         )
       : transactions.filter((transaction) =>
-          String(transaction?.amount).startsWith("-")
+          transaction.transaction_type === "debit" ? transaction.amount : ""
         );
 
   return (
