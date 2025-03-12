@@ -1,7 +1,7 @@
 import Image from "next/image";
 import React from "react";
 
-const SendMoneyModal = ({ isOpen, onClose, onNext, setView }) => {
+const SendMoneyModal = ({ isOpen, onClose, onNext, setView, setIsInternal }) => {
   if (!isOpen) return null;
 
   return (
@@ -36,7 +36,7 @@ const SendMoneyModal = ({ isOpen, onClose, onNext, setView }) => {
           {/* Option 1 */}
           <div
             className="flex items-center justify-between p-4 border-[0.5px] border-[#efefef] rounded-[1.5em] cursor-pointer hover:bg-gray-200"
-            onClick={() => setView("swiftConnect")}
+            onClick={() => {setView("swiftConnect"); setIsInternal(true)}}
           >
             <div className="flex items-center space-x-4">
               <Image
@@ -47,7 +47,7 @@ const SendMoneyModal = ({ isOpen, onClose, onNext, setView }) => {
                 className="h-[4em] w-[4em] max-md-[400px]:w-[2em] max-md-[400px]:h-[2em]  "
               />
               <div>
-                <h3 className="font-semibold text-gray-800">
+                <h3 className="font-semibold text-gray-800" >
                   Send to Swift Connect Account
                 </h3>
                 <p className="text-sm text-gray-600">
@@ -74,7 +74,7 @@ const SendMoneyModal = ({ isOpen, onClose, onNext, setView }) => {
           {/* Option 2 */}
           <div
             className="flex items-center justify-between p-4  border-[0.5px] border-[#efefef] rounded-[1.5em] cursor-pointer hover:bg-gray-200"
-            onClick={() => setView("toOtherBank")}
+            onClick={() => {setView("toOtherBank");  setIsInternal(false)}}
           >
             <div className="flex items-center space-x-4">
               <Image

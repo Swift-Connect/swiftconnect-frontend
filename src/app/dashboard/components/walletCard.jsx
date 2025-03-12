@@ -25,6 +25,9 @@ export default function WalletCard({ data }) {
   const [isRecieveMoneyModalOpen, setIsRecieveMoneyModalOpen] = useState(false);
   const [pin, setPin] = useState( ["", "", "", ""]);
   const [isInternal, setIsInternal] = useState(false);
+  const [bankcode, setBankCode] = useState('')
+  const [ channel, setchannel] = useState('')
+  const [bank_name, setBankName] = useState('')
 
   //  console.log(data);
 
@@ -40,7 +43,7 @@ export default function WalletCard({ data }) {
       amount,
       ...(isInternal
         ? { recipient_email: inputValue }
-        : { account_number: inputValue , payment_type: "paystack", }),
+        : { account_number: acctNum , payment_type: "paystack", bank_code : bankcode, account_bank: bank_name }),
     };
 
     // Remove any fields that are empty
@@ -87,6 +90,7 @@ export default function WalletCard({ data }) {
             isOpen={isModalOpen}
             setView={setCurrentView}
             onClose={() => setIsModalOpen(false)}
+            setIsInternal={setIsInternal}
           />
         );
       case "swiftConnect":
@@ -114,6 +118,10 @@ export default function WalletCard({ data }) {
             onNext={() => setCurrentView("ToOtherBankSecondStep")}
             setName={setName}
             setAcctNum={setAcctNum}
+            setchannel={setchannel}
+            setBankCode={setBankCode}
+            accountNum={acctNum}
+            setBankName={setBankName}
             // transferType="bank"
           />
         );
@@ -123,10 +131,12 @@ export default function WalletCard({ data }) {
             onClose={() => setIsModalOpen(false)}
             onBack={() => setCurrentView("toOtherBank")}
             name={name}
+            bank={bank_name}
             acctNum={acctNum}
             setNarrationn={setNarration}
             setUsername={setUsername}
             onNext={() => setCurrentView("confirmDetails")}
+            setAmount={setAmount}
           />
         );
       case "confirmDetails":
@@ -188,7 +198,7 @@ export default function WalletCard({ data }) {
           className="flex-1 bg-[#D3F1CC] py-4 rounded-lg font-bold shadow hover:bg-green-200 max-md-[400px]:py-2"
           onClick={() => {
             setIsModalOpen(true);
-            setIsInternal(true);
+            
           }}
         >
           Send <span className="ml-1">↑</span>

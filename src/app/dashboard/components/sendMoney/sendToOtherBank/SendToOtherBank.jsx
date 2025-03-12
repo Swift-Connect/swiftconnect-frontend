@@ -7,51 +7,66 @@ export default function SendToOtherBanksModal({
   onNext,
   setName,
   setAcctNum,
+  setchannel,
+  setBankCode,
+  accountNum,
+  setBankName
 }) {
   const [selectedBank, setSelectedBank] = useState("");
+  const [paymentChannel, setPaymentChannel] = useState('')
   const [accountNumber, setAccountNumber] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [matchedAccount, setMatchedAccount] = useState(null);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+  const [banks, setBanks] = useState([]);
 
-  const userAccounts = [
-    {
-      name: "John Doe",
-      username: "@johndoe",
-      accountNumber: "123456789",
-    },
-    {
-      name: "Jane Smith",
-      username: "@janesmith",
-      accountNumber: "987654321",
-    },
-    {
-      name: "Alice Johnson",
-      username: "@alicej",
-      accountNumber: "567890123",
-    },
-  ];
+
+  const getBanks = async () => {
+    try {
+      const response = await fetch(
+        `https://swiftconnect-backend.onrender.com/payments/available-banks/?payment_type=${paymentChannel}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch banks");
+      }
+
+      const data = await response.json();
+      setBanks(data.banks);
+      console.log("Banks fetched successfully:", data.banks);
+    } catch (error) {
+      console.error("Error fetching banks:", error);
+    }
+  };
+
+
 
   useEffect(() => {
-    if (selectedBank && accountNumber) {
+    if (selectedBank && accountNum) {
       setIsButtonDisabled(false);
     } else {
       setIsButtonDisabled(true);
     }
-  }, [selectedBank, accountNumber]);
+  }, [selectedBank, accountNum]);
+
+  useEffect(() => {
+    if (paymentChannel) {
+      getBanks();
+    }
+  }, [paymentChannel]);
 
   const handleAccountNumberChange = (e) => {
     const value = e.target.value;
     setAccountNumber(value);
     setIsLoading(true);
 
-    setTimeout(() => {
-      const account = userAccounts.find(
-        (account) => account.accountNumber === value
-      );
-      setMatchedAccount(account || null);
-      setIsLoading(false);
-    }, 500); // Simulates loading delay
+
   };
 
   return (
@@ -89,6 +104,28 @@ export default function SendToOtherBanksModal({
           {/* Bank Dropdown */}
           <div>
             <label
+              htmlFor="payment-channel"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Payment Channel
+            </label>
+            <select
+              id="payment-channel"
+              value={paymentChannel}
+              onChange={(e) => {
+                setPaymentChannel(e.target.value);
+                setchannel(e.target.value);
+              }}
+              className="w-full mt-1 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 outline-none p-4"
+            >
+              <option value="">Select payment channel</option>
+              <option value="flutterwave">Flutterwave</option>
+              <option value="monify">Monify</option>
+              <option value="paystack">Paystack</option>
+            </select>
+          </div>
+          <div>
+            <label
               htmlFor="banks"
               className="block text-sm font-medium text-gray-700"
             >
@@ -97,12 +134,20 @@ export default function SendToOtherBanksModal({
             <select
               id="banks"
               value={selectedBank}
-              onChange={(e) => setSelectedBank(e.target.value)}
+              onChange={(e) => {
+                const selectedBankName = e.target.value;
+                setSelectedBank(selectedBankName);
+                const selectedBankCode = banks.find(bank => bank.name === selectedBankName)?.code;
+                console.log('code...', selectedBankCode)
+                setBankCode(selectedBankCode);
+                setBankName(selectedBankName)
+              }}
               className="w-full mt-1 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 outline-none p-4"
             >
               <option value="">Select Bank</option>
-              <option value="Bank A">Guaranty Trust Bank</option>
-              <option value="Bank B">Bank B</option>
+              {banks?.map((bank) => (
+                <option key={bank.code} value={bank.name}>{bank.name}</option>
+              ))}
             </select>
           </div>
 
@@ -117,12 +162,12 @@ export default function SendToOtherBanksModal({
             <input
               type="text"
               id="account-number"
-              value={accountNumber}
-              onChange={handleAccountNumberChange}
+              value={accountNum}
+              onChange={(e)=>{setAcctNum(e.target.value)}}
               placeholder="Input the Account Number"
               className="w-full mt-1 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 outline-none p-4"
             />
-            <div className="flex mt-2 gap-2 items-center">
+            {/* <div className="flex mt-2 gap-2 items-center">
               {isLoading && <p>Loading...</p>}
               {!isLoading && matchedAccount && (
                 <div className="flex gap-2 items-center">
@@ -135,11 +180,11 @@ export default function SendToOtherBanksModal({
                   />
                   <p>{matchedAccount.name}</p>
                 </div>
-              )}
-              {!isLoading && !matchedAccount && accountNumber && (
+              )} */}
+              {/* {!isLoading && !matchedAccount && accountNumber && (
                 <p className="text-red-500">No Account Found</p>
-              )}
-            </div>
+              )} */}
+            {/* </div> */}
           </div>
         </div>
 
@@ -153,8 +198,6 @@ export default function SendToOtherBanksModal({
             }`}
             disabled={isButtonDisabled}
             onClick={() => {
-              setName(matchedAccount.name);
-              setAcctNum(accountNumber);
               onNext();
             }}
           >

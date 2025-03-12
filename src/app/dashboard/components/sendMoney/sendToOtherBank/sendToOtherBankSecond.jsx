@@ -6,9 +6,11 @@ export default function SendToOtherBanksModalSecondStep({
   onClose,
   onNext,
   name,
+  bank,
   acctNum,
   setNarrationn,
   setUsername,
+  setAmount
 }) {
   const [narration, setNarration] = useState("");
 
@@ -52,7 +54,7 @@ export default function SendToOtherBanksModalSecondStep({
                 {name}
               </h1>
               <p className="text-[18px] text-[#6B7280] max-md-[400px]:text-[14px]">
-                {acctNum} | Guaranty TrustBank
+                {acctNum} | {bank}
               </p>
             </div>
           </div>
@@ -67,6 +69,7 @@ export default function SendToOtherBanksModalSecondStep({
             <input
               type="text"
               id="amount"
+              onChange={(e)=>setAmount(e.target.value)}
               placeholder="Input the Amount"
               className="w-full mt-1 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 outline-none p-4"
             />
