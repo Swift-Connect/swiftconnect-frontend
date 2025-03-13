@@ -90,6 +90,8 @@ export default function WalletCard({ data }) {
         autoClose: 3000,
       });
     } catch (error) {
+     
+      
       toast.update(loadingToast, {
         render: "Fetch error: " + error.message,
         type: "error",

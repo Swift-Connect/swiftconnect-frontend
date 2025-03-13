@@ -46,7 +46,7 @@ const AdminPage = () => {
         user={user}
         role="admin"
       />
-      <main className="flex-1 ">
+      <main className="flex-1 w-[70%]">
         <Header setHideSideMenu={setHideSideMenu} user={user} />
         <section className="p-6 h-[80vh] overflow-y-auto">{renderComponent()}</section>
       </main>

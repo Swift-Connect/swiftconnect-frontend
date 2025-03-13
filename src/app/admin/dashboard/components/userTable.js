@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FaArrowDown, FaChevronDown } from "react-icons/fa";
-import ActionPopUp from "./actionPopUp";
+import ActionPopUp from "../../components/actionPopUp";
 
 const UsersTable = () => {
   const columns = ["ID", "Name", "Email", "Status"];

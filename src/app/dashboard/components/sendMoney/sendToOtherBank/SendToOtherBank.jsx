@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Image from "next/image";
+import { Oval } from "react-loader-spinner";
 
 export default function SendToOtherBanksModal({
   onBack,
@@ -10,42 +10,39 @@ export default function SendToOtherBanksModal({
   setchannel,
   setBankCode,
   accountNum,
-  setBankName
+  setBankName,
 }) {
   const [selectedBank, setSelectedBank] = useState("");
-  const [paymentChannel, setPaymentChannel] = useState('')
+  const [paymentChannel, setPaymentChannel] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [banks, setBanks] = useState([]);
-
+  const [filteredBanks, setFilteredBanks] = useState([]);
+  const [isFetchingBanks, setIsFetchingBanks] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showDropdown, setShowDropdown] = useState(false);
 
   const getBanks = async () => {
+    setIsFetchingBanks(true);
     try {
       const response = await fetch(
-        `https://swiftconnect-backend.onrender.com/payments/available-banks/?payment_type=${paymentChannel}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+        `https://swiftconnect-backend.onrender.com/payments/available-banks/?payment_type=${paymentChannel}`
       );
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to fetch banks");
+        throw new Error("Failed to fetch banks");
       }
 
       const data = await response.json();
       setBanks(data.banks);
-      console.log("Banks fetched successfully:", data.banks);
+      setFilteredBanks(data.banks);
     } catch (error) {
       console.error("Error fetching banks:", error);
+    } finally {
+      setIsFetchingBanks(false);
     }
   };
-
-
 
   useEffect(() => {
     if (selectedBank && accountNum) {
@@ -61,12 +58,28 @@ export default function SendToOtherBanksModal({
     }
   }, [paymentChannel]);
 
-  const handleAccountNumberChange = (e) => {
+  // Handle bank search
+  const handleSearch = (e) => {
     const value = e.target.value;
-    setAccountNumber(value);
-    setIsLoading(true);
+    setSearchTerm(value);
+    if (value) {
+      const filtered = banks.filter((bank) =>
+        bank.name.toLowerCase().includes(value.toLowerCase())
+      );
+      setFilteredBanks(filtered);
+      setShowDropdown(true);
+    } else {
+      setShowDropdown(false);
+    }
+  };
 
-
+  // Handle bank selection
+  const handleSelectBank = (bank) => {
+    setSelectedBank(bank.name);
+    setSearchTerm(bank.name);
+    setBankCode(bank.code);
+    setBankName(bank.name);
+    setShowDropdown(false);
   };
 
   return (
@@ -101,7 +114,7 @@ export default function SendToOtherBanksModal({
 
         {/* Content */}
         <div className="px-6 py-4 space-y-4">
-          {/* Bank Dropdown */}
+          {/* Payment Channel Dropdown */}
           <div>
             <label
               htmlFor="payment-channel"
@@ -124,31 +137,44 @@ export default function SendToOtherBanksModal({
               <option value="paystack">Paystack</option>
             </select>
           </div>
-          <div>
+
+          {/* Bank Search Input */}
+          <div className="relative">
             <label
-              htmlFor="banks"
+              htmlFor="bank-search"
               className="block text-sm font-medium text-gray-700"
             >
-              Banks
+              Select Bank
             </label>
-            <select
-              id="banks"
-              value={selectedBank}
-              onChange={(e) => {
-                const selectedBankName = e.target.value;
-                setSelectedBank(selectedBankName);
-                const selectedBankCode = banks.find(bank => bank.name === selectedBankName)?.code;
-                console.log('code...', selectedBankCode)
-                setBankCode(selectedBankCode);
-                setBankName(selectedBankName)
-              }}
+            <input
+              type="text"
+              id="bank-search"
+              value={searchTerm}
+              onChange={handleSearch}
+              placeholder="Search for a bank..."
               className="w-full mt-1 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 outline-none p-4"
-            >
-              <option value="">Select Bank</option>
-              {banks?.map((bank) => (
-                <option key={bank.code} value={bank.name}>{bank.name}</option>
-              ))}
-            </select>
+              onFocus={() => setShowDropdown(true)}
+            />
+            {isFetchingBanks && (
+              <div className="absolute right-3 top-3">
+                <Oval height={20} width={20} color="#4fa94d" />
+              </div>
+            )}
+
+            {/* Dropdown for bank selection */}
+            {showDropdown && filteredBanks.length > 0 && (
+              <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto mt-1">
+                {filteredBanks.map((bank) => (
+                  <li
+                    key={bank.code}
+                    onClick={() => handleSelectBank(bank)}
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                  >
+                    {bank.name}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
           {/* Account Number Input */}
@@ -163,28 +189,12 @@ export default function SendToOtherBanksModal({
               type="text"
               id="account-number"
               value={accountNum}
-              onChange={(e)=>{setAcctNum(e.target.value)}}
+              onChange={(e) => {
+                setAcctNum(e.target.value);
+              }}
               placeholder="Input the Account Number"
               className="w-full mt-1 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 outline-none p-4"
             />
-            {/* <div className="flex mt-2 gap-2 items-center">
-              {isLoading && <p>Loading...</p>}
-              {!isLoading && matchedAccount && (
-                <div className="flex gap-2 items-center">
-                  <Image
-                    src={"green-checked.svg"}
-                    alt="confirmation icon"
-                    width={16}
-                    height={16}
-                    className="w-[1em]"
-                  />
-                  <p>{matchedAccount.name}</p>
-                </div>
-              )} */}
-              {/* {!isLoading && !matchedAccount && accountNumber && (
-                <p className="text-red-500">No Account Found</p>
-              )} */}
-            {/* </div> */}
           </div>
         </div>
 
