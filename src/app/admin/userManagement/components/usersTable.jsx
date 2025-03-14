@@ -131,7 +131,7 @@ const UsersTable = () => {
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
                   {user.date_joined}
                 </td>
-                
+
                 <td className="py-[1.3em] px-[1.8em] text-[#fff] relative">
                   <span
                     className="bg-[#00613A] rounded-xl flex w-fit items-center justify-center gap-2 py-1 px-2 cursor-pointer"

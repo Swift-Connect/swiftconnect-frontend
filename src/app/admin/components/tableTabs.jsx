@@ -1,27 +1,38 @@
 import Image from "next/image";
 import React from "react";
+import { FaPlus, FaTrash, FaTrashAlt } from "react-icons/fa";
 
 const TableTabs = ({ setActiveTab, activeTab, header, tabs }) => {
   return (
     <div>
       <h1 className="text-[22px] font-semibold mb-4">{header}</h1>
       <div className="flex  flex-col justify-between mb-4">
-        <ul className="flex items-center gap-[5em] mb-4 border-b-[1px] border-gray-200">
-          {tabs.map((tab) => (
-            <>
-              <li
-                className={`font-medium text-[16px] px-2 cursor-pointer ${
-                  activeTab === tab 
-                    ? "text-green-600 border-b-2 border-green-600"
-                    : "text-gray-500"
-                }`}
-                onClick={() => setActiveTab(tab)}
-              >
-                {tab}
-              </li>
-            </>
-          ))}
-        </ul>
+        <div className="flex justify-between items-center  mb-4">
+          <ul className="flex items-center gap-[5em]  border-b-[1px] border-gray-200">
+            {tabs.map((tab) => (
+              <>
+                <li
+                  className={`font-medium text-[16px] px-2 cursor-pointer ${
+                    activeTab === tab
+                      ? "text-green-600 border-b-2 border-green-600"
+                      : "text-gray-500"
+                  }`}
+                  onClick={() => setActiveTab(tab)}
+                >
+                  {tab}
+                </li>
+              </>
+            ))}
+          </ul>
+          <div className="flex gap-3">
+            <button className="bg-[#00613A] font-medium text-white px-4 py-2 rounded-lg flex items-center gap-2">
+              Add User <FaPlus />
+            </button>
+            <button className="bg-[#8C1823] font-medium text-white px-4 py-2 rounded-lg flex items-center gap-2">
+              Delete <FaTrashAlt />
+            </button>
+          </div>
+        </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center w-[50%] border rounded-[4em] px-3 py-1 ">
             <Image

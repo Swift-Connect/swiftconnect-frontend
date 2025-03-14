@@ -155,6 +155,7 @@ const UsersTable = () => {
   const handleActionClick = (index) => {
     setActiveRow(activeRow === index ? null : index);
   };
+  const action = "Not Approved";
 
   return (
     <>
@@ -204,12 +205,18 @@ const UsersTable = () => {
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#fff] relative">
                   <span
-                    className="bg-[#00613A] rounded-xl flex w-fit items-center justify-center gap-2 py-1 px-2 cursor-pointer"
+                    className={`${
+                      action === "Approved"
+                        ? "bg-[#00613A]"
+                        : action === "Processing"
+                        ? "bg-[#EEFBFD] text-[#219CAF]  border-[#219CAF]"
+                        : "bg-[#FDF4EE] text-[#ED7F31] border-[#ED7F3133]"
+                    } border-[0.1px] rounded-3xl flex w-fit items-center justify-center gap-2 py-1 px-4 cursor-pointer`}
                     onClick={() => handleActionClick(idx)}
-                    >
-                    Approved <FaChevronDown />
+                  >
+                    {action} <FaChevronDown />
                   </span>
-                    {activeRow === idx && <ActionPopUp />}
+                  {activeRow === idx && <ActionPopUp />}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
                   {user.api_response}
