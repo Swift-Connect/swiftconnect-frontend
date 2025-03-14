@@ -156,9 +156,9 @@ export default function SendToOtherBanksModal({
               onFocus={() => setShowDropdown(true)}
             />
             {isFetchingBanks && (
-              <div className="absolute right-3 top-3">
-                <Oval height={20} width={20} color="#4fa94d" />
-              </div>
+            <div className="absolute right-3 top-0">
+              <Oval height={20} width={20} color="#4fa94d" />
+            </div>
             )}
 
             {/* Dropdown for bank selection */}

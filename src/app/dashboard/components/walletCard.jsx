@@ -73,7 +73,7 @@ export default function WalletCard({ data }) {
       if (!response.ok) {
         const errorData = await response.json();
         toast.update(loadingToast, {
-          render: data.detail || "Failed to process payment",
+          render: errorData.message || "Failed to process payment",
           type: "error",
           isLoading: false,
           autoClose: 3000,
@@ -90,10 +90,10 @@ export default function WalletCard({ data }) {
         autoClose: 3000,
       });
     } catch (error) {
-     
+      console.log(error.error);
       
       toast.update(loadingToast, {
-        render: "Fetch error: " + error.message,
+        render:  error,
         type: "error",
         isLoading: false,
         autoClose: 3000,
@@ -182,9 +182,7 @@ export default function WalletCard({ data }) {
           <>
             <ToastContainer />
             <EnterPinModal
-              onClose={() =>
-                setIsModalOpen(false) || setCurrentView("main")
-              }
+              onClose={() => setIsModalOpen(false) || setCurrentView("main")}
               onConfirm={onConfirm}
               onNext={() => setCurrentView("success")}
               transferType={
