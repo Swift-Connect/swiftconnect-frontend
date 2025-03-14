@@ -1,6 +1,7 @@
 import Image from "next/image";
 import React, { useState } from "react";
-import UsersTable from "../dashboard/components/userTable";
+import UsersTable from "./components/usersTable";
+
 
 
 const UserManagement = () => {
@@ -11,7 +12,7 @@ const UserManagement = () => {
   return (
     <div className="overflow-hidden ">
       <div className="max-md-[400px]:hidden">
-        <h1 className="text-[22px] font-semibold mb-8">User Management</h1>
+        <h1 className="text-[16px] font-semibold mb-8">User Management</h1>
 
         <div className="flex  flex-col justify-between mb-4">
           <ul className="flex items-center gap-[5em] mb-4 border-b-[1px] border-gray-200">
@@ -23,7 +24,7 @@ const UserManagement = () => {
               }`}
               onClick={() => setActiveTab("Approve KYC")}
             >
-              Approve KYC
+              Active 
             </li>
             <li
               className={`font-medium text-[16px] px-2 cursor-pointer ${
@@ -33,7 +34,7 @@ const UserManagement = () => {
               }`}
               onClick={() => setActiveTab("Approve Withdrawal")}
             >
-              Approve Withdrawal
+              Inactive
             </li>
             <li
               className={`font-medium text-[16px] px-2 cursor-pointer ${
@@ -43,7 +44,7 @@ const UserManagement = () => {
               }`}
               onClick={() => setActiveTab("Transaction")}
             >
-              Transaction
+              Recently Added
             </li>
           </ul>
           <div className="flex items-center justify-between">
@@ -87,7 +88,7 @@ const UserManagement = () => {
             </div>
           </div>
         </div>
-        <div className="rounded-t-[1em] overflow-hidden border border-gray-200">
+        <div className="rounded-t-[1em] overflow-auto border border-gray-200 min-h-[50vh]">
           <UsersTable />
         </div>
       </div>

@@ -26,10 +26,11 @@ const TransactionsTable = () => {
       ? transactions
       : activeTransactionTab === "Credit"
       ? transactions.filter((transaction) =>
-          String(transaction?.amount).startsWith("+")
+          // String(transaction?.amount).startsWith("+")
+          transaction.transaction_type === "credit" ? transaction.amount : ""
         )
       : transactions.filter((transaction) =>
-          String(transaction?.amount).startsWith("-")
+          transaction.transaction_type === "debit" ? transaction.amount : ""
         );
 
   return (
@@ -138,7 +139,9 @@ const TransactionsTable = () => {
                   >
                     {/* {console.log(transaction)} */}
                     <td className="py-[1.3em] px-[1.8em] font-semibold text-[#232323]">
-                      {transaction.reason === "Wallet funding"
+                      {transaction.reason === "Wallet funding" ||
+                      transaction.reason === "Bank Transfer" ||
+                      transaction.reason === "Internal Transfer"
                         ? "Transfer"
                         : ""}
                     </td>

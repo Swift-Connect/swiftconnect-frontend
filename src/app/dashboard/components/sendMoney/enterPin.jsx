@@ -12,11 +12,6 @@ const EnterPinModal = ({
   addCard,
   message,
   isLoading,
-  transferType,
-  recipientEmail,
-  accountNumber,
-  narration,
-  amount,
   setPin,
   pin,
   handleSubmit
@@ -43,50 +38,7 @@ const EnterPinModal = ({
     }
   };
 
-  // const handleSubmit = async () => {
-  //   const enteredPin = pin.join("");
-  //   onConfirm(enteredPin);
-
-  //   // Make the API request with the entered PIN
-  //   const loadingToast = toast.loading("Processing transfer...");
-  //   try {
-  //     const response = await axios.post(
-  //       "https://swiftconnect-backend.onrender.com/payments/transfer-funds/",
-  //       {
-  //         transfer_type: transferType,
-  //         payment_type: "flutterwave",
-  //         recipient_email: recipientEmail,
-  //         account_bank: "string", // Replace with actual bank code if needed
-  //         account_number: accountNumber,
-  //         narration: narration,
-  //         amount: amount,
-  //       },
-  //       {
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //           "X-Transaction-PIN": enteredPin,
-  //           Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-  //         },
-  //       }
-  //     );
-  //     toast.update(loadingToast, {
-  //       render: "Transfer processed successfully!",
-  //       type: "success",
-  //       isLoading: false,
-  //       autoClose: 3000,
-  //     });
-  //     onNext();
-  //   } catch (err) {
-  //     toast.update(loadingToast, {
-  //       render: "Failed to process transfer: " + err.message,
-  //       type: "error",
-  //       isLoading: false,
-  //       autoClose: 3000,
-  //     });
-  //     console.error("Transfer error:", err);
-  //   }
-  // };
-
+  
   const isPinComplete = pin.every((digit) => digit !== "");
   if (message) {
     toast.error(message);
