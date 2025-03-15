@@ -78,12 +78,12 @@ const SwiftConnectModal = ({
             </svg>
             <span>Back</span>
           </button>
-          <h2 className="text-[24px] font-bold text-gray-800 max-md-[400px]:text-[18px]">
+          <h2 className="text-[24px] font-bold text-gray-800 max-md-[400px]:text-[14px]">
             Send to Swift Connect Account
           </h2>
         </div>
         <div
-          className={`flex gap-4 mt-4 mb-[3em] ${
+          className={`flex gap-4 mt- mb-[3em ${
             sendTo === "username"
               ? "flex-row-reverse items-start justify-end"
               : ""
@@ -99,7 +99,7 @@ const SwiftConnectModal = ({
           >
             Account Number
           </h2> */}
-          <h2
+          {/* <h2
             className={`text-[20px] text-[gray] flex items-center justify-center cursor-pointer rounded-[4em]  py-[0.5em] px-[1em] max-md-[400px]:text-[18px] ${
               sendTo
                 ? "bg-[#d2d2d2]  text-[#0E1318] font-bold"
@@ -108,10 +108,10 @@ const SwiftConnectModal = ({
             onClick={() => setSendTo("email")}
           >
             @email
-          </h2>
+          </h2> */}
         </div>
         {/* Form */}
-        <div className="space-y-4 mt-4">
+        <div className="space-y-4 mt-">
           <div>
             <label className="block text-sm font-medium text-gray-700">
               {sendTo === "email" ? "" : "email"}

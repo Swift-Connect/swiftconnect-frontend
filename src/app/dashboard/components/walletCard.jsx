@@ -91,9 +91,9 @@ export default function WalletCard({ data }) {
       });
     } catch (error) {
       console.log(error.error);
-      
+
       toast.update(loadingToast, {
-        render:  error,
+        render: error,
         type: "error",
         isLoading: false,
         autoClose: 3000,
@@ -105,6 +105,8 @@ export default function WalletCard({ data }) {
   const onConfirm = (pin) => {
     console.log(pin);
   };
+
+  console.log(currentView);
 
   const renderModalContent = () => {
     switch (currentView) {
@@ -167,14 +169,12 @@ export default function WalletCard({ data }) {
         return (
           <ConfirmDetials
             onClose={() => setIsModalOpen(false)}
-            onBack={() =>
-              currentView === "swiftConnect"
-                ? setCurrentView("swiftConnect")
-                : setCurrentView("toOtherBank")
-            }
+            onBackSwift={() => setCurrentView("swiftConnect")}
+            onBack={() => setCurrentView("toOtherBank")}
             narration={narration}
             username={username}
             onNext={() => setCurrentView("enterPin")}
+            transferType={1}
           />
         );
       case "enterPin":

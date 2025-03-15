@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 
 const ConfirmDetials = ({
   onClose,
+  onBackSwift,
   onBack,
   narration,
   username,
@@ -17,8 +18,8 @@ const ConfirmDetials = ({
         {/* Header */}
         <div className="flex items-center justify-between gap-12  pb-8">
           <button
-            onClick={onBack}
-            className="text-gray-400 hover:text-gray-600 flex items-center space-x-2 text-[24px]"
+            onClick={transferType === 1 ? onBack : onBackSwift}
+            className="text-gray-400 hover:text-gray-600 flex items-center space-x-2 text-[24px] max-md-[400px]:text-[18px]"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -36,30 +37,32 @@ const ConfirmDetials = ({
             </svg>
             <span>Back</span>
           </button>
-          <h2 className="text-[24px] font-bold text-gray-800">
+          <h2 className="text-[24px] font-bold text-gray-800 max-md-[400px]:text-[18px]">
             Confirm Details
           </h2>
         </div>
         <div>
           <div className="flex flex-col gap-[3em] max-md-[400px]:gap-6">
-            <div className="flex justify-between text-[#6B7280] text-[24px]">
+            <div className="flex justify-between text-[#6B7280] text-[24px] max-md-[400px]:text-[18px]">
               <p>To </p>
               <p>{username}</p>
             </div>{" "}
-            <div className="flex justify-between text-[#6B7280] text-[24px]">
+            <div className="flex justify-between text-[#6B7280] text-[24px] max-md-[400px]:text-[18px]">
               <p>Bank </p>
               <p>Swiftconnect</p>
             </div>
-            <div className="flex justify-between text-[#6B7280] text-[24px]">
+            <div className="flex justify-between text-[#6B7280] text-[24px] max-md-[400px]:text-[18px]">
               <p>Narration </p>
               <p>{narration}</p>
             </div>{" "}
-            <div className="flex justify-between text-[#6B7280] text-[24px]">
+            <div className="flex justify-between text-[#6B7280] text-[24px] max-md-[400px]:text-[18px]">
               <p>Fee </p>
               <p>Free</p>
             </div>
             <div className="flex items-center mb-8 justify-between w-full">
-              <p className="text-[#6B7280] text-[24px]">Add as Beneficiary</p>
+              <p className="text-[#6B7280] text-[24px] max-md-[400px]:text-[18px]">
+                Add as Beneficiary
+              </p>
               <button
                 className={`relative w-12 h-6 rounded-full ${
                   isEnabled ? "bg-[#000000]" : "bg-gray-300"
