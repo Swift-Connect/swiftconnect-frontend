@@ -14,20 +14,20 @@ const EnterPinModal = ({
   isLoading,
   setPin,
   pin,
-  handleSubmit
+  handleSubmit,
+  from,
 }) => {
-
-
   const handleChange = (e, index) => {
     const value = e.target.value;
     if (value.length <= 1) {
       const newPin = [...pin];
       newPin[index] = value;
-      setPin(newPin);
+      setPin(newPin); // Set the pin as an array of strings
 
       // Move to the next input box if the current one is filled
       if (value && index < (addCard ? 5 : 3)) {
         document.getElementById(`pin-${index + 1}`).focus();
+        console.log(newPin.join("")); // Log the complete pin
       }
     }
   };
@@ -38,7 +38,6 @@ const EnterPinModal = ({
     }
   };
 
-  
   const isPinComplete = pin.every((digit) => digit !== "");
   if (message) {
     toast.error(message);
@@ -91,7 +90,7 @@ const EnterPinModal = ({
             isPinComplete ? "bg-black hover:bg-[#484848]" : "bg-[#d2d2d2]"
           }`}
           disabled={!isPinComplete || isLoading}
-          onClick={handleSubmit}
+          onClick={from === "bills" ? onConfirm : (e)=> handleSubmit(e)}
         >
           Send Funds
         </button>

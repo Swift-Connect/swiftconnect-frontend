@@ -12,6 +12,7 @@ import SendToOtherBanksModalSecondStep from "./sendMoney/sendToOtherBank/sendToO
 import ReceiveMoneyModal from "./recieveMoney";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { handleBillsConfirm } from "@/utils/handleBillsConfirm";
 
 export default function WalletCard({ data }) {
   const [cardNumber] = useState("**** 3241");
@@ -104,6 +105,7 @@ export default function WalletCard({ data }) {
 
   const onConfirm = (pin) => {
     console.log(pin);
+ 
   };
 
   console.log(currentView);

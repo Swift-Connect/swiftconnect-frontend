@@ -21,7 +21,7 @@ const CableTv = ({ onNext, setBillType }) => {
   const [smartcardNumber, setSmartcardNumber] = useState(null);
   const [customerName, setCustomerName] = useState("");
   const [planName, setPlanName] = useState("");
-
+   const [pin, setPin] = useState(["", "", "", ""]);
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
@@ -122,6 +122,8 @@ const CableTv = ({ onNext, setBillType }) => {
     <EnterPinModal
       onConfirm={handlePinConfirm}
       onClose={() => setIsEnteringPin(false)}
+      setPin={setPin}
+      pin={pin}
     />
   ) : isConfirming ? (
     <ConfirmPayment
@@ -131,6 +133,7 @@ const CableTv = ({ onNext, setBillType }) => {
       onConfirm={handleConfirm}
       provider={provider}
       plan={planName}
+      setBillType={setBillType}
     />
   ) : (
     <div className="flex justify-center">

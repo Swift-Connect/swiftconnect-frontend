@@ -17,6 +17,7 @@ const Internet = ({ onNext, setBillType }) => {
   const [isEnteringPin, setIsEnteringPin] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+     const [pin, setPin] = useState(["", "", "", ""]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -70,6 +71,8 @@ const Internet = ({ onNext, setBillType }) => {
       // onNext={() => setIsEnteringPin(false)}
       onClose={() => setIsEnteringPin(false)}
       isLoading={isLoading}
+      setPin={setPin}
+      pin={pin}
     />
   ) : isConfirming ? (
     <ConfirmPayment
@@ -80,6 +83,7 @@ const Internet = ({ onNext, setBillType }) => {
       description={"Data"}
       onBack={handleBack}
       onConfirm={handleConfirm}
+      setBillType={setBillType}
     />
   ) : (
     <div className="min-h-screen flex justify-center items-center">
