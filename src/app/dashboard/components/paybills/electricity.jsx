@@ -46,10 +46,11 @@ export default function ElectricityPayment({ setBillType }) {
     setIsEnteringPin(true);
   };
 
-  const handlePinConfirm = (pin) => {
-    console.log("Entered PIN:", pin);
+  const handlePinConfirm = () => {
+    const pinString = pin.join(""); // Join the pin array into a single string
+    console.log("Entered PIN:", pinString);
     handleBillsConfirm(
-      pin,
+      pinString,
       {
         meter_number: metreNumber,
         // phone_number: phoneNumber,w
@@ -79,6 +80,7 @@ export default function ElectricityPayment({ setBillType }) {
       onClose={() => setIsEnteringPin(false)}
       setPin={setPin}
       pin={pin}
+      from="bills"
     />
   ) : isConfirming ? (
     <ConfirmPayment

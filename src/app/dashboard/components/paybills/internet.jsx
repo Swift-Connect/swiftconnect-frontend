@@ -1,11 +1,12 @@
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import SuccessModal from "../sendMoney/successModal";
 import EnterPinModal from "../sendMoney/enterPin";
 import ConfirmPayment from "./confirmPayment";
 import { handleBillsConfirm } from "../../../../utils/handleBillsConfirm";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { getData } from "@/api";
 
 const Internet = ({ onNext, setBillType }) => {
   const [network, setNetwork] = useState("");
@@ -17,12 +18,13 @@ const Internet = ({ onNext, setBillType }) => {
   const [isEnteringPin, setIsEnteringPin] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-     const [pin, setPin] = useState(["", "", "", ""]);
+  const [pin, setPin] = useState(["", "", "", ""]);
+  const [availablePlans, setAvailablePlans] = useState([]);
+  const [planId, setPlanId] = useState("");
+  const [planName, setPlanName] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // setIsConfirming(true);
-    // console.log(dataPlan);
     if (!network || !dataPlan || !dataType || !phoneNumber || !amount) {
       toast.error("Please fill in all fields");
       return;
@@ -45,13 +47,15 @@ const Internet = ({ onNext, setBillType }) => {
     setIsConfirming(false);
   };
 
-  const handlePinConfirm = async (pin) => {
-   
+  const handlePinConfirm = async () => {
+    const pinString = pin.join(""); // Join the pin array into a single string
+    console.log("Entered PIN:", pinString);
     handleBillsConfirm(
-      pin,
+      pinString,
       {
         network,
         phone_number: phoneNumber,
+        plan_id: planId,
         amount,
       },
       "data-plan-transactions/",
@@ -59,6 +63,50 @@ const Internet = ({ onNext, setBillType }) => {
       isLoading
     );
   };
+
+  useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+        const plans = await getData(
+          "services/data-plan-transactions/get_plans/"
+        );
+        // console.log("...plans returned", plans);
+        setAvailablePlans(plans);
+      } catch (error) {
+        console.error("Error fetching plans:", error);
+      }
+    };
+
+    fetchPlans();
+  }, []);
+
+  const filteredPlans = availablePlans?.filter(
+    (plan) =>
+      network && plan.description.toLowerCase().includes(network.toLowerCase())
+  );
+
+  // console.log(filteredPlans);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+
+    if (name === "provider") {
+      setDataPlan(value);
+      setPlanId(""); // Reset plan when provider changes
+      setAmount(""); // Reset amount when provider changes
+      setPlanName(""); // Reset plan name when provider changes
+    } else if (name === "plan") {
+      const selectedPlan = availablePlans.find((p) => p.id === Number(value));
+      console.log("selected plan...", selectedPlan);
+      setPlanId(value);
+      setAmount(selectedPlan?.price || "");
+      setPlanName(selectedPlan?.name || "");
+      setDataPlan(selectedPlan?.name || ""); // Set dataPlan state
+    } else if (name === "smartcard") {
+      setSmartcardNumber(value);
+    }
+  };
+  // console.log(filteredPlans);
 
   return isSuccess ? (
     <SuccessModal
@@ -73,11 +121,12 @@ const Internet = ({ onNext, setBillType }) => {
       isLoading={isLoading}
       setPin={setPin}
       pin={pin}
+      from="bills"
     />
   ) : isConfirming ? (
     <ConfirmPayment
       network={network}
-      dataPlan={dataPlan}
+      dataPlan={planName}
       phoneNumber={phoneNumber}
       amount={amount}
       description={"Data"}
@@ -115,29 +164,13 @@ const Internet = ({ onNext, setBillType }) => {
               value={network}
               onChange={(e) => setNetwork(e.target.value)}
             >
-              <option value="Select a Network">Select a Network</option>
+              <option value="">Select a Network</option>
               <option value="GLO">GLO NG</option>
               <option value="MTN">MTN NG</option>
               <option value="AIRTEL">AIRTEL NG</option>
               <option value="9MOBILE">9MOBILE NG</option>
             </select>
           </div>
-
-          {/* Select Airtime Type
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Select Airtime Type
-            </label>
-            <select
-              className="w-full border border-gray-300 rounded-lg p-2"
-              value={airtimeType}
-              onChange={(e) => setAirtimeType(e.target.value)}
-            >
-              <option value="">--Select Airtime Type--</option>
-              <option value="prepaid">Prepaid</option>
-              <option value="postpaid">Postpaid</option>
-            </select>
-          </div> */}
 
           {/* Select Data Type */}
           <div className="mb-4">
@@ -149,9 +182,7 @@ const Internet = ({ onNext, setBillType }) => {
               value={dataType}
               onChange={(e) => setDataType(e.target.value)}
             >
-              <option value="Select a Data Type">Select a Data Type</option>
-              <option value="VTU">VTU</option>
-              <option value="VTU">VTU</option>
+              <option value="">Select a Data Type</option>
               <option value="VTU">VTU</option>
             </select>
           </div>
@@ -162,19 +193,16 @@ const Internet = ({ onNext, setBillType }) => {
             </label>
             <select
               className="w-full border border-gray-300 rounded-lg p-2"
-              value={dataPlan}
-              onChange={(e) => setDataPlan(e.target.value)}
+              name="plan"
+              value={planId}
+              onChange={handleInputChange}
             >
-              <option value="Select a Data Plan">Select a Data Plan</option>
-              <option value="1.35GB for 7 days #500">
-                1.35GB for 7 days #500
-              </option>
-              <option value="2.9GB for 30 days #1000">
-                2.9GB for 30 days #1000
-              </option>
-              <option value="4.5GB for 30 days #2000">
-                4.5GB for 30 days #2000
-              </option>
+              <option value="">Select a Data Plan</option>
+              {filteredPlans.map((planItem, index) => (
+                <option key={index} value={planItem.id}>
+                  {planItem.name} - ₦{planItem.price}
+                </option>
+              ))}
             </select>
           </div>
           {/* Phone Number */}

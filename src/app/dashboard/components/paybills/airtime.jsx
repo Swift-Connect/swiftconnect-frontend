@@ -8,7 +8,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const Airtime = ({ onNext, setBillType }) => {
-  const [network, setNetwork] = useState("GLO NG");
+  const [network, setNetwork] = useState("GLO");
   const [airtimeType, setAirtimeType] = useState("VTU");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [amount, setAmount] = useState("");
