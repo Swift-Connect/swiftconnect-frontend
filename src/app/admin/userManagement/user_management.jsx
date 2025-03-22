@@ -2,11 +2,12 @@ import Image from "next/image";
 import React, { useState } from "react";
 import UsersTable from "./components/usersTable";
 import Pagination from "../components/pagination";
+import TableTabs from "../components/tableTabs";
 
 
 
 const UserManagement = () => {
-  const [activeTab, setActiveTab] = useState("Approve KYC");
+const [activeTabPending, setActiveTabPending] = React.useState("Active");
    const usersData = [
      {
        id: 1,
@@ -173,7 +174,7 @@ const UserManagement = () => {
       <div className="max-md-[400px]:hidden">
         <h1 className="text-[16px] font-semibold mb-8">User Management</h1>
 
-        <div className="flex  flex-col justify-between mb-4">
+        {/* <div className="flex  flex-col justify-between mb-4">
           <ul className="flex items-center gap-[5em] mb-4 border-b-[1px] border-gray-200">
             <li
               className={`font-medium text-[16px] px-2 cursor-pointer ${
@@ -246,7 +247,14 @@ const UserManagement = () => {
               </button>
             </div>
           </div>
-        </div>
+        </div> */}
+
+        <TableTabs
+          header={""}
+          setActiveTab={setActiveTabPending}
+          activeTab={activeTabPending}
+          tabs={["Active", "Inactive", "Recently Added"]}
+        />
         <div className="rounded-t-[1em] overflow-auto border border-gray-200 min-h-[50vh]">
           <UsersTable
             data={usersData}
