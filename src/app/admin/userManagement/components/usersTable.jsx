@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { FaArrowDown, FaChevronDown } from "react-icons/fa";
+import { FaChevronDown } from "react-icons/fa";
 import ActionPopUp from "../../components/actionPopUp";
 
-const UsersTable = () => {
+const UsersTable = ({ data, currentPage, itemsPerPage }) => {
   const columns = [
     "Username",
     "Account Id",
@@ -16,23 +16,6 @@ const UsersTable = () => {
     "Last Login",
     "Date Joined",
     "Status",
-  ];
-  const data = [
-    {
-      id: 1,
-      username: "John Doe",
-      account_id: 5777,
-      fullname: "John Doe",
-      email: "john.doe@example.com",
-      phone_number: "123-456-7890",
-      wallet_number: "WALLET123",
-      previous_balance: "₦10,000",
-      referrals: 5,
-      referral_bonus: "₦500",
-      last_login: "2/4/2025",
-      date_joined: "2/4/2025",
-    },
-    // Add more user data here...
   ];
 
   const [checkedItems, setCheckedItems] = useState(
@@ -58,6 +41,10 @@ const UsersTable = () => {
     setActiveRow(activeRow === index ? null : index);
   };
 
+  // ** PAGINATION LOGIC **
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const selectedData = data.slice(startIndex, startIndex + itemsPerPage);
+
   return (
     <>
       {data.length === 0 ? (
@@ -76,7 +63,7 @@ const UsersTable = () => {
               {columns.map((column, index) => (
                 <th
                   key={index}
-                  className="py-[1.3em] px-[1.8em] whitespace-nowrap overflow-hidden text-ellipsis"
+                  className="py-[1.3em] px-[1.8em] whitespace-nowrap"
                 >
                   {column}
                 </th>
@@ -84,21 +71,21 @@ const UsersTable = () => {
             </tr>
           </thead>
           <tbody>
-            {data.map((user, idx) => (
+            {selectedData.map((user, idx) => (
               <tr
                 key={idx}
                 className={`border-t ${
                   idx % 2 === 0 ? "bg-white" : "bg-gray-50"
                 }`}
               >
-                <td className="py-[1.3em] px-[1.8em] font-semibold text-[#232323]">
+                <td className="py-[1.3em] px-[1.8em]">
                   <input
                     type="checkbox"
-                    checked={checkedItems[idx]}
-                    onChange={() => handleCheckboxChange(idx)}
+                    checked={checkedItems[startIndex + idx]}
+                    onChange={() => handleCheckboxChange(startIndex + idx)}
                   />
                 </td>
-                <td className="py-[1.3em] px-[1.8em] font-semibold text-[#232323]">
+                <td className="py-[1.3em] px-[1.8em] font-semibold">
                   {user.username}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
@@ -126,12 +113,11 @@ const UsersTable = () => {
                   {user.referral_bonus}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {new Date(user.last_login).toLocaleDateString("en-GB")}
+                  {user.last_login}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
                   {user.date_joined}
                 </td>
-
                 <td className="py-[1.3em] px-[1.8em] text-[#fff] relative">
                   <span
                     className="bg-[#00613A] rounded-xl flex w-fit items-center justify-center gap-2 py-1 px-2 cursor-pointer"

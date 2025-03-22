@@ -240,6 +240,7 @@ const Dashboard = () => {
           setActiveTab={setActiveTabPending}
           activeTab={activeTabPending}
           tabs={["Approve KYC", "Approve Withdrawal", "Transaction"]}
+          from="dashboard"
         />
         <div className="rounded-t-[1em] overflow-hidden border border-gray-200">
           <UsersTable />
@@ -252,6 +253,7 @@ const Dashboard = () => {
           setActiveTab={setActiveTabTransactions}
           activeTab={activeTabTransactions}
           tabs={["All Transactions", "Credit", "Debit"]}
+          from="dashboard"
         />
         <div className="rounded-t-[1em] overflow-hidden border border-gray-200">
           <TransactionsTable />

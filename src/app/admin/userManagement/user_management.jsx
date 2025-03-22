@@ -1,20 +1,180 @@
 import Image from "next/image";
 import React, { useState } from "react";
 import UsersTable from "./components/usersTable";
+import Pagination from "../components/pagination";
+import TableTabs from "../components/tableTabs";
 
 
 
 const UserManagement = () => {
-  const [activeTab, setActiveTab] = useState("Approve KYC");
-  const [activeTransactionTab, setActiveTransactionTab] = useState("all");
-  const [transactions, setTransactions] = useState([]);
-  const [users, setUsers] = useState([]);
+const [activeTabPending, setActiveTabPending] = React.useState("Active");
+   const usersData = [
+     {
+       id: 1,
+       username: "John Doe",
+       account_id: 5777,
+       fullname: "John Doe",
+       email: "john.doe@example.com",
+       phone_number: "123-456-7890",
+       wallet_number: "WALLET123",
+       previous_balance: "₦10,000",
+       referrals: 5,
+       referral_bonus: "₦500",
+       last_login: "2/4/2025",
+       date_joined: "2/4/2025",
+     },
+     {
+       id: 1,
+       username: "John Doe",
+       account_id: 5777,
+       fullname: "John Doe",
+       email: "john.doe@example.com",
+       phone_number: "123-456-7890",
+       wallet_number: "WALLET123",
+       previous_balance: "₦10,000",
+       referrals: 5,
+       referral_bonus: "₦500",
+       last_login: "2/4/2025",
+       date_joined: "2/4/2025",
+     },
+     {
+       id: 1,
+       username: "John Doe",
+       account_id: 5777,
+       fullname: "John Doe",
+       email: "john.doe@example.com",
+       phone_number: "123-456-7890",
+       wallet_number: "WALLET123",
+       previous_balance: "₦10,000",
+       referrals: 5,
+       referral_bonus: "₦500",
+       last_login: "2/4/2025",
+       date_joined: "2/4/2025",
+     },
+     {
+       id: 1,
+       username: "John Doe",
+       account_id: 5777,
+       fullname: "John Doe",
+       email: "john.doe@example.com",
+       phone_number: "123-456-7890",
+       wallet_number: "WALLET123",
+       previous_balance: "₦10,000",
+       referrals: 5,
+       referral_bonus: "₦500",
+       last_login: "2/4/2025",
+       date_joined: "2/4/2025",
+     },
+     {
+       id: 1,
+       username: "John Doe",
+       account_id: 5777,
+       fullname: "John Doe",
+       email: "john.doe@example.com",
+       phone_number: "123-456-7890",
+       wallet_number: "WALLET123",
+       previous_balance: "₦10,000",
+       referrals: 5,
+       referral_bonus: "₦500",
+       last_login: "2/4/2025",
+       date_joined: "2/4/2025",
+     },
+     {
+       id: 1,
+       username: "John Doe",
+       account_id: 5777,
+       fullname: "John Doe",
+       email: "john.doe@example.com",
+       phone_number: "123-456-7890",
+       wallet_number: "WALLET123",
+       previous_balance: "₦10,000",
+       referrals: 5,
+       referral_bonus: "₦500",
+       last_login: "2/4/2025",
+       date_joined: "2/4/2025",
+     },
+     {
+       id: 1,
+       username: "John Doe",
+       account_id: 5777,
+       fullname: "John Doe",
+       email: "john.doe@example.com",
+       phone_number: "123-456-7890",
+       wallet_number: "WALLET123",
+       previous_balance: "₦10,000",
+       referrals: 5,
+       referral_bonus: "₦500",
+       last_login: "2/4/2025",
+       date_joined: "2/4/2025",
+     },
+     {
+       id: 1,
+       username: "John Doe",
+       account_id: 5777,
+       fullname: "John Doe",
+       email: "john.doe@example.com",
+       phone_number: "123-456-7890",
+       wallet_number: "WALLET123",
+       previous_balance: "₦10,000",
+       referrals: 5,
+       referral_bonus: "₦500",
+       last_login: "2/4/2025",
+       date_joined: "2/4/2025",
+     },
+     {
+       id: 1,
+       username: "John Doe",
+       account_id: 5777,
+       fullname: "John Doe",
+       email: "john.doe@example.com",
+       phone_number: "123-456-7890",
+       wallet_number: "WALLET123",
+       previous_balance: "₦10,000",
+       referrals: 5,
+       referral_bonus: "₦500",
+       last_login: "2/4/2025",
+       date_joined: "2/4/2025",
+     },
+     {
+       id: 1,
+       username: "John Doe",
+       account_id: 5777,
+       fullname: "John Doe",
+       email: "john.doe@example.com",
+       phone_number: "123-456-7890",
+       wallet_number: "WALLET123",
+       previous_balance: "₦10,000",
+       referrals: 5,
+       referral_bonus: "₦500",
+       last_login: "2/4/2025",
+       date_joined: "2/4/2025",
+     },
+     {
+       id: 1,
+       username: "John Doe",
+       account_id: 5777,
+       fullname: "John Doe",
+       email: "john.doe@example.com",
+       phone_number: "123-456-7890",
+       wallet_number: "WALLET123",
+       previous_balance: "₦10,000",
+       referrals: 5,
+       referral_bonus: "₦500",
+       last_login: "2/4/2025",
+       date_joined: "2/4/2025",
+     },
+     // Add more users...
+   ];
+
+   const itemsPerPage = 10;
+   const [currentPage, setCurrentPage] = useState(1);
+   const totalPages = Math.ceil(usersData.length / itemsPerPage);
   return (
     <div className="overflow-hidden ">
       <div className="max-md-[400px]:hidden">
         <h1 className="text-[16px] font-semibold mb-8">User Management</h1>
 
-        <div className="flex  flex-col justify-between mb-4">
+        {/* <div className="flex  flex-col justify-between mb-4">
           <ul className="flex items-center gap-[5em] mb-4 border-b-[1px] border-gray-200">
             <li
               className={`font-medium text-[16px] px-2 cursor-pointer ${
@@ -24,7 +184,7 @@ const UserManagement = () => {
               }`}
               onClick={() => setActiveTab("Approve KYC")}
             >
-              Active 
+              Active
             </li>
             <li
               className={`font-medium text-[16px] px-2 cursor-pointer ${
@@ -87,10 +247,26 @@ const UserManagement = () => {
               </button>
             </div>
           </div>
-        </div>
+        </div> */}
+
+        <TableTabs
+          header={""}
+          setActiveTab={setActiveTabPending}
+          activeTab={activeTabPending}
+          tabs={["Active", "Inactive", "Recently Added"]}
+        />
         <div className="rounded-t-[1em] overflow-auto border border-gray-200 min-h-[50vh]">
-          <UsersTable />
+          <UsersTable
+            data={usersData}
+            currentPage={currentPage}
+            itemsPerPage={itemsPerPage}
+          />
         </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
       </div>
     </div>
   );

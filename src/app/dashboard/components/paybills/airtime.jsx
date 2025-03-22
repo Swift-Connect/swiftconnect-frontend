@@ -2,22 +2,33 @@ import React, { useEffect, useState } from "react";
 import ConfirmPayment from "./confirmPayment";
 import EnterPinModal from "../sendMoney/enterPin";
 import SuccessModal from "../sendMoney/successModal";
+import Image from "next/image";
+import { handleBillsConfirm } from "@/utils/handleBillsConfirm";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Airtime = ({ onNext, setBillType }) => {
-  const [network, setNetwork] = useState("GLO NG");
+  const [network, setNetwork] = useState("GLO");
   const [airtimeType, setAirtimeType] = useState("VTU");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [amount, setAmount] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
   const [isEnteringPin, setIsEnteringPin] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-//   const [BT, setPayBillsType] = useState();
+  const [pin, setPin] = useState(["", "", "", ""]);
+  //   const [BT, setPayBillsType] = useState();
 
-//   useEffect(() => {
-//     setBillType(BT);
-//   }, [BT]);
+  //   useEffect(() => {
+  //     setBillType(BT);
+  //   }, [BT]);
 
   const handlePay = () => {
+    if (!network || !airtimeType || !phoneNumber || !amount) {
+      // console.log({ provider, plan, amount });
+      toast.error("Please fill in all fields");
+      return;
+    }
     setIsConfirming(true);
   };
 
@@ -30,26 +41,41 @@ const Airtime = ({ onNext, setBillType }) => {
     setIsEnteringPin(true);
   };
 
-  const handlePinConfirm = (pin) => {
-    console.log("Entered PIN:", pin);
-    setIsSuccess(true);
+  const handlePinConfirm = () => {
+    const pinString = pin.join(""); // Join the pin array into a single string
+    console.log("Entered PIN:", pinString);
+    handleBillsConfirm(
+      pinString, // Pass the pin as a string
+      {
+        network,
+        phone_number: phoneNumber,
+        amount,
+      },
+      "airtime-topups-transactions/",
+      setIsLoading
+    );
+    // setIsSuccess(true);
   };
 
   const handleSuccessClose = () => {
-      setIsSuccess(false);
-      setBillType("dashboard")
+    setIsSuccess(false);
+    setBillType("dashboard");
     // onNext();
   };
 
   return isSuccess ? (
     <SuccessModal
       onClose={handleSuccessClose}
-    //   setPayBillsType={setBillType}
+      //   setPayBillsType={setBillType}
     />
   ) : isEnteringPin ? (
     <EnterPinModal
       onConfirm={handlePinConfirm}
       onNext={() => setIsEnteringPin(false)}
+      onClose={() => setIsEnteringPin(false)}
+      setPin={setPin}
+      pin={pin}
+      from="bills"
     />
   ) : isConfirming ? (
     <ConfirmPayment
@@ -59,15 +85,23 @@ const Airtime = ({ onNext, setBillType }) => {
       amount={amount}
       onBack={handleBack}
       onConfirm={handleConfirm}
+      description={"Airtime"}
     />
   ) : (
-    <div className="min-h-screen bg-gray-100 flex justify-center items-center">
+    <div className="  flex justify-center items-center">
+      <ToastContainer />
       <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
         <button
-          className="text-gray-500 mb-4 flex items-center"
+          className="text-sm text-gray-600 mb-4 flex items-center"
           onClick={() => setBillType("dashboard")}
         >
-          <span className="material-icons-outlined">arrow_back</span>
+          <Image
+            src={"backArrow.svg"}
+            alt="confirmation icon"
+            width={16}
+            height={16}
+            className="w-[0.6em]"
+          />
           <span className="ml-2">Back</span>
         </button>
         <h2 className="text-xl font-semibold mb-6 text-center">Airtime</h2>
@@ -82,10 +116,10 @@ const Airtime = ({ onNext, setBillType }) => {
             value={network}
             onChange={(e) => setNetwork(e.target.value)}
           >
-            <option value="GLO NG">GLO NG</option>
-            <option value="MTN NG">MTN NG</option>
-            <option value="AIRTEL NG">AIRTEL NG</option>
-            <option value="9MOBILE NG">9MOBILE NG</option>
+            <option value="GLO">GLO NG</option>
+            <option value="MTN">MTN NG</option>
+            <option value="AIRTEL">AIRTEL NG</option>
+            <option value="9MOBILE">9MOBILE NG</option>
           </select>
         </div>
 

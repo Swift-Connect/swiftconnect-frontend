@@ -2,7 +2,7 @@ import Image from "next/image";
 import React from "react";
 import { FaPlus, FaTrash, FaTrashAlt } from "react-icons/fa";
 
-const TableTabs = ({ setActiveTab, activeTab, header, tabs }) => {
+const TableTabs = ({ setActiveTab, activeTab, header, tabs, from }) => {
   return (
     <div>
       <h1 className="text-[22px] font-semibold mb-4">{header}</h1>
@@ -24,14 +24,18 @@ const TableTabs = ({ setActiveTab, activeTab, header, tabs }) => {
               </>
             ))}
           </ul>
-          <div className="flex gap-3">
-            <button className="bg-[#00613A] font-medium text-white px-4 py-2 rounded-lg flex items-center gap-2">
-              Add User <FaPlus />
-            </button>
-            <button className="bg-[#8C1823] font-medium text-white px-4 py-2 rounded-lg flex items-center gap-2">
-              Delete <FaTrashAlt />
-            </button>
-          </div>
+          {from === "dashboard" ? (
+            ""
+          ) : (
+            <div className="flex gap-3">
+              <button className="bg-[#00613A] font-medium text-white px-4 py-2 rounded-lg flex items-center gap-2">
+                Add User <FaPlus />
+              </button>
+              <button className="bg-[#8C1823] font-medium text-white px-4 py-2 rounded-lg flex items-center gap-2">
+                Delete <FaTrashAlt />
+              </button>
+            </div>
+          )}
         </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center w-[50%] border rounded-[4em] px-3 py-1 ">

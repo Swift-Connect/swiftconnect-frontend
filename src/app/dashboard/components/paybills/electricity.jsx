@@ -16,7 +16,8 @@ export default function ElectricityPayment({ setBillType }) {
   const [isConfirming, setIsConfirming] = useState(false);
   const [isEnteringPin, setIsEnteringPin] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+     const [pin, setPin] = useState(["", "", "", ""]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -45,10 +46,11 @@ export default function ElectricityPayment({ setBillType }) {
     setIsEnteringPin(true);
   };
 
-  const handlePinConfirm = (pin) => {
-    console.log("Entered PIN:", pin);
+  const handlePinConfirm = () => {
+    const pinString = pin.join(""); // Join the pin array into a single string
+    console.log("Entered PIN:", pinString);
     handleBillsConfirm(
-      pin,
+      pinString,
       {
         meter_number: metreNumber,
         // phone_number: phoneNumber,w
@@ -76,6 +78,9 @@ export default function ElectricityPayment({ setBillType }) {
       onConfirm={handlePinConfirm}
       // onNext={() => setIsEnteringPin(false)}
       onClose={() => setIsEnteringPin(false)}
+      setPin={setPin}
+      pin={pin}
+      from="bills"
     />
   ) : isConfirming ? (
     <ConfirmPayment
@@ -86,6 +91,7 @@ export default function ElectricityPayment({ setBillType }) {
       metreNumber={metreNumber}
       provider={serviceProvider}
       packageType={packageType}
+      setBillType={setBillType}
     />
   ) : (
     <div className="flex justify-center">

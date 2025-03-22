@@ -40,7 +40,7 @@ export const handleBillsConfirm = async (pin, dataa, url, setIsLoading) => {
       console.log(data);
 
       toast.update(loadingToast, {
-        render: data[0] || "Failed to process payment",
+        render: data[0] || data.detail || "Failed to process payment",
         type: "error",
         isLoading: false,
         autoClose: 3000,
