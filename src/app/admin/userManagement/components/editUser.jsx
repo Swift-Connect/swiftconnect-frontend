@@ -287,7 +287,7 @@ const UserForm = () => {
               <button className="bg-[#8C1823] font-medium text-white px-4 py-2 rounded-lg flex items-center gap-2">
                 Delete <FaTrashAlt />
               </button>{" "}
-              <button className="bg-[#8C1823] font-medium text-white px-4 py-2 rounded-lg flex items-center gap-2">
+              <button className="bg-[#282EFF] font-medium text-white px-4 py-2 rounded-lg flex items-center gap-2">
                 Impersonate <FaUsers />
               </button>
             </div>
