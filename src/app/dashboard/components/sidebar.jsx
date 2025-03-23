@@ -54,11 +54,11 @@ export default function Sidebar({
         role === "admin" ? "w-[25%]" : "w-[18%]"
       } bg-white shadow-md h-screen flex flex-col justify-between ${
         hideSideMenu
-          ? "max-md-[400px]:hidden "
+          ? "max-md-[400px]:hidden"
           : "max-md-[400px]:absolute max-md-[400px]:w-[70%] max-md-[400px]:z-20"
       }`}
     >
-      <div className="flex items-center p-4 gap-4">
+      <div className="flex items-center justify-between p-4 gap-4">
         <img src="/logo.svg" alt="Logo" className=" w-30" />
         <p
           onClick={() => {
@@ -66,7 +66,7 @@ export default function Sidebar({
             console.log(hideSideMenu);
           }}
         >
-          <X className="max-[400px]:block hidden" />
+          <X className="max-md-[400px]:block hidden cursor-pointer" />
         </p>
         {/* <span className="ml-2 font-bold text-xl">Swift Connect</span> */}
       </div>

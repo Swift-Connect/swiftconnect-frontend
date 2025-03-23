@@ -35,7 +35,7 @@ const UserForm = () => {
         <div className="bg-white shadow-md rounded-lg p-6 w-full max-w-[80%]">
           <form className="space-y-4 flex flex-col gap-8">
             {/*User Info*/}
-            <div>
+            <div className="flex flex-col gap-6">
               <div className="flex items-center gap-[2em]">
                 <label className="block text-[18px] font-medium text-gray-700 w-[150px]">
                   Username:
@@ -119,8 +119,8 @@ const UserForm = () => {
                 </div>
               </div>
             </div>
-            {/* Paersonal Info */}
-            <div className="mt-4">
+            {/* Personal Info */}
+            <div className="flex flex-col gap-6 mt-4">
               <h1 className="font-bold text-[28px] mb-4">
                 Personal Information
               </h1>
@@ -225,7 +225,7 @@ const UserForm = () => {
             </div>
 
             {/* Permissions */}
-            <div className="mt-6">
+            <div className="mt-6 ">
               <h1 className="font-bold text-[28px] mb-4">Permissions</h1>
               <div className="mt-2 space-y-8">
                 <label className="flex items-start gap-3 space-x-2">
