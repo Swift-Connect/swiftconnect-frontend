@@ -17,7 +17,7 @@ export default function ElectricityPayment({ setBillType }) {
   const [isEnteringPin, setIsEnteringPin] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-     const [pin, setPin] = useState(["", "", "", ""]);
+  const [pin, setPin] = useState(["", "", "", ""]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -145,6 +145,15 @@ export default function ElectricityPayment({ setBillType }) {
                 Select Package
               </option>
               <option value="AEDC Prepaid Meter">AEDC Prepaid Meter</option>
+              <option value="EKEDC Prepaid Meter">EKEDC Prepaid Meter</option>
+              <option value="IBEDC Prepaid Meter">IBEDC Prepaid Meter</option>
+              <option value="IKEDC Prepaid Meter">IKEDC Prepaid Meter</option>
+              <option value="JED Prepaid Meter">JED Prepaid Meter</option>
+              <option value="KEDCO Prepaid Meter">KEDCO Prepaid Meter</option>
+              <option value="PHED Prepaid Meter">PHED Prepaid Meter</option>
+              <option value="KAEDCO Prepaid Meter">KAEDCO Prepaid Meter</option>
+              <option value="YEDC Prepaid Meter">YEDC Prepaid Meter</option>
+              <option value="BEDC Prepaid Meter">BEDC Prepaid Meter</option>
             </select>
           </div>
 

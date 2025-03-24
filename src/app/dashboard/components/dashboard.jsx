@@ -65,7 +65,7 @@ const Dashboard = ({ setActiveSidebar, data, user }) => {
             kycVerified={user?.kyc_verified}
             setActiveSidebar={setActiveSidebar}
           />
-          <MobileTransaction />
+          {/* <MobileTransaction /> */}
           <TransactionsTable />
         </>
       );

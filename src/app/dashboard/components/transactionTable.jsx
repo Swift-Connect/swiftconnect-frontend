@@ -1,5 +1,6 @@
 // app/page.js
 "use client";
+import Pagination from "@/app/admin/components/pagination";
 import axiosInstance from "../../../utils/axiosInstance";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
@@ -7,6 +8,8 @@ import React, { useEffect, useState } from "react";
 const TransactionsTable = () => {
   const [activeTransactionTab, setActiveTransactionTab] = useState("all");
   const [transactions, setTransactions] = useState([]);
+  const itemsPerPage = 5;
+  const [currentPage, setCurrentPage] = useState(1);
 
   const fetchData = async () => {
     try {
@@ -32,15 +35,18 @@ const TransactionsTable = () => {
       : transactions.filter((transaction) =>
           transaction.transaction_type === "debit" ? transaction.amount : ""
         );
+  const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const selectedData = filteredTransactions.slice(startIndex, startIndex + itemsPerPage);
 
   return (
-    <div className="pt-8 w-[90%] max-md-[400px]:hidden">
+    <div className="pt-8 w-[90%] max-md-[400px]:hidde max-md-[400px]:w-full">
       <div className="">
         <h1 className="text-[22px] font-semibold mb-4">Recent Transactions</h1>
         <div className="flex  flex-col justify-between mb-4">
-          <ul className="flex items-center gap-[5em] mb-4 border-b-[1px] border-gray-200">
+          <ul className="flex items-center gap-[5em] text-[16px] max-md-[400px]:text-[12px] mb-4 border-b-[1px] border-gray-200">
             <li
-              className={`font-medium text-[16px] px-2 cursor-pointer ${
+              className={`font-medium   px-2 cursor-pointer ${
                 activeTransactionTab === "all"
                   ? "text-green-600 border-b-2 border-green-600"
                   : "text-gray-500"
@@ -50,7 +56,7 @@ const TransactionsTable = () => {
               All Transactions
             </li>
             <li
-              className={`font-medium text-[16px] px-2 cursor-pointer ${
+              className={`font-medium   px-2 cursor-pointer ${
                 activeTransactionTab === "Credit"
                   ? "text-green-600 border-b-2 border-green-600"
                   : "text-gray-500"
@@ -60,7 +66,7 @@ const TransactionsTable = () => {
               Credit
             </li>
             <li
-              className={`font-medium text-[16px] px-2 cursor-pointer ${
+              className={`font-medium   px-2 cursor-pointer ${
                 activeTransactionTab === "Debit"
                   ? "text-green-600 border-b-2 border-green-600"
                   : "text-gray-500"
@@ -94,7 +100,7 @@ const TransactionsTable = () => {
                   height={100}
                   className="w-[1.6em]"
                 />
-                <span className="ml-1 text-[16px]">
+                <span className="ml-1 text-[16px] max-md-[400px]:hidden">
                   Nov 1, 2024 - Nov 24, 2024
                 </span>
               </button>
@@ -106,19 +112,19 @@ const TransactionsTable = () => {
                   height={100}
                   className="w-[1.6em]"
                 />
-                <span className="ml-1">Filter</span>
+                <span className="ml-1 max-md-[400px]:hidden">Filter</span>
               </button>
             </div>
           </div>
         </div>
 
-        <div className="rounded-t-[1em] overflow-hidden border border-gray-200">
+        <div className="rounded-t-[1em] overflow-scroll border border-gray-200">
           {filteredTransactions.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
               No Transactions yet
             </div>
           ) : (
-            <table className="w-full text-sm border-collapse">
+            <table className="w-full text-sm max-md-[400px]:text-[12px] border-collapse">
               <thead>
                 <tr className="bg-[#F9F8FA] text-left text-[#525252]">
                   <th className="py-[1.3em] px-[1.8em]">Product</th>
@@ -130,7 +136,7 @@ const TransactionsTable = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredTransactions.map((transaction, idx) => (
+                {selectedData.map((transaction, idx) => (
                   <tr
                     key={idx}
                     className={`border-t ${
@@ -191,6 +197,11 @@ const TransactionsTable = () => {
               </tbody>
             </table>
           )}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
         </div>
       </div>
     </div>
