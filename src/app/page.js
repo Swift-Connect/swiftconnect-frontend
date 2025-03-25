@@ -7,8 +7,11 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("access_token");
+    
     if (token) {
+      console.log("tooken exists");
+      
       router.push("/dashboard");
     } else {
       router.push("/account/login");

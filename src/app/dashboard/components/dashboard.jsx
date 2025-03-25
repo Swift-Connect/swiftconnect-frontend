@@ -8,11 +8,37 @@ import Airtime from "./paybills/airtime";
 import Internet from "./paybills/internet";
 import ElectricityPayment from "./paybills/electricity";
 import CableTv from "./paybills/cableTv";
+import { useRouter } from "next/navigation";
 
 const Dashboard = ({ setActiveSidebar, data, user }) => {
   const [payBillsType, setPayBillsType] = useState("dashboard");
 
   console.log(data);
+  const router = useRouter();
+
+  const isTokenExpired = (token) => {
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      return payload.exp * 1000 < Date.now();
+    } catch (error) {
+      console.error("Error decoding token:", error);
+      return true;
+    }
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+
+    if (token && !isTokenExpired(token)) {
+      console.log("Token exists and is valid");
+
+      router.push("/dashboard"); // Remove this line to prevent unnecessary redirect
+    } else {
+      console.log("Token is missing or expired");
+      localStorage.removeItem("access_token");
+      router.push("/account/login");
+    }
+  }, [router]);
 
   // useEffect(() => {
   //   console.log(payBillsType);
