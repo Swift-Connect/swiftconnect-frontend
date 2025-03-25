@@ -3,13 +3,17 @@ import React, { useState } from "react";
 import BecomeAnAgent from "./becomeAnAgent";
 
 const AgentKycComponent = ({ setActiveSidebar, kycVerified }) => {
-    const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  
   return (
     <>
       {isOpen && <BecomeAnAgent onClose={() => setIsOpen(false)} />}
       <div className="space-y-4 pt-4 bg-gray-5 w-[90%] max-md-[400px]:w-full">
         {/* Become an Agent Card */}
-        <div className="flex items-center justify-between  bg-white shadow-lg rounded-[1.4em] p-4 border border-gray-200">
+        <div
+          className="flex items-center justify-between bg-white shadow-lg rounded-[1.4em] p-4 border border-gray-200"
+          onClick={() => setIsOpen(true)}
+        >
           <div className="flex items-start space-x-4 w-[60%] max-md-[400px]:w-full">
             <Image
               src="/rocket.svg"

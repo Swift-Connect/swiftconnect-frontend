@@ -8,6 +8,7 @@ import axios from "axios";
 const EnterPinModal = ({
   onClose,
   onConfirm,
+  onConfirmTopUp,
   onNext,
   addCard,
   message,
@@ -90,7 +91,13 @@ const EnterPinModal = ({
             isPinComplete ? "bg-black hover:bg-[#484848]" : "bg-[#d2d2d2]"
           }`}
           disabled={!isPinComplete || isLoading}
-          onClick={from === "bills" ? onConfirm : (e)=> handleSubmit(e)}
+          onClick={
+            from === "bills"
+              ? onConfirm
+              : from === "top up"
+              ? onConfirmTopUp
+              : (e) => handleSubmit(e)
+          }
         >
           Send Funds
         </button>

@@ -19,6 +19,7 @@ const ReceiveMoneyModal = ({ isOpen, onClose }) => {
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
   const [transactionPin, setTransactionPin] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [pin, setPin] = useState(["", "", "", ""]);
 
   const paymentTypes = ["flutterwave", "monify", "paystack"];
 
@@ -31,13 +32,14 @@ const ReceiveMoneyModal = ({ isOpen, onClose }) => {
     setIsPinModalOpen(true); // Show the PIN modal
   };
 
-  const handlePinConfirm = async (pin) => {
-    console.log("Entered PIN:", pin);
-    setTransactionPin(pin);
-    setIsPinModalOpen(false);
+  const handlePinConfirm = async (e) => {
+    e.preventDefault();
+    const pinString = pin.join("");
+    // setTransactionPin(pin);
+    // setIsPinModalOpen(true);
 
     // Make the API request with the entered PIN
-    setIsLoading(true);
+    // setIsLoading(true);
     const loadingToast = toast.loading("Processing payment...");
     try {
       const response = await fetch(
@@ -46,7 +48,7 @@ const ReceiveMoneyModal = ({ isOpen, onClose }) => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "X-Transaction-PIN": pin,
+            "X-Transaction-PIN": pinString,
             Authorization: `Bearer ${localStorage.getItem("access_token")}`,
           },
           body: JSON.stringify({
@@ -89,18 +91,15 @@ const ReceiveMoneyModal = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div
-      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
-      onClick={onClose}
-    >
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
       <ToastContainer />
       <div
         className="bg-white rounded-2xl p-6 w-full max-w-lg relative"
-        onClick={(e) => e.stopPropagation()}
+        // onClick={(e) => e.stopPropagation()}
       >
         <button
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-          onClick={onClose}
+          // onClick={onClose}
         >
           <FaTimes size={20} />
         </button>
@@ -177,8 +176,11 @@ const ReceiveMoneyModal = ({ isOpen, onClose }) => {
 
       {isPinModalOpen && (
         <EnterPinModal
-          onConfirm={handlePinConfirm}
+          onConfirmTopUp={handlePinConfirm}
           onClose={() => setIsPinModalOpen(false)}
+          setPin={setPin}
+          pin={pin}
+          from="top up"
         />
       )}
     </div>
