@@ -98,7 +98,7 @@ const EditReferralSystem = () => {
                     disabled
                   />
                   <p className="text-[14px] text-gray-500">
-                    Requires 50 characters or fewer, digits and @#?/+- only
+                    Requires 50 characters or fewer, digits and @#?/+- sonly
                   </p>
                 </div>
                 <p>$60</p>
