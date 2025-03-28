@@ -8,11 +8,11 @@ const TableTabs = ({ setActiveTab, activeTab, header, tabs, from }) => {
       <h1 className="text-[22px] font-semibold mb-4">{header}</h1>
       <div className="flex  flex-col justify-between mb-4">
         <div className="flex justify-between items-center  mb-4">
-          <ul className="flex items-center gap-[5em]  border-b-[1px] border-gray-200">
+          <ul className="flex items-center gap-[2em]  border-b-[1px] border-gray-200">
             {tabs.map((tab) => (
               <>
                 <li
-                  className={`font-medium text-[16px] px-2 cursor-pointer ${
+                  className={`font-medium text-[16px] whitespace-nowrap  px-2 cursor-pointer ${
                     activeTab === tab
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-500"
@@ -29,15 +29,18 @@ const TableTabs = ({ setActiveTab, activeTab, header, tabs, from }) => {
           ) : (
             <div className="flex gap-3">
               {from === "transactionManagement" ||
-              from === "referralSystem" ? null : (
+              from === "referralSystem" ||
+              from === "SAM" ? null : (
                 <button className="bg-[#00613A] font-medium text-white px-4 py-2 rounded-lg flex items-center gap-2">
                   Add User <FaPlus />
                 </button>
               )}
 
-              <button className="bg-[#8C1823] font-medium text-white px-4 py-2 rounded-lg flex items-center gap-2">
-                Delete <FaTrashAlt />
-              </button>
+              {from === "SAM" ? null : (
+                <button className="bg-[#8C1823] font-medium text-white px-4 py-2 rounded-lg flex items-center gap-2">
+                  Delete <FaTrashAlt />
+                </button>
+              )}
             </div>
           )}
         </div>

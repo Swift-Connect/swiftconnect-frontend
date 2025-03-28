@@ -6,6 +6,7 @@ import UserManagement from "./userManagement/user_management";
 import Dashboard from "./dashboard/dashboard";
 import TransactionManagement from "./transactionManagement/transactionManagement";
 import ReferralSystem from "./referralSystem/page";
+import SMA from "./serviceApiManagement/page";
 
 const AdminPage = () => {
   const [hideSideMenu, setHideSideMenu] = useState(true);
@@ -44,6 +45,14 @@ const AdminPage = () => {
       case "Referral System":
         return (
           <ReferralSystem
+            setActiveSidebar={setActiveSidebar}
+            data={data}
+            user={user}
+          />
+        );
+      case "Service Management API":
+        return (
+          <SMA
             setActiveSidebar={setActiveSidebar}
             data={data}
             user={user}

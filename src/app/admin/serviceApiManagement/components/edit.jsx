@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import {
-  FaClipboard,
   FaPlus,
   FaTrashAlt,
   FaUserAlt,
@@ -11,7 +10,7 @@ import {
   FaUserTag,
 } from "react-icons/fa";
 
-const EditReferralSystem = () => {
+const EditSAM = () => {
   const [formData, setFormData] = useState({
     username: "Chosenfolio",
     password: "Chosenfolio",
@@ -38,14 +37,7 @@ const EditReferralSystem = () => {
 
   return (
     <div>
-      {
-        <div className="flex justify-between mb-4">
-          <h2 className="text-2xl font-semibold mb-4">{formData.username}</h2>
-          <p className="bg-[#ACFFDE] rounded-md px-8 py-4 flex items-center gap-2 text-[#00613A]">
-            <FaClipboard /> Generate report on referral earnings
-          </p>
-        </div>
-      }
+      <h2 className="text-2xl font-semibold mb-4">{formData.username}</h2>
       <div className="flex bg-gray-50">
         <div className="bg-white shadow-md rounded-lg p-6 w-full max-w-[90%]">
           <form className="space-y-4 flex flex-col gap-8">
@@ -131,4 +123,4 @@ const EditReferralSystem = () => {
   );
 };
 
-export default EditReferralSystem;
+export default EditSAM;
