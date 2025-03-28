@@ -4,6 +4,8 @@ import Header from "../dashboard/components/header";
 import Sidebar from "../dashboard/components/sidebar";
 import UserManagement from "./userManagement/user_management";
 import Dashboard from "./dashboard/dashboard";
+import TransactionManagement from "./transactionManagement/transactionManagement";
+import ReferralSystem from "./referralSystem/page";
 
 const AdminPage = () => {
   const [hideSideMenu, setHideSideMenu] = useState(true);
@@ -26,6 +28,22 @@ const AdminPage = () => {
       case "User Management":
         return (
           <UserManagement
+            setActiveSidebar={setActiveSidebar}
+            data={data}
+            user={user}
+          />
+        );
+      case "Transaction Management":
+        return (
+          <TransactionManagement
+            setActiveSidebar={setActiveSidebar}
+            data={data}
+            user={user}
+          />
+        );
+      case "Referral System":
+        return (
+          <ReferralSystem
             setActiveSidebar={setActiveSidebar}
             data={data}
             user={user}
