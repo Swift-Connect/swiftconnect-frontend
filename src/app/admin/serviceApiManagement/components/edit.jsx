@@ -37,16 +37,16 @@ const EditSAM = () => {
 
   return (
     <div>
-      <h2 className="text-2xl font-semibold mb-4">{formData.username}</h2>
+      <h2 className="text-2xl font-semibold mb-4">1GB -- #30</h2>
       <div className="flex bg-gray-50">
         <div className="bg-white shadow-md rounded-lg p-6 w-full max-w-[90%]">
-          <form className="space-y-4 flex flex-col gap-8">
+          <form className="space-y-4 flex flex-col gap-4">
             {/*User Info*/}
             <div className="flex flex-col gap-6">
               <div className="flex items-center gap-[6em]">
-                <label className="block text-[18px] font-medium text-gray-700 ">
-                  <input type="checkbox" className="mr-[2em]" name="" id="" />
-                  Refferal username
+                <label className="block text-[18px] font-medium text-gray-700 w-[150px]">
+                  {/* <input type="checkbox" className="mr-[2em]" name="" id="" /> */}
+                  Network
                 </label>
                 <div className="flex flex-col gap-1">
                   <input
@@ -59,15 +59,14 @@ const EditSAM = () => {
                     Requires 50 characters or fewer, digits and @#?/+- only
                   </p>
                 </div>
-                <p>$10</p>
+                {/* <p>$10</p> */}
               </div>
-            </div>
-
+            </div>{" "}
             <div className="flex flex-col gap-6">
               <div className="flex items-center gap-[6em]">
-                <label className="block text-[18px] font-medium text-gray-700 ">
-                  <input type="checkbox" className="mr-[2em]" name="" id="" />
-                  Refferal username
+                <label className="block text-[18px] font-medium text-gray-700 w-[150px]">
+                  {/* <input type="checkbox" className="mr-[2em]" name="" id="" /> */}
+                  Plan size
                 </label>
                 <div className="flex flex-col gap-1">
                   <input
@@ -80,15 +79,14 @@ const EditSAM = () => {
                     Requires 50 characters or fewer, digits and @#?/+- only
                   </p>
                 </div>
-                <p>$700</p>
+                {/* <p>$10</p> */}
               </div>
             </div>
-
             <div className="flex flex-col gap-6">
               <div className="flex items-center gap-[6em]">
-                <label className="block text-[18px] font-medium text-gray-700 ">
-                  <input type="checkbox" className="mr-[2em]" name="" id="" />
-                  Refferal username
+                <label className="block text-[18px] font-medium text-gray-700 w-[150px]">
+                  {/* <input type="checkbox" className="mr-[2em]" name="" id="" /> */}
+                  Plan volume
                 </label>
                 <div className="flex flex-col gap-1">
                   <input
@@ -101,14 +99,113 @@ const EditSAM = () => {
                     Requires 50 characters or fewer, digits and @#?/+- only
                   </p>
                 </div>
-                <p>$60</p>
+                {/* <p>$10</p> */}
               </div>
             </div>
-
+            <div className="flex flex-col gap-6">
+              <div className="flex items-center gap-[6em]">
+                <label className="block text-[18px] font-medium text-gray-700 w-[150px]">
+                  {/* <input type="checkbox" className="mr-[2em]" name="" id="" /> */}
+                  Plan amount
+                </label>
+                <div className="flex flex-col gap-1">
+                  <input
+                    type="text"
+                    value={formData.username}
+                    className="w-full mt-1 p-4 border rounded-[0.8em] focus:outline-none focus:ring-2 focus:ring-gray-400"
+                    disabled
+                  />
+                  <p className="text-[14px] text-gray-500">
+                    Requires 50 characters or fewer, digits and @#?/+- only
+                  </p>
+                </div>
+                {/* <p>$10</p> */}
+              </div>
+            </div>
+            <div className="flex flex-col gap-6">
+              <div className="flex items-center gap-[6em]">
+                <label className="block text-[18px] font-medium text-gray-700 w-[150px]">
+                  {/* <input type="checkbox" className="mr-[2em]" name="" id="" /> */}
+                  User price
+                </label>
+                <div className="flex flex-col gap-1">
+                  <input
+                    type="text"
+                    value={formData.username}
+                    className="w-full mt-1 p-4 border rounded-[0.8em] focus:outline-none focus:ring-2 focus:ring-gray-400"
+                    disabled
+                  />
+                  <p className="text-[14px] text-gray-500">
+                    Requires 50 characters or fewer, digits and @#?/+- only
+                  </p>
+                </div>
+                {/* <p>$10</p> */}
+              </div>
+            </div>
+            <div className="flex flex-col gap-6">
+              <div className="flex items-center gap-[6em]">
+                <label className="block text-[18px] font-medium text-gray-700 w-[150px]">
+                  {/* <input type="checkbox" className="mr-[2em]" name="" id="" /> */}
+                  Agent price
+                </label>
+                <div className="flex flex-col gap-1">
+                  <input
+                    type="text"
+                    value={formData.username}
+                    className="w-full mt-1 p-4 border rounded-[0.8em] focus:outline-none focus:ring-2 focus:ring-gray-400"
+                    disabled
+                  />
+                  <p className="text-[14px] text-gray-500">
+                    Requires 50 characters or fewer, digits and @#?/+- only
+                  </p>
+                </div>
+                {/* <p>$10</p> */}
+              </div>
+            </div>
+            <div className="flex flex-col gap-6">
+              <div className="flex items-center gap-[6em]">
+                <label className="block text-[18px] font-medium text-gray-700 w-[150px]">
+                  {/* <input type="checkbox" className="mr-[2em]" name="" id="" /> */}
+                  Plan type
+                </label>
+                <div className="flex flex-col gap-1">
+                  <input
+                    type="text"
+                    value={formData.username}
+                    className="w-full mt-1 p-4 border rounded-[0.8em] focus:outline-none focus:ring-2 focus:ring-gray-400"
+                    disabled
+                  />
+                  <p className="text-[14px] text-gray-500">
+                    Requires 50 characters or fewer, digits and @#?/+- only
+                  </p>
+                </div>
+                {/* <p>$10</p> */}
+              </div>
+            </div>
+            <div className="flex flex-col gap-6">
+              <div className="flex items-center gap-[6em]">
+                <label className="block text-[18px] font-medium text-gray-700 w-[150px]">
+                  {/* <input type="checkbox" className="mr-[2em]" name="" id="" /> */}
+                 Commission
+                </label>
+                <div className="flex flex-col gap-1">
+                  <input
+                    type="text"
+                    value={formData.username}
+                    className="w-full mt-1 p-4 border rounded-[0.8em] focus:outline-none focus:ring-2 focus:ring-gray-400"
+                    disabled
+                  />
+                  <p className="text-[14px] text-gray-500">
+                    Requires 50 characters or fewer, digits and @#?/+- only
+                  </p>
+                </div>
+                {/* <p>$10</p> */}
+              </div>
+            </div>
             <div className="flex gap-3">
-              {/* <button className="bg-[#00613A] font-medium text-white px-4 py-2 rounded-lg flex items-center gap-2">
+              <button className="bg-[#00613A] font-medium text-white px-4 py-2 rounded-lg flex items-center gap-2">
                 Save <FaPlus />
-              </button> */}
+              </button>
               <button className="bg-[#8C1823] font-medium text-white px-4 py-2 rounded-lg flex items-center gap-2">
                 Delete <FaTrashAlt />
               </button>{" "}

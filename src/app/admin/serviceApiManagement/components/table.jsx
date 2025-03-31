@@ -2,16 +2,7 @@ import { useState } from "react";
 import { FaChevronDown } from "react-icons/fa";
 import ActionPopUp from "../../components/actionPopUp";
 
-const SAMTable = ({ data, currentPage, itemsPerPage }) => {
-  const columns = [
-    "Network",
-    "Plan Type",
-    "Plan Size",
-    "Plan Amount",
-    "User Amount",
-    "Agent Amount",
-  ];
-
+const SAMTable = ({ data, fields, currentPage, itemsPerPage }) => {
   const [checkedItems, setCheckedItems] = useState(
     new Array(data.length).fill(false)
   );
@@ -56,12 +47,12 @@ const SAMTable = ({ data, currentPage, itemsPerPage }) => {
                   onChange={handleHeaderCheckboxChange}
                 />
               </th>
-              {columns.map((column, index) => (
+              {fields.map((field, index) => (
                 <th
                   key={index}
                   className="py-[1.3em] px-[1.8em] whitespace-nowrap"
                 >
-                  {column}
+                  {field}
                 </th>
               ))}
             </tr>
@@ -81,57 +72,14 @@ const SAMTable = ({ data, currentPage, itemsPerPage }) => {
                     onChange={() => handleCheckboxChange(startIndex + idx)}
                   />
                 </td>
-                <td className="py-[1.3em] px-[1.8em] font-semibold text-[#232323]">
-                  {data.network}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {data.plan_type}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {data.plan_size}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  ₦{data.plan_amount}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  ₦{data.user_amount}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  ₦{data.agent_amount}
-                </td>
-                {/* <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {new Date(data.date).toLocaleDateString("en-GB")}
-                </td> */}
-                {/* <td
-                  className={`py-[1.3em] px-[1.8em] font-medium text-${
-                    data.status === "Completed" ? "green" : "red"
-                  }-600`}
-                >
-                  {data.status === "Completed" ? "+" : "-"}₦
-                  {data.amount}
-                </td> */}
-                {/* <td className="py-[1.3em] px-[1.8em]">
-                  <div
-                    className={`py-1 text-center text-xs font-medium rounded-full ${
-                      data.status === "Completed"
-                        ? "bg-green-100 text-green-600"
-                        : data.status === "Failed"
-                        ? "bg-red-100 text-red-600"
-                        : data.status === "Pending"
-                        ? "bg-yellow-100 text-yellow-600"
-                        : data.status === "Refunded"
-                        ? "bg-[#52525233] text-[#525252]"
-                        : ""
-                    }`}
+                {fields.map((field, index) => (
+                  <td
+                    key={index}
+                    className="py-[1.3em] px-[1.8em] text-[#9CA3AF]"
                   >
-                    {data.status}
-                  </div>
-                </td> */}
-                {/* <td className="py-[1.3em] px-[1.8em]">
-                  <button className="text-green-600 text-sm font-semibold">
-                    View
-                  </button>
-                </td> */}
+                    {data[field.toLowerCase().replace(/\s+/g, "_")]}
+                  </td>
+                ))}
               </tr>
             ))}
           </tbody>

@@ -241,6 +241,12 @@ const Dashboard = () => {
           activeTab={activeTabPending}
           tabs={["Approve KYC", "Approve Withdrawal", "Transaction"]}
           from="dashboard"
+          filterOptions={[
+            { label: "MTN", value: "MTN" },
+            { label: "Airtel", value: "Airtel" },
+            { label: "Glo", value: "Glo" },
+            { label: "9mobile", value: "9mobile" },
+          ]}
         />
         <div className="rounded-t-[1em] overflow-hidden border border-gray-200">
           <UsersTable />
@@ -254,6 +260,12 @@ const Dashboard = () => {
           activeTab={activeTabTransactions}
           tabs={["All Transactions", "Credit", "Debit"]}
           from="dashboard"
+          filterOptions={[
+            { label: "MTN", value: "MTN" },
+            { label: "Airtel", value: "Airtel" },
+            { label: "Glo", value: "Glo" },
+            { label: "9mobile", value: "9mobile" },
+          ]}
         />
         <div className="rounded-t-[1em] overflow-hidden border border-gray-200">
           <TransactionsTable />
