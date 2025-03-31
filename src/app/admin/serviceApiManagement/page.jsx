@@ -124,8 +124,11 @@ const SMA = () => {
   const totalPages = Math.ceil(data.length / itemsPerPage);
 
   const [showEdit, setShowEdit] = useState(false);
-  const handleEditClick = () => {
-    setShowEdit(!showEdit);
+  const [editData, setEditData] = useState(null);
+
+  const handleEditClick = (rowData) => {
+    setEditData(rowData);
+    setShowEdit(true);
   };
 
   return (
@@ -138,7 +141,7 @@ const SMA = () => {
                 Referral System <FaChevronRight /> Change plan
               </h1>
             </div>
-            <EditSAM />
+            <EditSAM fields={fields} data={editData} />
           </>
         ) : (
           <>

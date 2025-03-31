@@ -76,7 +76,7 @@ const SAMTable = ({ data, fields, currentPage, itemsPerPage, setShowEdit }) => {
                   <td
                     key={index}
                     className="py-[1.3em] px-[1.8em] text-[#9CA3AF]"
-                    onDoubleClick={() => setShowEdit(idx)}
+                    onDoubleClick={() => setShowEdit()}
                   >
                     {data[field.toLowerCase().replace(/\s+/g, "_")]}
                   </td>

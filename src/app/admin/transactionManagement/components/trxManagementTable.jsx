@@ -2,7 +2,12 @@ import { useState } from "react";
 import { FaChevronDown } from "react-icons/fa";
 import ActionPopUp from "../../components/actionPopUp";
 
-const TrxManagementTable = ({ data, currentPage, itemsPerPage }) => {
+const TrxManagementTable = ({
+  data,
+  currentPage,
+  itemsPerPage,
+  setShowEdit,
+}) => {
   const columns = [
     "Product",
     "Transaction ID",
@@ -73,6 +78,7 @@ const TrxManagementTable = ({ data, currentPage, itemsPerPage }) => {
                 className={`border-t ${
                   idx % 2 === 0 ? "bg-white" : "bg-gray-50"
                 }`}
+                onDoubleClick={() => setShowEdit(transaction)}
               >
                 <td className="py-[1.3em] px-[1.8em]">
                   <input

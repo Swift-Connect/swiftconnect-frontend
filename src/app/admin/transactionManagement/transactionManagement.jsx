@@ -56,17 +56,27 @@ const TransactionManagement = () => {
   const itemsPerPage = 10;
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = Math.ceil(data.length / itemsPerPage);
+  const [showEdit, setShowEdit] = useState(false);
+  const [editData, setEditData] = useState(null);
+
+  const handleEditClick = (rowData) => {
+    setEditData(rowData);
+    setShowEdit(true);
+    console.log("shit");
+    
+  };
+
   return (
     <div className="overflow-hidden ">
       <div className="max-md-[400px]:hidden">
-        {editTrx ? (
+        {showEdit ? (
           <>
             <div>
               <h1 className="text-[16px] font-semibold mb-8 flex items-center gap-4">
                 Transaction Management <FaChevronRight /> Edit User Transaction
               </h1>
             </div>
-            <EditUserTrx />
+            <EditUserTrx fields={Object.keys(editData || {})} data={editData} />
           </>
         ) : (
           <>
@@ -86,6 +96,7 @@ const TransactionManagement = () => {
                 data={data}
                 currentPage={currentPage}
                 itemsPerPage={itemsPerPage}
+                setShowEdit={handleEditClick}
               />
             </div>
             <Pagination
