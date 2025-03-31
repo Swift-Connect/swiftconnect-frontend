@@ -2,7 +2,7 @@ import { useState } from "react";
 import { FaChevronDown } from "react-icons/fa";
 import ActionPopUp from "../../components/actionPopUp";
 
-const SAMTable = ({ data, fields, currentPage, itemsPerPage }) => {
+const SAMTable = ({ data, fields, currentPage, itemsPerPage, setShowEdit }) => {
   const [checkedItems, setCheckedItems] = useState(
     new Array(data.length).fill(false)
   );
@@ -76,6 +76,7 @@ const SAMTable = ({ data, fields, currentPage, itemsPerPage }) => {
                   <td
                     key={index}
                     className="py-[1.3em] px-[1.8em] text-[#9CA3AF]"
+                    onDoubleClick={() => setShowEdit(idx)}
                   >
                     {data[field.toLowerCase().replace(/\s+/g, "_")]}
                   </td>

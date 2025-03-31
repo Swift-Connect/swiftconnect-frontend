@@ -7,7 +7,7 @@ import TableTabs from "../components/tableTabs";
 import { FaChevronRight, FaTrashAlt } from "react-icons/fa";
 import SAMTable from "./components/table";
 import EditSAM from "./components/edit";
- 
+
 const SMA = () => {
   const [activeTabPending, setActiveTabPending] = React.useState(
     "Data Subscription Plans"
@@ -123,10 +123,15 @@ const SMA = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = Math.ceil(data.length / itemsPerPage);
 
+  const [showEdit, setShowEdit] = useState(false);
+  const handleEditClick = () => {
+    setShowEdit(!showEdit);
+  };
+
   return (
     <div className="overflow-hidden ">
       <div className="max-md-[400px]:hidden">
-        {editReferral ? (
+        {showEdit ? (
           <>
             <div>
               <h1 className="text-[16px] font-semibold mb-8 flex items-center gap-4">
@@ -177,6 +182,7 @@ const SMA = () => {
                 fields={fields}
                 currentPage={currentPage}
                 itemsPerPage={itemsPerPage}
+                setShowEdit={handleEditClick}
               />
             </div>
             <Pagination
