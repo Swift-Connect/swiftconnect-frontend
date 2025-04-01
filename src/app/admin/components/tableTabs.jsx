@@ -38,7 +38,8 @@ const TableTabs = ({
             <div className="flex gap-3">
               {from === "transactionManagement" ||
               from === "referralSystem" ||
-              from === "SAM" ? null : (
+              from === "SAM" ||
+              from === "bankingServices" ? null : (
                 <button className="bg-[#00613A] font-medium text-white px-4 py-2 rounded-lg flex items-center gap-2">
                   Add User <FaPlus />
                 </button>

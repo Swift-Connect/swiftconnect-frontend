@@ -105,7 +105,6 @@ export default function WalletCard({ data }) {
 
   const onConfirm = (pin) => {
     console.log(pin);
- 
   };
 
   console.log(currentView);
@@ -221,7 +220,7 @@ export default function WalletCard({ data }) {
             height={100}
             className="w-[2.4em]"
           />
-          <span className="text-gray-500 text-[18px]">{cardNumber}</span>
+          <span className="text-gray-500 text-[18px]">**** 3241</span>
         </div>
       </div>
       <div className="flex gap-4 mt-4 text-[#104F01] ">
@@ -241,10 +240,12 @@ export default function WalletCard({ data }) {
         </button>
       </div>
       {isModalOpen && renderModalContent()}
-      <ReceiveMoneyModal
-        isOpen={isRecieveMoneyModalOpen}
-        onClose={() => setIsRecieveMoneyModalOpen(false)}
-      />
+
+        <ReceiveMoneyModal
+          isOpen={isRecieveMoneyModalOpen}
+          onClose={() => setIsRecieveMoneyModalOpen(false)}
+        />
+  
     </div>
   );
 }

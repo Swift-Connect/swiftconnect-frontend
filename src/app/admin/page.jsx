@@ -7,6 +7,8 @@ import Dashboard from "./dashboard/dashboard";
 import TransactionManagement from "./transactionManagement/transactionManagement";
 import ReferralSystem from "./referralSystem/page";
 import SMA from "./serviceApiManagement/page";
+import BankingServices from "./bankingServices/page";
+import NotificationSystem from "./NotificationSystem/page";
 
 const AdminPage = () => {
   const [hideSideMenu, setHideSideMenu] = useState(true);
@@ -52,12 +54,12 @@ const AdminPage = () => {
         );
       case "Service Management API":
         return (
-          <SMA
-            setActiveSidebar={setActiveSidebar}
-            data={data}
-            user={user}
-          />
+          <SMA setActiveSidebar={setActiveSidebar} data={data} user={user} />
         );
+      case "Banking Services":
+        return <BankingServices />;
+      case "Notification System":
+        return <NotificationSystem />;
       default:
         return "LOL";
     }
@@ -75,7 +77,9 @@ const AdminPage = () => {
       />
       <main className="flex-1 w-[70%]">
         <Header setHideSideMenu={setHideSideMenu} user={user} />
-        <section className="p-6 h-[80vh] overflow-y-auto">{renderComponent()}</section>
+        <section className="p-6 h-[80vh] overflow-y-auto">
+          {renderComponent()}
+        </section>
       </main>
     </div>
   );
