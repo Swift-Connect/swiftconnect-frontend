@@ -8,6 +8,8 @@ import { FaChevronRight } from "react-icons/fa";
 
 const UserManagement = () => {
   const [activeTabPending, setActiveTabPending] = React.useState("Active");
+  const [showEdit, setShowEdit] = useState(false);
+  const [editData, setEditData] = useState(null);
   const usersData = [
     {
       id: 1,
@@ -170,17 +172,23 @@ const UserManagement = () => {
   const itemsPerPage = 10;
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = Math.ceil(usersData.length / itemsPerPage);
+
+  const handleEditClick = (rowData) => {
+    setEditData(rowData);
+    setShowEdit(true);
+    console.log("shit");
+  };
   return (
     <div className="overflow-hidden ">
       <div className="max-md-[400px]:hidden">
-        {editUser ? (
+        {showEdit ? (
           <>
             <div>
               <h1 className="text-[16px] font-semibold mb-8 flex items-center gap-4">
                 User Management <FaChevronRight /> Edit User
               </h1>
             </div>
-            <UserForm />
+            <UserForm fields={Object.keys(editData || {})} data={editData} />
           </>
         ) : (
           <>
@@ -197,6 +205,7 @@ const UserManagement = () => {
                 data={usersData}
                 currentPage={currentPage}
                 itemsPerPage={itemsPerPage}
+                setShowEdit={handleEditClick}
               />
             </div>
             <Pagination

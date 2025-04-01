@@ -2,7 +2,7 @@ import { useState } from "react";
 import { FaChevronDown } from "react-icons/fa";
 import ActionPopUp from "../../components/actionPopUp";
 
-const UsersTable = ({ data, currentPage, itemsPerPage }) => {
+const UsersTable = ({ data, currentPage, itemsPerPage, setShowEdit }) => {
   const columns = [
     "Username",
     "Account Id",
@@ -77,6 +77,7 @@ const UsersTable = ({ data, currentPage, itemsPerPage }) => {
                 className={`border-t ${
                   idx % 2 === 0 ? "bg-white" : "bg-gray-50"
                 }`}
+                onDoubleClick={() => setShowEdit(user)}
               >
                 <td className="py-[1.3em] px-[1.8em]">
                   <input
