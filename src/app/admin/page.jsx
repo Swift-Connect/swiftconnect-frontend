@@ -9,6 +9,12 @@ import ReferralSystem from "./referralSystem/page";
 import SMA from "./serviceApiManagement/page";
 import BankingServices from "./bankingServices/page";
 import NotificationSystem from "./NotificationSystem/page";
+import VCManagement from "./VirtualCardManagement/page";
+import SMAA from "./serviceMangementAPI/page";
+import AuditLog from "./auditLog/page";
+import ReporstAndAnalytics from "./reportsAndAnalytics/page";
+import ProfileSettings from "./settings/page";
+import RoleBasedAccessControl from "./roleBaseAccessControl/page";
 
 const AdminPage = () => {
   const [hideSideMenu, setHideSideMenu] = useState(true);
@@ -54,12 +60,24 @@ const AdminPage = () => {
         );
       case "Service Management API":
         return (
-          <SMA setActiveSidebar={setActiveSidebar} data={data} user={user} />
+          <SMAA />
+          // <SMA setActiveSidebar={setActiveSidebar} data={data} user={user} />
         );
       case "Banking Services":
         return <BankingServices />;
       case "Notification System":
         return <NotificationSystem />;
+      case "Virtual Card Management":
+        return <VCManagement />;
+      case "Audit Logs":
+        return <AuditLog />;
+      case "Reports and Analytics":
+        return <ReporstAndAnalytics />;
+      case "Settings":
+        return <ProfileSettings />;
+      case "Role-Based Access Control":
+        return <RoleBasedAccessControl />;
+
       default:
         return "LOL";
     }

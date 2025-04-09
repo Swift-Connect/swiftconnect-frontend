@@ -1,6 +1,7 @@
+"use client";
 import Image from "next/image";
 import React, { useState } from "react";
-import { FaPlus, FaTrashAlt } from "react-icons/fa";
+import { FaClipboard, FaPlus, FaTrashAlt } from "react-icons/fa";
 import Filter from "./filter";
 
 const TableTabs = ({
@@ -32,24 +33,33 @@ const TableTabs = ({
               </li>
             ))}
           </ul>
-          {from === "dashboard" ? (
+          {from === "dashboard" || from === "VCM" || from == "SAMM" ? (
             ""
           ) : (
             <div className="flex gap-3">
               {from === "transactionManagement" ||
               from === "referralSystem" ||
               from === "SAM" ||
-              from === "bankingServices" ? null : (
+              from === "bankingServices" ||
+              from === "RBAC" ? null : (
                 <button className="bg-[#00613A] font-medium text-white px-4 py-2 rounded-lg flex items-center gap-2">
-                  Add User <FaPlus />
+                  {from === "VCM" ? "Create New Card" : "Add User"} <FaPlus />
                 </button>
               )}
               {from === "SAM" ? null : (
                 <button className="bg-[#8C1823] font-medium text-white px-4 py-2 rounded-lg flex items-center gap-2">
-                  Delete <FaTrashAlt />
+                  {from === "RBAC" ? "Block" : "Delete"} <FaTrashAlt />
                 </button>
               )}
             </div>
+          )}
+
+          {from === "VCM" ? (
+            <p className="bg-[#ACFFDE] rounded-md px-8 py-4 flex items-center gap-2 text-[#00613A]">
+              <FaClipboard /> Generate report transactions
+            </p>
+          ) : (
+            ""
           )}
         </div>
         <div className="flex items-center justify-between">
