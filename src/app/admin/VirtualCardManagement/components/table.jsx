@@ -2,7 +2,7 @@ import { useState } from "react";
 import { FaChevronDown } from "react-icons/fa";
 import ActionPopUp from "../../components/actionPopUp";
 
-const UsersTable = ({ data, currentPage, itemsPerPage, setShowEdit }) => {
+const VCMTable = ({ data, currentPage, itemsPerPage, setShowEdit }) => {
   const columns = [
     "Username",
     "Account Id",
@@ -137,4 +137,4 @@ const UsersTable = ({ data, currentPage, itemsPerPage, setShowEdit }) => {
   );
 };
 
-export default UsersTable;
+export default VCMTable;

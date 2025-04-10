@@ -2,20 +2,15 @@ import { useState } from "react";
 import { FaChevronDown } from "react-icons/fa";
 import ActionPopUp from "../../components/actionPopUp";
 
-const UsersTable = ({ data, currentPage, itemsPerPage, setShowEdit }) => {
+const ReferralSystemTable = ({ data, currentPage, itemsPerPage }) => {
   const columns = [
     "Username",
-    "Account Id",
+    "Account ID",
     "Fullname",
-    "Email",
-    "Phone Number",
-    "Wallet number",
-    "Previous Balance",
-    "Referrals",
-    "Referral Bonus",
-    "Last Login",
-    "Date Joined",
-    "Status",
+    "Referral User",
+    "Date Created",
+    // "Receipt",
+   
   ];
 
   const [checkedItems, setCheckedItems] = useState(
@@ -48,7 +43,9 @@ const UsersTable = ({ data, currentPage, itemsPerPage, setShowEdit }) => {
   return (
     <>
       {data.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">No Users yet</div>
+        <div className="text-center py-8 text-gray-500">
+          No Transactions yet
+        </div>
       ) : (
         <table className="w-full text-sm border-collapse">
           <thead>
@@ -71,13 +68,12 @@ const UsersTable = ({ data, currentPage, itemsPerPage, setShowEdit }) => {
             </tr>
           </thead>
           <tbody>
-            {selectedData.map((user, idx) => (
+            {selectedData.map((data, idx) => (
               <tr
                 key={idx}
                 className={`border-t ${
                   idx % 2 === 0 ? "bg-white" : "bg-gray-50"
                 }`}
-                onDoubleClick={() => setShowEdit(user)}
               >
                 <td className="py-[1.3em] px-[1.8em]">
                   <input
@@ -86,48 +82,51 @@ const UsersTable = ({ data, currentPage, itemsPerPage, setShowEdit }) => {
                     onChange={() => handleCheckboxChange(startIndex + idx)}
                   />
                 </td>
-                <td className="py-[1.3em] px-[1.8em] font-semibold">
-                  {user.username}
+                <td className="py-[1.3em] px-[1.8em] font-semibold text-[#232323]">
+                  {data.username}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  #{user.account_id}
+                  #{data.account_id}
+                </td>
+                <td className="py-[1.3em] px-[1.8em] font-semibold text-[#232323]">
+                  {data.fullname}
+                </td>
+                <td className="py-[1.3em] px-[1.8em] font-semibold text-[#232323]">
+                  {data.referralUser}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.fullname}
+                  {new Date(data.date).toLocaleDateString("en-GB")}
                 </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.email}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.phone_number}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.wallet_number}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.previous_balance}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.referrals}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.referral_bonus}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.last_login}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.date_joined}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#fff] relative">
-                  <span
-                    className="bg-[#00613A] rounded-xl flex w-fit items-center justify-center gap-2 py-1 px-2 cursor-pointer"
-                    onClick={() => handleActionClick(idx)}
+                {/* <td
+                  className={`py-[1.3em] px-[1.8em] font-medium text-${
+                    data.status === "Completed" ? "green" : "red"
+                  }-600`}
+                >
+                  {data.status === "Completed" ? "+" : "-"}₦
+                  {data.amount}
+                </td> */}
+                {/* <td className="py-[1.3em] px-[1.8em]">
+                  <div
+                    className={`py-1 text-center text-xs font-medium rounded-full ${
+                      data.status === "Completed"
+                        ? "bg-green-100 text-green-600"
+                        : data.status === "Failed"
+                        ? "bg-red-100 text-red-600"
+                        : data.status === "Pending"
+                        ? "bg-yellow-100 text-yellow-600"
+                        : data.status === "Refunded"
+                        ? "bg-[#52525233] text-[#525252]"
+                        : ""
+                    }`}
                   >
-                    Approved <FaChevronDown />
-                  </span>
-                  {activeRow === idx && <ActionPopUp />}
-                </td>
+                    {data.status}
+                  </div>
+                </td> */}
+                {/* <td className="py-[1.3em] px-[1.8em]">
+                  <button className="text-green-600 text-sm font-semibold">
+                    View
+                  </button>
+                </td> */}
               </tr>
             ))}
           </tbody>
@@ -137,4 +136,4 @@ const UsersTable = ({ data, currentPage, itemsPerPage, setShowEdit }) => {
   );
 };
 
-export default UsersTable;
+export default ReferralSystemTable;

@@ -22,6 +22,7 @@ const Internet = ({ onNext, setBillType }) => {
   const [availablePlans, setAvailablePlans] = useState([]);
   const [planId, setPlanId] = useState("");
   const [planName, setPlanName] = useState("");
+  const [isFetchingPlans, setIsFetchingPlans] = useState(false); // Add loading state
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -66,14 +67,16 @@ const Internet = ({ onNext, setBillType }) => {
 
   useEffect(() => {
     const fetchPlans = async () => {
+      setIsFetchingPlans(true); // Set loading to true
       try {
         const plans = await getData(
           "services/data-plan-transactions/get_plans/"
         );
-        // console.log("...plans returned", plans);
         setAvailablePlans(plans);
       } catch (error) {
         console.error("Error fetching plans:", error);
+      } finally {
+        setIsFetchingPlans(false); // Set loading to false
       }
     };
 
@@ -196,8 +199,11 @@ const Internet = ({ onNext, setBillType }) => {
               name="plan"
               value={planId}
               onChange={handleInputChange}
+              disabled={isFetchingPlans} // Disable dropdown while loading
             >
-              <option value="">Select a Data Plan</option>
+              <option value="">
+                {isFetchingPlans ? "Loading plans..." : "Select a Data Plan"}
+              </option>
               {filteredPlans.map((planItem, index) => (
                 <option key={index} value={planItem.id}>
                   {planItem.name} - ₦{planItem.price}
@@ -229,7 +235,7 @@ const Internet = ({ onNext, setBillType }) => {
               className="w-full border border-gray-300 rounded-lg p-2"
               placeholder="Enter amount"
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              readOnly // Make the input readonly
             />
           </div>
 

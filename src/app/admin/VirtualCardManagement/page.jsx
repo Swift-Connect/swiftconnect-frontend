@@ -1,12 +1,16 @@
+"use client";
+
 import Image from "next/image";
 import React, { useState } from "react";
-import UsersTable from "./components/usersTable";
+// import UsersTable from "./components/usersTable";
 import Pagination from "../components/pagination";
 import TableTabs from "../components/tableTabs";
-import UserForm from "./components/editUser";
+// import UserForm from "./components/editUser";
 import { FaChevronRight } from "react-icons/fa";
+import VCMTable from "./components/table";
+import EditVCM from "./components/edit";
 
-const UserManagement = () => {
+const VCManagement = () => {
   const [activeTabPending, setActiveTabPending] = React.useState("Active");
   const [showEdit, setShowEdit] = useState(false);
   const [editData, setEditData] = useState(null);
@@ -185,23 +189,26 @@ const UserManagement = () => {
           <>
             <div>
               <h1 className="text-[16px] font-semibold mb-8 flex items-center gap-4">
-                User Management <FaChevronRight /> Edit User
+                Virtual Card Management <FaChevronRight /> Manage Card
               </h1>
             </div>
-            <UserForm fields={Object.keys(editData || {})} data={editData} />
+            <EditVCM />
           </>
         ) : (
           <>
-            <h1 className="text-[16px] font-semibold mb-8">User Management</h1>
+            <h1 className="text-[16px] font-semibold mb-8">
+              Virtual Card Management
+            </h1>
 
             <TableTabs
               header={""}
               setActiveTab={setActiveTabPending}
               activeTab={activeTabPending}
-              tabs={["Active", "Inactive", "Recently Added"]}
+              tabs={["With Cards", "Without Cards"]}
+              from={"VCM"}
             />
             <div className="rounded-t-[1em] overflow-auto border border-gray-200 min-h-[50vh]">
-              <UsersTable
+              <VCMTable
                 data={usersData}
                 currentPage={currentPage}
                 itemsPerPage={itemsPerPage}
@@ -220,4 +227,4 @@ const UserManagement = () => {
   );
 };
 
-export default UserManagement;
+export default VCManagement;

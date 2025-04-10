@@ -1,44 +1,69 @@
+"use client";
 import Image from "next/image";
-import React from "react";
-import { FaPlus, FaTrash, FaTrashAlt } from "react-icons/fa";
+import React, { useState } from "react";
+import { FaClipboard, FaPlus, FaTrashAlt } from "react-icons/fa";
+import Filter from "./filter";
 
-const TableTabs = ({ setActiveTab, activeTab, header, tabs, from }) => {
+const TableTabs = ({
+  setActiveTab,
+  activeTab,
+  header,
+  tabs,
+  from,
+  filterOptions,
+}) => {
+  const [showFilterOptions, setShowFilterOptions] = useState(false);
   return (
     <div>
       <h1 className="text-[22px] font-semibold mb-4">{header}</h1>
-      <div className="flex  flex-col justify-between mb-4">
-        <div className="flex justify-between items-center  mb-4">
-          <ul className="flex items-center gap-[5em]  border-b-[1px] border-gray-200">
+      <div className="flex flex-col justify-between mb-4">
+        <div className="flex justify-between items-center mb-4">
+          <ul className="flex items-center gap-[2em] border-b-[1px] border-gray-200">
             {tabs.map((tab) => (
-              <>
-                <li
-                  className={`font-medium text-[16px] px-2 cursor-pointer ${
-                    activeTab === tab
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-500"
-                  }`}
-                  onClick={() => setActiveTab(tab)}
-                >
-                  {tab}
-                </li>
-              </>
+              <li
+                key={tab}
+                className={`font-medium text-[16px] whitespace-nowrap px-2 cursor-pointer ${
+                  activeTab === tab
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-500"
+                }`}
+                onClick={() => setActiveTab(tab)}
+              >
+                {tab}
+              </li>
             ))}
           </ul>
-          {from === "dashboard" ? (
+          {from === "dashboard" || from === "VCM" || from == "SAMM" ? (
             ""
           ) : (
             <div className="flex gap-3">
-              <button className="bg-[#00613A] font-medium text-white px-4 py-2 rounded-lg flex items-center gap-2">
-                Add User <FaPlus />
-              </button>
-              <button className="bg-[#8C1823] font-medium text-white px-4 py-2 rounded-lg flex items-center gap-2">
-                Delete <FaTrashAlt />
-              </button>
+              {from === "transactionManagement" ||
+              from === "referralSystem" ||
+              from === "SAM" ||
+              from === "bankingServices" ||
+              from === "RBAC" ? null : (
+                <button className="bg-[#00613A] font-medium text-white px-4 py-2 rounded-lg flex items-center gap-2">
+                  {from === "VCM" ? "Create New Card" : "Add User"} <FaPlus />
+                </button>
+              )}
+              {from === "SAM" ? null : (
+                <button className="bg-[#8C1823] font-medium text-white px-4 py-2 rounded-lg flex items-center gap-2">
+                  {from === "RBAC" ? "Block" : "Delete"} <FaTrashAlt />
+                </button>
+              )}
             </div>
+          )}
+
+          {from === "VCM" ? (
+            <p className="bg-[#ACFFDE] rounded-md px-8 py-4 flex items-center gap-2 text-[#00613A]">
+              <FaClipboard /> Generate report transactions
+            </p>
+          ) : (
+            ""
           )}
         </div>
         <div className="flex items-center justify-between">
-          <div className="flex items-center w-[50%] border rounded-[4em] px-3 py-1 ">
+          <div className="flex items-center w-[50%] border rounded-[4em] px-3 py-1">
             <Image
               src={"/search.svg"}
               alt="search icon"
@@ -52,7 +77,7 @@ const TableTabs = ({ setActiveTab, activeTab, header, tabs, from }) => {
               className="border-none outline-none rounded-md px-3 py-1 text-sm bg-transparent w-full"
             />
           </div>
-          <div className="flex items-center space-x-2 ">
+          <div className="relative flex items-center space-x-2">
             <button className="flex items-center text-gray-500 text-sm gap-3 px-4 py-3 border rounded-[4em]">
               <Image
                 src={"/calendar.svg"}
@@ -65,7 +90,13 @@ const TableTabs = ({ setActiveTab, activeTab, header, tabs, from }) => {
                 Nov 1, 2024 - Nov 24, 2024
               </span>
             </button>
-            <button className="text-gray-500 text-sm flex items-center gap-3 px-4 py-3 border rounded-[4em]">
+            <button
+              className="relative text-gray-500 text-sm flex items-center gap-3 px-4 py-3 border rounded-[4em]"
+              onClick={() => {
+                setShowFilterOptions(!showFilterOptions);
+                console.log("fff");
+              }}
+            >
               <Image
                 src={"/filter.svg"}
                 alt="calendar"
@@ -75,6 +106,12 @@ const TableTabs = ({ setActiveTab, activeTab, header, tabs, from }) => {
               />
               <span className="ml-1">Filter</span>
             </button>
+            {showFilterOptions && filterOptions ? (
+              <Filter
+                onFilterChange={() => console.log("Filter changed")}
+                filterOptions={filterOptions}
+              />
+            ) : null}
           </div>
         </div>
       </div>

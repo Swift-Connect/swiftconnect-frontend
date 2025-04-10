@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { FaPlus, FaTrashAlt, FaUserAlt, FaUserCog, FaUsers, FaUserTag } from "react-icons/fa";
 
-const UserForm = () => {
+const UserForm = ({ fields, data }) => {
   const [formData, setFormData] = useState({
     username: "Chosenfolio",
     password: "Chosenfolio",

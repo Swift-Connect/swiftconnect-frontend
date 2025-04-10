@@ -5,17 +5,11 @@ import ActionPopUp from "../../components/actionPopUp";
 const UsersTable = ({ data, currentPage, itemsPerPage, setShowEdit }) => {
   const columns = [
     "Username",
-    "Account Id",
-    "Fullname",
-    "Email",
-    "Phone Number",
-    "Wallet number",
-    "Previous Balance",
-    "Referrals",
-    "Referral Bonus",
-    "Last Login",
-    "Date Joined",
+    "Last Loging",
+    "Role",
+    "Last Logout",
     "Status",
+    "Last Upgraded",
   ];
 
   const [checkedItems, setCheckedItems] = useState(
@@ -90,43 +84,35 @@ const UsersTable = ({ data, currentPage, itemsPerPage, setShowEdit }) => {
                   {user.username}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  #{user.account_id}
+                  #{user.last_login}
                 </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.fullname}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.email}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.phone_number}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.wallet_number}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.previous_balance}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.referrals}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.referral_bonus}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.last_login}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.date_joined}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#fff] relative">
+                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF] relative">  
                   <span
-                    className="bg-[#00613A] rounded-xl flex w-fit items-center justify-center gap-2 py-1 px-2 cursor-pointer"
+                    className=" rounded-xl flex w-fit items-center justify-center gap-2 py-1 px-2 cursor-pointer"
                     onClick={() => handleActionClick(idx)}
                   >
-                    Approved <FaChevronDown />
+                    Super Admin <FaChevronDown />
                   </span>
-                  {activeRow === idx && <ActionPopUp />}
+                  {activeRow === idx && <ActionPopUp optionList={["super admin", "support", "Finance"]} />}
+                </td>
+                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
+                  {user.last_logout}
+                </td>
+                <td className="py-[1.3em] px-[1.8em]">
+                  <div
+                    className={`py-1 text-center text-xs font-medium rounded-full ${
+                      user.status === "Active"
+                        ? "bg-green-100 text-green-600"
+                        : user.status === "Inactive"
+                        ? "bg-red-100 text-red-600"
+                        : ""
+                    }`}
+                  >
+                    {user.status}
+                  </div>
+                </td>
+                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
+                  {user.last_upgraded}
                 </td>
               </tr>
             ))}

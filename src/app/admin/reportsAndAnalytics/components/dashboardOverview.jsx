@@ -1,28 +1,27 @@
-import React, { useEffect, useState } from "react";
+"use client";
 import { FaDollarSign } from "react-icons/fa";
-import { IoIosStats } from "react-icons/io";
 import { HiOutlineDocumentText } from "react-icons/hi";
-import Image from "next/image";
+import { IoIosStats } from "react-icons/io";
 import {
   LineChart,
   Line,
   XAxis,
   YAxis,
-  CartesianGrid,
   Tooltip,
+  Legend,
   ResponsiveContainer,
+  CartesianGrid,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
 } from "recharts";
-import { BarChart, Bar } from "recharts";
-import { PieChart, Pie, Cell, Legend } from "recharts";
-import UsersTable from "./components/userTable";
-import TransactionsTable from "./components/TransactionsTable";
-import TableTabs from "../components/tableTabs";
-import Card from "../components/card";
-// import UsersTable from "./userTable";
-// import TransactionsTable from "./TransactionsTable";
+import Card from "../../components/card";
 
+const COLORS = ["#4F46E5", "#22D3EE"];
 
-
+// Sample Data
 const incomeData = [
   { name: "SEP", transactions: 3000000, utility: 2000000, agents: 1000000 },
   { name: "OCT", transactions: 4000000, utility: 2500000, agents: 1500000 },
@@ -47,14 +46,7 @@ const userData = [
   { name: "Inactive User", value: 30 },
 ];
 
-const COLORS = ["#1D4ED8", "#60A5FA"];
-
-const Dashboard = () => {
-  const [activeTabPending, setActiveTabPending] = React.useState("Approve KYC");
-  const [activeTabTransactions, setActiveTabTransactions] =
-    React.useState("All Transactions");
-
-  const stats = [
+const stats = [
     {
       title: "Total Revenue",
       value: "₦95,000,000",
@@ -92,22 +84,24 @@ const Dashboard = () => {
     },
   ];
 
+export default function DashboardOverview() {
   return (
-    <div className="overflow-hidden">
-      <div className="overflow-x-aut">
-        <div className="flex gap-4 justify-between">
-          {stats.map((stat, index) => (
-            <Card
-              key={index}
-              title={stat.title}
-              value={stat.value}
-              icon={stat.icon}
-              bgColor={stat.bgColor}
-              textColor={stat.textColor}
-            />
-          ))}
-        </div>
+    <div className="bg-[#F5FBF7] min-h-screen p-6 space-y-6">
+      {/* Stat Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+        {stats.map((stat, index) => (
+          <Card
+            key={index}
+            title={stat.title}
+            value={stat.value}
+            icon={stat.icon}
+            bgColor={stat.bgColor}
+            textColor={stat.textColor}
+          />
+        ))}
       </div>
+
+      {/* Charts */}
       <div className="py-6 bg-gray-50 flex gap-6">
         {/* Income Chart */}
         <div className="bg-white p-4 rounded-lg shadow w-1/3">
@@ -210,46 +204,6 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
-
-      <div className="pt-8 max-md-[400px]:hidden">
-        <TableTabs
-          header={"Pending Tasks"}
-          setActiveTab={setActiveTabPending}
-          activeTab={activeTabPending}
-          tabs={["Approve KYC", "Approve Withdrawal", "Transaction"]}
-          from="dashboard"
-          filterOptions={[
-            { label: "MTN", value: "MTN" },
-            { label: "Airtel", value: "Airtel" },
-            { label: "Glo", value: "Glo" },
-            { label: "9mobile", value: "9mobile" },
-          ]}
-        />
-        <div className="rounded-t-[1em] overflow-hidden border border-gray-200">
-          <UsersTable />
-        </div>
-      </div>
-
-      <div className="pt-8 max-md-[400px]:hidden">
-        <TableTabs
-          header={"Recent Transactions"}
-          setActiveTab={setActiveTabTransactions}
-          activeTab={activeTabTransactions}
-          tabs={["All Transactions", "Credit", "Debit"]}
-          from="dashboard"
-          filterOptions={[
-            { label: "MTN", value: "MTN" },
-            { label: "Airtel", value: "Airtel" },
-            { label: "Glo", value: "Glo" },
-            { label: "9mobile", value: "9mobile" },
-          ]}
-        />
-        <div className="rounded-t-[1em] overflow-hidden border border-gray-200">
-          <TransactionsTable />
-        </div>
-      </div>
     </div>
   );
-};
-
-export default Dashboard;
+}
