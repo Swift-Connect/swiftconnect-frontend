@@ -1,11 +1,8 @@
-
 "use client";
 import Image from "next/image";
 import React, { useState } from "react";
-// import UsersTable from "./components/usersTable";
+
 import Pagination from "../components/pagination";
-// import TableTabs from "../components/tableTabs";
-// import UserForm from "./components/editUser";
 import { FaChevronRight } from "react-icons/fa";
 
 import UsersTable from "./components/usersData";
