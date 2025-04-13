@@ -1,10 +1,11 @@
 import Image from "next/image";
 import React, { useState } from "react";
-import TrxManagementTable from "./components/TrxManagementTable";
+// import TrxManagementTable from "./components/TrxManagementTable";
 import Pagination from "../components/pagination";
 import TableTabs from "../components/tableTabs";
 import EditUserTrx from "./components/editUserTransaction";
 import { FaChevronRight } from "react-icons/fa";
+import TrxManagementTable from "./components/trxManagementTable";
 
 const TransactionManagement = () => {
   const [activeTabPending, setActiveTabPending] =

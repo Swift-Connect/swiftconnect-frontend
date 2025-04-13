@@ -1,12 +1,10 @@
 "use client";
-
-import Image from "next/image";
+ 
 import React, { useState } from "react";
 
 import Pagination from "../components/pagination";
 import TableTabs from "../components/tableTabs";
-
-import { FaChevronRight } from "react-icons/fa";
+ 
 import AudtiLogTable from "./component/table";
 
 const AuditLog = () => {
