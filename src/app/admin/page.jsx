@@ -15,6 +15,8 @@ import AuditLog from "./auditLog/page";
 import ReporstAndAnalytics from "./reportsAndAnalytics/page";
 import ProfileSettings from "./settings/page";
 import RoleBasedAccessControl from "./roleBaseAccessControl/page";
+import "../globals.css";
+import ResellerManagement from "./resellerManagement/page";
 
 const AdminPage = () => {
   const [hideSideMenu, setHideSideMenu] = useState(true);
@@ -77,6 +79,8 @@ const AdminPage = () => {
         return <ProfileSettings />;
       case "Role-Based Access Control":
         return <RoleBasedAccessControl />;
+      case "Reseller Management":
+        return <ResellerManagement />;
 
       default:
         return "LOL";

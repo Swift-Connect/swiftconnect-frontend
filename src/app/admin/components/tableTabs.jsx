@@ -43,7 +43,12 @@ const TableTabs = ({
               from === "bankingServices" ||
               from === "RBAC" ? null : (
                 <button className="bg-[#00613A] font-medium text-white px-4 py-2 rounded-lg flex items-center gap-2">
-                  {from === "VCM" ? "Create New Card" : "Add User"} <FaPlus />
+                  {from === "VCM"
+                    ? "Create New Card"
+                    : from === "resellerMan"
+                    ? "Add Agent"
+                    : "Add User"}{" "}
+                  <FaPlus />
                 </button>
               )}
               {from === "SAM" ? null : (
