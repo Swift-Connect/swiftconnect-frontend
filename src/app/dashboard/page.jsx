@@ -11,6 +11,7 @@ import SettingsPage from "../settings/page";
 import KYC from "../kyc/kyc";
 import { useRouter } from "next/navigation";
 import axiosInstance from "../../utils/axiosInstance";
+import "../globals.css";
 
 export default function Home() {
   const [activeSidebar, setActiveSidebar] = useState("Dashboard");
