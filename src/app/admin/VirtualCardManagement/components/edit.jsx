@@ -30,10 +30,8 @@ export default function EditVCM() {
   const [activeTabTransactions, setActiveTabTransactions] =
     useState("All Transactions");
 
-    const [showBlockCard, setShowBlockCard] = useState(false);
-    const [showTrxLimit, setShowTrxLimit] = useState(false);
-    ;
-
+  const [showBlockCard, setShowBlockCard] = useState(false);
+  const [showTrxLimit, setShowTrxLimit] = useState(false);
   return (
     <>
       {showBlockCard && (
@@ -53,7 +51,7 @@ export default function EditVCM() {
             setShowTrxLimit(false);
           }}
         >
-          <TransactionLimitModal  />
+          <TransactionLimitModal />
         </div>
       )}
       <div className="flex flex-col gap-8">
@@ -250,6 +248,7 @@ export default function EditVCM() {
               { label: "Glo", value: "Glo" },
               { label: "9mobile", value: "9mobile" },
             ]}
+            onPress={() => {}}
           />
           <div className="rounded-t-[1em] overflow-hidden border border-gray-200">
             <TransactionsTable />

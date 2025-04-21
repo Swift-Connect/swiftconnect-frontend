@@ -17,6 +17,10 @@ import ProfileSettings from "./settings/page";
 import RoleBasedAccessControl from "./roleBaseAccessControl/page";
 import "../globals.css";
 import ResellerManagement from "./resellerManagement/page";
+import APIManagement from "./APIManagement/page";
+import SystemMonitoring from "./systemMonitoring/page";
+import CustomerSupport from "./customerSupport/page";
+import MarketingTools from "./MarketingTools/page";
 
 const AdminPage = () => {
   const [hideSideMenu, setHideSideMenu] = useState(true);
@@ -62,6 +66,11 @@ const AdminPage = () => {
         );
       case "Service Management API":
         return (
+          // <SMAA />
+          <SMA setActiveSidebar={setActiveSidebar} data={data} user={user} />
+        );
+      case "Payment Gateway Integration":
+        return (
           <SMAA />
           // <SMA setActiveSidebar={setActiveSidebar} data={data} user={user} />
         );
@@ -81,6 +90,14 @@ const AdminPage = () => {
         return <RoleBasedAccessControl />;
       case "Reseller Management":
         return <ResellerManagement />;
+      case "API Management":
+        return <APIManagement />;
+      case "System Monitoring":
+        return <SystemMonitoring />;
+      case "Customer Support":
+        return <CustomerSupport />;
+      case "Marketing Tools":
+        return <MarketingTools />;
 
       default:
         return "LOL";

@@ -1,10 +1,10 @@
 "use client";
- 
+
 import React, { useState } from "react";
 
 import Pagination from "../components/pagination";
 import TableTabs from "../components/tableTabs";
- 
+
 import AudtiLogTable from "./component/table";
 
 const AuditLog = () => {
@@ -77,6 +77,7 @@ const AuditLog = () => {
             activeTab={activeTabPending}
             tabs={["Admin", "Users"]}
             from="transactionManagement"
+            onPress={() => {}}
           />
           <div className="rounded-t-[1em] overflow-auto border border-gray-200 min-h-[50vh]">
             <AudtiLogTable

@@ -199,6 +199,7 @@ const UserManagement = () => {
               setActiveTab={setActiveTabPending}
               activeTab={activeTabPending}
               tabs={["Active", "Inactive", "Recently Added"]}
+              onPress={() => {}}
             />
             <div className="rounded-t-[1em] overflow-auto border border-gray-200 min-h-[50vh]">
               <UsersTable

@@ -224,6 +224,7 @@ const Dashboard = () => {
             { label: "Glo", value: "Glo" },
             { label: "9mobile", value: "9mobile" },
           ]}
+          onPress={() => {}}
         />
         <div className="rounded-t-[1em] overflow-hidden border border-gray-200">
           <UsersTable />
@@ -243,6 +244,7 @@ const Dashboard = () => {
             { label: "Glo", value: "Glo" },
             { label: "9mobile", value: "9mobile" },
           ]}
+          onPress={() => {}}
         />
         <div className="rounded-t-[1em] overflow-hidden border border-gray-200">
           <TransactionsTable />
