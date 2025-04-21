@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import Header from "../dashboard/components/header";
 import Sidebar from "../dashboard/components/sidebar";
 import UserManagement from "./userManagement/user_management";
-import Dashboard from "./dashboard/dashboard";
+import Dashboard from "./dashboard/page";
 import TransactionManagement from "./transactionManagement/transactionManagement";
 import ReferralSystem from "./referralSystem/page";
 import SMA from "./serviceApiManagement/page";
@@ -20,9 +20,14 @@ const AdminPage = () => {
   const [hideSideMenu, setHideSideMenu] = useState(true);
   const [activeSidebar, setActiveSidebar] = useState("Dashboard");
   const [data, setData] = useState(null);
-  const user = {
-    username: "Super_Admin",
-  };
+  let user = null;
+
+  if (window) {
+    const userString = localStorage.getItem('user');
+    if (userString) {
+      user = JSON.parse(userString);
+    }
+  }
 
   const renderComponent = () => {
     switch (activeSidebar) {
