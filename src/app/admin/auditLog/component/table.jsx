@@ -1,11 +1,12 @@
 import { useState } from "react";
- 
+import { FaEdit, FaTrash } from 'react-icons/fa';
 
 const AudtiLogTable = ({
   data,
   currentPage,
   itemsPerPage,
   setShowEdit,
+  handleDelete,
 }) => {
   const columns = [
     "Product",
@@ -14,13 +15,13 @@ const AudtiLogTable = ({
     "Amount",
     "Status",
     "Receipt",
+    "Actions",
   ];
 
   const [checkedItems, setCheckedItems] = useState(
     new Array(data.length).fill(false)
   );
   const [isAllChecked, setIsAllChecked] = useState(false);
-  const [activeRow, setActiveRow] = useState(null);
 
   const handleHeaderCheckboxChange = () => {
     const newCheckedState = !isAllChecked;
@@ -35,11 +36,6 @@ const AudtiLogTable = ({
     setIsAllChecked(newCheckedItems.every((item) => item));
   };
 
-  const handleActionClick = (index) => {
-    setActiveRow(activeRow === index ? null : index);
-  };
-
-  // ** PAGINATION LOGIC **
   const startIndex = (currentPage - 1) * itemsPerPage;
   const selectedData = data.slice(startIndex, startIndex + itemsPerPage);
 
@@ -124,6 +120,22 @@ const AudtiLogTable = ({
                   <button className="text-green-600 text-sm font-semibold">
                     View
                   </button>
+                </td>
+                <td className="py-[1.3em] px-[1.8em]">
+                <button
+                  className="p-1 text-blue-600 hover:text-blue-800"
+                  onClick={() => setShowEdit(transaction)}
+                  aria-label="Edit transaction"
+                >
+                  <FaEdit />
+                </button>
+                <button
+                  className="p-1 text-red-600 hover:text-red-800"
+                  onClick={() => handleDelete(transaction)}
+                  aria-label="Delete transaction"
+                >
+                  <FaTrash />
+                </button>
                 </td>
               </tr>
             ))}
