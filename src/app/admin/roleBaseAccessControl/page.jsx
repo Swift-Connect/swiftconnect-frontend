@@ -196,6 +196,7 @@ const RoleBasedAccessControl = () => {
               activeTab={activeTabPending}
               tabs={[]}
               from="RBAC"
+              onPress={() => {}}
             />
             <div className="rounded-t-[1em] overflow-auto border border-gray-200 min-h-[50vh]">
               <UsersTable

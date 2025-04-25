@@ -156,6 +156,7 @@ const FlutterwaveSettings = ({ setCard }) => {
           activeTab={activeTabPending}
           tabs={["All Transaction", "Inactive", "Recently Added"]}
           from="SAMM"
+          onPress={() => {}}
         />
         <div className="rounded-t-[1em] overflow-auto border border-gray-200 min-h-[50vh]">
           <Table

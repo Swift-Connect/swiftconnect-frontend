@@ -2,7 +2,16 @@ import { useState } from "react";
 import { FaChevronDown } from "react-icons/fa";
 import ActionPopUp from "../../components/actionPopUp";
 
-const SAMTable = ({ data, fields, currentPage, itemsPerPage, setShowEdit }) => {
+const DetailedMsgPerformance = ({ data, currentPage, itemsPerPage }) => {
+  const columns = [
+    "Channel",
+    "Message Name",
+    "Open Rate",
+    "Recipients",
+    "Status",
+    "Response",
+  ];
+
   const [checkedItems, setCheckedItems] = useState(
     new Array(data.length).fill(false)
   );
@@ -33,54 +42,58 @@ const SAMTable = ({ data, fields, currentPage, itemsPerPage, setShowEdit }) => {
   return (
     <>
       {data.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
-          No Transactions yet
-        </div>
+        <div className="text-center py-8 text-gray-500">No Users yet</div>
       ) : (
         <table className="w-full text-sm border-collapse">
           <thead>
             <tr className="bg-[#F9F8FA] text-left text-[#525252]">
-              <th className="py-[1.3em] px-[1.8em] font-semibold text-[#232323]">
-                <input
-                  type="checkbox"
-                  checked={isAllChecked}
-                  onChange={handleHeaderCheckboxChange}
-                />
-              </th>
-              {fields.map((field, index) => (
+              {columns.map((column, index) => (
                 <th
                   key={index}
                   className="py-[1.3em] px-[1.8em] whitespace-nowrap"
                 >
-                  {field}
+                  {column}
                 </th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {selectedData.map((data, idx) => (
+            {selectedData.map((user, idx) => (
               <tr
                 key={idx}
                 className={`border-t ${
                   idx % 2 === 0 ? "bg-white" : "bg-gray-50"
                 }`}
+                onDoubleClick={() => setShowEdit(user)}
               >
-                <td className="py-[1.3em] px-[1.8em]">
-                  <input
-                    type="checkbox"
-                    checked={checkedItems[startIndex + idx]}
-                    onChange={() => handleCheckboxChange(startIndex + idx)}
-                  />
+                <td className="py-[1.3em] px-[1.8em] font-semibold">
+                  {user.channel}
                 </td>
-                {fields.map((field, index) => (
-                  <td
-                    key={index}
-                    className="py-[1.3em] px-[1.8em] text-[#9CA3AF]"
-                    onDoubleClick={() => setShowEdit(data)}
+                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
+                  #{user.message_name}
+                </td>
+                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
+                  {user.open_rate}
+                </td>
+                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
+                  {user.recipients}
+                </td>
+                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
+                  <div
+                    className={`rounded-full border items-center px-4 py-1 ${
+                      user.status === "Sent"
+                        ? "text-green-700 bg-green-100  border-green-700"
+                        : "text-red-700 bg-red-100  border-red-700"
+                    }`}
                   >
-                    {data[field.toLowerCase().replace(/\s+/g, "_")]}
-                  </td>
-                ))}
+                    {user.status}
+                  </div>
+                </td>
+                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
+                  <div className="border rounded-full flex items-center px-4 py-1">
+                    view
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -90,4 +103,4 @@ const SAMTable = ({ data, fields, currentPage, itemsPerPage, setShowEdit }) => {
   );
 };
 
-export default SAMTable;
+export default DetailedMsgPerformance;

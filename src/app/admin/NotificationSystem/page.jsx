@@ -76,7 +76,7 @@ const NotificationSystem = () => {
             />
           ) : (
             <>
-              {" "}
+             
               <div>
                 <div className="flex items-center mb-8 justify-between">
                   <h1 className="text-[16px] font-semibold flex items-center gap-4">

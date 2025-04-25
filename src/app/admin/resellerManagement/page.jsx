@@ -1,16 +1,16 @@
-"use client";
+"use client"
 
 import Image from "next/image";
 import React, { useState } from "react";
-// import UsersTable from "./components/usersTable";
+
 import Pagination from "../components/pagination";
 import TableTabs from "../components/tableTabs";
-// import UserForm from "./components/editUser";
-import { FaChevronRight } from "react-icons/fa";
-import VCMTable from "./components/table";
-import EditVCM from "./components/edit";
 
-const VCManagement = () => {
+import { FaChevronRight } from "react-icons/fa";
+import EditReseller from "./components/edit";
+import ResellerTable from "./components/table";
+
+const ResellerManagement = () => {
   const [activeTabPending, setActiveTabPending] = React.useState("Active");
   const [showEdit, setShowEdit] = useState(false);
   const [editData, setEditData] = useState(null);
@@ -22,7 +22,7 @@ const VCManagement = () => {
       fullname: "John Doe",
       email: "john.doe@example.com",
       phone_number: "123-456-7890",
-      wallet_number: "WALLET123",
+      wallet_number: "₦10,000",
       previous_balance: "₦10,000",
       referrals: 5,
       referral_bonus: "₦500",
@@ -36,7 +36,7 @@ const VCManagement = () => {
       fullname: "John Doe",
       email: "john.doe@example.com",
       phone_number: "123-456-7890",
-      wallet_number: "WALLET123",
+      wallet_number: "₦10,000",
       previous_balance: "₦10,000",
       referrals: 5,
       referral_bonus: "₦500",
@@ -50,7 +50,7 @@ const VCManagement = () => {
       fullname: "John Doe",
       email: "john.doe@example.com",
       phone_number: "123-456-7890",
-      wallet_number: "WALLET123",
+      wallet_number: "₦10,000",
       previous_balance: "₦10,000",
       referrals: 5,
       referral_bonus: "₦500",
@@ -64,7 +64,7 @@ const VCManagement = () => {
       fullname: "John Doe",
       email: "john.doe@example.com",
       phone_number: "123-456-7890",
-      wallet_number: "WALLET123",
+      wallet_number: "₦10,000",
       previous_balance: "₦10,000",
       referrals: 5,
       referral_bonus: "₦500",
@@ -78,7 +78,7 @@ const VCManagement = () => {
       fullname: "John Doe",
       email: "john.doe@example.com",
       phone_number: "123-456-7890",
-      wallet_number: "WALLET123",
+      wallet_number: "₦10,000",
       previous_balance: "₦10,000",
       referrals: 5,
       referral_bonus: "₦500",
@@ -92,7 +92,7 @@ const VCManagement = () => {
       fullname: "John Doe",
       email: "john.doe@example.com",
       phone_number: "123-456-7890",
-      wallet_number: "WALLET123",
+      wallet_number: "₦10,000",
       previous_balance: "₦10,000",
       referrals: 5,
       referral_bonus: "₦500",
@@ -106,7 +106,7 @@ const VCManagement = () => {
       fullname: "John Doe",
       email: "john.doe@example.com",
       phone_number: "123-456-7890",
-      wallet_number: "WALLET123",
+      wallet_number: "₦10,000",
       previous_balance: "₦10,000",
       referrals: 5,
       referral_bonus: "₦500",
@@ -120,7 +120,7 @@ const VCManagement = () => {
       fullname: "John Doe",
       email: "john.doe@example.com",
       phone_number: "123-456-7890",
-      wallet_number: "WALLET123",
+      wallet_number: "₦10,000",
       previous_balance: "₦10,000",
       referrals: 5,
       referral_bonus: "₦500",
@@ -134,7 +134,7 @@ const VCManagement = () => {
       fullname: "John Doe",
       email: "john.doe@example.com",
       phone_number: "123-456-7890",
-      wallet_number: "WALLET123",
+      wallet_number: "₦10,000",
       previous_balance: "₦10,000",
       referrals: 5,
       referral_bonus: "₦500",
@@ -148,7 +148,7 @@ const VCManagement = () => {
       fullname: "John Doe",
       email: "john.doe@example.com",
       phone_number: "123-456-7890",
-      wallet_number: "WALLET123",
+      wallet_number: "₦10,000",
       previous_balance: "₦10,000",
       referrals: 5,
       referral_bonus: "₦500",
@@ -162,7 +162,7 @@ const VCManagement = () => {
       fullname: "John Doe",
       email: "john.doe@example.com",
       phone_number: "123-456-7890",
-      wallet_number: "WALLET123",
+      wallet_number: "₦10,000",
       previous_balance: "₦10,000",
       referrals: 5,
       referral_bonus: "₦500",
@@ -189,27 +189,34 @@ const VCManagement = () => {
           <>
             <div>
               <h1 className="text-[16px] font-semibold mb-8 flex items-center gap-4">
-                Virtual Card Management <FaChevronRight /> Manage Card
+                Reseller Management <FaChevronRight /> Edit User
               </h1>
             </div>
-            <EditVCM />
+            <EditReseller
+              fields={Object.keys(editData || {})}
+              data={editData}
+            />
           </>
         ) : (
           <>
             <h1 className="text-[16px] font-semibold mb-8">
-              Virtual Card Management
+              Reseller Management
             </h1>
 
             <TableTabs
               header={""}
               setActiveTab={setActiveTabPending}
               activeTab={activeTabPending}
-              tabs={["With Cards", "Without Cards"]}
-              from={"VCM"}
-              onPress={() => {}}
+              tabs={[
+                "Active",
+                "Inactive",
+                "Recently Added",
+                "Transaction History",
+              ]}
+              from="resellerMan"
             />
             <div className="rounded-t-[1em] overflow-auto border border-gray-200 min-h-[50vh]">
-              <VCMTable
+              <ResellerTable
                 data={usersData}
                 currentPage={currentPage}
                 itemsPerPage={itemsPerPage}
@@ -228,4 +235,4 @@ const VCManagement = () => {
   );
 };
 
-export default VCManagement;
+export default ResellerManagement;
