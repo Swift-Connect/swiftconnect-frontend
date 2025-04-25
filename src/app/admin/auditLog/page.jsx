@@ -1,17 +1,8 @@
 "use client";
-<<<<<<< HEAD
-
-import React, { useState } from "react";
-
-import Pagination from "../components/pagination";
-import TableTabs from "../components/tableTabs";
-
-=======
 import React, { useState, useEffect } from "react";
 import Pagination from "../components/pagination";
 import TableTabs from "../components/tableTabs";
 import api from "@/utils/api";
->>>>>>> 83cee1cd0b8a0b4e3b3daa4cdb5bb18b950ce4e6
 import AudtiLogTable from "./component/table";
 
 import { ToastContainer, toast } from 'react-toastify';
@@ -119,19 +110,6 @@ const AuditLog = () => {
     }
   };
 
-<<<<<<< HEAD
-          <TableTabs
-            header={""}
-            setActiveTab={setActiveTabPending}
-            activeTab={activeTabPending}
-            tabs={["Admin", "Users"]}
-            from="transactionManagement"
-            onPress={() => {}}
-          />
-          <div className="rounded-t-[1em] overflow-auto border border-gray-200 min-h-[50vh]">
-            <AudtiLogTable
-              data={data}
-=======
   const fetchAllPages = async (endpoint) => {
     let allData = [];
     let nextPage = endpoint;
@@ -224,7 +202,6 @@ const AuditLog = () => {
             </div>
 
             <Pagination
->>>>>>> 83cee1cd0b8a0b4e3b3daa4cdb5bb18b950ce4e6
               currentPage={currentPage}
               totalPages={totalPages}
               onPageChange={setCurrentPage}

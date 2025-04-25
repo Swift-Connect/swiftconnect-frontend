@@ -51,7 +51,6 @@ const BankingServices = () => {
       <WalletCard data={walletData} />
       <div className="pt-8 max-md-[400px]:hidden">
         <TableTabs
-<<<<<<< HEAD
           header={""}
           setActiveTab={setActiveTabTransactions}
           activeTab={activeTabTransactions}
@@ -64,12 +63,6 @@ const BankingServices = () => {
             { label: "9mobile", value: "9mobile" },
           ]}
           onPress={() => {}}
-=======
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          tabs={["All Transactions", "Pending", "Failed"]}
-          filterOptions={[]}
->>>>>>> 83cee1cd0b8a0b4e3b3daa4cdb5bb18b950ce4e6
         />
         <div className="rounded-t-[1em] overflow-hidden border border-gray-200">
           <TransactionsTable data={filteredTransactions} />
