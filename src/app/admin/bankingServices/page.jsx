@@ -53,8 +53,15 @@ const BankingServices = () => {
         <TableTabs
           activeTab={activeTab}
           setActiveTab={setActiveTab}
-          tabs={["All Transactions", "Pending", "Failed"]}
-          filterOptions={[]}
+          tabs={["All Transactions", "Inactive", "Recently Deleted"]}
+          from="bankingServices"
+          filterOptions={[
+            { label: "MTN", value: "MTN" },
+            { label: "Airtel", value: "Airtel" },
+            { label: "Glo", value: "Glo" },
+            { label: "9mobile", value: "9mobile" },
+          ]}
+          onPress={() => {}}
         />
         <div className="rounded-t-[1em] overflow-hidden border border-gray-200">
           <TransactionsTable data={filteredTransactions} />

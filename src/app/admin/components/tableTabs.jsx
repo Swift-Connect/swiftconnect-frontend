@@ -11,13 +11,14 @@ const TableTabs = ({
   tabs,
   from,
   filterOptions,
+  onPress,
 }) => {
   const [showFilterOptions, setShowFilterOptions] = useState(false);
   return (
     <div>
       <h1 className="text-[22px] font-semibold mb-4">{header}</h1>
       <div className="flex flex-col justify-between mb-4">
-        <div className="flex justify-between items-center mb-4">
+        <div className="overflow-auto flex justify-between items-center mb-4">
           <ul className="flex items-center gap-[2em] border-b-[1px] border-gray-200">
             {tabs.map((tab) => (
               <li
@@ -33,21 +34,35 @@ const TableTabs = ({
               </li>
             ))}
           </ul>
-          {from === "dashboard" || from === "VCM" || from == "SAMM" ? (
+          {from === "dashboard" || from === "VCM" || from == "SAMM" || from === "SMA" ? (
             ""
           ) : (
-            <div className="flex gap-3">
+            <div className="flex  gap-3">
               {from === "transactionManagement" ||
               from === "referralSystem" ||
               from === "SAM" ||
               from === "bankingServices" ||
               from === "RBAC" ? null : (
-                <button className="bg-[#00613A] font-medium text-white px-4 py-2 rounded-lg flex items-center gap-2">
-                  {from === "VCM" ? "Create New Card" : "Add User"} <FaPlus />
+                <button
+                  className="bg-[#00613A] whitespace-nowrap font-medium text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                  onClick={onPress}
+                >
+                  {from === "VCM"
+                    ? "Create New Card"
+                    : from === "resellerMan"
+                    ? "Add Agent"
+                    : from === "APIManage"
+                    ? "Create new API Key"
+                    : from === "customersupport"
+                    ? "Add Ticket"
+                    : "Add User"}
+                  <FaPlus />
                 </button>
               )}
-              {from === "SAM" ? null : (
-                <button className="bg-[#8C1823] font-medium text-white px-4 py-2 rounded-lg flex items-center gap-2">
+              {from === "SAM" ||
+              from === "APIManage" ||
+              from === "customersupport" ? null : (
+                <button className="bg-[#8C1823]  font-medium text-white px-4 py-2 rounded-lg flex items-center gap-2">
                   {from === "RBAC" ? "Block" : "Delete"} <FaTrashAlt />
                 </button>
               )}
@@ -78,18 +93,21 @@ const TableTabs = ({
             />
           </div>
           <div className="relative flex items-center space-x-2">
-            <button className="flex items-center text-gray-500 text-sm gap-3 px-4 py-3 border rounded-[4em]">
-              <Image
-                src={"/calendar.svg"}
-                alt="calendar"
-                width={100}
-                height={100}
-                className="w-[1.6em]"
-              />
-              <span className="ml-1 text-[16px]">
-                Nov 1, 2024 - Nov 24, 2024
-              </span>
-            </button>
+            {from === "APIManage" ? null : (
+              <button className="flex items-center text-gray-500 text-sm gap-3 px-4 py-3 border rounded-[4em]">
+                <Image
+                  src={"/calendar.svg"}
+                  alt="calendar"
+                  width={100}
+                  height={100}
+                  className="w-[1.6em]"
+                />
+                <span className="ml-1 text-[16px]">
+                  Nov 1, 2024 - Nov 24, 2024
+                </span>
+              </button>
+            )}
+
             <button
               className="relative text-gray-500 text-sm flex items-center gap-3 px-4 py-3 border rounded-[4em]"
               onClick={() => {

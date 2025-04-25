@@ -52,7 +52,7 @@ const ReferralSystem = () => {
     },
   ];
 
-  const editReferral = true;
+  const editReferral = false;
   const itemsPerPage = 10;
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = Math.ceil(data.length / itemsPerPage);
@@ -88,6 +88,7 @@ const ReferralSystem = () => {
               activeTab={activeTabPending}
               tabs={["Active", "Inactive", "Recently Deleted"]}
               from="referralSystem"
+              onPress={() => {}}
             />
             <div className="rounded-t-[1em] overflow-auto border border-gray-200 min-h-[50vh]">
               <ReferralSystemTable

@@ -24,6 +24,15 @@ const SMA = () => {
         user_amount: "180",
         agent_amount: "20",
       },
+      {
+        id: 1,
+        network: "GLO",
+        plan_type: "Gifting",
+        plan_size: "1.0GB",
+        plan_amount: "200",
+        user_amount: "180",
+        agent_amount: "20",
+      },
       // ...other data subscription plans
     ],
     "Airtime Recharge Plans": [
@@ -128,6 +137,8 @@ const SMA = () => {
 
   const handleEditClick = (rowData) => {
     setEditData(rowData);
+    console.log(rowData);
+
     setShowEdit(true);
   };
 
@@ -135,31 +146,35 @@ const SMA = () => {
     <div className="overflow-hidden ">
       <div className="max-md-[400px]:hidden">
         {showEdit ? (
-          <>
-            <div>
-              <h1 className="text-[16px] font-semibold mb-8 flex items-center gap-4">
-                Referral System <FaChevronRight /> Change plan
-              </h1>
-            </div>
-            <EditSAM fields={fields} data={editData} />
-          </>
+          <EditSAM
+            rowData={editData}
+            onSave={(updatedData) => {
+              console.log("Updated Data:", updatedData);
+              setShowEdit(false);
+            }}
+            onCancel={() => setShowEdit(false)}
+          />
         ) : (
           <>
             <div className="flex items-center mb-8 justify-between">
-              <h1 className="text-[16px] font-semibold ">Referral System</h1>
-
+              <h1 className="text-[16px] font-semibold mb-8">
+                Service Management API
+              </h1>
               <div className="flex items-center gap-[3em]">
-                {/* <p>Referral commission</p>
-
-                <div>
-                  <input className="p-4 border rounded-lg" value={"0.3%"} />
-                  <p className="text-gray-500">on every referral transaction</p>
-                </div> */}
+                {/* <button
+            className="bg-[#00613A] font-medium text-white px-4 py-2 rounded-lg flex items-center gap-2"
+            // onClick={() => {
+            //   setAddNewNotification(true);
+            // }}
+          >
+            Add new Notification <FaPlus />
+          </button> */}
                 <button className="bg-[#8C1823] font-medium text-white px-4 py-2 rounded-lg flex items-center gap-2">
                   Delete <FaTrashAlt />
                 </button>
               </div>
             </div>
+
             <TableTabs
               header={""}
               setActiveTab={setActiveTabPending}
@@ -171,13 +186,8 @@ const SMA = () => {
                 "Electricity Bill",
                 "Education  Cards",
               ]}
-              from="SAM"
-              filterOptions={[
-                { label: "MTN", value: "MTN" },
-                { label: "Airtel", value: "Airtel" },
-                { label: "Glo", value: "Glo" },
-                { label: "9mobile", value: "9mobile" },
-              ]}
+              onPress={() => {}}
+              from={"SMA"}
             />
             <div className="rounded-t-[1em] overflow-auto border border-gray-200 min-h-[50vh]">
               <SAMTable
@@ -185,13 +195,13 @@ const SMA = () => {
                 fields={fields}
                 currentPage={currentPage}
                 itemsPerPage={itemsPerPage}
-                setShowEdit={handleEditClick}
+                setShowEdit={(rowData) => handleEditClick(rowData)}
               />
             </div>
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
-              onPageChange={setCurrentPage}
+              onPageChange={(page) => setCurrentPage(page)}
             />
           </>
         )}
