@@ -1,20 +1,24 @@
 import { useState } from "react";
 import { FaChevronDown } from "react-icons/fa";
 import ActionPopUp from "../../components/actionPopUp";
+import Image from "next/image";
 
-const UsersTable = ({ data, currentPage, itemsPerPage, setShowEdit }) => {
+const CustomerSupportTable = ({
+  data,
+  currentPage,
+  itemsPerPage,
+  setShowEdit,
+}) => {
   const columns = [
-    "Username",
-    "Account Id",
-    "Fullname",
-    "Email",
-    "Phone Number",
-    "Wallet number",
-    "Previous Balance",
-    "Referrals",
-    "Referral Bonus",
-    "Last Login",
-    "Date Joined",
+    "TicketID",
+    "Subject",
+    "Priority",
+    "Type",
+    "Requester",
+    "Customer Support",
+    "Request Date",
+    "Platform",
+
     "Status",
   ];
 
@@ -44,8 +48,6 @@ const UsersTable = ({ data, currentPage, itemsPerPage, setShowEdit }) => {
   // ** PAGINATION LOGIC **
   const startIndex = (currentPage - 1) * itemsPerPage;
   const selectedData = data.slice(startIndex, startIndex + itemsPerPage);
-
-  console.log("data from userManageaTable", data);
 
   return (
     <>
@@ -88,39 +90,66 @@ const UsersTable = ({ data, currentPage, itemsPerPage, setShowEdit }) => {
                     onChange={() => handleCheckboxChange(startIndex + idx)}
                   />
                 </td>
-                <td className="py-[1.3em] px-[1.8em] font-semibold">
-                  {user.username}
+                <td className="py-[1.3em] whitespace-nowrap px-[1.8em] font-semibold">
+                  {user.ticket_id}
+                </td>
+                <td className="py-[1.3em] whitespace-nowrap px-[1.8em] text-[#9CA3AF]">
+                  #{user.subject}
+                </td>
+                <td
+                  className={`py-[1.3em] px-[1.8em]    ${
+                    user.priority === "Low"
+                      ? " text-green-600"
+                      : user.priority === "Medium"
+                      ? "  text-yellow-500"
+                      : user.priority === "High"
+                      ? " text-red-600"
+                      : ""
+                  }`}
+                >
+                  <div
+                    className={`flex w-fit items-center justify-center gap-2 px-3 py-1 rounded-2xl ${
+                      user.priority === "Low"
+                        ? "bg-green-100"
+                        : user.priority === "Medium"
+                        ? "bg-yellow-100"
+                        : user.priority === "High"
+                        ? "bg-red-100"
+                        : ""
+                    }`}
+                  >
+                    <div
+                      className={`w-[.7em] h-[.7em] rounded-full   ${
+                        user.priority === "Low"
+                          ? "bg-green-600  "
+                          : user.priority === "Medium"
+                          ? "bg-yellow-500  "
+                          : user.priority === "High"
+                          ? "bg-red-600 "
+                          : ""
+                      }`}
+                    ></div>
+                    {user.priority}
+                  </div>
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  #{user.account_id}
+                  {user.type}
+                </td>
+                <td className="py-[1.3em] whitespace-nowrap px-[1.8em] text-[#9CA3AF]">
+                  {user.requester}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.fullname}
+                  {user.customer_support}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.email}
+                  {user.req_date}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.phone_number}
+                  <div className="w-[2em] h-[2em] bg-[#e2e3e6] rounded-full flex items-center justify-center">
+                    <Image src={"/" + user.platform} width={20} height={0} />
+                  </div>
                 </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.wallet_number}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.previous_balance}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.referrals}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.referral_bonus}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.last_login}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.date_joined}
-                </td>
+
                 <td className="py-[1.3em] px-[1.8em] text-[#fff] relative">
                   <span
                     className="bg-[#00613A] rounded-xl flex w-fit items-center justify-center gap-2 py-1 px-2 cursor-pointer"
@@ -139,4 +168,4 @@ const UsersTable = ({ data, currentPage, itemsPerPage, setShowEdit }) => {
   );
 };
 
-export default UsersTable;
+export default CustomerSupportTable;

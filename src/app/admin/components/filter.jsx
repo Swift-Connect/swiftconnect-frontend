@@ -11,6 +11,7 @@ const Filter = ({ onFilterChange, filterOptions }) => {
             className="border rounded-3xl px-4 py-2"
             key={index}
             value={option.value}
+            onClick={() => onFilterChange(option.label)}
           >
             {option.label}
           </button>

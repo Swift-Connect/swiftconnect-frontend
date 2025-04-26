@@ -1,16 +1,31 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { FaChevronDown } from "react-icons/fa";
-import { toast } from "react-toastify";
-import api from "@/utils/api";
 import ActionPopUp from "../../components/actionPopUp";
 
-const UsersTable = ({ userssData, currentPage, itemsPerPage, isLoading }) => {
-  const [data, setData] = useState([]);
-  const [checkedItems, setCheckedItems] = useState([]);
+const APIManagementTable = ({
+  data,
+  currentPage,
+  itemsPerPage,
+  setShowEdit,
+}) => {
+  const columns = [
+    "Key Name",
+    "API Key (Masked)",
+    "Status",
+    "Created On",
+    "Last Used",
+    "Created By",
+    "Revocation Day",
+    "Revocked By",
+
+    "Action",
+  ];
+
+  const [checkedItems, setCheckedItems] = useState(
+    new Array(data.length).fill(false)
+  );
   const [isAllChecked, setIsAllChecked] = useState(false);
   const [activeRow, setActiveRow] = useState(null);
-
-  const columns = ["Username", "Account Id", "Date", "Action", "API Response"];
 
   const handleHeaderCheckboxChange = () => {
     const newCheckedState = !isAllChecked;
@@ -29,15 +44,14 @@ const UsersTable = ({ userssData, currentPage, itemsPerPage, isLoading }) => {
     setActiveRow(activeRow === index ? null : index);
   };
 
+  // ** PAGINATION LOGIC **
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const selectedData = userssData.slice(startIndex, startIndex + itemsPerPage);
+  const selectedData = data.slice(startIndex, startIndex + itemsPerPage);
 
   return (
     <>
-      {isLoading ? (
-        <div className="text-center py-8">Loading users, please wait...</div>
-      ) : selectedData.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">No Users found</div>
+      {data.length === 0 ? (
+        <div className="text-center py-8 text-gray-500">No Users yet</div>
       ) : (
         <table className="w-full text-sm border-collapse">
           <thead>
@@ -62,48 +76,58 @@ const UsersTable = ({ userssData, currentPage, itemsPerPage, isLoading }) => {
           <tbody>
             {selectedData.map((user, idx) => (
               <tr
-                key={user.id}
+                key={idx}
                 className={`border-t ${
                   idx % 2 === 0 ? "bg-white" : "bg-gray-50"
                 }`}
+                onDoubleClick={() => setShowEdit(user)}
               >
-                <td className="py-[1.3em] px-[1.8em] font-semibold text-[#232323]">
+                <td className="py-[1.3em] px-[1.8em]">
                   <input
                     type="checkbox"
-                    checked={checkedItems[idx]}
-                    onChange={() => handleCheckboxChange(idx)}
+                    checked={checkedItems[startIndex + idx]}
+                    onChange={() => handleCheckboxChange(startIndex + idx)}
                   />
                 </td>
-                <td className="py-[1.3em] px-[1.8em] font-semibold text-[#232323]">
-                  {user.username}
+                <td className="py-[1.3em] px-[1.8em] font-semibold whitespace-nowrap">
+                  {user.key_name}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  #{user.account_id}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {new Date(user.created_at).toLocaleDateString("en-GB")}
+                  #{user.api_key_masked}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#fff] relative">
                   <span
-                    className={`${
-                      user.status === "Approved"
-                        ? "bg-[#00613A] text-white"
-                        : user.status === "Processing"
-                        ? "bg-[#EEFBFD] text-[#219CAF] border-[#219CAF]"
-                        : "bg-[#FDF4EE] text-[#ED7F31] border-[#ED7F3133]"
-                    } border-[0.1px] rounded-3xl flex w-fit items-center justify-center gap-2 py-1 px-4 cursor-pointer`}
+                    className="bg-[#00613A] rounded-xl flex w-fit items-center justify-center gap-2 py-1 px-2 cursor-pointer"
                     onClick={() => handleActionClick(idx)}
                   >
-                    {user.status} <FaChevronDown />
+                    Approved <FaChevronDown />
                   </span>
-                  {activeRow === idx && (
-                    <ActionPopUp
-                      optionList={["Approved", "Not Approved", "Processing"]}
-                    />
-                  )}
+                  {activeRow === idx && <ActionPopUp />}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.api_response}
+                  {user.created_on}
+                </td>
+                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
+                  {user.last_used}
+                </td>
+                <td className="py-[1.3em] whitespace-nowrap px-[1.8em] text-[#9CA3AF]">
+                  {user.created_by}
+                </td>
+                <td className="py-[1.3em]  px-[1.8em] text-[#9CA3AF]">
+                  {user.revocation_date}
+                </td>
+                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
+                  {user.revoked_by}
+                </td>
+
+                <td className="py-[1.3em] px-[1.8em] text-[#fff] relative">
+                  <span
+                    className="bg-[#00613A] rounded-xl flex w-fit items-center justify-center gap-2 py-1 px-2 cursor-pointer"
+                    onClick={() => handleActionClick(idx)}
+                  >
+                    Approved <FaChevronDown />
+                  </span>
+                  {activeRow === idx && <ActionPopUp />}
                 </td>
               </tr>
             ))}
@@ -114,4 +138,4 @@ const UsersTable = ({ userssData, currentPage, itemsPerPage, isLoading }) => {
   );
 };
 
-export default UsersTable;
+export default APIManagementTable;

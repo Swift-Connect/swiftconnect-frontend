@@ -2,20 +2,14 @@ import { useState } from "react";
 import { FaChevronDown } from "react-icons/fa";
 import ActionPopUp from "../../components/actionPopUp";
 
-const UsersTable = ({ data, currentPage, itemsPerPage, setShowEdit }) => {
+const DetailedMsgPerformance = ({ data, currentPage, itemsPerPage }) => {
   const columns = [
-    "Username",
-    "Account Id",
-    "Fullname",
-    "Email",
-    "Phone Number",
-    "Wallet number",
-    "Previous Balance",
-    "Referrals",
-    "Referral Bonus",
-    "Last Login",
-    "Date Joined",
+    "Channel",
+    "Message Name",
+    "Open Rate",
+    "Recipients",
     "Status",
+    "Response",
   ];
 
   const [checkedItems, setCheckedItems] = useState(
@@ -45,8 +39,6 @@ const UsersTable = ({ data, currentPage, itemsPerPage, setShowEdit }) => {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const selectedData = data.slice(startIndex, startIndex + itemsPerPage);
 
-  console.log("data from userManageaTable", data);
-
   return (
     <>
       {data.length === 0 ? (
@@ -55,13 +47,6 @@ const UsersTable = ({ data, currentPage, itemsPerPage, setShowEdit }) => {
         <table className="w-full text-sm border-collapse">
           <thead>
             <tr className="bg-[#F9F8FA] text-left text-[#525252]">
-              <th className="py-[1.3em] px-[1.8em] font-semibold text-[#232323]">
-                <input
-                  type="checkbox"
-                  checked={isAllChecked}
-                  onChange={handleHeaderCheckboxChange}
-                />
-              </th>
               {columns.map((column, index) => (
                 <th
                   key={index}
@@ -81,54 +66,33 @@ const UsersTable = ({ data, currentPage, itemsPerPage, setShowEdit }) => {
                 }`}
                 onDoubleClick={() => setShowEdit(user)}
               >
-                <td className="py-[1.3em] px-[1.8em]">
-                  <input
-                    type="checkbox"
-                    checked={checkedItems[startIndex + idx]}
-                    onChange={() => handleCheckboxChange(startIndex + idx)}
-                  />
-                </td>
                 <td className="py-[1.3em] px-[1.8em] font-semibold">
-                  {user.username}
+                  {user.channel}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  #{user.account_id}
+                  #{user.message_name}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.fullname}
+                  {user.open_rate}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.email}
+                  {user.recipients}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.phone_number}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.wallet_number}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.previous_balance}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.referrals}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.referral_bonus}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.last_login}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.date_joined}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#fff] relative">
-                  <span
-                    className="bg-[#00613A] rounded-xl flex w-fit items-center justify-center gap-2 py-1 px-2 cursor-pointer"
-                    onClick={() => handleActionClick(idx)}
+                  <div
+                    className={`rounded-full border items-center px-4 py-1 ${
+                      user.status === "Sent"
+                        ? "text-green-700 bg-green-100  border-green-700"
+                        : "text-red-700 bg-red-100  border-red-700"
+                    }`}
                   >
-                    Approved <FaChevronDown />
-                  </span>
-                  {activeRow === idx && <ActionPopUp />}
+                    {user.status}
+                  </div>
+                </td>
+                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
+                  <div className="border rounded-full flex items-center px-4 py-1">
+                    view
+                  </div>
                 </td>
               </tr>
             ))}
@@ -139,4 +103,4 @@ const UsersTable = ({ data, currentPage, itemsPerPage, setShowEdit }) => {
   );
 };
 
-export default UsersTable;
+export default DetailedMsgPerformance;

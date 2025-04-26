@@ -91,6 +91,7 @@ const TransactionManagement = () => {
               activeTab={activeTabPending}
               tabs={["All Transaction", "Inactive", "Recently Added"]}
               from="transactionManagement"
+              onPress={() => {}}
             />
             <div className="rounded-t-[1em] overflow-auto border border-gray-200 min-h-[50vh]">
               <TrxManagementTable

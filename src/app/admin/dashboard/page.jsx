@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useState } from "react";
 import { FaDollarSign } from "react-icons/fa";
 import { IoIosStats } from "react-icons/io";
@@ -19,6 +20,7 @@ import UsersTable from "./components/userTable";
 import TransactionsTable from "./components/TransactionsTable";
 import TableTabs from "../components/tableTabs";
 import Card from "../components/card";
+import Pagination from "../components/pagination";
 
 const COLORS = ["#1D4ED8", "#60A5FA"];
 
@@ -29,8 +31,20 @@ const Dashboard = () => {
   const [incomeData, setIncomeData] = useState([]);
   const [trafficData, setTrafficData] = useState([]);
   const [userData, setUserData] = useState([]);
+  const [userssData, setUserssData] = useState([]);
   const [stats, setStats] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [allTransactionData, setAllTransaactionData] = useState([]);
+  const [transactionFilter, setTransactionFilter] = useState("All");
+  // Filtered transaction data based on the selected filter
+  console.log("Clicked Filtered Optiom", transactionFilter);
+
+  const filteredTransactionData = allTransactionData.filter((tx) => {
+    if (transactionFilter === "All") return true;
+    if (transactionFilter === "Success")
+      return tx.status.toLowerCase() === "completed";
+    return tx.status.toLowerCase() === transactionFilter.toLowerCase();
+  });
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -40,8 +54,27 @@ const Dashboard = () => {
         const usersData = await fetchAllPages("/users/list-users/");
         console.log("Fetched users:", usersData);
 
+        const validUsers = usersData.filter((user) => user.id);
+        console.log("Fetched users:", usersData);
+        console.log("Valid users:", validUsers);
+
+        // Process users to match table structure
+        const processedData = validUsers.map((user) => ({
+          id: user.id,
+          username: user.username,
+          account_id: user.account_id || "null",
+          created_at: user.created_at || "null",
+          api_response: user.api_response || "N/A",
+          status: user.status || "Not Approved", // Default to match action
+        }));
+        console.log("nnnnnnnnnnnn", processedData);
+
+        setUserssData(processedData);
+
         // Fetch pending KYC requests
-        const pendingKycData = await fetchAllPages("/users/pending-kyc-requests/");
+        const pendingKycData = await fetchAllPages(
+          "/users/pending-kyc-requests/"
+        );
         console.log("Fetched pending KYC:", pendingKycData);
 
         // Fetch all transactions
@@ -55,19 +88,51 @@ const Dashboard = () => {
           "/services/bulk-sms-transactions/",
         ];
 
-        const transactionPromises = transactionEndpoints.map(async (endpoint) => {
-          try {
-            return await fetchAllPages(endpoint);
-          } catch (error) {
-            toast.error(`Error fetching ${endpoint}`);
-            console.error(`Error fetching ${endpoint}:`, error);
-            return [];
+        const transactionPromises = transactionEndpoints.map(
+          async (endpoint) => {
+            try {
+              return await fetchAllPages(endpoint);
+            } catch (error) {
+              toast.error(`Error fetching ${endpoint}`);
+              console.error(`Error fetching ${endpoint}:`, error);
+              return [];
+            }
           }
-        });
+        );
 
         const transactionResults = await Promise.all(transactionPromises);
         const allTransactions = transactionResults.flat();
         console.log("Fetched transactions:", allTransactions);
+        // Filter valid transactions
+        const validTransactions = allTransactions.filter(
+          (tx) =>
+            tx.id &&
+            tx.amount &&
+            tx.created_at &&
+            tx.status &&
+            typeof tx.amount === "number" // Ensure amount is a number
+        );
+        console.log("Fetched transactions:", allTransactions);
+        console.log("Valid transactions:", validTransactions);
+
+        // Process transactions
+        const processedDataTrx = allTransactions.map((tx) => {
+          console.log("dsdsxsxs", tx);
+
+          // const user = validUsers.find((u) => u.id === tx.user);
+          // console.log("uddd", user);
+
+          return {
+            id: tx.id,
+            // user: user ? "user.username" : "System",
+            product: getProductName(tx),
+            amount: formatCurrency(tx.amount, tx.currency),
+            date: new Date(tx.created_at).toLocaleDateString("en-GB"),
+            status: tx.status ? capitalizeFirstLetter(tx.status) : "Completed",
+          };
+        });
+
+        setAllTransaactionData(processedDataTrx);
 
         // Process stats
         const completedTransactions = allTransactions.filter(
@@ -142,7 +207,11 @@ const Dashboard = () => {
 
           const monthTransactions = allTransactions.filter((tx) => {
             const txDate = new Date(tx.created_at);
-            return txDate >= monthStart && txDate <= monthEnd && tx.status === "completed";
+            return (
+              txDate >= monthStart &&
+              txDate <= monthEnd &&
+              tx.status === "completed"
+            );
           });
 
           const transactions = monthTransactions
@@ -194,20 +263,27 @@ const Dashboard = () => {
     fetchDashboardData();
   }, []);
 
-  const fetchAllPages = async (endpoint) => {
+  const fetchAllPages = async (endpoint, maxPages = 50) => {
     let allData = [];
     let nextPage = endpoint;
-    while (nextPage) {
-      try {
+    let pageCount = 0;
+
+    try {
+      while (nextPage && pageCount < maxPages) {
         const res = await api.get(nextPage);
         allData = allData.concat(res.data.results || res.data);
         nextPage = res.data.next || null;
-      } catch (error) {
-        toast.error(`Error fetching data from ${nextPage}`);
-        console.error(`Error fetching ${nextPage}:`, error);
-        break;
+        pageCount++;
       }
+
+      if (pageCount >= maxPages) {
+        console.warn(`Reached max page limit (${maxPages}) for ${endpoint}`);
+      }
+    } catch (error) {
+      toast.error(`Error fetching data from ${endpoint}`);
+      console.error(`Error fetching ${endpoint}:`, error);
     }
+
     return allData;
   };
 
@@ -218,11 +294,31 @@ const Dashboard = () => {
     }).format(amount);
   };
 
+  const getProductName = (transaction) => {
+    if (transaction.reason) return transaction.reason;
+    if (transaction.network) return `${transaction.network} Airtime`;
+    if (transaction.cable_name) return `${transaction.cable_name} Cable`;
+    return "Service Transaction";
+  };
+
+  const capitalizeFirstLetter = (str) => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
+
+  console.log("the users data", userssData);
+
+  const itemsPerPage = 10;
+  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPageTrx, setCurrentPageTrx] = useState(1);
+  const totalPages = Math.ceil(userssData.length / itemsPerPage);
+
   return (
     <div className="overflow-hidden">
       <div className="overflow-x-auto">
         {isLoading ? (
-          <div className="text-center py-8">Loading dashboard data, please wait...</div>
+          <div className="text-center py-8">
+            Loading dashboard data, please wait...
+          </div>
         ) : (
           <div className="flex gap-4 justify-between">
             {stats.map((stat, index) => (
@@ -288,7 +384,8 @@ const Dashboard = () => {
           <div className="bg-white p-4 rounded-lg shadow w-1/3">
             <p className="text-gray-500 text-sm">Daily Traffic</p>
             <h2 className="text-2xl font-bold">
-              {trafficData.reduce((sum, item) => sum + item.visitors, 0)} Visitors
+              {trafficData.reduce((sum, item) => sum + item.visitors, 0)}{" "}
+              Visitors
             </h2>
             <p className="text-green-500 text-sm">+2.45%</p>
 
@@ -371,18 +468,27 @@ const Dashboard = () => {
           activeTab={activeTabPending}
           tabs={["Approve KYC", "Approve Withdrawal", "Transaction"]}
           from="dashboard"
-          filterOptions={[
-            { label: "MTN", value: "MTN" },
-            { label: "Airtel", value: "Airtel" },
-            { label: "Glo", value: "Glo" },
-            { label: "9mobile", value: "9mobile" },
-          ]}
+          // filterOptions={[
+          //   { label: "MTN", value: "MTN" },
+          //   { label: "Airtel", value: "Airtel" },
+          //   { label: "Glo", value: "Glo" },
+          //   { label: "9mobile", value: "9mobile" },
+          // ]}
         />
         <div className="rounded-t-[1em] overflow-hidden border border-gray-200">
-          <UsersTable />
+          <UsersTable
+            userssData={userssData}
+            currentPage={currentPage}
+            itemsPerPage={itemsPerPage}
+            isLoading={isLoading}
+          />
         </div>
       </div>
-
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
       <div className="pt-8 max-md-[400px]:hidden">
         <TableTabs
           header={"Recent Transactions"}
@@ -391,15 +497,26 @@ const Dashboard = () => {
           tabs={["All Transactions", "Credit", "Debit"]}
           from="dashboard"
           filterOptions={[
-            { label: "MTN", value: "MTN" },
-            { label: "Airtel", value: "Airtel" },
-            { label: "Glo", value: "Glo" },
-            { label: "9mobile", value: "9mobile" },
+            { label: "Success", value: "Success" },
+            { label: "Failed", value: "Failed" },
+            { label: "Refunded", value: "Refunded" },
+            { label: "Pending", value: "Pending" },
           ]}
+          onFilterChange={(filter) => setTransactionFilter(filter)}
         />
         <div className="rounded-t-[1em] overflow-hidden border border-gray-200">
-          <TransactionsTable />
+          <TransactionsTable
+            data={filteredTransactionData}
+            currentPage={currentPageTrx}
+            itemsPerPage={itemsPerPage}
+            isLoading={isLoading}
+          />
         </div>
+        <Pagination
+          currentPage={currentPageTrx}
+          totalPages={Math.ceil(filteredTransactionData.length / itemsPerPage)}
+          onPageChange={setCurrentPageTrx}
+        />
       </div>
     </div>
   );
