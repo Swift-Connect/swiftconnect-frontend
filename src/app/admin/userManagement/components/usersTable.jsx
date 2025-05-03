@@ -2,7 +2,13 @@ import { useState } from "react";
 import { FaChevronDown } from "react-icons/fa";
 import ActionPopUp from "../../components/actionPopUp";
 
-const UsersTable = ({ data, currentPage, itemsPerPage, setShowEdit }) => {
+const UsersTable = ({
+  data,
+  currentPage,
+  itemsPerPage,
+  setShowEdit,
+  isLoading,
+}) => {
   const columns = [
     "Username",
     "Account Id",
@@ -49,7 +55,9 @@ const UsersTable = ({ data, currentPage, itemsPerPage, setShowEdit }) => {
 
   return (
     <>
-      {data.length === 0 ? (
+      {isLoading ? (
+        <div className="text-center py-8">Loading Users, please wait...</div>
+      ) : selectedData.length === 0 ? (
         <div className="text-center py-8 text-gray-500">No Users yet</div>
       ) : (
         <table className="w-full text-sm border-collapse">
@@ -92,7 +100,7 @@ const UsersTable = ({ data, currentPage, itemsPerPage, setShowEdit }) => {
                   {user.username}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  #{user.account_id}
+                  #{user.id}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
                   {user.fullname}

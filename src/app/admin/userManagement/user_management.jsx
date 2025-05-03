@@ -13,10 +13,11 @@ const UserManagement = () => {
   const [showEdit, setShowEdit] = useState(false);
   const [editData, setEditData] = useState(null);
   const [usersData, setUserData] = useState([]);
+  const [isLoading, setIsLoading] = useState();
 
   useEffect(() => {
     const fetchUsers = async () => {
-      // setIsLoading(true);
+      setIsLoading(true);
       try {
         const usersData = await fetchAllPages("/users/list-users/");
         // Filter valid users
@@ -33,15 +34,15 @@ const UserManagement = () => {
           api_response: user.api_response || "N/A",
           status: user.status || "Not Approved", // Default to match action
         }));
-        console.log("processed data from user managament", processedData);
+        console.log("processed data from user managament", validUsers);
 
-        setUserData(processedData);
+        setUserData(validUsers);
         // setCheckedItems(new Array(processedData.length).fill(false));
       } catch (error) {
         toast.error("Failed to fetch users. Please try again later.");
         console.error("Fetch users error:", error);
       } finally {
-        // setIsLoading(false);
+        setIsLoading(false);
       }
     };
 
@@ -66,7 +67,7 @@ const UserManagement = () => {
   };
 
   console.log("user data from the endpoint", usersData);
-  
+
   const userssData = [
     {
       id: 1,
@@ -264,6 +265,7 @@ const UserManagement = () => {
                 currentPage={currentPage}
                 itemsPerPage={itemsPerPage}
                 setShowEdit={handleEditClick}
+                isLoading={isLoading}
               />
             </div>
             <Pagination

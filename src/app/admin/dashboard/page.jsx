@@ -46,6 +46,8 @@ const Dashboard = () => {
     return tx.status.toLowerCase() === transactionFilter.toLowerCase();
   });
 
+ 
+
   useEffect(() => {
     const fetchDashboardData = async () => {
       setIsLoading(true);
@@ -311,6 +313,10 @@ const Dashboard = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [currentPageTrx, setCurrentPageTrx] = useState(1);
   const totalPages = Math.ceil(userssData.length / itemsPerPage);
+
+   useEffect(() => {
+     setCurrentPageTrx(1);
+   }, [transactionFilter]);
 
   return (
     <div className="overflow-hidden">

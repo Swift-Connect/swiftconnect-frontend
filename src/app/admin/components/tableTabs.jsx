@@ -132,6 +132,7 @@ const TableTabs = ({
               <Filter
                 onFilterChange={onFilterChange}
                 filterOptions={filterOptions}
+                onClose={() => setShowFilterOptions(false)}
               />
             ) : null}
           </div>
