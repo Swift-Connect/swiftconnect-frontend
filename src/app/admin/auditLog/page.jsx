@@ -1,8 +1,10 @@
 "use client";
-import React, { useState, useEffect } from "react";
+
+import React, { useEffect, useState } from "react";
+
 import Pagination from "../components/pagination";
 import TableTabs from "../components/tableTabs";
-import api from "@/utils/api";
+
 import AudtiLogTable from "./component/table";
 
 import { ToastContainer, toast } from 'react-toastify';

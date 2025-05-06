@@ -12,6 +12,9 @@ const TableTabs = ({
   from,
   filterOptions,
   onPress,
+ 
+  onFilterChange,
+ 
 }) => {
   const [showFilterOptions, setShowFilterOptions] = useState(false);
   return (
@@ -34,7 +37,9 @@ const TableTabs = ({
               </li>
             ))}
           </ul>
+ 
           {from === "dashboard" || from === "VCM" || from == "SAMM" || from === "SMA" ? (
+ 
             ""
           ) : (
             <div className="flex  gap-3">
@@ -126,8 +131,9 @@ const TableTabs = ({
             </button>
             {showFilterOptions && filterOptions ? (
               <Filter
-                onFilterChange={() => console.log("Filter changed")}
+                onFilterChange={onFilterChange}
                 filterOptions={filterOptions}
+                onClose={() => setShowFilterOptions(false)}
               />
             ) : null}
           </div>

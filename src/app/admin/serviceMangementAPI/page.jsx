@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import Image from "next/image";
 import React, { useState } from "react";
 import { FaChevronRight, FaPlus, FaTrashAlt } from "react-icons/fa";
@@ -7,6 +7,7 @@ import Pagination from "../components/pagination";
 import PaystackSettings from "./components/paystackSettings";
 import MonnifySettings from "./components/monifySettings";
 import FlutterwaveSettings from "./components/flutterwaveSettings";
+import api from "@/utils/api";
 // import AddNewNotification from "./components/addNewNotification";
 
 const SMAA = () => {
@@ -14,6 +15,33 @@ const SMAA = () => {
   const handleCardClick = (cardType) => {
     setCard(cardType);
   };
+
+  const fetchAllPages = async (endpoint, maxPages = 50) => {
+    let allData = [];
+    // let nextPage = endpoint;
+    // let pageCount = 0;
+
+    try {
+      // while (nextPage && pageCount < maxPages) {
+      const res = await api.get("/services/configure/cable-recharges/");
+      //   allData = allData.concat(res.data.results || res.data);
+      //   nextPage = res.data.next || null;
+      //   pageCount++;
+      // }
+      console.log("the dede", res);
+
+      // if (pageCount >= maxPages) {
+      //   console.warn(`Reached max page limit (${maxPages}) for ${endpoint}`);
+      // }
+    } catch (error) {
+      toast.error(`Error fetching data from ${endpoint}`);
+      console.error(`Error fetching ${endpoint}:`, error);
+    }
+
+    // return allData;
+  };
+
+  fetchAllPages();
 
   return (
     <div>

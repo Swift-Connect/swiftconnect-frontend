@@ -51,8 +51,9 @@ const BankingServices = () => {
       <WalletCard data={walletData} />
       <div className="pt-8 max-md-[400px]:hidden">
         <TableTabs
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
+          header={""}
+          setActiveTab={setActiveTabTransactions}
+          activeTab={activeTabTransactions}
           tabs={["All Transactions", "Inactive", "Recently Deleted"]}
           from="bankingServices"
           filterOptions={[

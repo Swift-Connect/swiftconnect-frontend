@@ -4,66 +4,13 @@ import { toast } from "react-toastify";
 import api from "@/utils/api";
 import ActionPopUp from "../../components/actionPopUp";
 
-const UsersTable = () => {
+const UsersTable = ({ userssData, currentPage, itemsPerPage, isLoading }) => {
   const [data, setData] = useState([]);
   const [checkedItems, setCheckedItems] = useState([]);
   const [isAllChecked, setIsAllChecked] = useState(false);
   const [activeRow, setActiveRow] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
 
   const columns = ["Username", "Account Id", "Date", "Action", "API Response"];
-
-  useEffect(() => {
-    const fetchUsers = async () => {
-      setIsLoading(true);
-      try {
-        const usersData = await fetchAllPages("/users/list-users/");
-        // Filter valid users
-        const validUsers = usersData.filter(
-          (user) => user.id && user.username && user.account_id && user.created_at
-        );
-        console.log("Fetched users:", usersData);
-        console.log("Valid users:", validUsers);
-
-        // Process users to match table structure
-        const processedData = validUsers.map((user) => ({
-          id: user.id,
-          username: user.username,
-          account_id: user.account_id,
-          created_at: user.created_at,
-          api_response: user.api_response || "N/A",
-          status: user.status || "Not Approved", // Default to match action
-        }));
-
-        setData(processedData);
-        setCheckedItems(new Array(processedData.length).fill(false));
-      } catch (error) {
-        toast.error("Failed to fetch users. Please try again later.");
-        console.error("Fetch users error:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchUsers();
-  }, []);
-
-  const fetchAllPages = async (endpoint) => {
-    let allData = [];
-    let nextPage = endpoint;
-    while (nextPage) {
-      try {
-        const res = await api.get(nextPage);
-        allData = allData.concat(res.data.results || res.data);
-        nextPage = res.data.next || null;
-      } catch (error) {
-        toast.error(`Error fetching data from ${nextPage}`);
-        console.error(`Error fetching ${nextPage}:`, error);
-        break;
-      }
-    }
-    return allData;
-  };
 
   const handleHeaderCheckboxChange = () => {
     const newCheckedState = !isAllChecked;
@@ -82,11 +29,14 @@ const UsersTable = () => {
     setActiveRow(activeRow === index ? null : index);
   };
 
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const selectedData = userssData.slice(startIndex, startIndex + itemsPerPage);
+
   return (
     <>
       {isLoading ? (
         <div className="text-center py-8">Loading users, please wait...</div>
-      ) : data.length === 0 ? (
+      ) : selectedData.length === 0 ? (
         <div className="text-center py-8 text-gray-500">No Users found</div>
       ) : (
         <table className="w-full text-sm border-collapse">
@@ -110,7 +60,7 @@ const UsersTable = () => {
             </tr>
           </thead>
           <tbody>
-            {data.map((user, idx) => (
+            {selectedData.map((user, idx) => (
               <tr
                 key={user.id}
                 className={`border-t ${
@@ -146,7 +96,11 @@ const UsersTable = () => {
                   >
                     {user.status} <FaChevronDown />
                   </span>
-                  {activeRow === idx && <ActionPopUp />}
+                  {activeRow === idx && (
+                    <ActionPopUp
+                      optionList={["Approved", "Not Approved", "Processing"]}
+                    />
+                  )}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
                   {user.api_response}

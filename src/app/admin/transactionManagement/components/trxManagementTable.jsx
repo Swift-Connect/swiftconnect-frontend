@@ -7,6 +7,7 @@ const TrxManagementTable = ({
   currentPage,
   itemsPerPage,
   setShowEdit,
+  isLoading
 }) => {
   const columns = [
     "Product",
@@ -46,7 +47,11 @@ const TrxManagementTable = ({
 
   return (
     <>
-      {data.length === 0 ? (
+      {isLoading ? (
+        <div className="text-center py-8">
+          Loading transactions, please wait...
+        </div>
+      ) : data.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
           No Transactions yet
         </div>
@@ -101,7 +106,7 @@ const TrxManagementTable = ({
                     transaction.status === "Completed" ? "green" : "red"
                   }-600`}
                 >
-                  {transaction.status === "Completed" ? "+" : "-"}₦
+                  {transaction.status === "Completed" ? "+" : "-"}
                   {transaction.amount}
                 </td>
                 <td className="py-[1.3em] px-[1.8em]">
