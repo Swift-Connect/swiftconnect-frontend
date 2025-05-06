@@ -52,8 +52,8 @@ const BankingServices = () => {
       <div className="pt-8 max-md-[400px]:hidden">
         <TableTabs
           header={""}
-          setActiveTab={setActiveTabTransactions}
-          activeTab={activeTabTransactions}
+          setActiveTab={setActiveTab}
+          activeTab={activeTab}
           tabs={["All Transactions", "Inactive", "Recently Deleted"]}
           from="bankingServices"
           filterOptions={[

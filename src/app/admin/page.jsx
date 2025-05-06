@@ -28,8 +28,8 @@ const AdminPage = () => {
   const [data, setData] = useState(null);
   let user = null;
 
-  if (window) {
-    const userString = localStorage.getItem('user');
+  if (typeof window !== "undefined") {
+    const userString = localStorage.getItem("user");
     if (userString) {
       user = JSON.parse(userString);
     }

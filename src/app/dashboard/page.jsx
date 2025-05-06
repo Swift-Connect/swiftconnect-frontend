@@ -25,14 +25,20 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (token) {
-      router.push("/dashboard");
-      setUser(JSON.parse(localStorage.getItem("user")));
-    } else {
-      router.push("/account/login");
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("access_token");
+      if (token) {
+        router.push("/dashboard");
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+          setUser(JSON.parse(storedUser));
+        }
+      } else {
+        router.push("/account/login");
+      }
     }
   }, [router]);
+
 
   useEffect(() => {
     const fetchData = async () => {
