@@ -14,7 +14,7 @@ const UsersTable = ({
   console.log('data..::..', data);
 
   // Filter out invalid users (must have id, username, and email)
-  const validUsers = data.filter(user => user.id && user.username && user.email);
+  const validUsers = data ? data.filter(user => user?.id && user?.username && user?.email) : ()=>{};
   console.log('validUsers..::..', validUsers);
 
   const columns = ["ID", "Username", "Email", "Role", "Actions"];
@@ -42,13 +42,13 @@ const UsersTable = ({
   const selectedData = validUsers.slice(startIndex, startIndex + itemsPerPage);
 
   const handleDeleteClick = async (user) => {
-    if (window.confirm(`Are you sure you want to delete user #${user.id}?`)) {
+    if (window.confirm(`Are you sure you want to delete user #${user?.id}?`)) {
       try {
-        await api.delete(`/users/list-users/${user.id}/`);
+        await api.delete(`/users/list-users/${user?.id}/`);
         toast.success("User deleted successfully.");
         handleDelete(user);
       } catch (error) {
-        toast.error("Failed to delete user. Please try again.");
+        toast.error("Failed to delete user?. Please try again.");
       }
     }
   };
@@ -81,7 +81,7 @@ const UsersTable = ({
           <tbody>
             {selectedData.map((user, idx) => (
               <tr
-                key={user.id}
+                key={user?.id}
                 className={`border-t ${
                   idx % 2 === 0 ? "bg-white" : "bg-gray-50"
                 }`}
@@ -95,25 +95,25 @@ const UsersTable = ({
                   />
                 </td>
                 <td className="py-[1.3em] px-[1.8em] font-semibold text-[#232323]">
-                  #{user.id}
+                  #{user?.id}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#2e2e2e]">
-                  {user.username}
+                  {user?.username}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#2e2e2e]">
-                  {user.email}
+                  {user?.email}
                 </td>
                 <td className="py-[1.3em] px-[1.8em]">
                   <div
                     className={`py-1 text-center text-xs font-medium rounded-full ${
-                      user.role === "Admin"
+                      user?.role === "Admin"
                         ? "bg-green-100 text-green-600"
-                        : user.role === "User"
+                        : user?.role === "User"
                         ? "bg-blue-100 text-blue-600"
                         : "bg-gray-100 text-gray-600"
                     }`}
                   >
-                    {user.role || "N/A"}
+                    {user?.role || "N/A"}
                   </div>
                 </td>
                 <td className="py-[1.3em] px-[1.8em]">

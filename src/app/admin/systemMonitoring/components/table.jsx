@@ -44,21 +44,21 @@ const SystemMonitoringTable = ({ data }) => {
                 <td className="py-[1.3em] px-[1.8em] font-semibold whitespace-nowrap flex items-center gap-4">
                   <div
                     className={`w-[1em] h-[1em] ${
-                      user.reason === "OK" ? "bg-green-600" : "bg-red-600 "
+                      user?.reason === "OK" ? "bg-green-600" : "bg-red-600 "
                     } rounded-full`}
                   ></div>{" "}
-                  {user.alert_log}
+                  {user?.alert_log}
                 </td>
                 <td
                   className={`py-[1.3em] px-[1.8em]  ${
-                    user.reason === "OK" ? "text-green-400" : "text-red-500"
+                    user?.reason === "OK" ? "text-green-400" : "text-red-500"
                   }`}
                 >
-                  {user.reason}
+                  {user?.reason}
                 </td>
 
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.duration}
+                  {user?.duration}
                 </td>
               </tr>
             ))}

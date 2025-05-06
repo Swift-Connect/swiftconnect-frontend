@@ -91,62 +91,62 @@ const CustomerSupportTable = ({
                   />
                 </td>
                 <td className="py-[1.3em] whitespace-nowrap px-[1.8em] font-semibold">
-                  {user.ticket_id}
+                  {user?.ticket_id}
                 </td>
                 <td className="py-[1.3em] whitespace-nowrap px-[1.8em] text-[#9CA3AF]">
-                  #{user.subject}
+                  #{user?.subject}
                 </td>
                 <td
                   className={`py-[1.3em] px-[1.8em]    ${
-                    user.priority === "Low"
+                    user?.priority === "Low"
                       ? " text-green-600"
-                      : user.priority === "Medium"
+                      : user?.priority === "Medium"
                       ? "  text-yellow-500"
-                      : user.priority === "High"
+                      : user?.priority === "High"
                       ? " text-red-600"
                       : ""
                   }`}
                 >
                   <div
                     className={`flex w-fit items-center justify-center gap-2 px-3 py-1 rounded-2xl ${
-                      user.priority === "Low"
+                      user?.priority === "Low"
                         ? "bg-green-100"
-                        : user.priority === "Medium"
+                        : user?.priority === "Medium"
                         ? "bg-yellow-100"
-                        : user.priority === "High"
+                        : user?.priority === "High"
                         ? "bg-red-100"
                         : ""
                     }`}
                   >
                     <div
                       className={`w-[.7em] h-[.7em] rounded-full   ${
-                        user.priority === "Low"
+                        user?.priority === "Low"
                           ? "bg-green-600  "
-                          : user.priority === "Medium"
+                          : user?.priority === "Medium"
                           ? "bg-yellow-500  "
-                          : user.priority === "High"
+                          : user?.priority === "High"
                           ? "bg-red-600 "
                           : ""
                       }`}
                     ></div>
-                    {user.priority}
+                    {user?.priority}
                   </div>
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.type}
+                  {user?.type}
                 </td>
                 <td className="py-[1.3em] whitespace-nowrap px-[1.8em] text-[#9CA3AF]">
-                  {user.requester}
+                  {user?.requester}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.customer_support}
+                  {user?.customer_support}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.req_date}
+                  {user?.req_date}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
                   <div className="w-[2em] h-[2em] bg-[#e2e3e6] rounded-full flex items-center justify-center">
-                    <Image src={"/" + user.platform} width={20} height={0} />
+                    <Image src={"/" + user?.platform} width={20} height={0} />
                   </div>
                 </td>
 

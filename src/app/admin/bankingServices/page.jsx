@@ -35,7 +35,7 @@ const BankingServices = () => {
 
   const getUserName = (userId) => {
     const user = users.find(u => u.id === userId);
-    return user ? user.username : "Unknown";
+    return user ? user?.username : "Unknown";
   };
 
   const filteredTransactions = transactions.map(tx => ({
@@ -52,8 +52,8 @@ const BankingServices = () => {
       <div className="pt-8 max-md-[400px]:hidden">
         <TableTabs
           header={""}
-          setActiveTab={setActiveTabTransactions}
-          activeTab={activeTabTransactions}
+          setActiveTab={setActiveTab}
+          activeTab={activeTab}
           tabs={["All Transactions", "Inactive", "Recently Deleted"]}
           from="bankingServices"
           filterOptions={[

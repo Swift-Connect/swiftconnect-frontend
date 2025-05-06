@@ -67,26 +67,26 @@ const DetailedMsgPerformance = ({ data, currentPage, itemsPerPage }) => {
                 onDoubleClick={() => setShowEdit(user)}
               >
                 <td className="py-[1.3em] px-[1.8em] font-semibold">
-                  {user.channel}
+                  {user?.channel}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  #{user.message_name}
+                  #{user?.message_name}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.open_rate}
+                  {user?.open_rate}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.recipients}
+                  {user?.recipients}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
                   <div
                     className={`rounded-full border items-center px-4 py-1 ${
-                      user.status === "Sent"
+                      user?.status === "Sent"
                         ? "text-green-700 bg-green-100  border-green-700"
                         : "text-red-700 bg-red-100  border-red-700"
                     }`}
                   >
-                    {user.status}
+                    {user?.status}
                   </div>
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">

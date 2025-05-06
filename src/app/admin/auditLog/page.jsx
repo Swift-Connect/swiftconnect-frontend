@@ -65,7 +65,7 @@ const AuditLog = () => {
         const user = users.find((u) => u.id === tx.user);
         return {
           id: tx.id,
-          user: user ? user.username : "System",
+          user: user ? user?.username : "System",
           product: getProductName(tx),
           amount: formatCurrency(tx.amount, tx.currency),
           date: new Date(tx.created_at).toLocaleDateString(),

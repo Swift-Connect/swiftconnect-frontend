@@ -81,10 +81,10 @@ const UsersTable = ({ data, currentPage, itemsPerPage, setShowEdit }) => {
                   />
                 </td>
                 <td className="py-[1.3em] px-[1.8em] font-semibold">
-                  {user.username}
+                  {user?.username}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  #{user.last_login}
+                  #{user?.last_login}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF] relative">  
                   <span
@@ -96,23 +96,23 @@ const UsersTable = ({ data, currentPage, itemsPerPage, setShowEdit }) => {
                   {activeRow === idx && <ActionPopUp optionList={["super admin", "support", "Finance"]} />}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.last_logout}
+                  {user?.last_logout}
                 </td>
                 <td className="py-[1.3em] px-[1.8em]">
                   <div
                     className={`py-1 text-center text-xs font-medium rounded-full ${
-                      user.status === "Active"
+                      user?.status === "Active"
                         ? "bg-green-100 text-green-600"
-                        : user.status === "Inactive"
+                        : user?.status === "Inactive"
                         ? "bg-red-100 text-red-600"
                         : ""
                     }`}
                   >
-                    {user.status}
+                    {user?.status}
                   </div>
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.last_upgraded}
+                  {user?.last_upgraded}
                 </td>
               </tr>
             ))}

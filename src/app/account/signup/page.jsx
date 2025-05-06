@@ -253,12 +253,12 @@ const SignupPage = () => {
     const loadingToast = toast.loading('Setting up your profile...')
 
     const user = JSON.parse(localStorage.getItem('user'));
-    const user_id = user.id;
+    const user_id = user?.id;
 
     const completeProfileData = {
       username,
       password,
-      email: user.email,
+      email: user?.email,
       referral_code: referralCode,
     };
 

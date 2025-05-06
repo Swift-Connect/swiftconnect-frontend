@@ -97,37 +97,37 @@ const UsersTable = ({
                   />
                 </td>
                 <td className="py-[1.3em] px-[1.8em] font-semibold">
-                  {user.username}
+                  {user?.username}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  #{user.id}
+                  #{user?.id}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.fullname}
+                  {user?.fullname}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.email}
+                  {user?.email}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.phone_number}
+                  {user?.phone_number}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.wallet_number}
+                  {user?.wallet_number}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.previous_balance}
+                  {user?.previous_balance}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.referrals}
+                  {user?.referrals}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.referral_bonus}
+                  {user?.referral_bonus}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.last_login}
+                  {user?.last_login}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.date_joined}
+                  {user?.date_joined}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#fff] relative">
                   <span

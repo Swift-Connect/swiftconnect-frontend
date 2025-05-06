@@ -62,7 +62,7 @@ const UsersTable = ({ userssData, currentPage, itemsPerPage, isLoading }) => {
           <tbody>
             {selectedData.map((user, idx) => (
               <tr
-                key={user.id}
+                key={user?.id}
                 className={`border-t ${
                   idx % 2 === 0 ? "bg-white" : "bg-gray-50"
                 }`}
@@ -75,26 +75,26 @@ const UsersTable = ({ userssData, currentPage, itemsPerPage, isLoading }) => {
                   />
                 </td>
                 <td className="py-[1.3em] px-[1.8em] font-semibold text-[#232323]">
-                  {user.username}
+                  {user?.username}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  #{user.account_id}
+                  #{user?.account_id}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {new Date(user.created_at).toLocaleDateString("en-GB")}
+                  {new Date(user?.created_at).toLocaleDateString("en-GB")}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#fff] relative">
                   <span
                     className={`${
-                      user.status === "Approved"
+                      user?.status === "Approved"
                         ? "bg-[#00613A] text-white"
-                        : user.status === "Processing"
+                        : user?.status === "Processing"
                         ? "bg-[#EEFBFD] text-[#219CAF] border-[#219CAF]"
                         : "bg-[#FDF4EE] text-[#ED7F31] border-[#ED7F3133]"
                     } border-[0.1px] rounded-3xl flex w-fit items-center justify-center gap-2 py-1 px-4 cursor-pointer`}
                     onClick={() => handleActionClick(idx)}
                   >
-                    {user.status} <FaChevronDown />
+                    {user?.status} <FaChevronDown />
                   </span>
                   {activeRow === idx && (
                     <ActionPopUp
@@ -103,7 +103,7 @@ const UsersTable = ({ userssData, currentPage, itemsPerPage, isLoading }) => {
                   )}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.api_response}
+                  {user?.api_response}
                 </td>
               </tr>
             ))}
