@@ -1,16 +1,74 @@
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import UsersTable from "./components/usersTable";
 import Pagination from "../components/pagination";
 import TableTabs from "../components/tableTabs";
 import UserForm from "./components/editUser";
 import { FaChevronRight } from "react-icons/fa";
+import { toast } from "react-toastify";
+import api from "@/utils/api";
 
 const UserManagement = () => {
   const [activeTabPending, setActiveTabPending] = React.useState("Active");
   const [showEdit, setShowEdit] = useState(false);
   const [editData, setEditData] = useState(null);
-  const usersData = [
+  const [usersData, setUserData] = useState([]);
+  const [isLoading, setIsLoading] = useState();
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      setIsLoading(true);
+      try {
+        const usersData = await fetchAllPages("/users/list-users/");
+        // Filter valid users
+        const validUsers = usersData.filter((user) => user.id);
+        console.log("Fetched users:", usersData);
+        console.log("Valid users:", validUsers);
+
+        // Process users to match table structure
+        const processedData = validUsers.map((user) => ({
+          id: user.id,
+          username: user.username,
+          account_id: user.account_id,
+          created_at: user.created_at,
+          api_response: user.api_response || "N/A",
+          status: user.status || "Not Approved", // Default to match action
+        }));
+        console.log("processed data from user managament", validUsers);
+
+        setUserData(validUsers);
+        // setCheckedItems(new Array(processedData.length).fill(false));
+      } catch (error) {
+        toast.error("Failed to fetch users. Please try again later.");
+        console.error("Fetch users error:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  const fetchAllPages = async (endpoint) => {
+    let allData = [];
+    let nextPage = endpoint;
+    while (nextPage) {
+      try {
+        const res = await api.get(nextPage);
+        allData = allData.concat(res.data.results || res.data);
+        nextPage = res.data.next || null;
+      } catch (error) {
+        toast.error(`Error fetching data from ${nextPage}`);
+        console.error(`Error fetching ${nextPage}:`, error);
+        break;
+      }
+    }
+    return allData;
+  };
+
+  console.log("user data from the endpoint", usersData);
+
+  const userssData = [
     {
       id: 1,
       username: "John Doe",
@@ -207,6 +265,7 @@ const UserManagement = () => {
                 currentPage={currentPage}
                 itemsPerPage={itemsPerPage}
                 setShowEdit={handleEditClick}
+                isLoading={isLoading}
               />
             </div>
             <Pagination

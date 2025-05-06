@@ -1,11 +1,13 @@
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 // import TrxManagementTable from "./components/TrxManagementTable";
 import Pagination from "../components/pagination";
 import TableTabs from "../components/tableTabs";
 import EditUserTrx from "./components/editUserTransaction";
 import { FaChevronRight } from "react-icons/fa";
 import TrxManagementTable from "./components/trxManagementTable";
+import { toast } from "react-toastify";
+import api from "@/utils/api";
 
 const TransactionManagement = () => {
   const [activeTabPending, setActiveTabPending] =
@@ -53,10 +55,140 @@ const TransactionManagement = () => {
     },
   ];
 
+  // const [activeTabPending, setActiveTabPending] = useState("Approve KYC");
+  const [activeTabTransactions, setActiveTabTransactions] =
+    useState("All Transactions");
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [allTransactionData, setAllTransaactionData] = useState([]);
+  const [transactionFilter, setTransactionFilter] = useState("All");
+  // Filtered transaction data based on the selected filter
+  console.log("Clicked Filtered Optiom", transactionFilter);
+
+  const filteredTransactionData = allTransactionData.filter((tx) => {
+    if (transactionFilter === "All") return true;
+    if (transactionFilter === "Success")
+      return tx.status.toLowerCase() === "completed";
+    return tx.status.toLowerCase() === transactionFilter.toLowerCase();
+  });
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      setIsLoading(true);
+      try {
+        // Fetch all transactions
+        const transactionEndpoints = [
+          "/payments/transactions/",
+          "/services/airtime-topups-transactions/",
+          "/services/data-plan-transactions/",
+          "/services/cable-recharges-transactions/",
+          "/services/education-transactions/",
+          "/services/electricity-transactions/",
+          "/services/bulk-sms-transactions/",
+        ];
+
+        const transactionPromises = transactionEndpoints.map(
+          async (endpoint) => {
+            try {
+              return await fetchAllPages(endpoint);
+            } catch (error) {
+              toast.error(`Error fetching ${endpoint}`);
+              console.error(`Error fetching ${endpoint}:`, error);
+              return [];
+            }
+          }
+        );
+
+        const transactionResults = await Promise.all(transactionPromises);
+        const allTransactions = transactionResults.flat();
+        console.log("Fetched transactions:", allTransactions);
+        // Filter valid transactions
+        const validTransactions = allTransactions.filter(
+          (tx) =>
+            tx.id &&
+            tx.amount &&
+            tx.created_at &&
+            tx.status &&
+            typeof tx.amount === "number" // Ensure amount is a number
+        );
+        console.log("Fetched transactions:", allTransactions);
+        console.log("Valid transactions:", validTransactions);
+
+        // Process transactions
+        const processedDataTrx = allTransactions.map((tx) => {
+          console.log("dsdsxsxs", tx);
+
+          // const user = validUsers.find((u) => u.id === tx.user);
+          // console.log("uddd", user);
+
+          return {
+            id: tx.id,
+            // user: user ? "user.username" : "System",
+            product: getProductName(tx),
+            amount: formatCurrency(tx.amount, tx.currency),
+            date: new Date(tx.created_at).toLocaleDateString("en-GB"),
+            status: tx.status ? capitalizeFirstLetter(tx.status) : "Completed",
+          };
+        });
+
+        setAllTransaactionData(processedDataTrx);
+      } catch (error) {
+        toast.error("Failed to fetch dashboard data. Please try again later.");
+        console.error("Fetch dashboard data error:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  const fetchAllPages = async (endpoint, maxPages = 50) => {
+    let allData = [];
+    let nextPage = endpoint;
+    let pageCount = 0;
+
+    try {
+      while (nextPage && pageCount < maxPages) {
+        const res = await api.get(nextPage);
+        allData = allData.concat(res.data.results || res.data);
+        nextPage = res.data.next || null;
+        pageCount++;
+      }
+
+      if (pageCount >= maxPages) {
+        console.warn(`Reached max page limit (${maxPages}) for ${endpoint}`);
+      }
+    } catch (error) {
+      toast.error(`Error fetching data from ${endpoint}`);
+      console.error(`Error fetching ${endpoint}:`, error);
+    }
+
+    return allData;
+  };
+
+  const formatCurrency = (amount, currency = "NGN") => {
+    return new Intl.NumberFormat("en-NG", {
+      style: "currency",
+      currency: currency,
+    }).format(amount);
+  };
+
+  const getProductName = (transaction) => {
+    if (transaction.reason) return transaction.reason;
+    if (transaction.network) return `${transaction.network} Airtime`;
+    if (transaction.cable_name) return `${transaction.cable_name} Cable`;
+    return "Service Transaction";
+  };
+
+  const capitalizeFirstLetter = (str) => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
+
   const editTrx = true;
   const itemsPerPage = 10;
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = Math.ceil(data.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredTransactionData.length / itemsPerPage);
   const [showEdit, setShowEdit] = useState(false);
   const [editData, setEditData] = useState(null);
 
@@ -64,7 +196,6 @@ const TransactionManagement = () => {
     setEditData(rowData);
     setShowEdit(true);
     console.log("shit");
-    
   };
 
   return (
@@ -95,10 +226,11 @@ const TransactionManagement = () => {
             />
             <div className="rounded-t-[1em] overflow-auto border border-gray-200 min-h-[50vh]">
               <TrxManagementTable
-                data={data}
+                data={filteredTransactionData}
                 currentPage={currentPage}
                 itemsPerPage={itemsPerPage}
-                setShowEdit={handleEditClick}
+                  setShowEdit={handleEditClick}
+                  isLoading={isLoading}
               />
             </div>
             <Pagination
