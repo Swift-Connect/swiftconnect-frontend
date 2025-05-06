@@ -79,15 +79,15 @@ export default function Referrals({ onBack }) {
             <tbody className="bg-white">
               {users.map((user, index) => (
                 <tr
-                  key={user.id}
+                  key={user?.id}
                   className="border-t hover:bg-gray-50  text-sm"
                 >
                   <td className="p-5 font-bold">{index + 1}.</td>
-                  <td className="p-5">{user.username}</td>
-                  <td className="p-5 text-[#9CA3AF]">{user.phone}</td>
-                  <td className="p-5 text-[#9CA3AF]">{user.email}</td>
-                  <td className="p-5 text-[#9CA3AF] ">{user.status}</td>
-                  <td className="p-5  text-[#9CA3AF]">{user.date}</td>
+                  <td className="p-5">{user?.username}</td>
+                  <td className="p-5 text-[#9CA3AF]">{user?.phone}</td>
+                  <td className="p-5 text-[#9CA3AF]">{user?.email}</td>
+                  <td className="p-5 text-[#9CA3AF] ">{user?.status}</td>
+                  <td className="p-5  text-[#9CA3AF]">{user?.date}</td>
                 </tr>
               ))}
             </tbody>

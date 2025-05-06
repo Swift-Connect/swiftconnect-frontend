@@ -35,7 +35,7 @@ const BankingServices = () => {
 
   const getUserName = (userId) => {
     const user = users.find(u => u.id === userId);
-    return user ? user.username : "Unknown";
+    return user ? user?.username : "Unknown";
   };
 
   const filteredTransactions = transactions.map(tx => ({

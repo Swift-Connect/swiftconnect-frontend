@@ -56,20 +56,20 @@ const Dashboard = () => {
         const usersData = await fetchAllPages("/users/list-users/");
         console.log("Fetched users:", usersData);
 
-        const validUsers = usersData.filter((user) => user.id);
+        const validUsers = usersData.filter((user) => user?.id);
         console.log("Fetched users:", usersData);
         console.log("Valid users:", validUsers);
 
         // Process users to match table structure
         const processedData = validUsers.map((user) => ({
-          id: user.id,
-          username: user.username,
-          account_id: user.account_id || "null",
-          created_at: user.created_at || "null",
-          api_response: user.api_response || "N/A",
-          status: user.status || "Not Approved", // Default to match action
+          id: user?.id,
+          username: user?.username,
+          account_id: user?.account_id || "null",
+          created_at: user?.created_at || "null",
+          api_response: user?.api_response || "N/A",
+          status: user?.status || "Not Approved", // Default to match action
         }));
-        console.log("nnnnnnnnnnnn", processedData);
+        console.log("data", processedData);
 
         setUserssData(processedData);
 
@@ -126,7 +126,7 @@ const Dashboard = () => {
 
           return {
             id: tx.id,
-            // user: user ? "user.username" : "System",
+            // user: user ? "user?.username" : "System",
             product: getProductName(tx),
             amount: formatCurrency(tx.amount, tx.currency),
             date: new Date(tx.created_at).toLocaleDateString("en-GB"),
@@ -146,7 +146,7 @@ const Dashboard = () => {
         );
         const totalUsers = usersData.length;
         const inactiveUsers = usersData.filter(
-          (user) => !user.email_verified && !user.phone_verified
+          (user) => !user?.email_verified && !user?.phone_verified
         ).length;
         const pendingKycUsers = pendingKycData.filter(
           (kyc) => !kyc.approved
@@ -245,7 +245,7 @@ const Dashboard = () => {
 
         // Process user breakdown
         const activeUsers = usersData.filter(
-          (user) => user.email_verified || user.phone_verified
+          (user) => user?.email_verified || user?.phone_verified
         ).length;
         const inactiveUsersCount = totalUsers - activeUsers;
         const userBreakdownData = [

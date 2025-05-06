@@ -90,10 +90,10 @@ const APIManagementTable = ({
                   />
                 </td>
                 <td className="py-[1.3em] px-[1.8em] font-semibold whitespace-nowrap">
-                  {user.key_name}
+                  {user?.key_name}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  #{user.api_key_masked}
+                  #{user?.api_key_masked}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#fff] relative">
                   <span
@@ -105,19 +105,19 @@ const APIManagementTable = ({
                   {activeRow === idx && <ActionPopUp />}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.created_on}
+                  {user?.created_on}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.last_used}
+                  {user?.last_used}
                 </td>
                 <td className="py-[1.3em] whitespace-nowrap px-[1.8em] text-[#9CA3AF]">
-                  {user.created_by}
+                  {user?.created_by}
                 </td>
                 <td className="py-[1.3em]  px-[1.8em] text-[#9CA3AF]">
-                  {user.revocation_date}
+                  {user?.revocation_date}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user.revoked_by}
+                  {user?.revoked_by}
                 </td>
 
                 <td className="py-[1.3em] px-[1.8em] text-[#fff] relative">

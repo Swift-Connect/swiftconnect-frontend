@@ -52,15 +52,15 @@ const Sidepane = () => {
           <div>
             <div className="flex items-center mt-4">
               <img
-                src={user.profileimage}
+                src={user?.profileimage}
                 alt="User Avatar"
                 className="w-12 h-12 rounded-full mr-3 border-2 border-gray-300"
                 onError={(e) => (e.target.src = '/path/to/default-avatar.jpg')} // Fallback
               />
               <div className="flex flex-col">
-                <span className="text-sm text-[#0E1318]">{user.username || '--'}</span>
+                <span className="text-sm text-[#0E1318]">{user?.username || '--'}</span>
                 <span className="text-xs text-[#9CA3AF]">
-                  {user.kyc_verified ? 'KYC Verified' : 'KYC Not Verified'}
+                  {user?.kyc_verified ? 'KYC Verified' : 'KYC Not Verified'}
                 </span>
               </div>
             </div>

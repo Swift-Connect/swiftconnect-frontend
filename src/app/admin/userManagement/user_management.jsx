@@ -21,18 +21,18 @@ const UserManagement = () => {
       try {
         const usersData = await fetchAllPages("/users/list-users/");
         // Filter valid users
-        const validUsers = usersData.filter((user) => user.id);
+        const validUsers = usersData.filter((user) => user?.id);
         console.log("Fetched users:", usersData);
         console.log("Valid users:", validUsers);
 
         // Process users to match table structure
         const processedData = validUsers.map((user) => ({
-          id: user.id,
-          username: user.username,
-          account_id: user.account_id,
-          created_at: user.created_at,
-          api_response: user.api_response || "N/A",
-          status: user.status || "Not Approved", // Default to match action
+          id: user?.id,
+          username: user?.username,
+          account_id: user?.account_id,
+          created_at: user?.created_at,
+          api_response: user?.api_response || "N/A",
+          status: user?.status || "Not Approved", // Default to match action
         }));
         console.log("processed data from user managament", validUsers);
 

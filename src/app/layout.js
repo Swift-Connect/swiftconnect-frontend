@@ -1,4 +1,4 @@
-import { Poppins } from "next/font/google";
+import {Poppins} from "next/font/google";
 import "./globals.css";
 // import Footer from "@/app/account/components/Footer";
 import Image from "next/image";
