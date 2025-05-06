@@ -12,7 +12,9 @@ const TableTabs = ({
   from,
   filterOptions,
   onPress,
+ 
   onFilterChange,
+ 
 }) => {
   const [showFilterOptions, setShowFilterOptions] = useState(false);
   return (
@@ -35,10 +37,9 @@ const TableTabs = ({
               </li>
             ))}
           </ul>
-          {from === "dashboard" ||
-          from === "VCM" ||
-          from == "SAMM" ||
-          from === "SMA" ? (
+ 
+          {from === "dashboard" || from === "VCM" || from == "SAMM" || from === "SMA" ? (
+ 
             ""
           ) : (
             <div className="flex  gap-3">
