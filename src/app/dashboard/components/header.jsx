@@ -9,7 +9,7 @@ export default function Header({ setHideSideMenu, user }) {
         className="max-md-[400px]:block hidden cursor-pointer"
       />
       <h1 className="text-[28px] text-[#101828] font-semibold max-md-[400px]:text-[14px]">
-        Welcome back, {user?.username}
+        Welcome back, {user.username}
       </h1>
       <div className="flex items-center gap-4 ">
         <div className="flex items-center  border rounded-md px-3 py-1 max-md-[400px]:hidden bg-[#D3F1CC33]">

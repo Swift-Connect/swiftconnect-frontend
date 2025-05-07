@@ -8,40 +8,57 @@ import PaystackSettings from "./components/paystackSettings";
 import MonnifySettings from "./components/monifySettings";
 import FlutterwaveSettings from "./components/flutterwaveSettings";
 import api from "@/utils/api";
+import ApiDetails from "./components/ApiDetails";
 // import AddNewNotification from "./components/addNewNotification";
 
 const SMAA = () => {
   const [card, setCard] = useState(null);
-  const handleCardClick = (cardType) => {
+  const [url, setUrl] = useState(null);
+  const handleCardClick = (cardType, url) => {
     setCard(cardType);
+    setUrl(url)
   };
 
-  const fetchAllPages = async (endpoint, maxPages = 50) => {
-    let allData = [];
-    // let nextPage = endpoint;
-    // let pageCount = 0;
+ const cardData = [
+   {
+     title: "Education API",
+     description: "Configure Paystack Api to your payment gateway",
+     image: "paystack.svg",
+     path: "education",
+   },
+   {
+     title: "Cable TV API",
+     description: "Configure Paystack Api to your payment gateway",
+     image: "paystack.svg",
+     path: "cable-recharges",
+   },
+   {
+     title: "Airtime API",
+     description: "Configure Paystack Api to your payment gateway",
+     image: "paystack.svg",
+     path: "airtime-topup",
+   },
+   {
+     title: "Bulk SMS API",
+     description: "Configure monnify Api to your payment gateway",
+     image: "airtime.svg",
+     path: "bult-sms",
+   },
+   {
+     title: "Electricity API",
+     description: "Configure monnify Api to your payment gateway",
+     image: "airtime.svg",
+     path: "bult-sms",
+   },
+   {
+     title: "Data Plans API",
+     description: "Configure monnify Api to your payment gateway",
+     image: "airtime.svg",
+     path: "bult-sms",
+   },
+   // Add more cards here if needed
+ ];
 
-    try {
-      // while (nextPage && pageCount < maxPages) {
-      const res = await api.get("/services/configure/cable-recharges/");
-      //   allData = allData.concat(res.data.results || res.data);
-      //   nextPage = res.data.next || null;
-      //   pageCount++;
-      // }
-      console.log("the dede", res);
-
-      // if (pageCount >= maxPages) {
-      //   console.warn(`Reached max page limit (${maxPages}) for ${endpoint}`);
-      // }
-    } catch (error) {
-      toast.error(`Error fetching data from ${endpoint}`);
-      console.error(`Error fetching ${endpoint}:`, error);
-    }
-
-    // return allData;
-  };
-
-  fetchAllPages();
 
   return (
     <div>
@@ -49,57 +66,34 @@ const SMAA = () => {
         <>
           <h1 className="text-[16px] font-bold">Service Management API</h1>
           <div className="grid grid-cols-2 gap-8">
-            <div
-              className="flex  gap-4 bg-white rounded-2xl p-4 shadow-md"
-              onClick={handleCardClick.bind(null, "paystack")}
-            >
-              <Image src={"paystack.svg"} width={100} height={40} />
-              <div className="flex flex-col gap-4   justify-between">
-                <h1 className="text-[24px] flex-col font-medium">
-                  Paystack API
-                </h1>
-                <p className="text-[#9CA3AF] text-[16px] w-[60%]">
-                  Configure Paystack Api to your payment gateway
-                </p>
+            {cardData.map((cardItem, index) => (
+              <div
+                key={index}
+                className="flex gap-4 bg-white rounded-2xl p-4 shadow-md cursor-pointer"
+                onClick={() => handleCardClick(cardItem.title, cardItem.path)}
+              >
+                <Image
+                  src={cardItem.image}
+                  width={100}
+                  height={40}
+                  alt={cardItem.title}
+                />
+                <div className="flex flex-col gap-4 justify-between">
+                  <h1 className="text-[24px] font-medium">{cardItem.title}</h1>
+                  <p className="text-[#9CA3AF] text-[16px] w-[60%]">
+                    {cardItem.description}
+                  </p>
+                </div>
               </div>
-            </div>
-            <div
-              className="flex  gap-4 bg-white rounded-2xl p-4 shadow-md"
-              onClick={handleCardClick.bind(null, "monnify")}
-            >
-              <Image src={"airtime.svg"} width={100} height={40} />
-              <div className="flex flex-col gap-4   justify-between">
-                <h1 className="text-[24px] flex-col font-medium">
-                  Monnify API
-                </h1>
-                <p className="text-[#9CA3AF] text-[16px] w-[60%]">
-                  Configure monnify Api to your payment gateway
-                </p>
-              </div>
-            </div>
-            <div
-              className="flex gap-4 items-center bg-white rounded-2xl p-4 shadow-md"
-              onClick={handleCardClick.bind(null, "flutterwave")}
-            >
-              <Image
-                src={"/flutterwave.png"}
-                width={100}
-                height={100}
-                className="w-[6em] h-[6em]"
-              />
-              <div className="flex flex-col gap-4   justify-between">
-                <h1 className="text-[24px] flex-col font-medium">
-                  Flutterwave API
-                </h1>
-                <p className="text-[#9CA3AF] text-[16px] w-[60%]">
-                  Configure flutterwave Api to your payment gateway
-                </p>
-              </div>
-            </div>
+            ))}
           </div>
         </>
-      )}{" "}
-      {card === "paystack" && (
+      )}
+      {card !== null && (
+        <ApiDetails title={card} setCard={setCard} path={url} />
+      )}
+
+      {/* {card === "paystack" && (
         <>
           <>
             <PaystackSettings setCard={setCard} />
@@ -115,7 +109,7 @@ const SMAA = () => {
         <>
           <FlutterwaveSettings setCard={setCard} />
         </>
-      )}
+      )} */}
     </div>
   );
 };

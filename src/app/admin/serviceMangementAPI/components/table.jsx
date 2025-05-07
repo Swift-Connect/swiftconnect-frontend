@@ -2,12 +2,7 @@ import { useState } from "react";
 import { FaChevronDown } from "react-icons/fa";
 import ActionPopUp from "../../components/actionPopUp";
 
-const Table = ({
-  data,
-  currentPage,
-  itemsPerPage,
-  setShowEdit,
-}) => {
+const Table = ({ data, currentPage, itemsPerPage, setShowEdit }) => {
   const columns = [
     "Product",
     "Transaction ID",
@@ -16,9 +11,10 @@ const Table = ({
     "Status",
     "API Response",
   ];
+  console.log("data from table", data);
 
   const [checkedItems, setCheckedItems] = useState(
-    new Array(data.length).fill(false)
+    new Array(data?.length).fill(false)
   );
   const [isAllChecked, setIsAllChecked] = useState(false);
   const [activeRow, setActiveRow] = useState(null);
@@ -46,9 +42,9 @@ const Table = ({
 
   return (
     <>
-      {data.length === 0 ? (
+      {data?.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
-          No Transactions yet
+          No Data Yet
         </div>
       ) : (
         <table className="w-full text-sm border-collapse">
@@ -61,24 +57,24 @@ const Table = ({
                   onChange={handleHeaderCheckboxChange}
                 />
               </th>
-              {columns.map((column, index) => (
+              {Object.keys(data[0]).map((key) => (
                 <th
-                  key={index}
+                  key={key}
                   className="py-[1.3em] px-[1.8em] whitespace-nowrap"
                 >
-                  {column}
+                  {key.toUpperCase()}
                 </th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {selectedData.map((transaction, idx) => (
+            {selectedData.map((item, idx) => (
               <tr
                 key={idx}
                 className={`border-t ${
                   idx % 2 === 0 ? "bg-white" : "bg-gray-50"
                 }`}
-                onDoubleClick={() => setShowEdit(transaction)}
+                onDoubleClick={() => setShowEdit(item)}
               >
                 <td className="py-[1.3em] px-[1.8em]">
                   <input
@@ -87,6 +83,7 @@ const Table = ({
                     onChange={() => handleCheckboxChange(startIndex + idx)}
                   />
                 </td>
+                {/*
                 <td className="py-[1.3em] px-[1.8em] font-semibold text-[#232323]">
                   {transaction.product}
                 </td>
@@ -120,10 +117,18 @@ const Table = ({
                   >
                     {transaction.status}
                   </div>
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
+                </td> */}
+                {Object.values(item).map((value, idx) => (
+                  <td
+                    key={idx}
+                    className="py-[1.3em] px-[1.8em] text-[#9CA3AF]"
+                  >
+                    {value}
+                  </td>
+                ))}
+                {/* <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
                   Dear Customer, You have successfully /01/2025.
-                </td>
+                </td> */}
               </tr>
             ))}
           </tbody>
