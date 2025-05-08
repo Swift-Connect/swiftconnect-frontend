@@ -2,7 +2,7 @@ import { useState } from "react";
 import { FaChevronDown } from "react-icons/fa";
 import ActionPopUp from "../../components/actionPopUp";
 
-const Table = ({ data, currentPage, itemsPerPage, setShowEdit }) => {
+const Table = ({ data, currentPage, itemsPerPage, setShowEdit, onDelete }) => {
   const columns = [
     "Product",
     "Transaction ID",
@@ -96,13 +96,13 @@ const Table = ({ data, currentPage, itemsPerPage, setShowEdit }) => {
 
                 <td className="py-[1.3em] px-[1.8em] flex gap-2">
                   <button
-                    // onClick={() => setShowEdit(item)}
+                    onClick={() => setShowEdit(item)}
                     className="text-blue-600 hover:underline"
                   >
                     Edit
                   </button>
                   <button
-                    // onClick={() => onDelete(item.id)}
+                    onClick={() => onDelete(item.id)}
                     className="text-red-600 hover:underline"
                   >
                     Delete

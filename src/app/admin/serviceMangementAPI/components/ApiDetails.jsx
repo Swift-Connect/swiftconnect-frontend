@@ -5,6 +5,7 @@ import Table from "./table";
 import Pagination from "../../components/pagination";
 import { toast } from "react-toastify";
 import api from "@/utils/api";
+import { deleteData } from "@/api";
 
 const ApiDetails = ({ title, setCard, path }) => {
   const [activeTabPending, setActiveTabPending] =
@@ -126,12 +127,11 @@ const ApiDetails = ({ title, setCard, path }) => {
 
   const itemsPerPage = 10;
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = Math.ceil(data?.plans?.length  / itemsPerPage);
+  const totalPages = Math.ceil(data?.plans?.length / itemsPerPage);
   const [showEdit, setShowEdit] = useState(false);
   const [editData, setEditData] = useState(null);
 
   console.log("from API details", totalPages);
-  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -158,6 +158,21 @@ const ApiDetails = ({ title, setCard, path }) => {
       console.error("Error:", err);
     }
   };
+
+  const onDelete = async (id) => {
+    console.log("Deleting item with ID:", id);
+
+    try {
+      const res = await api.delete(`/services/configure/${path}/${id}`);
+      toast.success("Plan deleted successfully!");
+      console.log("Delete success:", res);
+      setShowAddModal(false);
+    } catch (err) {
+      toast.error("Failed to delete plan.");
+      console.error("Delete error:", err);
+    }
+  };
+
 
   return (
     <div>
@@ -223,6 +238,7 @@ const ApiDetails = ({ title, setCard, path }) => {
             data={data?.plans || []}
             currentPage={currentPage}
             itemsPerPage={itemsPerPage}
+            onDelete={onDelete}
 
             //   setShowEdit={handleEditClick}
           />
