@@ -22,42 +22,44 @@ const SMAA = () => {
  const cardData = [
    {
      title: "Education API",
-     description: "Configure Paystack Api to your payment gateway",
+     description:
+       "Set up WAEC and NECO result verification and purchase services.",
      image: "paystack.svg",
      path: "education",
    },
    {
      title: "Cable TV API",
-     description: "Configure Paystack Api to your payment gateway",
+     description:
+       "Integrate and manage cable TV subscriptions like DSTV and GOTV.",
      image: "paystack.svg",
      path: "cable-recharges",
    },
    {
      title: "Airtime API",
-     description: "Configure Paystack Api to your payment gateway",
+     description: "Enable airtime top-up services across multiple networks.",
      image: "paystack.svg",
-     path: "airtime-topup",
+     path: "airtime-topups",
    },
    {
      title: "Bulk SMS API",
-     description: "Configure monnify Api to your payment gateway",
+     description: "Send bulk SMS notifications directly from your platform.",
      image: "airtime.svg",
-     path: "bult-sms",
+     path: "bulk-sms",
    },
    {
      title: "Electricity API",
-     description: "Configure monnify Api to your payment gateway",
+     description: "Provide electricity bill payments and meter recharges.",
      image: "airtime.svg",
-     path: "bult-sms",
+     path: "electricity",
    },
    {
      title: "Data Plans API",
-     description: "Configure monnify Api to your payment gateway",
+     description: "Offer data subscriptions for various mobile networks.",
      image: "airtime.svg",
-     path: "bult-sms",
+     path: "data-plans",
    },
-   // Add more cards here if needed
  ];
+
 
 
   return (

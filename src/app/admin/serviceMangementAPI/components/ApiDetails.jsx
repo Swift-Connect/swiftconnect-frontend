@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaChevronRight, FaPlus, FaTrashAlt } from "react-icons/fa";
 import TableTabs from "../../components/tableTabs";
 import Table from "./table";
@@ -6,88 +6,158 @@ import Pagination from "../../components/pagination";
 import { toast } from "react-toastify";
 import api from "@/utils/api";
 
-const ApiDetails = ({title, setCard, path}) => {
+const ApiDetails = ({ title, setCard, path }) => {
   const [activeTabPending, setActiveTabPending] =
-        React.useState("All Transaction");
-    
-    const [data, setData] = useState()
-     const fetchAllPages = async (endpoint, maxPages = 50) => {
-        let allData = [];
-        // let nextPage = endpoint;
-        // let pageCount = 0;
-    
-        try {
-          // while (nextPage && pageCount < maxPages) {
-          const res = await api.get(`/services/configure/${path}/`);
-          //   allData = allData.concat(res.data.results || res.data);
-          //   nextPage = res.data.next || null;
-          //   pageCount++;
-          // }
-            console.log("the dede", res.data[0].plans);
-            setData(res.data[0])
-    
-          // if (pageCount >= maxPages) {
-          //   console.warn(`Reached max page limit (${maxPages}) for ${endpoint}`);
-          // }
-        } catch (error) {
-          toast.error(`Error fetching data from ${endpoint}`);
-          console.error(`Error fetching ${endpoint}:`, error);
-        }
-    
-        // return allData;
-      };
-    
-    fetchAllPages();
-    console.log("the data",data);
-    
+    React.useState("All Transaction");
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newPlanData, setNewPlanData] = useState({ name: "", price: "" }); // adjust fields as needed
+  const [formData, setFormData] = useState({
+    url: "",
+    api_key: "",
+    status: "active",
+    request_template: "{}",
+    response_template: "{}",
+    plan_ids: "",
+    waec_price: "",
+    neco_price: "",
+  });
 
-  const dataa = [
-    {
-      id: 1,
-      user: "John Doe",
-      product: "Airtime",
-      amount: "50,000",
-      date: "2024-03-01",
-      status: "Completed",
-    },
-    {
-      id: 2,
-      user: "Jane Smith",
-      product: "Internet",
-      amount: "10,000",
-      date: "2024-03-02",
-      status: "Pending",
-    },
-    {
-      id: 3,
-      user: "Alice Johnson",
-      product: "Transfer",
-      amount: "20,000",
-      date: "2024-03-03",
-      status: "Failed",
-    },
-    {
-      id: 4,
-      user: "Bob Brown",
-      product: "Cable",
-      amount: "15,000",
-      date: "2024-03-04",
-      status: "Refunded",
-    },
-    {
-      id: 5,
-      user: "Charlie Davis",
-      product: "Electricity",
-      amount: "30,000",
-      date: "2024-03-05",
-      status: "Completed",
-    },
-  ];
+  const formFieldsByPath = {
+    "airtime-topups": [
+      "url",
+      "api_key",
+      "status",
+      "request_template",
+      "response_template",
+    ],
+    "bulk-sms": [
+      "url",
+      "api_key",
+      "status",
+      "request_template",
+      "response_template",
+    ],
+    "cable-recharges": ["url", "api_key", "status", "plan_ids"],
+    "data-plans": ["url", "api_key", "status", "plan_ids"],
+    education: [
+      "url",
+      "api_key",
+      "status",
+      "request_template",
+      "response_template",
+      "waec_price",
+      "neco_price",
+    ],
+    electricity: ["url", "api_key", "status"],
+  };
+
+  const renderFormFields = () => {
+    const fields = formFieldsByPath[path] || [];
+
+    return fields.map((field) => {
+      if (field === "status") {
+        return (
+          <select
+            key={field}
+            className="border p-2 rounded"
+            value={formData.status}
+            onChange={(e) =>
+              setFormData({ ...formData, status: e.target.value })
+            }
+          >
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        );
+      } else if (
+        field === "request_template" ||
+        field === "response_template"
+      ) {
+        return (
+          <textarea
+            key={field}
+            placeholder={`${field.replace("_", " ")} (JSON)`}
+            className="border p-2 rounded"
+            value={formData[field]}
+            onChange={(e) =>
+              setFormData({ ...formData, [field]: e.target.value })
+            }
+          />
+        );
+      } else {
+        return (
+          <input
+            key={field}
+            type="text"
+            placeholder={field.replace("_", " ").toUpperCase()}
+            className="border p-2 rounded"
+            value={formData[field]}
+            onChange={(e) =>
+              setFormData({ ...formData, [field]: e.target.value })
+            }
+          />
+        );
+      }
+    });
+  };
+
+  const [data, setData] = useState();
+  const fetchAllPages = async (endpoint, maxPages = 50) => {
+    let allData = [];
+
+    try {
+      const res = await api.get(`/services/configure/${path}/`);
+
+      console.log("the dede", res.data[0].plans);
+      setData(res.data[0]);
+    } catch (error) {
+      toast.error(`Error fetching data from ${endpoint}`);
+      console.error(`Error fetching ${endpoint}:`, error);
+    }
+
+    // return allData;
+  };
+
+  useEffect(() => {
+    fetchAllPages();
+  }, [formData]);
+
+  // console.log("the data", data);
+
   const itemsPerPage = 10;
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = Math.ceil(dataa.length / itemsPerPage);
+  const totalPages = Math.ceil(data?.plans?.length  / itemsPerPage);
   const [showEdit, setShowEdit] = useState(false);
   const [editData, setEditData] = useState(null);
+
+  console.log("from API details", totalPages);
+  
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const allowedFields = formFieldsByPath[path] || [];
+      const payload = {};
+
+      for (let field of allowedFields) {
+        if (field === "request_template" || field === "response_template") {
+          payload[field] = JSON.parse(formData[field] || "{}");
+        } else {
+          payload[field] = formData[field];
+        }
+      }
+
+      console.log("Submitting payload:", payload);
+
+      const res = await api.post(`/services/configure/${path}/`, payload);
+      toast.success("Plan added!");
+      console.log("Success:", res);
+      setShowAddModal(false);
+    } catch (err) {
+      toast.error("Failed to add plan");
+      console.error("Error:", err);
+    }
+  };
 
   return (
     <div>
@@ -121,45 +191,16 @@ const ApiDetails = ({title, setCard, path}) => {
                 </p>
               </div>
             </div>
-
-            {/* <div className="flex items-center gap-[2em]">
-              <label className="block text-[18px] font-medium text-gray-700 w-[150px]">
-                Wallet Topup Charges (In Percentage %)
-              </label>
-              <div className="flex flex-col gap-1">
-                <input
-                  type="text"
-                  value={1.5}
-                  className="w-full mt-1 p-4 border rounded-[0.8em] focus:outline-none focus:ring-2 focus:ring-gray-400"
-                  disabled
-                />
-                <p className="text-[14px] text-gray-500">
-                  Raw passwords are not stored, so there is no way to see this
-                  user’s password
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-[2em]">
-              <label className="block text-[18px] font-medium text-gray-700 w-[150px]">
-                Paystack Activation
-              </label>
-              <div className="flex flex-col gap-1">
-                <input
-                  type="text"
-                  value={"On"}
-                  className="w-full mt-1 p-4 border rounded-[0.8em] focus:outline-none focus:ring-2 focus:ring-gray-400"
-                  disabled
-                />
-                <p className="text-[14px] text-gray-500">
-                  Raw passwords are not stored, so there is no way to see this
-                  user’s password
-                </p>
-              </div>
-            </div> */}
           </div>
         </form>
       </div>
+      <button
+        className="bg-[#00613A] font-medium text-white px-4 py-2 rounded-lg flex items-center gap-2 mb-4"
+        onClick={() => setShowAddModal(true)}
+      >
+        Add Plan <FaPlus />
+      </button>
+
       {/* <div className="flex items-center gap-[3em] mb-8">
         <button className="bg-[#00613A] font-medium text-white px-4 py-2 rounded-lg flex items-center gap-2">
           Save <FaPlus />
@@ -188,10 +229,35 @@ const ApiDetails = ({title, setCard, path}) => {
         </div>
         <Pagination
           currentPage={currentPage}
-          totalPages={totalPages}
+          totalPages={totalPages || []}
           onPageChange={setCurrentPage}
         />
       </div>
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg w-[90%] max-w-md">
+            <h2 className="text-xl font-semibold mb-4">Add New Plan</h2>
+            <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+              {renderFormFields()}
+              <div className="flex justify-end gap-4">
+                <button
+                  type="button"
+                  onClick={() => setShowAddModal(false)}
+                  className="bg-gray-300 text-black px-4 py-2 rounded"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-[#00613A] text-white px-4 py-2 rounded"
+                >
+                  Submit
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

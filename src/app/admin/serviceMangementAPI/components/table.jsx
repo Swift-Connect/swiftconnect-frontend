@@ -11,7 +11,7 @@ const Table = ({ data, currentPage, itemsPerPage, setShowEdit }) => {
     "Status",
     "API Response",
   ];
-  console.log("data from table", data);
+  // console.log("data from table", data);
 
   const [checkedItems, setCheckedItems] = useState(
     new Array(data?.length).fill(false)
@@ -43,9 +43,7 @@ const Table = ({ data, currentPage, itemsPerPage, setShowEdit }) => {
   return (
     <>
       {data?.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
-          No Data Yet
-        </div>
+        <div className="text-center py-8 text-gray-500">No Data Yet</div>
       ) : (
         <table className="w-full text-sm border-collapse">
           <thead>
@@ -65,6 +63,9 @@ const Table = ({ data, currentPage, itemsPerPage, setShowEdit }) => {
                   {key.toUpperCase()}
                 </th>
               ))}
+              <th className="py-[1.3em] px-[1.8em] whitespace-nowrap">
+                ACTIONS
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -83,52 +84,30 @@ const Table = ({ data, currentPage, itemsPerPage, setShowEdit }) => {
                     onChange={() => handleCheckboxChange(startIndex + idx)}
                   />
                 </td>
-                {/*
-                <td className="py-[1.3em] px-[1.8em] font-semibold text-[#232323]">
-                  {transaction.product}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  #{transaction.id}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {new Date(transaction.date).toLocaleDateString("en-GB")}
-                </td>
-                <td
-                  className={`py-[1.3em] px-[1.8em] whitespace-nowrap font-medium text-${
-                    transaction.status === "Completed" ? "green" : "red"
-                  }-600`}
-                >
-                  {transaction.status === "Completed" ? "+" : "-"}₦
-                  {transaction.amount}
-                </td>
-                <td className="py-[1.3em] px-[1.8em]">
-                  <div
-                    className={`py-1 text-center text-xs font-medium rounded-full ${
-                      transaction.status === "Completed"
-                        ? "bg-green-100 text-green-600"
-                        : transaction.status === "Failed"
-                        ? "bg-red-100 text-red-600"
-                        : transaction.status === "Pending"
-                        ? "bg-yellow-100 text-yellow-600"
-                        : transaction.status === "Refunded"
-                        ? "bg-[#52525233] text-[#525252]"
-                        : ""
-                    }`}
-                  >
-                    {transaction.status}
-                  </div>
-                </td> */}
+
                 {Object.values(item).map((value, idx) => (
                   <td
                     key={idx}
-                    className="py-[1.3em] px-[1.8em] text-[#9CA3AF]"
+                    className="py-[1.3em] px-[1.8em] text-[#9CA3AF] whitespace-nowrap"
                   >
                     {value}
                   </td>
                 ))}
-                {/* <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  Dear Customer, You have successfully /01/2025.
-                </td> */}
+
+                <td className="py-[1.3em] px-[1.8em] flex gap-2">
+                  <button
+                    // onClick={() => setShowEdit(item)}
+                    className="text-blue-600 hover:underline"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    // onClick={() => onDelete(item.id)}
+                    className="text-red-600 hover:underline"
+                  >
+                    Delete
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
