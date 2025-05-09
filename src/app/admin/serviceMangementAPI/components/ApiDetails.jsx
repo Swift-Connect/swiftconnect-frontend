@@ -3,7 +3,7 @@ import { FaChevronRight, FaPlus, FaTrashAlt } from "react-icons/fa";
 import TableTabs from "../../components/tableTabs";
 import Table from "./table";
 import Pagination from "../../components/pagination";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import api from "@/utils/api";
 import { deleteData } from "@/api";
 
@@ -130,15 +130,11 @@ const ApiDetails = ({ title, setCard, path }) => {
   const totalPages = Math.ceil(data?.plans?.length / itemsPerPage);
   const [showEdit, setShowEdit] = useState(false);
   const [editData, setEditData] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
 
   console.log("from API details", totalPages);
 
-  const loadingToast = toast.loading("Logging in...");
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       const allowedFields = formFieldsByPath[path] || [];
       const payload = {};
@@ -165,36 +161,22 @@ const ApiDetails = ({ title, setCard, path }) => {
 
   const onDelete = async (id) => {
     console.log("Deleting item with ID:", id);
-    setIsLoading(true);
 
     try {
-      const res = await api.delete(`/services/configure/${path}/${id}/`);
+      const res = await api.delete(`/services/configure/${path}/${id}`);
       toast.success("Plan deleted successfully!");
       console.log("Delete success:", res);
-      toast.update(loadingToast, {
-        render: "Login successful!",
-        type: "success",
-        isLoading: false,
-        autoClose: 3000,
-      });
       setShowAddModal(false);
     } catch (err) {
-      toast.update(loadingToast, {
-        render: "Failed Deleting Data:" + errorMessage,
-        type: "error",
-        isLoading: false,
-        autoClose: 3000,
-      });
+      toast.error("Failed to delete plan.");
       console.error("Delete error:", err);
-    } finally {
-      setIsLoading(false);
     }
   };
+
 
   return (
     <div>
       <div className="flex items-center mb-8 justify-between">
-        <ToastContainer />
         <h1 className="text-[16px] font-semibold flex items-center gap-4">
           <span className="text-[#9CA3AF]" onClick={() => setCard(null)}>
             Service Management API
