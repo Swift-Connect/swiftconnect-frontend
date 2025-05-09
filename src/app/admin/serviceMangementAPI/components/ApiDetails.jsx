@@ -111,7 +111,7 @@ const ApiDetails = ({ title, setCard, path }) => {
     try {
       const res = await api.get(`/services/configure/${path}/`);
 
-      console.log("the dede", res.data[0].plans);
+      // console.log("the dede", res.data[0].plans);
       setData(res.data[0]);
     } catch (error) {
       toast.error(`Error fetching data from ${endpoint}`);
@@ -179,7 +179,23 @@ const ApiDetails = ({ title, setCard, path }) => {
 
     try {
       const res = await api.delete(`/services/configure/${path}/${id}/`);
-      toast.success("Plan deleted successfully!");
+      // toast.success("Plan deleted successfully!");
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.log(errorData);
+        const errorMessage = errorData.error || "Unknown error occurred";
+        setErrors({});
+        // Update loading toast to error
+        toast.update(loadingToast, {
+          render: "Login failed: " + errorMessage,
+          type: "error",
+          isLoading: false,
+          autoClose: 3000,
+        });
+        throw new Error("Login failed");
+      }
+
       console.log("Delete success:", res);
       toast.update(loadingToast, {
         render: "Login successful!",
@@ -187,10 +203,11 @@ const ApiDetails = ({ title, setCard, path }) => {
         isLoading: false,
         autoClose: 3000,
       });
-      setShowAddModal(false);
     } catch (err) {
+      console.log(err);
+
       toast.update(loadingToast, {
-        render: "Failed Deleting Data:" + err.detail,
+        render: "Failed Deleting Data:" + err?.response?.data?.detail,
         type: "error",
         isLoading: false,
         autoClose: 3000,
