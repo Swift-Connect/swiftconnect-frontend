@@ -150,9 +150,9 @@ export default function Sidebar({
               />
             </div>
             <div>
-              {" "}
+              
               <p className="text-sm font-bold text-[#525252]">
-                {user?.username}
+                {/* {user?.username} */}
               </p>
               <p className="text-xs text-gray-500">Agent | ₦{data?.balance}</p>
             </div>
