@@ -12,6 +12,8 @@ const ApiDetails = ({ title, setCard, path }) => {
     React.useState("All Transaction");
   const [showAddModal, setShowAddModal] = useState(false);
   const [newPlanData, setNewPlanData] = useState({ name: "", price: "" }); // adjust fields as needed
+  const [isLoading, setIsLoading] = useState(false);
+
   const [formData, setFormData] = useState({
     url: "",
     api_key: "",
@@ -130,15 +132,12 @@ const ApiDetails = ({ title, setCard, path }) => {
   const totalPages = Math.ceil(data?.plans?.length / itemsPerPage);
   const [showEdit, setShowEdit] = useState(false);
   const [editData, setEditData] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
 
   console.log("from API details", totalPages);
 
-  const loadingToast = toast.loading("Logging in...");
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    const loadingToast = toast.loading("Adding Plan...");
     try {
       const allowedFields = formFieldsByPath[path] || [];
       const payload = {};
@@ -154,16 +153,27 @@ const ApiDetails = ({ title, setCard, path }) => {
       console.log("Submitting payload:", payload);
 
       const res = await api.post(`/services/configure/${path}/`, payload);
-      toast.success("Plan added!");
+      toast.update(loadingToast, {
+        render: "Plan Added",
+        type: "success",
+        isLoading: false,
+        autoClose: 3000,
+      });
       console.log("Success:", res);
       setShowAddModal(false);
     } catch (err) {
-      toast.error("Failed to add plan");
+      toast.update(loadingToast, {
+        render: "Failed To add Plan:" + err,
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+      });
       console.error("Error:", err);
     }
   };
 
   const onDelete = async (id) => {
+    const loadingToast = toast.loading("Please wait while item deletes...");
     console.log("Deleting item with ID:", id);
     setIsLoading(true);
 
@@ -180,7 +190,7 @@ const ApiDetails = ({ title, setCard, path }) => {
       setShowAddModal(false);
     } catch (err) {
       toast.update(loadingToast, {
-        render: "Failed Deleting Data:" + errorMessage,
+        render: "Failed Deleting Data:" + err.detail,
         type: "error",
         isLoading: false,
         autoClose: 3000,
@@ -193,8 +203,8 @@ const ApiDetails = ({ title, setCard, path }) => {
 
   return (
     <div>
+      <ToastContainer />
       <div className="flex items-center mb-8 justify-between">
-        <ToastContainer />
         <h1 className="text-[16px] font-semibold flex items-center gap-4">
           <span className="text-[#9CA3AF]" onClick={() => setCard(null)}>
             Service Management API
