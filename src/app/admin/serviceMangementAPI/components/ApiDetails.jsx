@@ -6,6 +6,7 @@ import Pagination from "../../components/pagination";
 import { toast, ToastContainer } from "react-toastify";
 import api from "@/utils/api";
 import { deleteData } from "@/api";
+import EditForm from "./EditForm";
 
 const ApiDetails = ({ title, setCard, path }) => {
   const [activeTabPending, setActiveTabPending] =
@@ -13,6 +14,7 @@ const ApiDetails = ({ title, setCard, path }) => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [newPlanData, setNewPlanData] = useState({ name: "", price: "" }); // adjust fields as needed
   const [isLoading, setIsLoading] = useState(false);
+  const [editItem, setEditItem] = useState(null);
 
   const [formData, setFormData] = useState({
     url: "",
@@ -143,18 +145,17 @@ const ApiDetails = ({ title, setCard, path }) => {
       const payload = {};
 
       for (let field of allowedFields) {
-      if (field === "request_template" || field === "response_template") {
-        payload[field] = JSON.parse(formData[field] || "{}");
-      } else if (field === "plan_ids") {
-        // Convert comma-separated string to array
-        payload[field] = formData[field]
-          .split(",")
-          .map((id) => id.trim())
-          .filter((id) => id); // Remove empty strings
-      } else {
-        payload[field] = formData[field];
-      }
-
+        if (field === "request_template" || field === "response_template") {
+          payload[field] = JSON.parse(formData[field] || "{}");
+        } else if (field === "plan_ids") {
+          // Convert comma-separated string to array
+          payload[field] = formData[field]
+            .split(",")
+            .map((id) => id.trim())
+            .filter((id) => id); // Remove empty strings
+        } else {
+          payload[field] = formData[field];
+        }
       }
 
       console.log("Submitting payload:", payload);
@@ -205,7 +206,7 @@ const ApiDetails = ({ title, setCard, path }) => {
 
       console.log("Delete success:", res);
       toast.update(loadingToast, {
-        render: "Login successful!",
+        render: "Deleted successful!y",
         type: "success",
         isLoading: false,
         autoClose: 3000,
@@ -286,20 +287,29 @@ const ApiDetails = ({ title, setCard, path }) => {
           onPress={() => {}}
         /> */}
         <div className="rounded-t-[1em] overflow-auto border border-gray-200 min-h-[50vh]">
-          <Table
-            data={data?.plans || []}
-            currentPage={currentPage}
-            itemsPerPage={itemsPerPage}
-            onDelete={onDelete}
-
-            //   setShowEdit={handleEditClick}
-          />
+          {editItem ? (
+            <EditForm
+              item={editItem}
+              path={path}
+              onClose={() => setEditItem(null)}
+            />
+          ) : (
+            <>
+              <Table
+                data={data?.plans || []}
+                currentPage={currentPage}
+                itemsPerPage={itemsPerPage}
+                onDelete={onDelete}
+                setShowEdit={setEditItem}
+              />
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages || []}
+                onPageChange={setCurrentPage}
+              />
+            </>
+          )}
         </div>
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages || []}
-          onPageChange={setCurrentPage}
-        />
       </div>
       {showAddModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
