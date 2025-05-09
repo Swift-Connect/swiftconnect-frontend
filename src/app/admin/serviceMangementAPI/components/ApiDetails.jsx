@@ -143,11 +143,18 @@ const ApiDetails = ({ title, setCard, path }) => {
       const payload = {};
 
       for (let field of allowedFields) {
-        if (field === "request_template" || field === "response_template") {
-          payload[field] = JSON.parse(formData[field] || "{}");
-        } else {
-          payload[field] = formData[field];
-        }
+      if (field === "request_template" || field === "response_template") {
+        payload[field] = JSON.parse(formData[field] || "{}");
+      } else if (field === "plan_ids") {
+        // Convert comma-separated string to array
+        payload[field] = formData[field]
+          .split(",")
+          .map((id) => id.trim())
+          .filter((id) => id); // Remove empty strings
+      } else {
+        payload[field] = formData[field];
+      }
+
       }
 
       console.log("Submitting payload:", payload);
