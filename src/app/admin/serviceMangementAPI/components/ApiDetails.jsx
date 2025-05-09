@@ -196,7 +196,7 @@ const ApiDetails = ({ title, setCard, path }) => {
         setErrors({});
         // Update loading toast to error
         toast.update(loadingToast, {
-          render: "Login failed: " + errorMessage,
+          render: "failed: " + errorMessage,
           type: "error",
           isLoading: false,
           autoClose: 3000,
