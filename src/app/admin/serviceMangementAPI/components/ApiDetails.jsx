@@ -6,12 +6,16 @@ import Pagination from "../../components/pagination";
 import { toast, ToastContainer } from "react-toastify";
 import api from "@/utils/api";
 import { deleteData } from "@/api";
+import EditForm from "./EditForm";
 
 const ApiDetails = ({ title, setCard, path }) => {
   const [activeTabPending, setActiveTabPending] =
     React.useState("All Transaction");
   const [showAddModal, setShowAddModal] = useState(false);
   const [newPlanData, setNewPlanData] = useState({ name: "", price: "" }); // adjust fields as needed
+  const [isLoading, setIsLoading] = useState(false);
+  const [editItem, setEditItem] = useState(null);
+
   const [formData, setFormData] = useState({
     url: "",
     api_key: "",
@@ -109,7 +113,7 @@ const ApiDetails = ({ title, setCard, path }) => {
     try {
       const res = await api.get(`/services/configure/${path}/`);
 
-      console.log("the dede", res.data[0].plans);
+      // console.log("the dede", res.data[0].plans);
       setData(res.data[0]);
     } catch (error) {
       toast.error(`Error fetching data from ${endpoint}`);
@@ -130,15 +134,12 @@ const ApiDetails = ({ title, setCard, path }) => {
   const totalPages = Math.ceil(data?.plans?.length / itemsPerPage);
   const [showEdit, setShowEdit] = useState(false);
   const [editData, setEditData] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
 
   console.log("from API details", totalPages);
 
-  const loadingToast = toast.loading("Logging in...");
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    const loadingToast = toast.loading("Adding Plan...");
     try {
       const allowedFields = formFieldsByPath[path] || [];
       const payload = {};
@@ -146,6 +147,12 @@ const ApiDetails = ({ title, setCard, path }) => {
       for (let field of allowedFields) {
         if (field === "request_template" || field === "response_template") {
           payload[field] = JSON.parse(formData[field] || "{}");
+        } else if (field === "plan_ids") {
+          // Convert comma-separated string to array
+          payload[field] = formData[field]
+            .split(",")
+            .map((id) => id.trim())
+            .filter((id) => id); // Remove empty strings
         } else {
           payload[field] = formData[field];
         }
@@ -154,33 +161,61 @@ const ApiDetails = ({ title, setCard, path }) => {
       console.log("Submitting payload:", payload);
 
       const res = await api.post(`/services/configure/${path}/`, payload);
-      toast.success("Plan added!");
+      toast.update(loadingToast, {
+        render: "Plan Added",
+        type: "success",
+        isLoading: false,
+        autoClose: 3000,
+      });
       console.log("Success:", res);
       setShowAddModal(false);
     } catch (err) {
-      toast.error("Failed to add plan");
+      toast.update(loadingToast, {
+        render: "Failed To add Plan:" + err,
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+      });
       console.error("Error:", err);
     }
   };
 
   const onDelete = async (id) => {
+    const loadingToast = toast.loading("Please wait while item deletes...");
     console.log("Deleting item with ID:", id);
     setIsLoading(true);
 
     try {
       const res = await api.delete(`/services/configure/${path}/${id}/`);
-      toast.success("Plan deleted successfully!");
+      // toast.success("Plan deleted successfully!");
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.log(errorData);
+        const errorMessage = errorData.error || "Unknown error occurred";
+        setErrors({});
+        // Update loading toast to error
+        toast.update(loadingToast, {
+          render: "failed: " + errorMessage,
+          type: "error",
+          isLoading: false,
+          autoClose: 3000,
+        });
+        throw new Error("Login failed");
+      }
+
       console.log("Delete success:", res);
       toast.update(loadingToast, {
-        render: "Login successful!",
+        render: "Deleted successful!y",
         type: "success",
         isLoading: false,
         autoClose: 3000,
       });
-      setShowAddModal(false);
     } catch (err) {
+      console.log(err);
+
       toast.update(loadingToast, {
-        render: "Failed Deleting Data:" + errorMessage,
+        render: "Failed Deleting Data:" + err?.response?.data?.detail,
         type: "error",
         isLoading: false,
         autoClose: 3000,
@@ -193,8 +228,8 @@ const ApiDetails = ({ title, setCard, path }) => {
 
   return (
     <div>
+      <ToastContainer />
       <div className="flex items-center mb-8 justify-between">
-        <ToastContainer />
         <h1 className="text-[16px] font-semibold flex items-center gap-4">
           <span className="text-[#9CA3AF]" onClick={() => setCard(null)}>
             Service Management API
@@ -252,20 +287,29 @@ const ApiDetails = ({ title, setCard, path }) => {
           onPress={() => {}}
         /> */}
         <div className="rounded-t-[1em] overflow-auto border border-gray-200 min-h-[50vh]">
-          <Table
-            data={data?.plans || []}
-            currentPage={currentPage}
-            itemsPerPage={itemsPerPage}
-            onDelete={onDelete}
-
-            //   setShowEdit={handleEditClick}
-          />
+          {editItem ? (
+            <EditForm
+              item={editItem}
+              path={path}
+              onClose={() => setEditItem(null)}
+            />
+          ) : (
+            <>
+              <Table
+                data={data?.plans || []}
+                currentPage={currentPage}
+                itemsPerPage={itemsPerPage}
+                onDelete={onDelete}
+                setShowEdit={setEditItem}
+              />
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages || []}
+                onPageChange={setCurrentPage}
+              />
+            </>
+          )}
         </div>
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages || []}
-          onPageChange={setCurrentPage}
-        />
       </div>
       {showAddModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
