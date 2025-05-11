@@ -29,10 +29,9 @@ const AdminPage = () => {
   let user = null;
 
  
-  
-  if (typeof window != "undefined") {
-    const userString = localStorage.getItem('user');
- 
+  if (typeof window !== "undefined") {
+    const userString = localStorage.getItem("user");
+
     if (userString) {
       user = JSON.parse(userString);
     }
