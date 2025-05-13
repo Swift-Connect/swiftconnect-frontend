@@ -15,8 +15,8 @@ export default function SendToOtherBanksModalSecondStep({
   const [narration, setNarration] = useState("");
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white w-[45%] rounded-xl shadow-lg p-6 max-md-[400px]:w-full">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" onClick={onClose}>
+      <div className="bg-white w-[45%] rounded-xl shadow-lg p-6 max-md-[400px]:w-full" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="flex items-center gap-10 px-4 py-3 border-b ">
           <button
