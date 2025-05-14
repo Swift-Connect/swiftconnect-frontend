@@ -115,7 +115,7 @@ export default function SendToOtherBanksModal({
         {/* Content */}
         <div className="px-6 py-4 space-y-4">
           {/* Payment Channel Dropdown */}
-          <div>
+          {/* <div>
             <label
               htmlFor="payment-channel"
               className="block text-sm font-medium text-gray-700"
@@ -136,7 +136,7 @@ export default function SendToOtherBanksModal({
               <option value="monify">Monify</option>
               <option value="paystack">Paystack</option>
             </select>
-          </div>
+          </div> */}
 
           {/* Bank Search Input */}
           <div className="relative">
