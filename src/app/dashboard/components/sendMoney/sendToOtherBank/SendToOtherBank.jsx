@@ -83,8 +83,8 @@ export default function SendToOtherBanksModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white w-[45%] rounded-xl shadow-lg p-6 max-md-[400px]:w-full max-md-[400px]:p-2">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" onClick={onClose}>
+      <div className="bg-white w-[45%] rounded-xl shadow-lg p-6 max-md-[400px]:w-full max-md-[400px]:p-2" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="flex items-center gap-10 px-4 py-3 border-b">
           <button
@@ -115,7 +115,7 @@ export default function SendToOtherBanksModal({
         {/* Content */}
         <div className="px-6 py-4 space-y-4">
           {/* Payment Channel Dropdown */}
-          <div>
+          {/* <div>
             <label
               htmlFor="payment-channel"
               className="block text-sm font-medium text-gray-700"
@@ -136,7 +136,7 @@ export default function SendToOtherBanksModal({
               <option value="monify">Monify</option>
               <option value="paystack">Paystack</option>
             </select>
-          </div>
+          </div> */}
 
           {/* Bank Search Input */}
           <div className="relative">

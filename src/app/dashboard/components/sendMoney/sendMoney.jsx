@@ -5,8 +5,8 @@ const SendMoneyModal = ({ isOpen, onClose, onNext, setView, setIsInternal }) => 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white rounded-xl shadow-lg p-6 max-md-[400px]:p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" onClick={onClose}>
+      <div className="bg-white rounded-xl shadow-lg p-6 max-md-[400px]:p-4" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="flex items-center justify-between border-b pb-4 ">
           <h2 className="text-lg font-bold text-gray-800">Send Money</h2>
