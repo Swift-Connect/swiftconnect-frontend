@@ -4,7 +4,14 @@ import { toast } from "react-toastify";
 import api from "@/utils/api";
 import ActionPopUp from "../../components/actionPopUp";
 
-const UsersTable = ({ userssData, currentPage, itemsPerPage, isLoading }) => {
+const UsersTable = ({
+  userssData,
+  currentPage,
+  itemsPerPage,
+  isLoading,
+  actionItem,
+  setActionItem,
+}) => {
   const [data, setData] = useState([]);
   const [checkedItems, setCheckedItems] = useState([]);
   const [isAllChecked, setIsAllChecked] = useState(false);
@@ -99,6 +106,8 @@ const UsersTable = ({ userssData, currentPage, itemsPerPage, isLoading }) => {
                   {activeRow === idx && (
                     <ActionPopUp
                       optionList={["Approved", "Not Approved", "Processing"]}
+                      setActionItem={setActionItem}
+                      onClose={()=>setActiveRow(null)}
                     />
                   )}
                 </td>
