@@ -21,6 +21,7 @@ import TransactionsTable from "./components/TransactionsTable";
 import TableTabs from "../components/tableTabs";
 import Card from "../components/card";
 import Pagination from "../components/pagination";
+import { STATIC_STATUS_PAGE_GET_INITIAL_PROPS_ERROR } from "next/dist/lib/constants";
 
 const COLORS = ["#1D4ED8", "#60A5FA"];
 
@@ -36,8 +37,10 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [allTransactionData, setAllTransaactionData] = useState([]);
   const [transactionFilter, setTransactionFilter] = useState("All");
+  const [actionItem, setActionItem] = useState(null);
   // Filtered transaction data based on the selected filter
   console.log("Clicked Filtered Optiom", transactionFilter);
+  console.log("Clicked Action PopUP", actionItem);
 
   const filteredTransactionData = allTransactionData.filter((tx) => {
     if (transactionFilter === "All") return true;
@@ -45,8 +48,6 @@ const Dashboard = () => {
       return tx.status.toLowerCase() === "completed";
     return tx.status.toLowerCase() === transactionFilter.toLowerCase();
   });
-
- 
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -289,6 +290,16 @@ const Dashboard = () => {
     return allData;
   };
 
+useEffect(()=>{  const ApproveKYC = async () => {
+  try {
+    const res = await api.put("");
+
+    console.log("KYC aproval  response", res);
+  } catch (err) {
+    console.log(err);
+  }
+};},[])
+
   const formatCurrency = (amount, currency = "NGN") => {
     return new Intl.NumberFormat("en-NG", {
       style: "currency",
@@ -314,9 +325,9 @@ const Dashboard = () => {
   const [currentPageTrx, setCurrentPageTrx] = useState(1);
   const totalPages = Math.ceil(userssData.length / itemsPerPage);
 
-   useEffect(() => {
-     setCurrentPageTrx(1);
-   }, [transactionFilter]);
+  useEffect(() => {
+    setCurrentPageTrx(1);
+  }, [transactionFilter]);
 
   return (
     <div className="overflow-hidden">
@@ -487,6 +498,8 @@ const Dashboard = () => {
             currentPage={currentPage}
             itemsPerPage={itemsPerPage}
             isLoading={isLoading}
+            actionItem={actionItem}
+            setActionItem={setActionItem}
           />
         </div>
       </div>
