@@ -1,15 +1,45 @@
+import api from "@/utils/api";
 import React from "react";
-const ActionPopUp = ({ optionList, setActionItem, onClose }) => {
+import { toast, ToastContainer } from "react-toastify";
+const ActionPopUp = ({ optionList, setActionItem, onClose, userId }) => {
+  console.log("the user Id", userId);
+
+  const ApproveKYC = async (item) => {
+    setActionItem(item);
+    const loadingToast = toast.loading("Processing Request...");
+    try {
+      const res = await api.put(`/users/kyc/approve/${userId}/`, {
+        approved: item === "Approved" ? true : false,
+      });
+      toast.update(loadingToast, {
+        render: "KYC Approved",
+        type: "success",
+        isLoading: false,
+        autoClose: 3000,
+      });
+      console.log("KYC aproval  response", res);
+      onClose();
+    } catch (err) {
+      console.log("the error",err);
+      toast.update(loadingToast, {
+        render: `Fetch error: ${err.response.data.details}`,
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+      });
+      onClose();
+
+    }
+  };
+
   return (
-    <div className="bg-white z-10 text-black shadow-md rounded-2xl absolute top-[80%] right-[-10%]">
+    <div className="bg-white  z-30 text-black shadow-md rounded-2xl absolute top-[80%] right-[-10%]">
+     
       <ul className="flex flex-col items-center">
         {optionList?.map((item) => (
           <li
             className="border-b w-full text-center px-[4em] py-4 hover:bg-gray-200 cursor-pointer"
-            onClick={() => {
-              setActionItem(item);
-              onClose();
-            }}
+            onClick={() => ApproveKYC(item)}
           >
             {item}
           </li>
@@ -20,13 +50,3 @@ const ActionPopUp = ({ optionList, setActionItem, onClose }) => {
 };
 
 export default ActionPopUp;
-
-//  <li className="border-b w-full text-center px-[4em] py-4 hover:bg-gray-200 cursor-pointer">
-//           Approved
-//         </li>
-//         <li className="border-b w-full text-center px-[4em] py-4 hover:bg-gray-200 cursor-pointer">
-//           Not Approved
-//         </li>
-//         <li className="w-full text-center px-[4em] py-4 hover:bg-gray-200 cursor-pointer">
-//           Processing
-//         </li>

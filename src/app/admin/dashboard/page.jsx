@@ -38,9 +38,10 @@ const Dashboard = () => {
   const [allTransactionData, setAllTransaactionData] = useState([]);
   const [transactionFilter, setTransactionFilter] = useState("All");
   const [actionItem, setActionItem] = useState(null);
+  const [usersKYCPendingData, setUsersKYCPendingData] = useState([]);
   // Filtered transaction data based on the selected filter
-  console.log("Clicked Filtered Optiom", transactionFilter);
-  console.log("Clicked Action PopUP", actionItem);
+  // console.log("Clicked Filtered Optiom", transactionFilter);
+  // console.log("Clicked Action PopUP", actionItem);
 
   const filteredTransactionData = allTransactionData.filter((tx) => {
     if (transactionFilter === "All") return true;
@@ -55,11 +56,11 @@ const Dashboard = () => {
       try {
         // Fetch users
         const usersData = await fetchAllPages("/users/list-users/");
-        console.log("Fetched users:", usersData);
+        // console.log("Fetched users:", usersData);
 
         const validUsers = usersData.filter((user) => user?.id);
-        console.log("Fetched users:", usersData);
-        console.log("Valid users:", validUsers);
+        // console.log("Fetched users:", usersData);
+        // console.log("Valid users:", validUsers);
 
         // Process users to match table structure
         const processedData = validUsers.map((user) => ({
@@ -79,6 +80,23 @@ const Dashboard = () => {
           "/users/pending-kyc-requests/"
         );
         console.log("Fetched pending KYC:", pendingKycData);
+
+        const processedUserKYCData = pendingKycData.map((item) =>
+          // console.log(item.user)
+
+          ({
+            id: item?.id,
+            username: item?.user?.fullname,
+            account_id: item?.user?.id || "null",
+            created_at: item?.user?.created_at || "null",
+            api_response: item?.user?.api_response || "N/A",
+            status: item?.approved ? "Approved" : "Not Approved", // Default to match action
+          })
+        );
+
+        console.log("data for KYC", processedUserKYCData);
+
+        setUsersKYCPendingData(processedUserKYCData);
 
         // Fetch all transactions
         const transactionEndpoints = [
@@ -115,12 +133,12 @@ const Dashboard = () => {
             tx.status &&
             typeof tx.amount === "number" // Ensure amount is a number
         );
-        console.log("Fetched transactions:", allTransactions);
-        console.log("Valid transactions:", validTransactions);
+        // console.log("Fetched transactions:", allTransactions);
+        // console.log("Valid transactions:", validTransactions);
 
         // Process transactions
         const processedDataTrx = allTransactions.map((tx) => {
-          console.log("dsdsxsxs", tx);
+          // console.log("dsdsxsxs", tx);
 
           // const user = validUsers.find((u) => u.id === tx.user);
           // console.log("uddd", user);
@@ -229,7 +247,7 @@ const Dashboard = () => {
 
           return { name, transactions, utility, agents };
         });
-        console.log("Processed income data:", incomeData);
+        // console.log("Processed income data:", incomeData);
         setIncomeData(incomeData);
 
         // Process traffic data (hourly transaction count)
@@ -241,7 +259,7 @@ const Dashboard = () => {
           }).length;
           return { name: hour, visitors: transactionsInHour * 100 }; // Scale for visualization
         }).filter((_, i) => i % 4 === 0); // Sample every 4 hours
-        console.log("Processed traffic data:", trafficData);
+        // console.log("Processed traffic data:", trafficData);
         setTrafficData(trafficData);
 
         // Process user breakdown
@@ -253,7 +271,7 @@ const Dashboard = () => {
           { name: "Active User", value: activeUsers },
           { name: "Inactive User", value: inactiveUsersCount },
         ];
-        console.log("Processed user breakdown:", userBreakdownData);
+        // console.log("Processed user breakdown:", userBreakdownData);
         setUserData(userBreakdownData);
       } catch (error) {
         toast.error("Failed to fetch dashboard data. Please try again later.");
@@ -290,16 +308,6 @@ const Dashboard = () => {
     return allData;
   };
 
-useEffect(()=>{  const ApproveKYC = async () => {
-  try {
-    const res = await api.put("");
-
-    console.log("KYC aproval  response", res);
-  } catch (err) {
-    console.log(err);
-  }
-};},[])
-
   const formatCurrency = (amount, currency = "NGN") => {
     return new Intl.NumberFormat("en-NG", {
       style: "currency",
@@ -318,12 +326,12 @@ useEffect(()=>{  const ApproveKYC = async () => {
     return str.charAt(0).toUpperCase() + str.slice(1);
   };
 
-  console.log("the users data", userssData);
+  // console.log("the users data", userssData);
 
   const itemsPerPage = 10;
   const [currentPage, setCurrentPage] = useState(1);
   const [currentPageTrx, setCurrentPageTrx] = useState(1);
-  const totalPages = Math.ceil(userssData.length / itemsPerPage);
+  const totalPages = Math.ceil(usersKYCPendingData.length / itemsPerPage);
 
   useEffect(() => {
     setCurrentPageTrx(1);
@@ -492,9 +500,9 @@ useEffect(()=>{  const ApproveKYC = async () => {
           //   { label: "9mobile", value: "9mobile" },
           // ]}
         />
-        <div className="rounded-t-[1em] overflow-hidden border border-gray-200">
+        <div className="rounded-t-[1em] overflow-hidde border border-gray-200 ">
           <UsersTable
-            userssData={userssData}
+            userssData={usersKYCPendingData}
             currentPage={currentPage}
             itemsPerPage={itemsPerPage}
             isLoading={isLoading}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FaChevronDown } from "react-icons/fa";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import api from "@/utils/api";
 import ActionPopUp from "../../components/actionPopUp";
 
@@ -16,6 +16,7 @@ const UsersTable = ({
   const [checkedItems, setCheckedItems] = useState([]);
   const [isAllChecked, setIsAllChecked] = useState(false);
   const [activeRow, setActiveRow] = useState(null);
+  const [kycMsg, setKycMsg] = useState(true);
 
   const columns = ["Username", "Account Id", "Date", "Action", "API Response"];
 
@@ -39,6 +40,8 @@ const UsersTable = ({
   const startIndex = (currentPage - 1) * itemsPerPage;
   const selectedData = userssData.slice(startIndex, startIndex + itemsPerPage);
 
+  console.log("From users Table", userssData);
+
   return (
     <>
       {isLoading ? (
@@ -47,6 +50,7 @@ const UsersTable = ({
         <div className="text-center py-8 text-gray-500">No Users found</div>
       ) : (
         <table className="w-full text-sm border-collapse">
+          <ToastContainer />
           <thead>
             <tr className="bg-[#F9F8FA] text-left text-[#525252]">
               <th className="py-[1.3em] px-[1.8em] font-semibold text-[#232323]">
@@ -107,7 +111,9 @@ const UsersTable = ({
                     <ActionPopUp
                       optionList={["Approved", "Not Approved", "Processing"]}
                       setActionItem={setActionItem}
-                      onClose={()=>setActiveRow(null)}
+                      onClose={() => setActiveRow(null)}
+                      userId={user?.id}
+                      setKycMsg={setKycMsg}
                     />
                   )}
                 </td>
