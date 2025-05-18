@@ -231,7 +231,7 @@ const ApiDetails = ({ title, setCard, path }) => {
       <ToastContainer />
       <div className="flex items-center mb-8 justify-between">
         <h1 className="text-[16px] font-semibold flex items-center gap-4">
-          <span className="text-[#9CA3AF]" onClick={() => setCard(null)}>
+          <span className="text-[#9CA3AF] hover:cursor-pointer hover:underline hover:text-black" onClick={() => setCard(null)}>
             Service Management API
           </span>
           <FaChevronRight /> {title} Settings

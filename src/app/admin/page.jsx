@@ -73,12 +73,12 @@ const AdminPage = () => {
         );
       case "Service Management API":
         return (
-          // <SMAA />
-          <SMA setActiveSidebar={setActiveSidebar} data={data} user={user} />
-        );
-      case "Payment Gateway Integration":
-        return (
           <SMAA />
+          // <SMAA />
+        );
+        case "Payment Gateway Integration":
+          return (
+            <SMA setActiveSidebar={setActiveSidebar} data={data} user={user} />
           // <SMA setActiveSidebar={setActiveSidebar} data={data} user={user} />
         );
       case "Banking Services":

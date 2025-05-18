@@ -12,7 +12,7 @@ const ActionPopUp = ({ optionList, setActionItem, onClose, userId }) => {
         approved: item === "Approved" ? true : false,
       });
       toast.update(loadingToast, {
-        render: "KYC Approved",
+        render: "KYC Request Submitted",
         type: "success",
         isLoading: false,
         autoClose: 3000,

@@ -90,6 +90,7 @@ const Dashboard = ({ setActiveSidebar, data, user }) => {
           <AgentKycComponent
             kycVerified={user?.kyc_verified}
             setActiveSidebar={setActiveSidebar}
+            
           />
           {/* <MobileTransaction /> */}
           <TransactionsTable />

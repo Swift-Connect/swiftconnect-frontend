@@ -10,12 +10,29 @@ const TransactionsTable = ({
   currentPage,
   itemsPerPage,
   isLoading,
+  activeTabTransactions,
 }) => {
   // const [data, setData] = useState([]);
   const [users, setUsers] = useState([]);
   // const [isLoading, setIsLoading] = useState(true);
   const [checkedItems, setCheckedItems] = useState([]);
   const [isAllChecked, setIsAllChecked] = useState(false);
+  // console.log("dddd", data);
+
+  const dataWithType = data.map((transaction) => ({
+    ...transaction,
+    transaction_type: ["Wallet funding"].includes(transaction.product)
+      ? "credit"
+      : "debit",
+  }));
+
+  const filteredTransactions =
+    activeTabTransactions === "All Transactions"
+      ? dataWithType
+      : dataWithType.filter(
+          (transaction) =>
+            transaction.transaction_type === activeTabTransactions.toLowerCase()
+        );
 
   const columns = [
     "Product",
@@ -145,7 +162,10 @@ const TransactionsTable = ({
   // };
 
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const selectedData = data.slice(startIndex, startIndex + itemsPerPage);
+  const selectedData = filteredTransactions.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
 
   return (
     <>
@@ -205,7 +225,11 @@ const TransactionsTable = ({
                 </td>
                 <td
                   className={`py-[1.3em] px-[1.8em] font-medium text-${
-                    transaction.status === "Completed" ? "green" : "red"
+                    transaction.status === "Completed"
+                      ? "green"
+                      : transaction.status == "Pending"
+                      ? "yellow"
+                      : "red"
                   }-600`}
                 >
                   {transaction.status === "Completed" ? "+" : "-"}

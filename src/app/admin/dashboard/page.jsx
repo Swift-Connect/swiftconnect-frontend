@@ -491,7 +491,7 @@ const Dashboard = () => {
           header={"Pending Tasks"}
           setActiveTab={setActiveTabPending}
           activeTab={activeTabPending}
-          tabs={["Approve KYC", "Approve Withdrawal", "Transaction"]}
+          tabs={["Approve KYC", "Approve Withdrawal"]}
           from="dashboard"
           // filterOptions={[
           //   { label: "MTN", value: "MTN" },
@@ -537,6 +537,7 @@ const Dashboard = () => {
             currentPage={currentPageTrx}
             itemsPerPage={itemsPerPage}
             isLoading={isLoading}
+            activeTabTransactions={activeTabTransactions}
           />
         </div>
         <Pagination
