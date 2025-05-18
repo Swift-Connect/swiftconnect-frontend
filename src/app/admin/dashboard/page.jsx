@@ -537,6 +537,7 @@ const Dashboard = () => {
             currentPage={currentPageTrx}
             itemsPerPage={itemsPerPage}
             isLoading={isLoading}
+            activeTabTransactions={activeTabTransactions}
           />
         </div>
         <Pagination

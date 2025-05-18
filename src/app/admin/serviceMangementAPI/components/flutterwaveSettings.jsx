@@ -60,7 +60,7 @@ const FlutterwaveSettings = ({ setCard }) => {
     <div>
       <div className="flex items-center mb-8 justify-between">
         <h1 className="text-[16px] font-semibold flex items-center gap-4">
-          <span className="text-[#9CA3AF]" onClick={() => setCard(null)}>
+          <span className="text-[#9CA3AF] " onClick={() => setCard(null)}>
             Service Management API
           </span>
           <FaChevronRight /> Flutterwave Settings
