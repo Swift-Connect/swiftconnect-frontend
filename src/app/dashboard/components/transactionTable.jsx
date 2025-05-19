@@ -4,13 +4,15 @@ import Pagination from "@/app/admin/components/pagination";
 import axiosInstance from "../../../utils/axiosInstance";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
+import ViewTransactionModal from "@/app/admin/components/viewTransactionModal";
 
 const TransactionsTable = () => {
   const [activeTransactionTab, setActiveTransactionTab] = useState("all");
   const [transactions, setTransactions] = useState([]);
   const itemsPerPage = 5;
   const [currentPage, setCurrentPage] = useState(1);
-
+  const [viewTransaction, setViewTransaction] = useState(null);
+  
   const fetchData = async () => {
     try {
       const response = await axiosInstance.get("/payments/transactions/");
@@ -188,7 +190,10 @@ const TransactionsTable = () => {
                       </div>
                     </td>
                     <td className="py-[1.3em] px-[1.8em]">
-                      <button className="text-green-600 text-sm font-semibold">
+                      <button
+                        className="text-[#525252] border border-[#525252] text-sm font-semibold py-1 px-5 hover:bg-[#e1e1e1]  text-center   rounded-full"
+                        onClick={() => setViewTransaction(transaction)}
+                      >
                         View
                       </button>
                     </td>
@@ -196,6 +201,12 @@ const TransactionsTable = () => {
                 ))}
               </tbody>
             </table>
+          )}
+          {viewTransaction && (
+            <ViewTransactionModal
+              transaction={viewTransaction}
+              onClose={() => setViewTransaction(null)}
+            />
           )}
           <Pagination
             currentPage={currentPage}

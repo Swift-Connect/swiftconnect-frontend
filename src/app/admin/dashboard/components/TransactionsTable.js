@@ -2,11 +2,13 @@ import React, { useState, useEffect } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { toast } from "react-toastify";
 import api from "@/utils/api";
+import Image from "next/image";
+import ViewTransactionModal from "../../components/viewTransactionModal";
 
 const TransactionsTable = ({
   data,
   setShowEdit,
-  handleDelete,
+  // handleDelete,
   currentPage,
   itemsPerPage,
   isLoading,
@@ -17,6 +19,8 @@ const TransactionsTable = ({
   // const [isLoading, setIsLoading] = useState(true);
   const [checkedItems, setCheckedItems] = useState([]);
   const [isAllChecked, setIsAllChecked] = useState(false);
+  const [viewTransaction, setViewTransaction] = useState(null);
+
   // console.log("dddd", data);
 
   const dataWithType = data.map((transaction) => ({
@@ -43,76 +47,7 @@ const TransactionsTable = ({
     "Receipt",
     "Actions",
   ];
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     setIsLoading(true);
-  //     try {
-  //       const transactionEndpoints = [
-  //         "/services/cable-recharges-transactions/",
-  //         "/services/data-plan-transactions/",
-  //         "/payments/transactions/",
-  //         "/services/airtime-topups-transactions/",
-  //       ];
-
-  //       const transactionPromises = transactionEndpoints.map(
-  //         async (endpoint) => {
-  //           try {
-  //             const data = await fetchAllPages(endpoint);
-  //             return data;
-  //           } catch (error) {
-  //             toast.error(`Error fetching ${endpoint}`);
-  //             return [];
-  //           }
-  //         }
-  //       );
-
-  //       const transactionResults = await Promise.all(transactionPromises);
-  //       const allTransactions = transactionResults.flat();
-
-  //       // Filter valid transactions
-  //       const validTransactions = allTransactions.filter(
-  //         (tx) =>
-  //           tx.id &&
-  //           tx.amount &&
-  //           tx.created_at &&
-  //           tx.status &&
-  //           typeof tx.amount === "number" // Ensure amount is a number
-  //       );
-  //       console.log("Fetched transactions:", allTransactions);
-  //       console.log("Valid transactions:", validTransactions);
-
-  //       // Process transactions
-  //       const processedData = allTransactions.map((tx) => {
-  //         console.log("dsdsxsxs", tx);
-
-  //         // const user = validUsers.find((u) => u.id === tx.user);
-  //         // console.log("uddd", user);
-
-  //         return {
-  //           id: tx.id,
-  //           // user: user ? "user?.username" : "System",
-  //           product: getProductName(tx),
-  //           amount: formatCurrency(tx.amount, tx.currency),
-  //           date: new Date(tx.created_at).toLocaleDateString("en-GB"),
-  //           status: tx.status ? capitalizeFirstLetter(tx.status) : "Completed",
-  //         };
-  //       });
-
-  //       console.log("Processed transactions:", processedData);
-  //       setData(processedData);
-  //       setCheckedItems(new Array(processedData.length).fill(false));
-  //     } catch (error) {
-  //       toast.error("Failed to fetch transactions. Please try again later.");
-  //       console.error("Fetch error:", error);
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  //   };
-
-  //   fetchData();
-  // }, []);
-
+ 
   const handleHeaderCheckboxChange = () => {
     const newCheckedState = !isAllChecked;
     setIsAllChecked(newCheckedState);
@@ -126,46 +61,57 @@ const TransactionsTable = ({
     setIsAllChecked(newCheckedItems.every((item) => item));
   };
 
-  // const fetchAllPages = async (endpoint) => {
-  //   let allData = [];
-  //   let nextPage = endpoint;
-  //   while (nextPage) {
-  //     try {
-  //       const res = await api.get(nextPage);
-  //       allData = allData.concat(res.data.results || res.data);
-  //       nextPage = res.data.next || null;
-  //     } catch (error) {
-  //       toast.error(`Error fetching data from ${nextPage}`);
-  //       console.error(`Error fetching ${nextPage}:`, error);
-  //       break;
-  //     }
-  //   }
-  //   return allData;
-  // };
-
-  // const getProductName = (transaction) => {
-  //   if (transaction.reason) return transaction.reason;
-  //   if (transaction.network) return `${transaction.network} Airtime`;
-  //   if (transaction.cable_name) return `${transaction.cable_name} Cable`;
-  //   return "Service Transaction";
-  // };
-
-  // const formatCurrency = (amount, currency = "NGN") => {
-  //   return new Intl.NumberFormat("en-NG", {
-  //     style: "currency",
-  //     currency: currency,
-  //   }).format(amount);
-  // };
-
-  // const capitalizeFirstLetter = (str) => {
-  //   return str.charAt(0).toUpperCase() + str.slice(1);
-  // };
-
+ 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const selectedData = filteredTransactions.slice(
     startIndex,
     startIndex + itemsPerPage
   );
+  const endpointMap = {
+    "Airtime": "services/airtime-topups-transactions",
+    "Cable TV": "services/cable-recharges-transactions",
+    "Data": "services/data-plans-transactions",
+    "Education": "services/education-transactions",
+    "Electricity": "services/electricity-transactions",
+    // "Wallet funding": "services/wallet-funding-transactions", // if applicable
+  };
+
+
+const getNormalizedProduct = (product) => {
+  if (!product) return null;
+  product = product.toLowerCase();
+
+  if (product.includes("airtime")) return "Airtime";
+  if (product.includes("data")) return "Data";
+  if (product.includes("cable")) return "Cable TV";
+  if (product.includes("education")) return "Education";
+  if (product.includes("electricity")) return "Electricity";
+  if (product.includes("wallet")) return "Wallet funding";
+
+  return null;
+};
+
+const handleDelete = async (transaction) => {
+  try {
+    const normalizedProduct = getNormalizedProduct(transaction.product);
+    const endpoint = endpointMap[normalizedProduct];
+
+    if (!endpoint) {
+      toast.error("Unknown transaction type");
+      return;
+    }
+
+    await api.delete(`${endpoint}/${transaction.id}/`);
+    toast.success("Transaction deleted successfully");
+  } catch (error) {
+    toast.error("Failed to delete transaction");
+    console.error(error);
+  }
+};
+
+
+
+
 
   return (
     <>
@@ -253,7 +199,10 @@ const TransactionsTable = ({
                   </div>
                 </td>
                 <td className="text-center">
-                  <button className="text-[#525252] border border-[#525252] text-sm font-semibold py-1 px-5  text-center   rounded-full">
+                  <button
+                    className="text-[#525252] border border-[#525252] text-sm font-semibold py-1 px-5 hover:bg-[#e1e1e1]  text-center   rounded-full"
+                    onClick={() => setViewTransaction(transaction)}
+                  >
                     View
                   </button>
                 </td>
@@ -267,7 +216,7 @@ const TransactionsTable = ({
                   </button>
                   <button
                     className="p-1 text-red-600 hover:text-red-800"
-                    onClick={() => handleDelete(transaction.id)}
+                    onClick={() => handleDelete(transaction)}
                     aria-label="Delete transaction"
                   >
                     <FaTrash />
@@ -277,6 +226,12 @@ const TransactionsTable = ({
             ))}
           </tbody>
         </table>
+      )}
+      {viewTransaction && (
+        <ViewTransactionModal
+          transaction={viewTransaction}
+          onClose={() => setViewTransaction(null)}
+        />
       )}
     </>
   );
