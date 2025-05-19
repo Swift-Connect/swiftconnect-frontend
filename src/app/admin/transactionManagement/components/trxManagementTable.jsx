@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FaChevronDown } from "react-icons/fa";
 import ActionPopUp from "../../components/actionPopUp";
+import ViewTransactionModal from "../../components/viewTransactionModal";
 
 const TrxManagementTable = ({
   data,
@@ -17,6 +18,8 @@ const TrxManagementTable = ({
     "Status",
     "Receipt",
   ];
+
+  const [viewTransaction, setViewTransaction] = useState(null);
 
   const [checkedItems, setCheckedItems] = useState(
     new Array(data.length).fill(false)
@@ -127,7 +130,10 @@ const TrxManagementTable = ({
                   </div>
                 </td>
                 <td className="py-[1.3em] px-[1.8em]">
-                  <button className="text-green-600 text-sm font-semibold">
+                  <button
+                    className="text-[#525252] border border-[#525252] text-sm font-semibold py-1 px-5 hover:bg-[#e1e1e1]  text-center   rounded-full"
+                    onClick={() => setViewTransaction(transaction)}
+                  >
                     View
                   </button>
                 </td>
@@ -135,6 +141,12 @@ const TrxManagementTable = ({
             ))}
           </tbody>
         </table>
+      )}
+      {viewTransaction && (
+        <ViewTransactionModal
+          transaction={viewTransaction}
+          onClose={() => setViewTransaction(null)}
+        />
       )}
     </>
   );

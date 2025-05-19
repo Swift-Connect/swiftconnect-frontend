@@ -8,6 +8,7 @@ import { FaChevronRight } from "react-icons/fa";
 import TrxManagementTable from "./components/trxManagementTable";
 import { toast } from "react-toastify";
 import api from "@/utils/api";
+import ViewTransactionModal from "../components/viewTransactionModal";
 
 const TransactionManagement = () => {
   const [activeTabPending, setActiveTabPending] =
@@ -229,8 +230,8 @@ const TransactionManagement = () => {
                 data={filteredTransactionData}
                 currentPage={currentPage}
                 itemsPerPage={itemsPerPage}
-                  setShowEdit={handleEditClick}
-                  isLoading={isLoading}
+                setShowEdit={handleEditClick}
+                isLoading={isLoading}
               />
             </div>
             <Pagination
@@ -241,6 +242,8 @@ const TransactionManagement = () => {
           </>
         )}
       </div>
+
+   
     </div>
   );
 };
