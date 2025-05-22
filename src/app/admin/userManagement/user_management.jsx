@@ -14,6 +14,7 @@ const UserManagement = () => {
   const [editData, setEditData] = useState(null);
   const [usersData, setUserData] = useState([]);
   const [isLoading, setIsLoading] = useState();
+  const [selectedUserIds, setSelectedUserIds] = useState([]); // Track selected rows
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -68,164 +69,6 @@ const UserManagement = () => {
 
   console.log("user data from the endpoint", usersData);
 
-  const userssData = [
-    {
-      id: 1,
-      username: "John Doe",
-      account_id: 5777,
-      fullname: "John Doe",
-      email: "john.doe@example.com",
-      phone_number: "123-456-7890",
-      wallet_number: "WALLET123",
-      previous_balance: "₦10,000",
-      referrals: 5,
-      referral_bonus: "₦500",
-      last_login: "2/4/2025",
-      date_joined: "2/4/2025",
-    },
-    {
-      id: 1,
-      username: "John Doe",
-      account_id: 5777,
-      fullname: "John Doe",
-      email: "john.doe@example.com",
-      phone_number: "123-456-7890",
-      wallet_number: "WALLET123",
-      previous_balance: "₦10,000",
-      referrals: 5,
-      referral_bonus: "₦500",
-      last_login: "2/4/2025",
-      date_joined: "2/4/2025",
-    },
-    {
-      id: 1,
-      username: "John Doe",
-      account_id: 5777,
-      fullname: "John Doe",
-      email: "john.doe@example.com",
-      phone_number: "123-456-7890",
-      wallet_number: "WALLET123",
-      previous_balance: "₦10,000",
-      referrals: 5,
-      referral_bonus: "₦500",
-      last_login: "2/4/2025",
-      date_joined: "2/4/2025",
-    },
-    {
-      id: 1,
-      username: "John Doe",
-      account_id: 5777,
-      fullname: "John Doe",
-      email: "john.doe@example.com",
-      phone_number: "123-456-7890",
-      wallet_number: "WALLET123",
-      previous_balance: "₦10,000",
-      referrals: 5,
-      referral_bonus: "₦500",
-      last_login: "2/4/2025",
-      date_joined: "2/4/2025",
-    },
-    {
-      id: 1,
-      username: "John Doe",
-      account_id: 5777,
-      fullname: "John Doe",
-      email: "john.doe@example.com",
-      phone_number: "123-456-7890",
-      wallet_number: "WALLET123",
-      previous_balance: "₦10,000",
-      referrals: 5,
-      referral_bonus: "₦500",
-      last_login: "2/4/2025",
-      date_joined: "2/4/2025",
-    },
-    {
-      id: 1,
-      username: "John Doe",
-      account_id: 5777,
-      fullname: "John Doe",
-      email: "john.doe@example.com",
-      phone_number: "123-456-7890",
-      wallet_number: "WALLET123",
-      previous_balance: "₦10,000",
-      referrals: 5,
-      referral_bonus: "₦500",
-      last_login: "2/4/2025",
-      date_joined: "2/4/2025",
-    },
-    {
-      id: 1,
-      username: "John Doe",
-      account_id: 5777,
-      fullname: "John Doe",
-      email: "john.doe@example.com",
-      phone_number: "123-456-7890",
-      wallet_number: "WALLET123",
-      previous_balance: "₦10,000",
-      referrals: 5,
-      referral_bonus: "₦500",
-      last_login: "2/4/2025",
-      date_joined: "2/4/2025",
-    },
-    {
-      id: 1,
-      username: "John Doe",
-      account_id: 5777,
-      fullname: "John Doe",
-      email: "john.doe@example.com",
-      phone_number: "123-456-7890",
-      wallet_number: "WALLET123",
-      previous_balance: "₦10,000",
-      referrals: 5,
-      referral_bonus: "₦500",
-      last_login: "2/4/2025",
-      date_joined: "2/4/2025",
-    },
-    {
-      id: 1,
-      username: "John Doe",
-      account_id: 5777,
-      fullname: "John Doe",
-      email: "john.doe@example.com",
-      phone_number: "123-456-7890",
-      wallet_number: "WALLET123",
-      previous_balance: "₦10,000",
-      referrals: 5,
-      referral_bonus: "₦500",
-      last_login: "2/4/2025",
-      date_joined: "2/4/2025",
-    },
-    {
-      id: 1,
-      username: "John Doe",
-      account_id: 5777,
-      fullname: "John Doe",
-      email: "john.doe@example.com",
-      phone_number: "123-456-7890",
-      wallet_number: "WALLET123",
-      previous_balance: "₦10,000",
-      referrals: 5,
-      referral_bonus: "₦500",
-      last_login: "2/4/2025",
-      date_joined: "2/4/2025",
-    },
-    {
-      id: 1,
-      username: "John Doe",
-      account_id: 5777,
-      fullname: "John Doe",
-      email: "john.doe@example.com",
-      phone_number: "123-456-7890",
-      wallet_number: "WALLET123",
-      previous_balance: "₦10,000",
-      referrals: 5,
-      referral_bonus: "₦500",
-      last_login: "2/4/2025",
-      date_joined: "2/4/2025",
-    },
-    // Add more users...
-  ];
-
   const editUser = true;
   const itemsPerPage = 10;
   const [currentPage, setCurrentPage] = useState(1);
@@ -236,6 +79,11 @@ const UserManagement = () => {
     setShowEdit(true);
     console.log("shit");
   };
+
+  const handleSelectedUsersChange = (selectedIds) => {
+    setSelectedUserIds(selectedIds);
+  };
+
   return (
     <div className="overflow-hidden ">
       <div className="max-md-[400px]:hidden">
@@ -258,6 +106,7 @@ const UserManagement = () => {
               activeTab={activeTabPending}
               tabs={["Active", "Inactive", "Recently Added"]}
               onPress={() => {}}
+              selectedRows={selectedUserIds} // Pass selected row IDs
             />
             <div className="rounded-t-[1em] overflow-auto border border-gray-200 min-h-[50vh]">
               <UsersTable
@@ -266,6 +115,7 @@ const UserManagement = () => {
                 itemsPerPage={itemsPerPage}
                 setShowEdit={handleEditClick}
                 isLoading={isLoading}
+                onCheckedItemsChange={handleSelectedUsersChange} // Handle selected rows
               />
             </div>
             <Pagination

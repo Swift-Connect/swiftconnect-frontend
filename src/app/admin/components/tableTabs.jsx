@@ -1,7 +1,7 @@
 "use client";
-import Image from "next/image";
 import React, { useState } from "react";
 import { FaClipboard, FaPlus, FaTrashAlt } from "react-icons/fa";
+import Image from "next/image";
 import Filter from "./filter";
 
 const TableTabs = ({
@@ -12,11 +12,13 @@ const TableTabs = ({
   from,
   filterOptions,
   onPress,
- 
   onFilterChange,
- 
+  selectedRows = [], // Pass the selected rows as a prop
 }) => {
   const [showFilterOptions, setShowFilterOptions] = useState(false);
+
+  console.log("selectedRows", selectedRows); // This will now log the IDs of selected rows
+
   return (
     <div>
       <h1 className="text-[22px] font-semibold mb-4">{header}</h1>
@@ -37,12 +39,14 @@ const TableTabs = ({
               </li>
             ))}
           </ul>
- 
-          {from === "dashboard" || from === "VCM" || from == "SAMM" || from === "SMA" ? (
- 
+
+          {from === "dashboard" ||
+          from === "VCM" ||
+          from === "SAMM" ||
+          from === "SMA" ? (
             ""
           ) : (
-            <div className="flex  gap-3">
+            <div className="flex gap-3">
               {from === "transactionManagement" ||
               from === "referralSystem" ||
               from === "SAM" ||
@@ -67,7 +71,10 @@ const TableTabs = ({
               {from === "SAM" ||
               from === "APIManage" ||
               from === "customersupport" ? null : (
-                <button className="bg-[#8C1823]  font-medium text-white px-4 py-2 rounded-lg flex items-center gap-2">
+                <button
+                  className="bg-[#8C1823] font-medium text-white px-4 py-2 rounded-lg flex items-center gap-2 disabled:opacity-50"
+                  disabled={selectedRows.length === 0} // Disable if no rows are selected
+                >
                   {from === "RBAC" ? "Block" : "Delete"} <FaTrashAlt />
                 </button>
               )}

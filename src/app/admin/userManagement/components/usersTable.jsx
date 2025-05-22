@@ -8,6 +8,7 @@ const UsersTable = ({
   itemsPerPage,
   setShowEdit,
   isLoading,
+  onCheckedItemsChange, // Notify parent about checked items
 }) => {
   const columns = [
     "Username",
@@ -33,7 +34,11 @@ const UsersTable = ({
   const handleHeaderCheckboxChange = () => {
     const newCheckedState = !isAllChecked;
     setIsAllChecked(newCheckedState);
-    setCheckedItems(new Array(data.length).fill(newCheckedState));
+    const updatedCheckedItems = new Array(data.length).fill(newCheckedState);
+    setCheckedItems(updatedCheckedItems);
+
+    const selectedIds = newCheckedState ? data.map((item) => item.id) : [];
+    onCheckedItemsChange(selectedIds); // Notify parent with IDs
   };
 
   const handleCheckboxChange = (index) => {
@@ -41,6 +46,11 @@ const UsersTable = ({
     newCheckedItems[index] = !newCheckedItems[index];
     setCheckedItems(newCheckedItems);
     setIsAllChecked(newCheckedItems.every((item) => item));
+
+    const selectedIds = data
+      .filter((_, idx) => newCheckedItems[idx])
+      .map((item) => item.id);
+    onCheckedItemsChange(selectedIds); // Notify parent with IDs
   };
 
   const handleActionClick = (index) => {

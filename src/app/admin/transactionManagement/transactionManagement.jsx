@@ -63,6 +63,7 @@ const TransactionManagement = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [allTransactionData, setAllTransaactionData] = useState([]);
   const [transactionFilter, setTransactionFilter] = useState("All");
+  const [checkedItems, setCheckedItems] = useState([]); // Track selected rows
   // Filtered transaction data based on the selected filter
   console.log("Clicked Filtered Optiom", transactionFilter);
 
@@ -199,6 +200,10 @@ const TransactionManagement = () => {
     console.log("shit");
   };
 
+  const handleCheckedItemsChange = (newCheckedItems) => {
+    setCheckedItems(newCheckedItems);
+  };
+
   return (
     <div className="overflow-hidden ">
       <div className="max-md-[400px]:hidden">
@@ -224,6 +229,7 @@ const TransactionManagement = () => {
               tabs={["All Transaction", "Inactive", "Recently Added"]}
               from="transactionManagement"
               onPress={() => {}}
+              selectedRows={checkedItems} // Pass selected rows
             />
             <div className="rounded-t-[1em] overflow-auto border border-gray-200 min-h-[50vh]">
               <TrxManagementTable
@@ -232,6 +238,7 @@ const TransactionManagement = () => {
                 itemsPerPage={itemsPerPage}
                 setShowEdit={handleEditClick}
                 isLoading={isLoading}
+                onCheckedItemsChange={handleCheckedItemsChange} // Handle checked items
               />
             </div>
             <Pagination
@@ -242,8 +249,6 @@ const TransactionManagement = () => {
           </>
         )}
       </div>
-
-   
     </div>
   );
 };

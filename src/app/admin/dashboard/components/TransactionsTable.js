@@ -35,7 +35,7 @@ const TransactionsTable = ({
       ? dataWithType
       : dataWithType.filter(
           (transaction) =>
-            transaction.transaction_type === activeTabTransactions.toLowerCase()
+            transaction.transaction_type === activeTabTransactions?.toLowerCase()
         );
 
   const columns = [
