@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   LineChart,
   Line,
@@ -12,6 +12,8 @@ import APIManagementTable from "./components/table";
 import Pagination from "../components/pagination";
 import TableTabs from "../components/tableTabs";
 import CreateNewKey from "./components/createNewKey";
+import api from "@/utils/api";
+import { toast } from "react-toastify";
 
 const stats = [
   { label: "Total API Requests", value: "15,000", icon: "⏱️" },
@@ -34,130 +36,66 @@ export default function Dashboard() {
   const [activeTabPending, setActiveTabPending] = React.useState("Active");
   const [showEdit, setShowEdit] = useState(false);
   const [editData, setEditData] = useState(null);
-  const [showModal, setShowModal] = useState(null);
-  const usersData = [
-    {
-      id: 1,
-      key_name: "Payment ApI Key",
-      api_key_masked: "pk_live_*********89GT",
-      created_on: "2/4/2025",
-      last_used: "2/4/2025",
-      created_by: "Adele Vance",
-      revoction_date: "2025-01-30",
-      revoked_by: "-",
-    },
-    {
-      id: 1,
-      key_name: "Payment ApI Key",
-      api_key_masked: "pk_live_*********89GT",
-      created_on: "2/4/2025",
-      last_used: "2/4/2025",
-      created_by: "Adele Vance",
-      revoction_date: "2025-01-30",
-      revoked_by: "-",
-    },
-    {
-      id: 1,
-      key_name: "Payment ApI Key",
-      api_key_masked: "pk_live_*********89GT",
-      created_on: "2/4/2025",
-      last_used: "2/4/2025",
-      created_by: "Adele Vance",
-      revoction_date: "2025-01-30",
-      revoked_by: "-",
-    },
-    {
-      id: 1,
-      key_name: "Payment ApI Key",
-      api_key_masked: "pk_live_*********89GT",
-      created_on: "2/4/2025",
-      last_used: "2/4/2025",
-      created_by: "Adele Vance",
-      revocation_date: "2025-01-30",
-      revoked_by: "Adele Vance",
-    },
-    {
-      id: 1,
-      key_name: "Payment ApI Key",
-      api_key_masked: "pk_live_*********89GT",
-      created_on: "2/4/2025",
-      last_used: "2/4/2025",
-      created_by: "Adele Vance",
-      revoction_date: "2025-01-30",
-      revoked_by: "-",
-    },
-    {
-      id: 1,
-      key_name: "Payment ApI Key",
-      api_key_masked: "pk_live_*********89GT",
-      created_on: "2/4/2025",
-      last_used: "2/4/2025",
-      created_by: "Adele Vance",
-      revoction_date: "2025-01-30",
-      revoked_by: "-",
-    },
-    {
-      id: 1,
-      key_name: "Payment ApI Key",
-      api_key_masked: "pk_live_*********89GT",
-      created_on: "2/4/2025",
-      last_used: "2/4/2025",
-      created_by: "Adele Vance",
-      revoction_date: "2025-01-30",
-      revoked_by: "-",
-    },
-    {
-      id: 1,
-      key_name: "Payment ApI Key",
-      api_key_masked: "pk_live_*********89GT",
-      created_on: "2/4/2025",
-      last_used: "2/4/2025",
-      created_by: "Adele Vance",
-      revoction_date: "2025-01-30",
-      revoked_by: "-",
-    },
-    {
-      id: 1,
-      key_name: "Payment ApI Key",
-      api_key_masked: "pk_live_*********89GT",
-      created_on: "2/4/2025",
-      last_used: "2/4/2025",
-      created_by: "Adele Vance",
-      revoction_date: "2025-01-30",
-      revoked_by: "-",
-    },
-    {
-      id: 1,
-      key_name: "Payment ApI Key",
-      api_key_masked: "pk_live_*********89GT",
-      created_on: "2/4/2025",
-      last_used: "2/4/2025",
-      created_by: "Adele Vance",
-      revoction_date: "2025-01-30",
-      revoked_by: "-",
-    },
-    {
-      id: 1,
-      key_name: "Payment ApI Key",
-      api_key_masked: "pk_live_*********89GT",
-      created_on: "2/4/2025",
-      last_used: "2/4/2025",
-      created_by: "Adele Vance",
-      revoction_date: "2025-01-30",
-      revoked_by: "-",
-    },
-    // Add more users...
-  ];
-
-  const itemsPerPage = 10;
+  const [showModal, setShowModal] = useState(false);
+  const [apiKeys, setApiKeys] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = Math.ceil(usersData.length / itemsPerPage);
+  const itemsPerPage = 10;
 
-  const handleEditClick = (rowData) => {
-    setEditData(rowData);
-    setShowEdit(true);
-    console.log("shit");
+  const fetchApiKeys = async () => {
+    setIsLoading(true);
+    try {
+      const response = await api.get('/payments/payment-configs/');
+      setApiKeys(response.data);
+    } catch (error) {
+      toast.error('Failed to fetch API keys');
+      console.error('Error fetching API keys:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  useEffect(() => {
+    fetchApiKeys();
+  }, []);
+
+  const handleCreateKey = async (keyData) => {
+    try {
+      const response = await api.post('/payments/payment-configs/', keyData);
+      setApiKeys([...apiKeys, response.data]);
+      toast.success('API key created successfully');
+      setShowModal(false);
+    } catch (error) {
+      toast.error('Failed to create API key');
+      console.error('Error creating API key:', error);
+    }
+  };
+
+  const handleUpdateKey = async (id, keyData) => {
+    try {
+      const response = await api.put(`/payments/payment-configs/${id}/`, keyData);
+      setApiKeys(apiKeys.map(key => key.id === id ? response.data : key));
+      toast.success('API key updated successfully');
+      setShowEdit(false);
+    } catch (error) {
+      toast.error('Failed to update API key');
+      console.error('Error updating API key:', error);
+    }
+  };
+
+  const handleDeleteKey = async (id) => {
+    try {
+      await api.delete(`/payments/payment-configs/${id}/`);
+      setApiKeys(apiKeys.filter(key => key.id !== id));
+      toast.success('API key deleted successfully');
+    } catch (error) {
+      toast.error('Failed to delete API key');
+      console.error('Error deleting API key:', error);
+    }
+  };
+
+  const totalPages = Math.ceil(apiKeys.length / itemsPerPage);
+
   return (
     <div className="">
       {/* Stats */}
@@ -200,28 +138,39 @@ export default function Dashboard() {
           </LineChart>
         </ResponsiveContainer>
       </div>
+
       <TableTabs
         header={""}
         setActiveTab={setActiveTabPending}
         activeTab={activeTabPending}
-        tabs={[""]}
+        tabs={["Active", "Inactive"]}
         from="APIManage"
         onPress={() => setShowModal(true)}
       />
+
       <div className="rounded-t-[1em] overflow-auto border border-gray-200 min-h-[50vh]">
         <APIManagementTable
-          data={usersData}
+          data={apiKeys}
           currentPage={currentPage}
           itemsPerPage={itemsPerPage}
-          setShowEdit={handleEditClick}
+          onEdit={handleUpdateKey}
+          onDelete={handleDeleteKey}
+          isLoading={isLoading}
         />
       </div>
+
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
         onPageChange={setCurrentPage}
       />
-      {showModal && <CreateNewKey onClose={() => setShowModal(false)} />}
+
+      {showModal && (
+        <CreateNewKey 
+          onClose={() => setShowModal(false)} 
+          onSubmit={handleCreateKey}
+        />
+      )}
     </div>
   );
 }

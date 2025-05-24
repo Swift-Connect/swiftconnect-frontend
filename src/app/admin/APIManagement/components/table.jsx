@@ -1,72 +1,57 @@
 import { useState } from "react";
-import { FaChevronDown } from "react-icons/fa";
+import { FaChevronDown, FaEdit, FaTrash } from "react-icons/fa";
 import ActionPopUp from "../../components/actionPopUp";
 
 const APIManagementTable = ({
   data,
   currentPage,
   itemsPerPage,
-  setShowEdit,
+  onEdit,
+  onDelete,
+  isLoading
 }) => {
   const columns = [
-    "Key Name",
-    "API Key (Masked)",
+    "Gateway",
     "Status",
-    "Created On",
-    "Last Used",
-    "Created By",
-    "Revocation Day",
-    "Revocked By",
-
-    "Action",
+    "Last Updated",
+    "Available Gateways",
+    "Actions"
   ];
 
-  const [checkedItems, setCheckedItems] = useState(
-    new Array(data.length).fill(false)
-  );
-  const [isAllChecked, setIsAllChecked] = useState(false);
   const [activeRow, setActiveRow] = useState(null);
-
-  const handleHeaderCheckboxChange = () => {
-    const newCheckedState = !isAllChecked;
-    setIsAllChecked(newCheckedState);
-    setCheckedItems(new Array(data.length).fill(newCheckedState));
-  };
-
-  const handleCheckboxChange = (index) => {
-    const newCheckedItems = [...checkedItems];
-    newCheckedItems[index] = !newCheckedItems[index];
-    setCheckedItems(newCheckedItems);
-    setIsAllChecked(newCheckedItems.every((item) => item));
-  };
 
   const handleActionClick = (index) => {
     setActiveRow(activeRow === index ? null : index);
   };
 
-  // ** PAGINATION LOGIC **
+  // Pagination logic
   const startIndex = (currentPage - 1) * itemsPerPage;
   const selectedData = data.slice(startIndex, startIndex + itemsPerPage);
 
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   return (
     <>
-      {data.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">No Users yet</div>
+      {isLoading ? (
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#00613A]"></div>
+        </div>
       ) : (
-        <table className="w-full text-sm border-collapse">
+        <table className="w-full">
           <thead>
-            <tr className="bg-[#F9F8FA] text-left text-[#525252]">
-              <th className="py-[1.3em] px-[1.8em] font-semibold text-[#232323]">
-                <input
-                  type="checkbox"
-                  checked={isAllChecked}
-                  onChange={handleHeaderCheckboxChange}
-                />
-              </th>
-              {columns.map((column, index) => (
+            <tr className="bg-gray-50">
+              {columns.map((column, idx) => (
                 <th
-                  key={index}
-                  className="py-[1.3em] px-[1.8em] whitespace-nowrap"
+                  key={idx}
+                  className="py-4 px-6 text-left text-sm font-medium text-gray-500"
                 >
                   {column}
                 </th>
@@ -74,60 +59,48 @@ const APIManagementTable = ({
             </tr>
           </thead>
           <tbody>
-            {selectedData.map((user, idx) => (
-              <tr
-                key={idx}
-                className={`border-t ${
-                  idx % 2 === 0 ? "bg-white" : "bg-gray-50"
-                }`}
-                onDoubleClick={() => setShowEdit(user)}
-              >
-                <td className="py-[1.3em] px-[1.8em]">
-                  <input
-                    type="checkbox"
-                    checked={checkedItems[startIndex + idx]}
-                    onChange={() => handleCheckboxChange(startIndex + idx)}
-                  />
+            {selectedData.map((item, idx) => (
+              <tr key={item.id} className="border-b">
+                <td className="py-4 px-6">
+                  <span className="capitalize">{item.active_gateway}</span>
                 </td>
-                <td className="py-[1.3em] px-[1.8em] font-semibold whitespace-nowrap">
-                  {user?.key_name}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  #{user?.api_key_masked}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#fff] relative">
-                  <span
-                    className="bg-[#00613A] rounded-xl flex w-fit items-center justify-center gap-2 py-1 px-2 cursor-pointer"
-                    onClick={() => handleActionClick(idx)}
-                  >
-                    Approved <FaChevronDown />
+                <td className="py-4 px-6">
+                  <span className={`px-3 py-1 rounded-full text-sm ${
+                    item.active_gateway ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                  }`}>
+                    {item.active_gateway ? 'Active' : 'Inactive'}
                   </span>
-                  {activeRow === idx && <ActionPopUp />}
                 </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user?.created_on}
+                <td className="py-4 px-6">
+                  {formatDate(item.updated_at)}
                 </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user?.last_used}
+                <td className="py-4 px-6">
+                  <div className="flex flex-wrap gap-2">
+                    {item.available_gateways?.split(',').map((gateway, index) => (
+                      <span 
+                        key={index}
+                        className="px-2 py-1 bg-gray-100 rounded-full text-sm capitalize"
+                      >
+                        {gateway.trim()}
+                      </span>
+                    ))}
+                  </div>
                 </td>
-                <td className="py-[1.3em] whitespace-nowrap px-[1.8em] text-[#9CA3AF]">
-                  {user?.created_by}
-                </td>
-                <td className="py-[1.3em]  px-[1.8em] text-[#9CA3AF]">
-                  {user?.revocation_date}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user?.revoked_by}
-                </td>
-
-                <td className="py-[1.3em] px-[1.8em] text-[#fff] relative">
-                  <span
-                    className="bg-[#00613A] rounded-xl flex w-fit items-center justify-center gap-2 py-1 px-2 cursor-pointer"
-                    onClick={() => handleActionClick(idx)}
-                  >
-                    Approved <FaChevronDown />
-                  </span>
-                  {activeRow === idx && <ActionPopUp />}
+                <td className="py-4 px-6">
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => onEdit(item.id, { ...item, active_gateway: item.active_gateway })}
+                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-full"
+                    >
+                      <FaEdit />
+                    </button>
+                    <button
+                      onClick={() => onDelete(item.id)}
+                      className="p-2 text-red-600 hover:bg-red-50 rounded-full"
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

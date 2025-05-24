@@ -1,5 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Oval } from "react-loader-spinner";
+import api from "@/utils/api";
+import { toast } from "react-toastify";
 
 export default function SendToOtherBanksModal({
   onBack,
@@ -13,73 +15,158 @@ export default function SendToOtherBanksModal({
   setBankName,
 }) {
   const [selectedBank, setSelectedBank] = useState("");
+  const [selectedBankCode, setSelectedBankCode] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
   const [paymentChannel, setPaymentChannel] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [banks, setBanks] = useState([]);
-  const [filteredBanks, setFilteredBanks] = useState([]);
   const [isFetchingBanks, setIsFetchingBanks] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [showDropdown, setShowDropdown] = useState(false);
+  const [isValidatingAccount, setIsValidatingAccount] = useState(false);
+  const [accountHolderName, setAccountHolderName] = useState("");
+  const [validationError, setValidationError] = useState("");
+
+  const filteredBanks = searchQuery === ''
+    ? banks
+    : banks.filter((bank) =>
+        bank.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const getBanks = async () => {
     setIsFetchingBanks(true);
     try {
-      const response = await fetch(
-        `https://swiftconnect-backend.onrender.com/payments/available-banks/?payment_type=${paymentChannel}`
-      );
+      const response = await api.get('/payments/available-banks/');
+      console.log('Raw API Response:', response);
+      console.log('Response Data:', response.data);
+      console.log('Banks Array:', response.data?.banks);
+      
+      if (response.data?.status === 'success' && Array.isArray(response.data.banks)) {
+        // Deduplicate banks based on their code
+        const uniqueBanks = response.data.banks.reduce((acc, current) => {
+          const x = acc.find(item => item.code === current.code);
+          if (!x) {
+            return acc.concat([current]);
+          } else {
+            return acc;
+          }
+        }, []);
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch banks");
+        // Sort banks alphabetically by name
+        const sortedBanks = uniqueBanks.sort((a, b) => 
+          a.name.localeCompare(b.name)
+        );
+        console.log('Deduplicated and Sorted Banks:', sortedBanks);
+        setBanks(sortedBanks);
+      } else {
+        console.error('Invalid response format:', {
+          status: response.data?.status,
+          banks: response.data?.banks,
+          isArray: Array.isArray(response.data?.banks)
+        });
+        toast.error("Failed to load banks. Please try again.");
       }
-
-      const data = await response.json();
-      setBanks(data.banks);
-      setFilteredBanks(data.banks);
     } catch (error) {
       console.error("Error fetching banks:", error);
+      toast.error("Failed to fetch banks. Please try again.");
     } finally {
       setIsFetchingBanks(false);
     }
   };
 
+  const validateAccountNumber = async (accountNumber, bankCode) => {
+    if (!accountNumber || !bankCode) return;
+    
+    setIsValidatingAccount(true);
+    setValidationError("");
+    setAccountHolderName("");
+    
+    try {
+      console.log('Validating account:', { accountNumber, bankCode });
+      const response = await fetch('/api/verify-account', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          accountNumber,
+          bankCode
+        })
+      });
+
+      const data = await response.json();
+      console.log('Validation response:', data);
+      
+      if (data.status === 'success' && data.data?.account_name) {
+        setAccountHolderName(data.data.account_name);
+        setValidationError("");
+        toast.success('Account verified successfully');
+      } else {
+        const errorMessage = data.message || 'Invalid account number';
+        setValidationError(errorMessage);
+        setAccountHolderName("");
+        toast.error(errorMessage);
+      }
+    } catch (error) {
+      console.error('Error validating account:', error);
+      const errorMessage = 'Failed to validate account number';
+      setValidationError(errorMessage);
+      setAccountHolderName("");
+      toast.error(errorMessage);
+    } finally {
+      setIsValidatingAccount(false);
+    }
+  };
+
   useEffect(() => {
-    if (selectedBank && accountNum) {
+    getBanks();
+  }, []);
+
+  useEffect(() => {
+    if (selectedBank && accountNum && accountHolderName) {
       setIsButtonDisabled(false);
     } else {
       setIsButtonDisabled(true);
     }
-  }, [selectedBank, accountNum]);
+  }, [selectedBank, accountNum, accountHolderName]);
 
-  useEffect(() => {
-    if (paymentChannel) {
-      getBanks();
-    }
-  }, [paymentChannel]);
-
-  // Handle bank search
-  const handleSearch = (e) => {
-    const value = e.target.value;
-    setSearchTerm(value);
-    if (value) {
-      const filtered = banks.filter((bank) =>
-        bank.name.toLowerCase().includes(value.toLowerCase())
-      );
-      setFilteredBanks(filtered);
-      setShowDropdown(true);
-    } else {
-      setShowDropdown(false);
-    }
-  };
-
-  // Handle bank selection
-  const handleSelectBank = (bank) => {
+  const handleBankSelect = (bank) => {
     setSelectedBank(bank.name);
-    setSearchTerm(bank.name);
+    setSelectedBankCode(bank.code);
     setBankCode(bank.code);
     setBankName(bank.name);
-    setShowDropdown(false);
+    setSearchQuery(bank.name);
+    setAccountHolderName("");
+    setValidationError("");
+    setIsDropdownOpen(false);
+  };
+
+  // Handle account number change
+  const handleAccountNumberChange = (e) => {
+    const value = e.target.value;
+    setAcctNum(value);
+    
+    // Clear account holder name when account number changes
+    setAccountHolderName("");
+    setValidationError("");
+    
+    // Validate account number when it's 10 digits
+    if (value.length === 10 && selectedBankCode) {
+      validateAccountNumber(value, selectedBankCode);
+    }
   };
 
   return (
@@ -114,66 +201,63 @@ export default function SendToOtherBanksModal({
 
         {/* Content */}
         <div className="px-6 py-4 space-y-4">
-          {/* Payment Channel Dropdown */}
-          {/* <div>
+          {/* Bank Selection Dropdown */}
+          <div className="relative" ref={dropdownRef}>
             <label
-              htmlFor="payment-channel"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Payment Channel
-            </label>
-            <select
-              id="payment-channel"
-              value={paymentChannel}
-              onChange={(e) => {
-                setPaymentChannel(e.target.value);
-                setchannel(e.target.value);
-              }}
-              className="w-full mt-1 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 outline-none p-4"
-            >
-              <option value="">Select payment channel</option>
-              <option value="flutterwave">Flutterwave</option>
-              <option value="monify">Monify</option>
-              <option value="paystack">Paystack</option>
-            </select>
-          </div> */}
-
-          {/* Bank Search Input */}
-          <div className="relative">
-            <label
-              htmlFor="bank-search"
+              htmlFor="bank-select"
               className="block text-sm font-medium text-gray-700"
             >
               Select Bank
             </label>
-            <input
-              type="text"
-              id="bank-search"
-              value={searchTerm}
-              onChange={handleSearch}
-              placeholder="Search for a bank..."
-              className="w-full mt-1 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 outline-none p-4"
-              onFocus={() => setShowDropdown(true)}
-            />
-            {isFetchingBanks && (
-            <div className="absolute right-3 top-0">
-              <Oval height={20} width={20} color="#4fa94d" />
+            <div className="relative">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setIsDropdownOpen(true);
+                }}
+                onFocus={() => setIsDropdownOpen(true)}
+                placeholder="Search for a bank"
+                className={`w-full mt-1 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 outline-none p-4 ${isDropdownOpen ? 'cursor-text' : 'cursor-pointer'}`}
+              />
+              <button
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer"
+              >
+                <svg
+                  className={`h-5 w-5 text-gray-400 transform transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
             </div>
-            )}
-
-            {/* Dropdown for bank selection */}
-            {showDropdown && filteredBanks.length > 0 && (
-              <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto mt-1">
-                {filteredBanks.map((bank) => (
-                  <li
-                    key={bank.code}
-                    onClick={() => handleSelectBank(bank)}
-                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                  >
-                    {bank.name}
-                  </li>
-                ))}
-              </ul>
+            
+            {isDropdownOpen && (
+              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
+                {isFetchingBanks ? (
+                  <div className="p-2 text-center text-gray-500">Loading banks...</div>
+                ) : filteredBanks.length === 0 ? (
+                  <div className="p-2 text-center text-gray-500">No banks found</div>
+                ) : (
+                  filteredBanks.map((bank) => (
+                    <div
+                      key={bank.code}
+                      onClick={() => handleBankSelect(bank)}
+                      className="px-4 py-2 hover:bg-blue-50 cursor-pointer"
+                    >
+                      {bank.name}
+                    </div>
+                  ))
+                )}
+              </div>
             )}
           </div>
 
@@ -185,16 +269,32 @@ export default function SendToOtherBanksModal({
             >
               Account Number
             </label>
-            <input
-              type="text"
-              id="account-number"
-              value={accountNum}
-              onChange={(e) => {
-                setAcctNum(e.target.value);
-              }}
-              placeholder="Input the Account Number"
-              className="w-full mt-1 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 outline-none p-4"
-            />
+            <div className="relative">
+              <input
+                type="text"
+                id="account-number"
+                value={accountNum}
+                onChange={handleAccountNumberChange}
+                placeholder="Input the Account Number"
+                className={`w-full mt-1 border ${validationError ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-indigo-500 focus:border-indigo-500 outline-none p-4`}
+                maxLength={10}
+              />
+              {isValidatingAccount && (
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                  <Oval height={20} width={20} color="#4fa94d" />
+                </div>
+              )}
+            </div>
+            {validationError && (
+              <p className="mt-2 text-sm text-red-600">
+                {validationError}
+              </p>
+            )}
+            {accountHolderName && (
+              <p className="mt-2 text-sm text-green-600">
+                Account Holder: {accountHolderName}
+              </p>
+            )}
           </div>
         </div>
 
