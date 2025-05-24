@@ -134,7 +134,7 @@ const Airtime = ({ onNext, setBillType }) => {
             onChange={(e) => setAirtimeType(e.target.value)}
           >
             <option value="VTU">VTU</option>
-            <option value="Recharge PIN">Recharge PIN</option>
+            {/* <option value="Recharge PIN">Recharge PIN</option> */}
           </select>
         </div>
 
