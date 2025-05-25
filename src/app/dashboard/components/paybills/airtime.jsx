@@ -54,6 +54,8 @@ const Airtime = ({ onNext, setBillType }) => {
       "airtime-topups-transactions/",
       setIsLoading
     );
+
+    setPin(["", "", "", ""]);
     // setIsSuccess(true);
   };
 

@@ -18,6 +18,8 @@ const EnterPinModal = ({
   handleSubmit,
   from,
 }) => {
+  console.log("the pin modal");
+
   const handleChange = (e, index) => {
     const value = e.target.value;
     if (value.length <= 1) {
@@ -47,10 +49,13 @@ const EnterPinModal = ({
   return (
     <div
       className="fixed inset-0 z-10 flex items-center justify-center bg-black bg-opacity-50"
-      // onClick={() => onClose()}
+      onClick={() => onClose()}
     >
       <ToastContainer />
-      <div className="bg-white relative z-50 w-[45%] rounded-xl shadow-lg px-6 py-16 flex items-center justify-center flex-col max-md-[400px]:w-full">
+      <div
+        className="bg-white relative z-50 w-[45%] rounded-xl shadow-lg px-6 py-16 flex items-center justify-center flex-col max-md-[400px]:w-full"
+        onClick={(e) => e.stopPropagation()}
+      >
         <button
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
           onClick={() => onClose()}
@@ -77,10 +82,11 @@ const EnterPinModal = ({
             <input
               key={index}
               id={`pin-${index}`}
-              type="password"
+              type="text"
               value={digit}
               onChange={(e) => handleChange(e, index)}
               onKeyDown={(e) => handleKeyDown(e, index)}
+              
               maxLength="1"
               className="w-12 h-12 text-center border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-xl"
             />
@@ -96,7 +102,9 @@ const EnterPinModal = ({
               ? onConfirm
               : from === "top up"
               ? onConfirmTopUp
-              : (e) => handleSubmit(e)
+              : (e) => {
+                  handleSubmit(e);
+                }
           }
         >
           Send Funds

@@ -70,6 +70,7 @@ const CableTv = ({ onNext, setBillType }) => {
       setIsLoading,
       isLoading
     );
+      setPin(["", "", "", ""]);
   };
 
   const handleSuccessClose = () => {

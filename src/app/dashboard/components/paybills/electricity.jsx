@@ -60,6 +60,7 @@ export default function ElectricityPayment({ setBillType }) {
       setIsLoading,
       isLoading
     );
+      setPin(["", "", "", ""]);
   };
 
   const handleSuccessClose = () => {
@@ -113,7 +114,7 @@ export default function ElectricityPayment({ setBillType }) {
         <h1 className="text-xl font-semibold mb-6 text-center">Electricity</h1>
         <div className="space-y-4">
           {/* Service Provider */}
-          <div className="mb-4">
+          {/* <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Service Provider
             </label>
@@ -128,12 +129,12 @@ export default function ElectricityPayment({ setBillType }) {
               </option>
               <option value="AEDC NG">ABUJA ELECTRICITY DISTRIBUTION</option>
             </select>
-          </div>
+          </div> */}
 
           {/* Package */}
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Select a Package
+              Select a Provider
             </label>
             <select
               name="packageType"
@@ -142,7 +143,7 @@ export default function ElectricityPayment({ setBillType }) {
               className="w-full border border-gray-300 rounded-lg p-2"
             >
               <option value="" disabled>
-                Select Package
+                Select Provider
               </option>
               <option value="AEDC Prepaid Meter">AEDC Prepaid Meter</option>
               <option value="EKEDC Prepaid Meter">EKEDC Prepaid Meter</option>
