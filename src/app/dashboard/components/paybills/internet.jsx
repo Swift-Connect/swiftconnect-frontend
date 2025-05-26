@@ -63,6 +63,7 @@ const Internet = ({ onNext, setBillType }) => {
       setIsLoading,
       isLoading
     );
+      setPin(["", "", "", ""]);
   };
 
   useEffect(() => {

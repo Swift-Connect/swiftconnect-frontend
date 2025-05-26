@@ -56,7 +56,7 @@ const Dashboard = () => {
       try {
         // Fetch users
         const usersData = await fetchAllPages("/users/list-users/");
-        // console.log("Fetched users:", usersData);
+        console.log("Fetched users:", usersData);
 
         const validUsers = usersData.filter((user) => user?.id);
         // console.log("Fetched users:", usersData);
