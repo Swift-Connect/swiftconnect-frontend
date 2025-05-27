@@ -226,13 +226,13 @@ const getNormalizedProduct = (product) => {
                   </button>
                 </td>
                 <td className="py-[1.3em] px-[1.8em]">
-                  <button
+                  {/* <button
                     className="p-1 text-blue-600 hover:text-blue-800"
                     onClick={() => setShowEdit(transaction)}
                     aria-label="Edit transaction"
                   >
                     <FaEdit />
-                  </button>
+                  </button> */}
                   <button
                     className="p-1 text-red-600 hover:text-red-800"
                     onClick={() => handleDelete(transaction)}
