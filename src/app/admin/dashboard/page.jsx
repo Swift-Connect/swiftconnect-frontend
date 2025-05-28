@@ -491,7 +491,7 @@ const Dashboard = () => {
           header={"Pending Tasks"}
           setActiveTab={setActiveTabPending}
           activeTab={activeTabPending}
-          tabs={["Approve KYC", "Approve Withdrawal"]}
+          tabs={["Approve KYC"]}
           from="dashboard"
           // filterOptions={[
           //   { label: "MTN", value: "MTN" },

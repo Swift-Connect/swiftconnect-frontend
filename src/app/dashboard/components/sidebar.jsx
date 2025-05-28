@@ -157,7 +157,11 @@ export default function Sidebar({
               <p className="text-xs text-gray-500">Agent | ₦{data?.balance}</p>
             </div>
           </div>
-          <div>
+          <div className="cursor-pointer hover:bg-red-300 rounded-lg"
+            onClick={() => {
+              localStorage.removeItem("access_token");
+              window.location.href = "/";
+            }} >
             <Image
               src={"logout.svg"}
               alt="logout"

@@ -73,7 +73,7 @@ const TransactionsTable = ({
     "Data": "services/data-plans-transactions",
     "Education": "services/education-transactions",
     "Electricity": "services/electricity-transactions",
-    // "Wallet funding": "services/wallet-funding-transactions", // if applicable
+    "Wallet funding": "/payments/transactions/", // if applicable
   };
 
 
@@ -91,20 +91,39 @@ const getNormalizedProduct = (product) => {
   return null;
 };
 
-const handleDelete = async (transaction) => {
+  const handleDelete = async (transaction) => {
+  const loadingToast = toast.loading("Processing...");
   try {
     const normalizedProduct = getNormalizedProduct(transaction.product);
     const endpoint = endpointMap[normalizedProduct];
 
     if (!endpoint) {
-      toast.error("Unknown transaction type");
+      toast.update(loadingToast, {
+        render: "Unknown transaction type",
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+      });
+      // toast.error("Unknown transaction type");
       return;
     }
 
     await api.delete(`${endpoint}/${transaction.id}/`);
-    toast.success("Transaction deleted successfully");
+    // toast.success("Transaction deleted successfully");
+     toast.update(loadingToast, {
+       render: "Transaction deleted successfully!",
+       type: "success",
+       isLoading: false,
+       autoClose: 3000,
+     });
   } catch (error) {
-    toast.error("Failed to delete transaction");
+     toast.update(loadingToast, {
+       render: "Failed to delete transaction: " + errorMessage,
+       type: "error",
+       isLoading: false,
+       autoClose: 3000,
+     });
+    // toast.error("Failed to delete transaction");
     console.error(error);
   }
 };
@@ -207,13 +226,13 @@ const handleDelete = async (transaction) => {
                   </button>
                 </td>
                 <td className="py-[1.3em] px-[1.8em]">
-                  <button
+                  {/* <button
                     className="p-1 text-blue-600 hover:text-blue-800"
                     onClick={() => setShowEdit(transaction)}
                     aria-label="Edit transaction"
                   >
                     <FaEdit />
-                  </button>
+                  </button> */}
                   <button
                     className="p-1 text-red-600 hover:text-red-800"
                     onClick={() => handleDelete(transaction)}
