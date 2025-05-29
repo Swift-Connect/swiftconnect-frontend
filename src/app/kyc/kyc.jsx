@@ -79,7 +79,7 @@ const KYCForm = ({ setActiveSidebar }) => {
 
     try {
       const response = await axios.post(
-        "http://localhost:8000/users/submit-kyc/",
+        "https://swiftconnect-backend.onrender.com/users/submit-kyc/",
         submitData,
         {
           headers: {

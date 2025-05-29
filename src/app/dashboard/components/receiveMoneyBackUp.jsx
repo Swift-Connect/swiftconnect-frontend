@@ -43,7 +43,7 @@ const ReceiveMoneyModal = ({ isOpen, onClose }) => {
     const loadingToast = toast.loading("Processing payment...");
     try {
       const response = await fetch(
-        "http://localhost:8000/payments/credit-wallet/",
+        "https://swiftconnect-backend.onrender.com/payments/credit-wallet/",
         {
           method: "POST",
           headers: {

@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:8000/";
+const BASE_URL = "https://swiftconnect-backend.onrender.com/";
 
 // Generic GET function
 export async function getData(url) {

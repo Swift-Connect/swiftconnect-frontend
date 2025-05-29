@@ -14,8 +14,8 @@ export const handleBillsConfirm = async (pin, dataa, url, setIsLoading) => {
   try {
     console.log("my data", dataa);
     const response = await fetch(
-      `http://localhost:8000/services/${url}`,
-      // "http://localhost:8000/services/airtime-topups-transactions/",
+      `https://swiftconnect-backend.onrender.com/services/${url}`,
+      // "https://swiftconnect-backend.onrender.com/services/airtime-topups-transactions/",
       {
         method: "POST",
         headers: {

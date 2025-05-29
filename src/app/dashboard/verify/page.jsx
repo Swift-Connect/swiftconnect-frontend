@@ -32,7 +32,7 @@ const VerifyPaymentContent = () => {
       try {
         hasVerified.current = true;
         const response = await fetch(
-          "http://localhost:8000/payments/payment-callback/",
+          "https://swiftconnect-backend.onrender.com/payments/payment-callback/",
           {
             method: "POST",
             headers: {
