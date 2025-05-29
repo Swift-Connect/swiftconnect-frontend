@@ -35,7 +35,7 @@ const latencyData = [
 
 export default function Dashboard() {
   const router = useRouter();
-  const token = localStorage.getItem("access_token");
+  const [token, setToken] = useState(null);
   const [activeTabPending, setActiveTabPending] = React.useState("Active");
   const [showEdit, setShowEdit] = useState(false);
   const [editData, setEditData] = useState(null);
@@ -46,10 +46,18 @@ export default function Dashboard() {
   const itemsPerPage = 10;
 
   useEffect(() => {
-    if (!token) {
-      router.push("/account/login");
-      return;
+    if (typeof window !== "undefined") {
+      const accessToken = localStorage.getItem("access_token");
+      setToken(accessToken);
+
+      if (!accessToken) {
+        router.push("/account/login");
+      }
     }
+  }, []);
+
+  useEffect(() => {
+    if (!token) return;
 
     const fetchApiKeys = async () => {
       setIsLoading(true);
