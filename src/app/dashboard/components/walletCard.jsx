@@ -59,7 +59,7 @@ export default function WalletCard({ data }) {
 
     try {
       const response = await fetch(
-        "https://swiftconnect-backend.onrender.com/payments/transfer-funds/",
+        "http://localhost:8000/payments/transfer-funds/",
         {
           method: "POST",
           headers: {

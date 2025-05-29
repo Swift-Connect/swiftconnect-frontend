@@ -10,11 +10,12 @@ export const handleBillsConfirm = async (pin, dataa, url, setIsLoading) => {
   // Make the API request with the entered PIN
   setIsLoading(true);
   const loadingToast = toast.loading("Processing payment...");
+  
   try {
     console.log("my data", dataa);
     const response = await fetch(
-      `https://swiftconnect-backend.onrender.com/services/${url}`,
-      // "https://swiftconnect-backend.onrender.com/services/airtime-topups-transactions/",
+      `http://localhost:8000/services/${url}`,
+      // "http://localhost:8000/services/airtime-topups-transactions/",
       {
         method: "POST",
         headers: {
@@ -26,36 +27,48 @@ export const handleBillsConfirm = async (pin, dataa, url, setIsLoading) => {
       }
     );
     const data = await response.json();
-    console.log(data);
+    console.log("API Response:", data);
 
     if (response.ok) {
-      toast.update(loadingToast, {
-        render: "Payment processed successfully!",
-        type: "success",
-        isLoading: false,
+      toast.dismiss(loadingToast);
+      toast.success("Payment processed successfully!", {
+        position: "top-right",
         autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
       });
-      // window.location.href = data.payment_link;
+      setIsLoading(false);
+      return data; 
     } else {
-      console.log(data);
-
-      toast.update(loadingToast, {
-        render: data[0] || data.detail || "Failed to process payment",
-        type: "error",
-        isLoading: false,
-        autoClose: 3000,
+      // Handle array of error messages
+      const errorMessage = Array.isArray(data) ? data[0] : (data.detail || "Failed to process payment");
+      toast.dismiss(loadingToast);
+      toast.error(errorMessage, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
       });
+      setIsLoading(false);
+      throw new Error(errorMessage);
     }
-    console.log(data);
   } catch (err) {
-    toast.update(loadingToast, {
-      render: "Fetch error: " + err.message,
-      type: "error",
-      isLoading: false,
-      autoClose: 3000,
+    console.error("Payment error:", err);
+    const errorMessage = err || "An error occurred while processing payment";
+    toast.dismiss(loadingToast);
+    toast.error(errorMessage, {
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
     });
-    console.error("Fetch error:", err);
-  } finally {
     setIsLoading(false);
+    throw err;
   }
 };

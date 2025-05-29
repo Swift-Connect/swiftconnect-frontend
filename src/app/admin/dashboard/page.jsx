@@ -56,7 +56,7 @@ const Dashboard = () => {
       try {
         // Fetch users
         const usersData = await fetchAllPages("/users/list-users/");
-        // console.log("Fetched users:", usersData);
+        console.log("Fetched users:", usersData);
 
         const validUsers = usersData.filter((user) => user?.id);
         // console.log("Fetched users:", usersData);
@@ -491,7 +491,7 @@ const Dashboard = () => {
           header={"Pending Tasks"}
           setActiveTab={setActiveTabPending}
           activeTab={activeTabPending}
-          tabs={["Approve KYC", "Approve Withdrawal"]}
+          tabs={["Approve KYC"]}
           from="dashboard"
           // filterOptions={[
           //   { label: "MTN", value: "MTN" },

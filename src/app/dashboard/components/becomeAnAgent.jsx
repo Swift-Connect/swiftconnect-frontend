@@ -4,10 +4,13 @@ const BecomeAnAgent = ({ onClose }) => {
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50" onClick={onClose}> 
       {/* First Modal */}
       {!showConfirmation ? (
-        <div className="bg-white rounded-lg p-6 w-[90%] max-w-md shadow-lg">
+        <div
+          className="bg-white rounded-lg p-6 w-[90%] max-w-md shadow-lg"
+          onClick={(e) => e.stopPropagation()}
+        >
           {/* Header */}
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-bold">Become an Agent</h2>
@@ -59,7 +62,10 @@ const BecomeAnAgent = ({ onClose }) => {
           </div>
 
           {/* Confirmation Button */}
-          <button onClick={onClose} className="mt-6 w-full bg-black text-white py-3 rounded-lg text-lg">
+          <button
+            onClick={onClose}
+            className="mt-6 w-full bg-black text-white py-3 rounded-lg text-lg"
+          >
             Ok, Let’s go
           </button>
         </div>

@@ -1,28 +1,50 @@
 "use client";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import { FaChevronRight, FaPlus, FaTrashAlt, FaEdit } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import api from "@/utils/api";
-import TableTabs from "../../components/tableTabs";
-import Table from "./table";
-import Pagination from "../../components/pagination";
-import EditForm from "./EditForm";
 
 const ApiDetails = ({ title, setCard, path }) => {
-  const [activeTabPending, setActiveTabPending] = useState("All APIs");
-  const [showAddModal, setShowAddModal] = useState(false);
+  // State declarations
   const [isLoading, setIsLoading] = useState(true);
   const [isApiLoading, setIsApiLoading] = useState(false);
-  const [isPlansLoading, setIsPlansLoading] = useState(false);
   const [isOperationLoading, setIsOperationLoading] = useState(false);
-  const [editItem, setEditItem] = useState(null);
+  const [apis, setApis] = useState([]);
   const [selectedApi, setSelectedApi] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editedApi, setEditedApi] = useState(null);
+  const [availablePlans, setAvailablePlans] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [showMobileList, setShowMobileList] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showNewPlanModal, setShowNewPlanModal] = useState(false);
+  const [showEditPlanModal, setShowEditPlanModal] = useState(false);
+  const [showAddExistingPlansModal, setShowAddExistingPlansModal] = useState(false);
+  const [existingPlansSearchTerm, setExistingPlansSearchTerm] = useState("");
+  const [showAllPlans, setShowAllPlans] = useState(false);
+  const [selectedExistingPlans, setSelectedExistingPlans] = useState([]);
+  const [editPlan, setEditPlan] = useState(null);
+  const [newPlans, setNewPlans] = useState([
+    { name: "", plan_id: "", price: "", description: "", status: "active" },
+  ]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [pageSize] = useState(10);
+
   const apiListRef = useRef(null);
 
-  const [formData, setFormData] = useState({
+  // Form configuration
+  const formFieldsByPath = {
+    "airtime-topups": ["url", "api_key", "status", "request_template", "response_template", "secret_key", "public_key"],
+    "bulk-sms": ["url", "api_key", "status", "request_template", "response_template", "secret_key", "public_key"],
+    "cable-recharges": ["url", "api_key", "status", "plan_ids", "secret_key", "public_key"],
+    "data-plans": ["url", "api_key", "status", "plan_ids", "secret_key", "public_key"],
+    "education": ["url", "api_key", "status", "request_template", "response_template", "waec_price", "neco_price", "secret_key", "public_key"],
+    "electricity": ["url", "api_key", "status", "secret_key", "public_key"],
+  };
+
+  // Form data initialization
+  const initialFormData = {
     url: "",
     api_key: "",
     status: "active",
@@ -31,131 +53,187 @@ const ApiDetails = ({ title, setCard, path }) => {
     plan_ids: [],
     waec_price: "",
     neco_price: "",
-  });
-
-  const [apis, setApis] = useState([]);
-  const [availablePlans, setAvailablePlans] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [showNewPlanModal, setShowNewPlanModal] = useState(false);
-  const [newPlans, setNewPlans] = useState([{ name: "", plan_id: "", price: "", description: "", status: "active" }]);
-  const [editPlan, setEditPlan] = useState(null);
-  const [showEditPlanModal, setShowEditPlanModal] = useState(false);
-  const [showAddExistingPlansModal, setShowAddExistingPlansModal] = useState(false);
-  const [selectedExistingPlans, setSelectedExistingPlans] = useState([]);
-  const [existingPlansSearchTerm, setExistingPlansSearchTerm] = useState("");
-  const [showAllPlans, setShowAllPlans] = useState(false);
-
-  const formFieldsByPath = {
-    "airtime-topups": ["url", "api_key", "status", "request_template", "response_template"],
-    "bulk-sms": ["url", "api_key", "status", "request_template", "response_template"],
-    "cable-recharges": ["url", "api_key", "status", "plan_ids"],
-    "data-plans": ["url", "api_key", "status", "plan_ids"],
-    education: ["url", "api_key", "status", "request_template", "response_template", "waec_price", "neco_price"],
-    electricity: ["url", "api_key", "status"],
+    secret_key: "",
+    public_key: "",
   };
+  const [formData, setFormData] = useState(initialFormData);
 
-  // Helper to select a default API
-  const selectDefaultApi = (apiList) => {
-    if (apiList.length === 0) {
-      setSelectedApi(null);
-      return;
+
+    // Plan operations
+    const getFilteredPlans = useCallback(() => {
+      let filtered = availablePlans;
+  
+      if (path === "cable-recharges") {
+        filtered = filtered.filter(plan =>
+          ["dstv", "gotv", "startimes"].some(term => 
+            plan.name.toLowerCase().includes(term)
+          ));
+      } else if (path === "data-plans") {
+        filtered = filtered.filter(plan =>
+          ["mtn", "airtel", "glo", "9mobile"].some(term =>
+            plan.name.toLowerCase().includes(term)
+          ));
+      }
+  
+      if (searchTerm) {
+        filtered = filtered.filter(plan =>
+          plan.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          plan.price.toString().includes(searchTerm)
+        );
+      }
+  
+      return filtered;
+    }, [availablePlans, path, searchTerm]);
+
+
+  const getFilteredExistingPlans = useCallback(() => {
+    let filtered = availablePlans;
+
+    if (!showAllPlans) {
+      if (path === "cable-recharges") {
+        filtered = filtered.filter(plan =>
+          ["dstv", "gotv", "startimes"].some(term =>
+            plan.name.toLowerCase().includes(term)
+          ));
+      } else if (path === "data-plans") {
+        filtered = filtered.filter(plan =>
+          ["mtn", "airtel", "glo", "9mobile"].some(term =>
+            plan.name.toLowerCase().includes(term)
+          ));
+      }
     }
-    const activeApi = apiList.find(api => api.status === "active") || apiList[0];
-    setSelectedApi(activeApi);
-  };
 
-  const fetchApis = async () => {
-    setIsLoading(true);
+    if (existingPlansSearchTerm) {
+      filtered = filtered.filter(plan =>
+        plan.name.toLowerCase().includes(existingPlansSearchTerm.toLowerCase()) ||
+        plan.price.toString().includes(existingPlansSearchTerm)
+      );
+    }
+
+    return filtered;
+  }, [availablePlans, path, showAllPlans, existingPlansSearchTerm]);
+  
+  // Memoized values
+  const filteredPlans = useMemo(() => getFilteredPlans(), [availablePlans, searchTerm, path]);
+  const filteredExistingPlans = useMemo(() => getFilteredExistingPlans(), [
+    availablePlans, 
+    existingPlansSearchTerm, 
+    path, 
+    showAllPlans
+  ]);
+
+  // Debug effects
+  useEffect(() => {
+    console.log("ApiDetails mounted with path:", path);
+  }, [path]);
+
+  useEffect(() => {
+    console.log("selectedApi changed:", selectedApi);
+  }, [selectedApi]);
+
+  // Data fetching
+  const fetchApis = useCallback(async () => {
+    setIsApiLoading(true);
     try {
-      console.log('=== FETCHING APIS ===');
-      const res = await api.get(`/services/configure/${path}/`);
-      console.log('API Response:', res.data);
-
-      // Sort APIs: active first, then by URL
-      const sortedApis = res.data.sort((a, b) => {
-        if (a.status === 'active' && b.status !== 'active') return -1;
-        if (a.status !== 'active' && b.status === 'active') return 1;
+      const res = await api.get(`/services/configure/${path}/?page=${page}&page_size=${pageSize}`);
+      const newApis = res.data.results || res.data;
+      const sortedApis = newApis.sort((a, b) => {
+        if (a.status === "active" && b.status !== "active") return -1;
+        if (a.status !== "active" && b.status === "active") return 1;
         return a.url.localeCompare(b.url);
       });
-      setApis(sortedApis);
+      
+      setApis(prev => page === 1 ? sortedApis : [...prev, ...sortedApis]);
+      setHasMore(!!res.data.next);
 
-      // Select default API or update existing selectedApi
-      if (sortedApis.length > 0) {
-        if (!selectedApi || !sortedApis.find(api => api.id === selectedApi.id)) {
-          console.log('Setting default API:', sortedApis[0]);
-          selectDefaultApi(sortedApis);
-        } else {
-          const updatedSelectedApi = sortedApis.find(api => api.id === selectedApi.id);
-          if (updatedSelectedApi) {
-            console.log('Updating selected API:', updatedSelectedApi);
-            setSelectedApi(updatedSelectedApi);
+      // Update selected API only on initial load or if current selection is invalid
+      if (page === 1) {
+        if (sortedApis.length > 0) {
+          if (!selectedApi || !sortedApis.some(api => api.id === selectedApi.id)) {
+            const activeApi = sortedApis.find(api => api.status === "active") || sortedApis[0];
+            setSelectedApi(activeApi);
           }
+        } else {
+          setSelectedApi(null);
         }
-      } else {
-        setSelectedApi(null);
       }
     } catch (error) {
-      console.error('=== ERROR IN FETCH APIS ===', error);
+      console.error("Error fetching APIs:", error);
       toast.error("Error fetching APIs");
-      setSelectedApi(null);
+      if (page === 1) setSelectedApi(null);
     } finally {
+      setIsApiLoading(false);
       setIsLoading(false);
     }
-  };
+  }, [path, page, pageSize, selectedApi]);
 
-  const fetchAvailablePlans = async () => {
-    setIsPlansLoading(true);
+  const fetchAvailablePlans = useCallback(async () => {
     try {
       const res = await api.get(`/services/configure/plans/`);
       setAvailablePlans(res.data);
     } catch (error) {
       toast.error("Error fetching available plans");
-      console.error("Error fetching available plans:", error);
-    } finally {
-      setIsPlansLoading(false);
+      console.error("Error fetching plans:", error);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchApis();
     fetchAvailablePlans();
-  }, [path]);
+  }, [fetchApis, fetchAvailablePlans]);
 
-  const handleApiSelect = (api) => {
-    if (!api) return;
-    console.log('Selecting API:', api);
-    setSelectedApi(api);
-    setIsEditing(false);
-    setEditedApi(null);
+  // API selection management
+  useEffect(() => {
+    if (apis.length > 0 && (!selectedApi || !apis.some(api => api.id === selectedApi.id))) {
+      const activeApi = apis.find(api => api.status === "active") || apis[0];
+      setSelectedApi(activeApi);
+    }
+  }, [apis, selectedApi]);
 
+  const handleApiSelect = useCallback((api) => {
+    if (!api?.id) return;
+    
+    // Only update if it's a different API
+    if (!selectedApi || selectedApi.id !== api.id) {
+      setSelectedApi(api);
+      setIsEditing(false);
+      setEditedApi(null);
+    }
+
+    // Scroll to selected API
     if (apiListRef.current) {
       const cardWidth = 280;
-      const cardIndex = apis.findIndex(a => a.id === api.id);
+      const cardIndex = apis.findIndex((a) => a.id === api.id);
       const scrollPosition = cardIndex * (cardWidth + 12);
-      apiListRef.current.scrollTo({ left: scrollPosition, behavior: 'smooth' });
+      apiListRef.current.scrollTo({
+        left: scrollPosition,
+        behavior: "smooth",
+      });
     }
-  };
+  }, [apis, selectedApi]);
 
+  // API operations
   const handleStatusToggle = async (api, e) => {
     e.stopPropagation();
-    if (!api || !api.id) return;
+    if (!api?.id) return;
 
     setIsOperationLoading(true);
     const loadingToast = toast.loading("Updating API status...");
     try {
       const newStatus = api.status === "active" ? "inactive" : "active";
-      const response = await api.patch(`/services/configure/${path}/${api.id}/`, { status: newStatus });
-
-      setApis(prevApis =>
-        prevApis.map(a => (a.id === api.id ? { ...a, status: newStatus } : a))
+      const response = await api.patch(
+        `/services/configure/${path}/${api.id}/`,
+        { status: newStatus }
       );
 
+      setApis(prev => prev.map(a => a.id === api.id ? response.data : a));
+      
       if (selectedApi?.id === api.id) {
-        setSelectedApi(prev => ({ ...prev, status: newStatus }));
+        setSelectedApi(response.data);
       }
 
       toast.update(loadingToast, {
-        render: `API ${newStatus === "active" ? "activated" : "deactivated"} successfully`,
+        render: `API ${newStatus === "active" ? "activated" : "deactivated"}`,
         type: "success",
         isLoading: false,
         autoClose: 3000,
@@ -183,7 +261,8 @@ const ApiDetails = ({ title, setCard, path }) => {
       setApis(remainingApis);
 
       if (selectedApi?.id === id) {
-        selectDefaultApi(remainingApis);
+        const activeApi = remainingApis.find(a => a.status === "active") || remainingApis[0];
+        setSelectedApi(activeApi || null);
       }
 
       toast.update(loadingToast, {
@@ -202,38 +281,49 @@ const ApiDetails = ({ title, setCard, path }) => {
     }
   };
 
-  const getFilteredPlans = () => {
-    let filtered = availablePlans;
 
-    if (path === "cable-recharges") {
-      filtered = filtered.filter(
-        plan =>
-          plan.name.toLowerCase().includes("dstv") ||
-          plan.name.toLowerCase().includes("gotv") ||
-          plan.name.toLowerCase().includes("startimes")
-      );
-    } else if (path === "data-plans") {
-      filtered = filtered.filter(
-        plan =>
-          plan.name.toLowerCase().includes("mtn") ||
-          plan.name.toLowerCase().includes("airtel") ||
-          plan.name.toLowerCase().includes("glo") ||
-          plan.name.toLowerCase().includes("9mobile")
-      );
+
+  const handlePlanToggle = async (planId) => {
+    if (!selectedApi?.id) {
+      toast.error("No API selected");
+      return;
     }
 
-    if (searchTerm) {
-      filtered = filtered.filter(
-        plan =>
-          plan.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          plan.price.toString().includes(searchTerm)
-      );
-    }
+    const loadingToast = toast.loading("Updating API plans...");
+    try {
+      const existingPlanIds = selectedApi.plans?.map(plan => plan.id) || [];
+      const newPlanIds = existingPlanIds.includes(planId)
+        ? existingPlanIds.filter(id => id !== planId)
+        : [...existingPlanIds, planId];
 
-    return filtered;
+      const response = await api.put(
+        `/services/configure/${path}/${selectedApi.id}/`,
+        { plan_ids: newPlanIds }
+      );
+
+      setSelectedApi(response.data);
+      setApis(prev => prev.map(api => 
+        api.id === selectedApi.id ? response.data : api
+      ));
+
+      toast.update(loadingToast, {
+        render: "API plans updated",
+        type: "success",
+        isLoading: false,
+        autoClose: 3000,
+      });
+    } catch (error) {
+      toast.update(loadingToast, {
+        render: "Failed to update plans",
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+      });
+    }
   };
 
-  const getRequiredFields = (api) => {
+  // Form handling
+  const getRequiredFields = useCallback((api) => {
     const baseFields = {
       url: api.url,
       api_key: api.api_key,
@@ -262,39 +352,52 @@ const ApiDetails = ({ title, setCard, path }) => {
       default:
         return baseFields;
     }
-  };
+  }, [path]);
 
-  const handlePlanToggle = async (planId) => {
-    if (!selectedApi?.id) {
+  // Edit operations
+  const handleEditApi = () => {
+    if (!selectedApi) {
       toast.error("No API selected");
       return;
     }
+    setEditedApi({ ...selectedApi });
+    setIsEditing(true);
+  };
 
-    const loadingToast = toast.loading("Updating API plans...");
+  const handleCancelEdit = () => {
+    setEditedApi(null);
+    setIsEditing(false);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!selectedApi?.id || !editedApi) {
+      toast.error("No API selected or no changes to save");
+      return;
+    }
+
+    const loadingToast = toast.loading("Updating API...");
     try {
-      const existingPlanIds = Array.isArray(selectedApi.plans) ? selectedApi.plans.map(plan => plan.id) : [];
-      const newPlanIds = existingPlanIds.includes(planId)
-        ? existingPlanIds.filter(id => id !== planId)
-        : [...existingPlanIds, planId];
-
-      const response = await api.put(`/services/configure/${path}/${selectedApi.id}/`, {
-        plan_ids: newPlanIds,
-      });
-
-      setSelectedApi(response.data);
-      setApis(prevApis =>
-        prevApis.map(api => (api.id === selectedApi.id ? response.data : api))
+      const response = await api.patch(
+        `/services/configure/${path}/${selectedApi.id}/`,
+        editedApi
       );
 
+      setApis(prev => prev.map(api => 
+        api.id === selectedApi.id ? response.data : api
+      ));
+      setSelectedApi(response.data);
+      setIsEditing(false);
+      setEditedApi(null);
+
       toast.update(loadingToast, {
-        render: "API plans updated successfully",
+        render: "API updated",
         type: "success",
         isLoading: false,
         autoClose: 3000,
       });
     } catch (error) {
       toast.update(loadingToast, {
-        render: "Failed to update API plans",
+        render: error.message || "Failed to update API",
         type: "error",
         isLoading: false,
         autoClose: 3000,
@@ -302,46 +405,16 @@ const ApiDetails = ({ title, setCard, path }) => {
     }
   };
 
-  const handleSelectAll = async () => {
-    if (!selectedApi?.id) {
-      toast.error("No API selected");
-      return;
-    }
-
-    const loadingToast = toast.loading("Updating API plans...");
-    try {
-      const filteredPlans = getFilteredPlans();
-      const allPlanIds = filteredPlans.map(plan => plan.id);
-      const existingPlanIds = Array.isArray(selectedApi.plans) ? selectedApi.plans.map(plan => plan.id) : [];
-      const newPlanIds = existingPlanIds.length === allPlanIds.length ? [] : allPlanIds;
-
-      const response = await api.put(`/services/configure/${path}/${selectedApi.id}/`, {
-        plan_ids: newPlanIds,
-      });
-
-      setSelectedApi(response.data);
-      setApis(prevApis =>
-        prevApis.map(api => (api.id === selectedApi.id ? response.data : api))
-      );
-
-      toast.update(loadingToast, {
-        render: "API plans updated successfully",
-        type: "success",
-        isLoading: false,
-        autoClose: 3000,
-      });
-    } catch (error) {
-      toast.update(loadingToast, {
-        render: "Failed to update API plans",
-        type: "error",
-        isLoading: false,
-        autoClose: 3000,
-      });
-    }
+  const handleApiFieldChange = (field, value) => {
+    setEditedApi(prev => ({ ...prev, [field]: value }));
   };
 
+  // Plan management
   const handleAddNewPlan = () => {
-    setNewPlans(prev => [...prev, { name: "", plan_id: "", price: "", description: "", status: "active" }]);
+    setNewPlans(prev => [
+      ...prev,
+      { name: "", plan_id: "", price: "", description: "", status: "active" },
+    ]);
   };
 
   const handleRemoveNewPlan = (index) => {
@@ -360,42 +433,45 @@ const ApiDetails = ({ title, setCard, path }) => {
       return;
     }
 
-    const loadingToast = toast.loading("Creating new plans...");
+    const loadingToast = toast.loading("Creating plans...");
     try {
       const createdPlans = [];
       for (const plan of newPlans) {
         if (!plan.name || !plan.plan_id || !plan.price) {
-          throw new Error("Please fill in all required fields for each plan");
+          throw new Error("Fill all required fields for each plan");
         }
-        const planData = { ...plan, status: "active" };
-        const response = await api.post('/services/configure/plans/', planData);
+        const response = await api.post("/services/configure/plans/", {
+          ...plan,
+          status: "active",
+        });
         createdPlans.push(response.data);
       }
 
       setAvailablePlans(prev => [...prev, ...createdPlans]);
+      const existingPlanIds = selectedApi.plans?.map(p => p.id) || [];
+      const newPlanIds = [...existingPlanIds, ...createdPlans.map(p => p.id)];
 
-      const existingPlanIds = Array.isArray(selectedApi.plans) ? selectedApi.plans.map(plan => plan.id) : [];
-      const newPlanIds = createdPlans.map(plan => plan.id);
-      const updatedPlanIds = [...existingPlanIds, ...newPlanIds];
-
-      const apiResponse = await api.put(`/services/configure/${path}/${selectedApi.id}/`, {
-        plan_ids: updatedPlanIds,
-      });
-
-      setSelectedApi(apiResponse.data);
-      setApis(prevApis =>
-        prevApis.map(api => (api.id === selectedApi.id ? apiResponse.data : api))
+      const apiResponse = await api.put(
+        `/services/configure/${path}/${selectedApi.id}/`,
+        { plan_ids: newPlanIds }
       );
 
+      setSelectedApi(apiResponse.data);
+      setApis(prev => prev.map(api => 
+        api.id === selectedApi.id ? apiResponse.data : api
+      ));
+
       toast.update(loadingToast, {
-        render: "Plans created and added to API successfully",
+        render: "Plans created and added",
         type: "success",
         isLoading: false,
         autoClose: 3000,
       });
 
       setShowNewPlanModal(false);
-      setNewPlans([{ name: "", plan_id: "", price: "", description: "", status: "active" }]);
+      setNewPlans([{
+        name: "", plan_id: "", price: "", description: "", status: "active"
+      }]);
     } catch (error) {
       toast.update(loadingToast, {
         render: error.message || "Failed to create plans",
@@ -406,47 +482,50 @@ const ApiDetails = ({ title, setCard, path }) => {
     }
   };
 
-  const handleEditApi = () => {
-    if (!selectedApi) {
-      toast.error("No API selected");
-      return;
-    }
-    setEditedApi({ ...selectedApi });
-    setIsEditing(true);
+  // Existing plans management
+  const handleOpenAddExistingPlansModal = () => {
+    setShowAddExistingPlansModal(true);
+    setSelectedExistingPlans(selectedApi?.plan_ids || []);
   };
 
-  const handleCancelEdit = () => {
-    setEditedApi(null);
-    setIsEditing(false);
-  };
-
-  const handleSaveEdit = async () => {
+  const handleAddExistingPlans = async () => {
     if (!selectedApi?.id) {
       toast.error("No API selected");
       return;
     }
 
-    const loadingToast = toast.loading("Updating API...");
-    try {
-      const response = await api.patch(`/services/configure/${path}/${selectedApi.id}/`, editedApi);
+    if (selectedExistingPlans.length === 0) {
+      toast.error("Select at least one plan");
+      return;
+    }
 
-      setSelectedApi(response.data);
-      setApis(prevApis =>
-        prevApis.map(api => (api.id === selectedApi.id ? response.data : api))
+    const loadingToast = toast.loading("Adding plans...");
+    try {
+      const existingPlanIds = selectedApi.plans?.map(p => p.id) || [];
+      const newPlanIds = [...existingPlanIds, ...selectedExistingPlans];
+
+      const response = await api.put(
+        `/services/configure/${path}/${selectedApi.id}/`,
+        { plan_ids: newPlanIds }
       );
 
-      setIsEditing(false);
-      setEditedApi(null);
+      setSelectedApi(response.data);
+      setApis(prev => prev.map(api => 
+        api.id === selectedApi.id ? response.data : api
+      ));
 
       toast.update(loadingToast, {
-        render: "API updated successfully",
+        render: "Plans added successfully",
         type: "success",
         isLoading: false,
         autoClose: 3000,
       });
+
+      setShowAddExistingPlansModal(false);
+      setSelectedExistingPlans([]);
     } catch (error) {
       toast.update(loadingToast, {
-        render: error.message || "Failed to update API",
+        render: "Failed to add plans",
         type: "error",
         isLoading: false,
         autoClose: 3000,
@@ -454,54 +533,60 @@ const ApiDetails = ({ title, setCard, path }) => {
     }
   };
 
-  const handleApiFieldChange = (field, value) => {
-    setEditedApi(prev => ({
-      ...prev,
-      [field]: value,
-    }));
+  const handleExistingPlanToggle = (planId) => {
+    setSelectedExistingPlans(prev =>
+      prev.includes(planId)
+        ? prev.filter(id => id !== planId)
+        : [...prev, planId]
+    );
   };
 
+  const handleSelectAllExisting = () => {
+    const allPlanIds = filteredExistingPlans.map(p => p.id);
+    setSelectedExistingPlans(prev =>
+      prev.length === allPlanIds.length ? [] : allPlanIds
+    );
+  };
+
+  // Plan editing
   const handleEditPlan = (plan) => {
     setEditPlan(plan);
     setShowEditPlanModal(true);
   };
 
   const handleSavePlanEdit = async () => {
-    if (!selectedApi?.id || !editPlan?.id) {
-      toast.error("No API or plan selected");
+    if (!editPlan?.id) {
+      toast.error("No plan selected");
       return;
     }
 
     const loadingToast = toast.loading("Updating plan...");
     try {
-      const currentPlanIds = Array.isArray(selectedApi.plan_ids) ? selectedApi.plan_ids : [];
-      const response = await api.put(`/services/configure/plans/${editPlan.id}/`, editPlan);
-
-      setAvailablePlans(prev =>
-        prev.map(p => (p.id === editPlan.id ? response.data : p))
+      const response = await api.put(
+        `/services/configure/plans/${editPlan.id}/`,
+        editPlan
       );
 
-      if (selectedApi) {
-        const apiResponse = await api.put(`/services/configure/${path}/${selectedApi.id}/`, {
-          ...getRequiredFields(selectedApi),
-          plan_ids: currentPlanIds,
-        });
+      setAvailablePlans(prev =>
+        prev.map(p => p.id === editPlan.id ? response.data : p)
+      );
 
-        setSelectedApi(apiResponse.data);
-        setApis(prevApis =>
-          prevApis.map(api => (api.id === selectedApi.id ? apiResponse.data : api))
+      if (selectedApi?.plans?.some(p => p.id === editPlan.id)) {
+        const updatedPlans = selectedApi.plans.map(p => 
+          p.id === editPlan.id ? response.data : p
         );
+        setSelectedApi({ ...selectedApi, plans: updatedPlans });
       }
 
-      setShowEditPlanModal(false);
-      setEditPlan(null);
-
       toast.update(loadingToast, {
-        render: "Plan updated successfully",
+        render: "Plan updated",
         type: "success",
         isLoading: false,
         autoClose: 3000,
       });
+
+      setShowEditPlanModal(false);
+      setEditPlan(null);
     } catch (error) {
       toast.update(loadingToast, {
         render: "Failed to update plan",
@@ -513,140 +598,27 @@ const ApiDetails = ({ title, setCard, path }) => {
   };
 
   const handlePlanFieldChange = (field, value) => {
-    setEditPlan(prev => ({
-      ...prev,
-      [field]: value,
-    }));
+    setEditPlan(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleAddExistingPlans = async () => {
-    if (!selectedApi?.id) {
-      toast.error("No API selected");
-      return;
-    }
-
-    if (selectedExistingPlans.length === 0) {
-      toast.error("Please select at least one plan");
-      return;
-    }
-
-    const loadingToast = toast.loading("Adding plans to API...");
-    try {
-      const existingPlanIds = Array.isArray(selectedApi.plans) ? selectedApi.plans.map(plan => plan.id) : [];
-      const newPlanIds = [...existingPlanIds, ...selectedExistingPlans];
-
-      const response = await api.put(`/services/configure/${path}/${selectedApi.id}/`, {
-        plan_ids: newPlanIds,
-      });
-
-      setSelectedApi(response.data);
-      setApis(prevApis =>
-        prevApis.map(api => (api.id === selectedApi.id ? response.data : api))
-      );
-
-      setShowAddExistingPlansModal(false);
-      setSelectedExistingPlans([]);
-      setExistingPlansSearchTerm("");
-      setShowAllPlans(false);
-
-      toast.update(loadingToast, {
-        render: "Plans added to API successfully",
-        type: "success",
-        isLoading: false,
-        autoClose: 3000,
-      });
-    } catch (error) {
-      toast.update(loadingToast, {
-        render: "Failed to add plans to API",
-        type: "error",
-        isLoading: false,
-        autoClose: 3000,
-      });
-    }
-  };
-
-  const handleExistingPlanToggle = (planId) => {
-    setSelectedExistingPlans(prev =>
-      prev.includes(planId) ? prev.filter(id => id !== planId) : [...prev, planId]
-    );
-  };
-
-  const getFilteredExistingPlans = () => {
-    let filtered = availablePlans;
-
-    if (!showAllPlans) {
-      if (path === "cable-recharges") {
-        filtered = filtered.filter(
-          plan =>
-            plan.name.toLowerCase().includes("dstv") ||
-            plan.name.toLowerCase().includes("gotv") ||
-            plan.name.toLowerCase().includes("startimes")
-        );
-      } else if (path === "data-plans") {
-        filtered = filtered.filter(
-          plan =>
-            plan.name.toLowerCase().includes("mtn") ||
-            plan.name.toLowerCase().includes("airtel") ||
-            plan.name.toLowerCase().includes("glo") ||
-            plan.name.toLowerCase().includes("9mobile")
-        );
-      }
-    }
-
-    if (existingPlansSearchTerm) {
-      filtered = filtered.filter(
-        plan =>
-          plan.name.toLowerCase().includes(existingPlansSearchTerm.toLowerCase()) ||
-          plan.price.toString().includes(existingPlansSearchTerm)
-      );
-    }
-
-    return filtered;
-  };
-
-  const handleSelectAllExisting = () => {
-    const filteredPlans = getFilteredExistingPlans();
-    const allPlanIds = filteredPlans.map(plan => plan.id);
-    setSelectedExistingPlans(prev =>
-      prev.length === allPlanIds.length ? [] : allPlanIds
-    );
-  };
-
-  const handleOpenAddExistingPlansModal = () => {
-    setShowAddExistingPlansModal(true);
-    if (selectedApi && Array.isArray(selectedApi.plan_ids)) {
-      setSelectedExistingPlans(selectedApi.plan_ids);
-    }
-  };
-
-  const canAcceptPlans = (path) => {
-    return ["cable-recharges", "data-plans"].includes(path);
-  };
-
+  // Form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const loadingToast = toast.loading("Creating new API...");
+    const loadingToast = toast.loading("Creating API...");
     try {
       const requiredFields = getRequiredFields(formData);
-      const response = await api.post(`/services/configure/${path}/`, requiredFields);
+      const response = await api.post(
+        `/services/configure/${path}/`,
+        requiredFields
+      );
 
-      setApis(prevApis => [...prevApis, response.data]);
+      setApis(prev => [...prev, response.data]);
       setSelectedApi(response.data);
-
       setShowAddModal(false);
-      setFormData({
-        url: "",
-        api_key: "",
-        status: "active",
-        request_template: "{}",
-        response_template: "{}",
-        plan_ids: [],
-        waec_price: "",
-        neco_price: "",
-      });
+      setFormData(initialFormData);
 
       toast.update(loadingToast, {
-        render: "API created successfully",
+        render: "API created",
         type: "success",
         isLoading: false,
         autoClose: 3000,
@@ -661,25 +633,65 @@ const ApiDetails = ({ title, setCard, path }) => {
     }
   };
 
+  // Load more APIs when scrolling
+  const handleScroll = useCallback((e) => {
+    const element = e.target;
+    if (
+      !isApiLoading &&
+      hasMore &&
+      Math.abs(element.scrollHeight - element.scrollTop - element.clientHeight) < 50
+    ) {
+      setPage(prev => prev + 1);
+    }
+  }, [isApiLoading, hasMore]);
+
+  // Reset pagination when path changes
+  useEffect(() => {
+    setPage(1);
+    setApis([]);
+    setHasMore(true);
+  }, [path]);
+
+  // Add scroll event listener
+  useEffect(() => {
+    const apiList = apiListRef.current;
+    if (apiList) {
+      apiList.addEventListener('scroll', handleScroll);
+      return () => apiList.removeEventListener('scroll', handleScroll);
+    }
+  }, [handleScroll]);
+
+  // Helper functions
+  const canAcceptPlans = useCallback((path) => {
+    return ["cable-recharges", "data-plans"].includes(path);
+  }, []);
+
   const renderFormFields = () => {
     const fields = formFieldsByPath[path] || [];
 
-    return fields.map(field => {
+    return fields.map((field) => {
       if (field === "status") {
         return (
           <div key={field} className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">Status</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Status
+            </label>
             <select
               className="border p-2 rounded w-full"
               value={formData.status}
-              onChange={e => setFormData({ ...formData, status: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, status: e.target.value })
+              }
             >
               <option value="active">Active</option>
               <option value="inactive">Inactive</option>
             </select>
           </div>
         );
-      } else if (field === "request_template" || field === "response_template") {
+      } else if (
+        field === "request_template" ||
+        field === "response_template"
+      ) {
         return (
           <div key={field} className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">
@@ -689,7 +701,9 @@ const ApiDetails = ({ title, setCard, path }) => {
               placeholder={`${field.replace("_", " ")} (JSON)`}
               className="border p-2 rounded w-full h-32"
               value={formData[field]}
-              onChange={e => setFormData({ ...formData, [field]: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, [field]: e.target.value })
+              }
             />
           </div>
         );
@@ -698,21 +712,23 @@ const ApiDetails = ({ title, setCard, path }) => {
         return (
           <div key={field} className="space-y-2">
             <div className="flex justify-between items-center">
-              <label className="block text-sm font-medium text-gray-700">Select Plans</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Select Plans
+              </label>
               <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={handleSelectAll}
                   className="text-sm text-[#00613A] hover:underline"
-                  disabled={!selectedApi}
                 >
-                  {formData.plan_ids.length === filteredPlans.length ? "Deselect All" : "Select All"}
+                  {formData.plan_ids.length === getFilteredPlans().length
+                    ? "Deselect All"
+                    : "Select All"}
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowNewPlanModal(true)}
                   className="text-sm text-[#00613A] hover:underline"
-                  disabled={!selectedApi}
                 >
                   Add New Plans
                 </button>
@@ -725,35 +741,48 @@ const ApiDetails = ({ title, setCard, path }) => {
                   placeholder="Search plans..."
                   className="border p-2 rounded w-full"
                   value={searchTerm}
-                  onChange={e => setSearchTerm(e.target.value)}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
               <div className="space-y-2">
-                {filteredPlans.map(plan => (
-                  <div key={plan.id} className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded">
+                {filteredPlans.map((plan) => (
+                  <div
+                    key={plan.id}
+                    className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded"
+                  >
                     <input
                       type="checkbox"
                       id={`plan-${plan.id}`}
                       checked={formData.plan_ids.includes(plan.id)}
                       onChange={() => handlePlanToggle(plan.id)}
                       className="h-4 w-4 text-[#00613A] focus:ring-[#00613A] border-gray-300 rounded"
-                      disabled={!selectedApi}
                     />
-                    <label htmlFor={`plan-${plan.id}`} className="flex-1 cursor-pointer">
+                    <label
+                      htmlFor={`plan-${plan.id}`}
+                      className="flex-1 cursor-pointer"
+                    >
                       <div className="font-medium">{plan.name}</div>
-                      <div className="text-sm text-gray-500">Price: {plan.price}</div>
+                      <div className="text-sm text-gray-500">
+                        Price: {plan.price}
+                      </div>
                       {plan.description && (
-                        <div className="text-sm text-gray-500">{plan.description}</div>
+                        <div className="text-sm text-gray-500">
+                          {plan.description}
+                        </div>
                       )}
                     </label>
                   </div>
                 ))}
                 {filteredPlans.length === 0 && (
-                  <div className="text-center text-gray-500 py-4">No plans found</div>
+                  <div className="text-center text-gray-500 py-4">
+                    No plans found
+                  </div>
                 )}
               </div>
             </div>
-            <p className="text-sm text-gray-500">Selected plans: {formData.plan_ids.length}</p>
+            <p className="text-sm text-gray-500">
+              Selected plans: {formData.plan_ids.length}
+            </p>
           </div>
         );
       } else if (field === "waec_price" || field === "neco_price") {
@@ -769,7 +798,9 @@ const ApiDetails = ({ title, setCard, path }) => {
               placeholder={`Enter ${field.replace("_", " ")}`}
               className="border p-2 rounded w-full"
               value={formData[field]}
-              onChange={e => setFormData({ ...formData, [field]: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, [field]: e.target.value })
+              }
             />
           </div>
         );
@@ -784,13 +815,25 @@ const ApiDetails = ({ title, setCard, path }) => {
               placeholder={`Enter ${field.replace("_", " ")}`}
               className="border p-2 rounded w-full"
               value={formData[field]}
-              onChange={e => setFormData({ ...formData, [field]: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, [field]: e.target.value })
+              }
             />
           </div>
         );
       }
     });
   };
+
+
+  // Add scroll event listener
+  useEffect(() => {
+    const apiList = apiListRef.current;
+    if (apiList) {
+      apiList.addEventListener('scroll', handleScroll);
+      return () => apiList.removeEventListener('scroll', handleScroll);
+    }
+  }, [handleScroll]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -856,7 +899,9 @@ const ApiDetails = ({ title, setCard, path }) => {
               {selectedApi && (
                 <div className="mb-4 p-3 rounded-lg bg-[#00613A] text-white shadow-md">
                   <div className="flex flex-col">
-                    <span className="truncate text-sm font-medium mb-2">{selectedApi.url}</span>
+                    <span className="truncate text-sm font-medium mb-2">
+                      {selectedApi.url}
+                    </span>
                     <div className="flex justify-between items-center">
                       <button
                         onClick={e => handleStatusToggle(selectedApi, e)}
@@ -867,7 +912,9 @@ const ApiDetails = ({ title, setCard, path }) => {
                             : "bg-red-100 text-red-700 hover:bg-red-200"
                         } transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed`}
                       >
-                        {isOperationLoading ? "Updating..." : selectedApi.status}
+                        {isOperationLoading
+                          ? "Updating..."
+                          : selectedApi.status}
                       </button>
                       <button
                         onClick={e => onDelete(selectedApi.id, e)}
@@ -882,9 +929,12 @@ const ApiDetails = ({ title, setCard, path }) => {
               )}
 
               {showMobileList && (
-                <div className="flex overflow-x-auto pb-2 -mx-4 px-4 space-x-3" ref={apiListRef}>
+                <div
+                  className="flex overflow-x-auto pb-2 -mx-4 px-4 space-x-3"
+                  ref={apiListRef}
+                >
                   {apis.map(
-                    api =>
+                    (api) =>
                       api.id !== selectedApi?.id && (
                         <div
                           key={api.id}
@@ -892,10 +942,12 @@ const ApiDetails = ({ title, setCard, path }) => {
                           onClick={() => handleApiSelect(api)}
                         >
                           <div className="flex flex-col">
-                            <span className="truncate text-sm font-medium mb-2">{api.url}</span>
+                            <span className="truncate text-sm font-medium mb-2">
+                              {api.url}
+                            </span>
                             <div className="flex justify-between items-center">
                               <button
-                                onClick={e => handleStatusToggle(api, e)}
+                                onClick={(e) => handleStatusToggle(api, e)}
                                 disabled={isOperationLoading}
                                 className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                                   api.status === "active"
@@ -903,10 +955,12 @@ const ApiDetails = ({ title, setCard, path }) => {
                                     : "bg-red-100 text-red-700 hover:bg-red-200"
                                 } transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed`}
                               >
-                                {isOperationLoading ? "Updating..." : api.status}
+                                {isOperationLoading
+                                  ? "Updating..."
+                                  : api.status}
                               </button>
                               <button
-                                onClick={e => onDelete(api.id, e)}
+                                onClick={(e) => onDelete(api.id, e)}
                                 disabled={isOperationLoading}
                                 className="text-gray-400 hover:text-red-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                               >
@@ -956,7 +1010,9 @@ const ApiDetails = ({ title, setCard, path }) => {
                     >
                       <div className="flex justify-between items-center">
                         <div className="flex-1 min-w-0">
-                          <span className="truncate block text-sm font-medium">{api.url}</span>
+                          <span className="truncate block text-sm font-medium">
+                            {api.url}
+                          </span>
                         </div>
                         <div className="flex gap-2 ml-2 flex-shrink-0">
                           <button
@@ -1006,7 +1062,9 @@ const ApiDetails = ({ title, setCard, path }) => {
                 ) : (
                   <>
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                      <h2 className="text-lg sm:text-xl font-semibold text-gray-800">API Details</h2>
+                      <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
+                        API Details
+                      </h2>
                       {!isEditing ? (
                         <button
                           onClick={handleEditApi}
@@ -1036,39 +1094,55 @@ const ApiDetails = ({ title, setCard, path }) => {
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
                       <div className="space-y-2">
-                        <label className="block text-sm font-medium text-gray-700">URL</label>
+                        <label className="block text-sm font-medium text-gray-700">
+                          URL
+                        </label>
                         <input
                           type="text"
                           value={isEditing ? editedApi.url : selectedApi.url}
-                          onChange={e => isEditing && handleApiFieldChange('url', e.target.value)}
+                          onChange={(e) =>
+                            isEditing &&
+                            handleApiFieldChange("url", e.target.value)
+                          }
                           className={`mt-1 block w-full border border-gray-200 rounded-lg p-2.5 ${
                             isEditing
-                              ? 'bg-white focus:border-[#00613A] focus:ring-1 focus:ring-[#00613A] outline-none'
-                              : 'bg-gray-50 text-gray-600'
+                              ? "bg-white focus:border-[#00613A] focus:ring-1 focus:ring-[#00613A] outline-none"
+                              : "bg-gray-50 text-gray-600"
                           }`}
                           disabled={!isEditing}
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="block text-sm font-medium text-gray-700">API Key</label>
+                        <label className="block text-sm font-medium text-gray-700">
+                          API Key
+                        </label>
                         <input
                           type="text"
-                          value={isEditing ? editedApi.api_key : selectedApi.api_key}
-                          onChange={e => isEditing && handleApiFieldChange('api_key', e.target.value)}
+                          value={
+                            isEditing ? editedApi.api_key : selectedApi.api_key
+                          }
+                          onChange={(e) =>
+                            isEditing &&
+                            handleApiFieldChange("api_key", e.target.value)
+                          }
                           className={`mt-1 block w-full border border-gray-200 rounded-lg p-2.5 ${
                             isEditing
-                              ? 'bg-white focus:border-[#00613A] focus:ring-1 focus:ring-[#00613A] outline-none'
-                              : 'bg-gray-50 text-gray-600'
+                              ? "bg-white focus:border-[#00613A] focus:ring-1 focus:ring-[#00613A] outline-none"
+                              : "bg-gray-50 text-gray-600"
                           }`}
                           disabled={!isEditing}
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="block text-sm font-medium text-gray-700">Status</label>
+                        <label className="block text-sm font-medium text-gray-700">
+                          Status
+                        </label>
                         {isEditing ? (
                           <select
                             value={editedApi.status}
-                            onChange={e => handleApiFieldChange('status', e.target.value)}
+                            onChange={(e) =>
+                              handleApiFieldChange("status", e.target.value)
+                            }
                             className="mt-1 block w-full border border-gray-200 rounded-lg p-2.5 bg-white focus:border-[#00613A] focus:ring-1 focus:ring-[#00613A] outline-none"
                           >
                             <option value="active">Active</option>
@@ -1083,12 +1157,60 @@ const ApiDetails = ({ title, setCard, path }) => {
                           />
                         )}
                       </div>
+                      <div className="space-y-2">
+                        <label className="block text-sm font-medium text-gray-700">
+                          Secret Key
+                        </label>
+                        <input
+                          type="text"
+                          value={
+                            isEditing
+                              ? editedApi.secret_key
+                              : selectedApi.secret_key
+                          }
+                          onChange={(e) =>
+                            isEditing &&
+                            handleApiFieldChange("secret_key", e.target.value)
+                          }
+                          className={`mt-1 block w-full border border-gray-200 rounded-lg p-2.5 ${
+                            isEditing
+                              ? "bg-white focus:border-[#00613A] focus:ring-1 focus:ring-[#00613A] outline-none"
+                              : "bg-gray-50 text-gray-600"
+                          }`}
+                          disabled={!isEditing}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="block text-sm font-medium text-gray-700">
+                          Public Key
+                        </label>
+                        <input
+                          type="text"
+                          value={
+                            isEditing
+                              ? editedApi.public_key
+                              : selectedApi.public_key
+                          }
+                          onChange={(e) =>
+                            isEditing &&
+                            handleApiFieldChange("public_key", e.target.value)
+                          }
+                          className={`mt-1 block w-full border border-gray-200 rounded-lg p-2.5 ${
+                            isEditing
+                              ? "bg-white focus:border-[#00613A] focus:ring-1 focus:ring-[#00613A] outline-none"
+                              : "bg-gray-50 text-gray-600"
+                          }`}
+                          disabled={!isEditing}
+                        />
+                      </div>
                     </div>
 
                     {canAcceptPlans(path) ? (
                       <div className="border-t border-gray-200 pt-6">
                         <div className="flex justify-between items-center mb-6">
-                          <h2 className="text-xl font-semibold text-gray-800">Plans</h2>
+                          <h2 className="text-xl font-semibold text-gray-800">
+                            Plans
+                          </h2>
                           <div className="flex gap-2">
                             <button
                               onClick={handleOpenAddExistingPlansModal}
@@ -1113,27 +1235,45 @@ const ApiDetails = ({ title, setCard, path }) => {
                               >
                                 <div className="flex justify-between items-start">
                                   <div className="space-y-1">
-                                    <h3 className="font-medium text-gray-900">{plan.name}</h3>
+                                    <h3 className="font-medium text-gray-900">
+                                      {plan.name}
+                                    </h3>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                                       <div>
-                                        <span className="text-gray-500">Plan ID:</span>
-                                        <span className="ml-2 text-gray-700">{plan.plan_id}</span>
+                                        <span className="text-gray-500">
+                                          Plan ID:
+                                        </span>
+                                        <span className="ml-2 text-gray-700">
+                                          {plan.plan_id}
+                                        </span>
                                       </div>
                                       <div>
-                                        <span className="text-gray-500">Price:</span>
-                                        <span className="ml-2 text-gray-700">{plan.price}</span>
+                                        <span className="text-gray-500">
+                                          Price:
+                                        </span>
+                                        <span className="ml-2 text-gray-700">
+                                          {plan.price}
+                                        </span>
                                       </div>
                                       {plan.description && (
                                         <div className="col-span-1 sm:col-span-2">
-                                          <span className="text-gray-500">Description:</span>
-                                          <span className="ml-2 text-gray-700">{plan.description}</span>
+                                          <span className="text-gray-500">
+                                            Description:
+                                          </span>
+                                          <span className="ml-2 text-gray-700">
+                                            {plan.description}
+                                          </span>
                                         </div>
                                       )}
                                       <div>
-                                        <span className="text-gray-500">Status:</span>
+                                        <span className="text-gray-500">
+                                          Status:
+                                        </span>
                                         <span
                                           className={`ml-2 ${
-                                            plan.status === 'active' ? 'text-green-600' : 'text-red-600'
+                                            plan.status === "active"
+                                              ? "text-green-600"
+                                              : "text-red-600"
                                           }`}
                                         >
                                           {plan.status}
@@ -1152,115 +1292,175 @@ const ApiDetails = ({ title, setCard, path }) => {
                             ))
                           ) : (
                             <div className="text-center py-8 bg-gray-50 rounded-lg border border-gray-200">
-                              <p className="text-gray-500">No plans available</p>
+                              <p className="text-gray-500">
+                                No plans available
+                              </p>
                             </div>
                           )}
                         </div>
                       </div>
                     ) : (
                       <div className="border-t border-gray-200 pt-6">
-                        <h2 className="text-xl font-semibold text-gray-800 mb-6">API Parameters</h2>
+                        <h2 className="text-xl font-semibold text-gray-800 mb-6">
+                          API Parameters
+                        </h2>
                         <div className="grid grid-cols-1 gap-6">
                           {path === "education" && (
                             <>
                               <div className="space-y-2">
-                                <label className="block text-sm font-medium text-gray-700">WAEC Price</label>
+                                <label className="block text-sm font-medium text-gray-700">
+                                  WAEC Price
+                                </label>
                                 <input
                                   type="number"
                                   step="0.01"
                                   min="0"
-                                  value={isEditing ? editedApi.waec_price : selectedApi.waec_price}
-                                  onChange={e => isEditing && handleApiFieldChange('waec_price', e.target.value)}
+                                  value={
+                                    isEditing
+                                      ? editedApi.waec_price
+                                      : selectedApi.waec_price
+                                  }
+                                  onChange={(e) =>
+                                    isEditing &&
+                                    handleApiFieldChange(
+                                      "waec_price",
+                                      e.target.value
+                                    )
+                                  }
                                   className={`mt-1 block w-full border border-gray-200 rounded-lg p-2.5 ${
                                     isEditing
-                                      ? 'bg-white focus:border-[#00613A] focus:ring-1 focus:ring-[#00613A] outline-none'
-                                      : 'bg-gray-50 text-gray-600'
+                                      ? "bg-white focus:border-[#00613A] focus:ring-1 focus:ring-[#00613A] outline-none"
+                                      : "bg-gray-50 text-gray-600"
                                   }`}
                                   disabled={!isEditing}
                                 />
                               </div>
                               <div className="space-y-2">
-                                <label className="block text-sm font-medium text-gray-700">NECO Price</label>
+                                <label className="block text-sm font-medium text-gray-700">
+                                  NECO Price
+                                </label>
                                 <input
                                   type="number"
                                   step="0.01"
                                   min="0"
-                                  value={isEditing ? editedApi.neco_price : selectedApi.neco_price}
-                                  onChange={e => isEditing && handleApiFieldChange('neco_price', e.target.value)}
+                                  value={
+                                    isEditing
+                                      ? editedApi.neco_price
+                                      : selectedApi.neco_price
+                                  }
+                                  onChange={(e) =>
+                                    isEditing &&
+                                    handleApiFieldChange(
+                                      "neco_price",
+                                      e.target.value
+                                    )
+                                  }
                                   className={`mt-1 block w-full border border-gray-200 rounded-lg p-2.5 ${
                                     isEditing
-                                      ? 'bg-white focus:border-[#00613A] focus:ring-1 focus:ring-[#00613A] outline-none'
-                                      : 'bg-gray-50 text-gray-600'
+                                      ? "bg-white focus:border-[#00613A] focus:ring-1 focus:ring-[#00613A] outline-none"
+                                      : "bg-gray-50 text-gray-600"
                                   }`}
                                   disabled={!isEditing}
                                 />
                               </div>
                             </>
                           )}
-                          {(path === "airtime-topups" || path === "bulk-sms" || path === "education") && (
-                            <>
-                              <div className="space-y-2">
-                                <label className="block text-sm font-medium text-gray-700">Request Template</label>
-                                <textarea
-                                  value={
-                                    isEditing
-                                      ? typeof editedApi.request_template === 'object'
-                                        ? JSON.stringify(editedApi.request_template, null, 2)
-                                        : editedApi.request_template
-                                      : typeof selectedApi.request_template === 'object'
-                                      ? JSON.stringify(selectedApi.request_template, null, 2)
-                                      : selectedApi.request_template
-                                  }
-                                  onChange={e => {
-                                    if (isEditing) {
-                                      try {
-                                        const parsedValue = JSON.parse(e.target.value);
-                                        handleApiFieldChange('request_template', parsedValue);
-                                      } catch {
-                                        handleApiFieldChange('request_template', e.target.value);
-                                      }
-                                    }
-                                  }}
-                                  className={`mt-1 block w-full border border-gray-200 rounded-lg p-2.5 h-32 font-mono text-sm ${
-                                    isEditing
-                                      ? 'bg-white focus:border-[#00613A] focus:ring-1 focus:ring-[#00613A] outline-none'
-                                      : 'bg-gray-50 text-gray-600'
-                                  }`}
-                                  disabled={!isEditing}
-                                />
-                              </div>
-                              <div className="space-y-2">
-                                <label className="block text-sm font-medium text-gray-700">Response Template</label>
-                                <textarea
-                                  value={
-                                    isEditing
-                                      ? typeof editedApi.response_template === 'object'
-                                        ? JSON.stringify(editedApi.response_template, null, 2)
-                                        : editedApi.response_template
-                                      : typeof selectedApi.response_template === 'object'
-                                      ? JSON.stringify(selectedApi.response_template, null, 2)
-                                      : selectedApi.response_template
-                                  }
-                                  onChange={e => {
-                                    if (isEditing) {
-                                      try {
-                                        const parsedValue = JSON.parse(e.target.value);
-                                        handleApiFieldChange('response_template', parsedValue);
-                                      } catch {
-                                        handleApiFieldChange('response_template', e.target.value);
-                                      }
-                                    }
-                                  }}
-                                  className={`mt-1 block w-full border border-gray-200 rounded-lg p-2.5 h-32 font-mono text-sm ${
-                                    isEditing
-                                      ? 'bg-white focus:border-[#00613A] focus:ring-1 focus:ring-[#00613A] outline-none'
-                                      : 'bg-gray-50 text-gray-600'
-                                  }`}
-                                  disabled={!isEditing}
-                                />
-                              </div>
-                            </>
-                          )}
+                          <div className="space-y-2">
+                            <label className="block text-sm font-medium text-gray-700">
+                              Request Template
+                            </label>
+                            <textarea
+                              value={
+                                isEditing
+                                  ? typeof editedApi.request_template ===
+                                    "object"
+                                    ? JSON.stringify(
+                                        editedApi.request_template,
+                                        null,
+                                        2
+                                      )
+                                    : editedApi.request_template
+                                  : typeof selectedApi.request_template ===
+                                    "object"
+                                  ? JSON.stringify(
+                                      selectedApi.request_template,
+                                      null,
+                                      2
+                                    )
+                                  : selectedApi.request_template
+                              }
+                              onChange={(e) => {
+                                try {
+                                  const parsedValue = JSON.parse(
+                                    e.target.value
+                                  );
+                                  handleApiFieldChange(
+                                    "request_template",
+                                    parsedValue
+                                  );
+                                } catch {
+                                  handleApiFieldChange(
+                                    "request_template",
+                                    e.target.value
+                                  );
+                                }
+                              }}
+                              className={`mt-1 block w-full border border-gray-200 rounded-lg p-2.5 h-32 font-mono text-sm ${
+                                isEditing
+                                  ? "bg-white focus:border-[#00613A] focus:ring-1 focus:ring-[#00613A] outline-none"
+                                  : "bg-gray-50 text-gray-600"
+                              }`}
+                              disabled={!isEditing}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="block text-sm font-medium text-gray-700">
+                              Response Template
+                            </label>
+                            <textarea
+                              value={
+                                isEditing
+                                  ? typeof editedApi.response_template ===
+                                    "object"
+                                    ? JSON.stringify(
+                                        editedApi.response_template,
+                                        null,
+                                        2
+                                      )
+                                    : editedApi.response_template
+                                  : typeof selectedApi.response_template ===
+                                    "object"
+                                  ? JSON.stringify(
+                                      selectedApi.response_template,
+                                      null,
+                                      2
+                                    )
+                                  : selectedApi.response_template
+                              }
+                              onChange={(e) => {
+                                try {
+                                  const parsedValue = JSON.parse(
+                                    e.target.value
+                                  );
+                                  handleApiFieldChange(
+                                    "response_template",
+                                    parsedValue
+                                  );
+                                } catch {
+                                  handleApiFieldChange(
+                                    "response_template",
+                                    e.target.value
+                                  );
+                                }
+                              }}
+                              className={`mt-1 block w-full border border-gray-200 rounded-lg p-2.5 h-32 font-mono text-sm ${
+                                isEditing
+                                  ? "bg-white focus:border-[#00613A] focus:ring-1 focus:ring-[#00613A] outline-none"
+                                  : "bg-gray-50 text-gray-600"
+                              }`}
+                              disabled={!isEditing}
+                            />
+                          </div>
                         </div>
                       </div>
                     )}
@@ -1283,9 +1483,11 @@ const ApiDetails = ({ title, setCard, path }) => {
         >
           <div
             className="bg-white p-8 rounded-xl w-[90%] max-w-md shadow-2xl"
-            onClick={e => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="text-xl font-semibold mb-6 text-gray-800">Add New API</h2>
+            <h2 className="text-xl font-semibold mb-6 text-gray-800">
+              Add New API
+            </h2>
             <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
               {renderFormFields()}
               <div className="flex justify-end gap-4 mt-4">
@@ -1313,21 +1515,34 @@ const ApiDetails = ({ title, setCard, path }) => {
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
           onClick={() => {
             setShowNewPlanModal(false);
-            setNewPlans([{ name: "", plan_id: "", price: "", description: "", status: "active" }]);
+            setNewPlans([
+              {
+                name: "",
+                plan_id: "",
+                price: "",
+                description: "",
+                status: "active",
+              },
+            ]);
           }}
         >
           <div
             className="bg-white p-8 rounded-xl w-[90%] max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl"
-            onClick={e => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
           >
             <h2 className="text-xl font-semibold mb-6 text-gray-800">
               Add New Plans {selectedApi && `to ${selectedApi.url}`}
             </h2>
             <div className="space-y-6">
               {newPlans.map((plan, index) => (
-                <div key={index} className="border border-gray-200 rounded-lg p-6 space-y-4">
+                <div
+                  key={index}
+                  className="border border-gray-200 rounded-lg p-6 space-y-4"
+                >
                   <div className="flex justify-between items-center">
-                    <h3 className="font-medium text-gray-800">Plan {index + 1}</h3>
+                    <h3 className="font-medium text-gray-800">
+                      Plan {index + 1}
+                    </h3>
                     {newPlans.length > 1 && (
                       <button
                         type="button"
@@ -1340,52 +1555,76 @@ const ApiDetails = ({ title, setCard, path }) => {
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Name *
+                      </label>
                       <input
                         type="text"
                         value={plan.name}
-                        onChange={e => handleNewPlanChange(index, 'name', e.target.value)}
+                        onChange={(e) =>
+                          handleNewPlanChange(index, "name", e.target.value)
+                        }
                         className="w-full border border-gray-200 rounded-lg p-2.5 focus:border-[#00613A] focus:ring-1 focus:ring-[#00613A] outline-none transition-colors duration-200"
                         placeholder="Enter plan name"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Plan ID *</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Plan ID *
+                      </label>
                       <input
                         type="text"
                         value={plan.plan_id}
-                        onChange={e => handleNewPlanChange(index, 'plan_id', e.target.value)}
+                        onChange={(e) =>
+                          handleNewPlanChange(index, "plan_id", e.target.value)
+                        }
                         className="w-full border border-gray-200 rounded-lg p-2.5 focus:border-[#00613A] focus:ring-1 focus:ring-[#00613A] outline-none transition-colors duration-200"
                         placeholder="Enter plan ID"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Price *</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Price *
+                      </label>
                       <input
                         type="number"
                         step="0.01"
                         min="0"
                         value={plan.price}
-                        onChange={e => handleNewPlanChange(index, 'price', e.target.value)}
+                        onChange={(e) =>
+                          handleNewPlanChange(index, "price", e.target.value)
+                        }
                         className="w-full border border-gray-200 rounded-lg p-2.5 focus:border-[#00613A] focus:ring-1 focus:ring-[#00613A] outline-none transition-colors duration-200"
                         placeholder="Enter price"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Description
+                      </label>
                       <input
                         type="text"
                         value={plan.description}
-                        onChange={e => handleNewPlanChange(index, 'description', e.target.value)}
+                        onChange={(e) =>
+                          handleNewPlanChange(
+                            index,
+                            "description",
+                            e.target.value
+                          )
+                        }
                         className="w-full border border-gray-200 rounded-lg p-2.5 focus:border-[#00613A] focus:ring-1 focus:ring-[#00613A] outline-none transition-colors duration-200"
                         placeholder="Enter description (optional)"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Status
+                      </label>
                       <select
                         value={plan.status}
-                        onChange={e => handleNewPlanChange(index, 'status', e.target.value)}
+                        onChange={(e) =>
+                          handleNewPlanChange(index, "status", e.target.value)
+                        }
                         className="w-full border border-gray-200 rounded-lg p-2.5 focus:border-[#00613A] focus:ring-1 focus:ring-[#00613A] outline-none transition-colors duration-200"
                       >
                         <option value="active">Active</option>
@@ -1408,7 +1647,15 @@ const ApiDetails = ({ title, setCard, path }) => {
                 type="button"
                 onClick={() => {
                   setShowNewPlanModal(false);
-                  setNewPlans([{ name: "", plan_id: "", price: "", description: "", status: "active" }]);
+                  setNewPlans([
+                    {
+                      name: "",
+                      plan_id: "",
+                      price: "",
+                      description: "",
+                      status: "active",
+                    },
+                  ]);
                 }}
                 className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
               >
@@ -1436,58 +1683,80 @@ const ApiDetails = ({ title, setCard, path }) => {
         >
           <div
             className="bg-white p-8 rounded-xl w-[90%] max-w-2xl shadow-2xl"
-            onClick={e => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="text-xl font-semibold mb-6 text-gray-800">Edit Plan</h2>
+            <h2 className="text-xl font-semibold mb-6 text-gray-800">
+              Edit Plan
+            </h2>
             <div className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Name *
+                  </label>
                   <input
                     type="text"
                     value={editPlan.name}
-                    onChange={e => handlePlanFieldChange('name', e.target.value)}
+                    onChange={(e) =>
+                      handlePlanFieldChange("name", e.target.value)
+                    }
                     className="w-full border border-gray-200 rounded-lg p-2.5 focus:border-[#00613A] focus:ring-1 focus:ring-[#00613A] outline-none transition-colors duration-200"
                     placeholder="Enter plan name"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Plan ID *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Plan ID *
+                  </label>
                   <input
                     type="text"
                     value={editPlan.plan_id}
-                    onChange={e => handlePlanFieldChange('plan_id', e.target.value)}
+                    onChange={(e) =>
+                      handlePlanFieldChange("plan_id", e.target.value)
+                    }
                     className="w-full border border-gray-200 rounded-lg p-2.5 focus:border-[#00613A] focus:ring-1 focus:ring-[#00613A] outline-none transition-colors duration-200"
                     placeholder="Enter plan ID"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Price *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Price *
+                  </label>
                   <input
                     type="number"
                     step="0.01"
                     min="0"
                     value={editPlan.price}
-                    onChange={e => handlePlanFieldChange('price', e.target.value)}
+                    onChange={(e) =>
+                      handlePlanFieldChange("price", e.target.value)
+                    }
                     className="w-full border border-gray-200 rounded-lg p-2.5 focus:border-[#00613A] focus:ring-1 focus:ring-[#00613A] outline-none transition-colors duration-200"
                     placeholder="Enter price"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Description
+                  </label>
                   <input
                     type="text"
-                    value={editPlan.description || ''}
-                    onChange={e => handlePlanFieldChange('description', e.target.value)}
+                    value={editPlan.description || ""}
+                    onChange={(e) =>
+                      handlePlanFieldChange("description", e.target.value)
+                    }
                     className="w-full border border-gray-200 rounded-lg p-2.5 focus:border-[#00613A] focus:ring-1 focus:ring-[#00613A] outline-none transition-colors duration-200"
                     placeholder="Enter description (optional)"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Status
+                  </label>
                   <select
                     value={editPlan.status}
-                    onChange={e => handlePlanFieldChange('status', e.target.value)}
+                    onChange={(e) =>
+                      handlePlanFieldChange("status", e.target.value)
+                    }
                     className="w-full border border-gray-200 rounded-lg p-2.5 focus:border-[#00613A] focus:ring-1 focus:ring-[#00613A] outline-none transition-colors duration-200"
                   >
                     <option value="active">Active</option>
@@ -1531,7 +1800,7 @@ const ApiDetails = ({ title, setCard, path }) => {
         >
           <div
             className="bg-white p-8 rounded-xl w-[90%] max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl"
-            onClick={e => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
           >
             <h2 className="text-xl font-semibold mb-6 text-gray-800">
               Add Existing Plans to {selectedApi?.url}
@@ -1552,17 +1821,18 @@ const ApiDetails = ({ title, setCard, path }) => {
                     onClick={() => setShowAllPlans(!showAllPlans)}
                     className={`px-3 py-2 rounded-lg border transition-colors duration-200 text-sm ${
                       showAllPlans
-                        ? 'border-[#00613A] text-[#00613A] hover:bg-[#00613A] hover:text-white'
-                        : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                        ? "border-[#00613A] text-[#00613A] hover:bg-[#00613A] hover:text-white"
+                        : "border-gray-300 text-gray-700 hover:bg-gray-50"
                     }`}
                   >
-                    {showAllPlans ? 'Show Filtered Plans' : 'Show All Plans'}
+                    {showAllPlans ? "Show Filtered Plans" : "Show All Plans"}
                   </button>
                   <button
                     onClick={handleSelectAllExisting}
                     className="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors duration-200 text-sm"
                   >
-                    {selectedExistingPlans.length === getFilteredExistingPlans().length
+                    {selectedExistingPlans.length ===
+                    getFilteredExistingPlans().length
                       ? "Deselect All"
                       : "Select All"}
                   </button>
@@ -1570,8 +1840,11 @@ const ApiDetails = ({ title, setCard, path }) => {
               </div>
               <div className="border rounded-lg p-4 max-h-96 overflow-y-auto">
                 <div className="space-y-2">
-                  {getFilteredExistingPlans().map(plan => (
-                    <div key={plan.id} className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded">
+                  {getFilteredExistingPlans().map((plan) => (
+                    <div
+                      key={plan.id}
+                      className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded"
+                    >
                       <input
                         type="checkbox"
                         id={`existing-plan-${plan.id}`}
@@ -1579,11 +1852,18 @@ const ApiDetails = ({ title, setCard, path }) => {
                         onChange={() => handleExistingPlanToggle(plan.id)}
                         className="h-4 w-4 text-[#00613A] focus:ring-[#00613A] border-gray-300 rounded"
                       />
-                      <label htmlFor={`existing-plan-${plan.id}`} className="flex-1 cursor-pointer">
+                      <label
+                        htmlFor={`existing-plan-${plan.id}`}
+                        className="flex-1 cursor-pointer"
+                      >
                         <div className="font-medium">{plan.name}</div>
-                        <div className="text-sm text-gray-500">Price: {plan.price}</div>
+                        <div className="text-sm text-gray-500">
+                          Price: {plan.price}
+                        </div>
                         {plan.description && (
-                          <div className="text-sm text-gray-500">{plan.description}</div>
+                          <div className="text-sm text-gray-500">
+                            {plan.description}
+                          </div>
                         )}
                       </label>
                     </div>
