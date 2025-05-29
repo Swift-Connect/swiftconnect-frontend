@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import ConfirmPayment from "./confirmPayment";
 import EnterPinModal from "../sendMoney/enterPin";
-import SuccessModal from "../sendMoney/successModal";
 import Image from "next/image";
 import { handleBillsConfirm } from "@/utils/handleBillsConfirm";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import html2canvas from 'html2canvas';
 
 const Airtime = ({ onNext, setBillType }) => {
   const [network, setNetwork] = useState("GLO");
@@ -17,15 +17,10 @@ const Airtime = ({ onNext, setBillType }) => {
   const [isEnteringPin, setIsEnteringPin] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [pin, setPin] = useState(["", "", "", ""]);
-  //   const [BT, setPayBillsType] = useState();
-
-  //   useEffect(() => {
-  //     setBillType(BT);
-  //   }, [BT]);
+  const [paymentData, setPaymentData] = useState(null);
 
   const handlePay = () => {
     if (!network || !airtimeType || !phoneNumber || !amount) {
-      // console.log({ provider, plan, amount });
       toast.error("Please fill in all fields");
       return;
     }
@@ -37,145 +32,265 @@ const Airtime = ({ onNext, setBillType }) => {
   };
 
   const handleConfirm = () => {
-    console.log({ network, airtimeType, phoneNumber, amount });
     setIsEnteringPin(true);
   };
 
-  const handlePinConfirm = () => {
-    const pinString = pin.join(""); // Join the pin array into a single string
-    console.log("Entered PIN:", pinString);
-    handleBillsConfirm(
-      pinString, // Pass the pin as a string
-      {
-        network,
-        phone_number: phoneNumber,
-        amount,
-      },
-      "airtime-topups-transactions/",
-      setIsLoading
-    );
+  const handlePinConfirm = async () => {
+    const pinString = pin.join("");
+    try {
+      const data = await handleBillsConfirm(
+        pinString,
+        {
+          network,
+          phone_number: phoneNumber,
+          amount,
+        },
+        "airtime-topups-transactions/",
+        setIsLoading
+      );
 
-    setPin(["", "", "", ""]);
-    // setIsSuccess(true);
+      console.log("Payment response:", data);
+
+      if (data) {
+        setPaymentData({
+          transaction: {
+            amount: data.amount,
+            network: data.network,
+            phone_number: data.phone_number,
+            id: data.id,
+            created_at: data.created_at,
+            transaction_id: data.transaction_id,
+            status: data.status,
+            total_amount: data.total_amount,
+            commission: data.commission
+          }
+        });
+
+        setPin(["", "", "", ""]);
+        setIsEnteringPin(false);
+        setIsConfirming(false);
+        setIsSuccess(true);
+      }
+    } catch (error) {
+      console.error("Payment error:", error);
+      setPin(["", "", "", ""]);
+      setIsEnteringPin(false);
+      setIsConfirming(false);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSuccessClose = () => {
     setIsSuccess(false);
+    setPaymentData(null);
     setBillType("dashboard");
-    // onNext();
   };
 
-  return isSuccess ? (
-    <SuccessModal
-      onClose={handleSuccessClose}
-      //   setPayBillsType={setBillType}
-    />
-  ) : isEnteringPin ? (
-    <EnterPinModal
-      onConfirm={handlePinConfirm}
-      onNext={() => setIsEnteringPin(false)}
-      onClose={() => setIsEnteringPin(false)}
-      setPin={setPin}
-      pin={pin}
-      from="bills"
-    />
-  ) : isConfirming ? (
-    <ConfirmPayment
-      network={network}
-      airtimeType={airtimeType}
-      phoneNumber={phoneNumber}
-      amount={amount}
-      onBack={handleBack}
-      onConfirm={handleConfirm}
-      description={"Airtime"}
-    />
-  ) : (
-    <div className="  flex justify-center items-center">
-      <ToastContainer />
-      <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
-        <button
-          className="text-sm text-gray-600 mb-4 flex items-center"
-          onClick={() => setBillType("dashboard")}
-        >
-          <Image
-            src={"backArrow.svg"}
-            alt="confirmation icon"
-            width={16}
-            height={16}
-            className="w-[0.6em]"
-          />
-          <span className="ml-2">Back</span>
-        </button>
-        <h2 className="text-xl font-semibold mb-6 text-center">Airtime</h2>
+  const handleDownloadReceipt = async () => {
+    const receiptElement = document.getElementById('receipt-container');
+    if (receiptElement) {
+      try {
+        const canvas = await html2canvas(receiptElement);
+        const image = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.href = image;
+        link.download = `airtime-receipt-${paymentData?.transaction?.id}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch (error) {
+        console.error('Error downloading receipt:', error);
+        toast.error('Failed to download receipt');
+      }
+    }
+  };
 
-        {/* Select Network */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Select a Network
-          </label>
-          <select
-            className="w-full border border-gray-300 rounded-lg p-2"
-            value={network}
-            onChange={(e) => setNetwork(e.target.value)}
+  return (
+    <div className="flex justify-center w-full">
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        style={{ zIndex: 9999 }}
+      />
+      {isSuccess ? (
+        <div className="flex justify-center items-center min-h-screen bg-gray-50 w-full">
+          <div id="receipt-container" className="w-full max-w-2xl p-6 bg-white rounded-lg shadow-lg">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">Payment Successful!</h2>
+              <p className="text-gray-600">Your airtime purchase was successful</p>
+              <p className="text-sm text-gray-500 mt-2">A receipt has been sent to your email</p>
+            </div>
+
+            <div className="bg-gray-50 rounded-lg p-4 mb-6">
+              <h3 className="text-lg font-semibold mb-4 text-gray-800">Transaction Details</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Amount:</span>
+                  <span className="font-medium">₦{paymentData?.transaction?.amount}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Network:</span>
+                  <span className="font-medium">{paymentData?.transaction?.network}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Phone Number:</span>
+                  <span className="font-medium">{paymentData?.transaction?.phone_number}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Transaction ID:</span>
+                  <span className="font-medium">{paymentData?.transaction?.transaction_id}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Date:</span>
+                  <span className="font-medium">{new Date(paymentData?.transaction?.created_at).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Status:</span>
+                  <span className="font-medium capitalize">{paymentData?.transaction?.status}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex space-x-4">
+              <button
+                onClick={handleDownloadReceipt}
+                className="flex-1 bg-gray-100 text-gray-800 py-3 px-4 rounded-md hover:bg-gray-200 transition-colors flex items-center justify-center"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Download Receipt
+              </button>
+              <button
+                onClick={handleSuccessClose}
+                className="flex-1 bg-black text-white py-3 px-4 rounded-md hover:bg-gray-800 transition-colors"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : isEnteringPin ? (
+        <div className="w-full">
+          <EnterPinModal
+            onConfirm={handlePinConfirm}
+            onClose={() => setIsEnteringPin(false)}
+            setPin={setPin}
+            pin={pin}
+            from="bills"
+          />
+        </div>
+      ) : isConfirming ? (
+        <div className="w-full">
+          <ConfirmPayment
+            network={network}
+            airtimeType={airtimeType}
+            phoneNumber={phoneNumber}
+            amount={amount}
+            onBack={handleBack}
+            onConfirm={handleConfirm}
+            description={"Airtime"}
+          />
+        </div>
+      ) : (
+        <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-md">
+          <button
+            className="text-sm text-gray-600 mb-4 flex items-center"
+            onClick={() => setBillType("dashboard")}
           >
-            <option value="GLO">GLO NG</option>
-            <option value="MTN">MTN NG</option>
-            <option value="AIRTEL">AIRTEL NG</option>
-            <option value="9MOBILE">9MOBILE NG</option>
-          </select>
-        </div>
+            <Image
+              src={"backArrow.svg"}
+              alt="confirmation icon"
+              width={16}
+              height={16}
+              className="w-[0.6em]"
+            />
+            <span className="ml-2">Back</span>
+          </button>
+          <h2 className="text-xl font-semibold mb-6 text-center">Airtime</h2>
 
-        {/* Select Airtime Type */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Select Airtime Type
-          </label>
-          <select
-            className="w-full border border-gray-300 rounded-lg p-2"
-            value={airtimeType}
-            onChange={(e) => setAirtimeType(e.target.value)}
+          {/* Select Network */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Select a Network
+            </label>
+            <select
+              className="w-full border border-gray-300 rounded-lg p-2"
+              value={network}
+              onChange={(e) => setNetwork(e.target.value)}
+            >
+              <option value="GLO">GLO NG</option>
+              <option value="MTN">MTN NG</option>
+              <option value="AIRTEL">AIRTEL NG</option>
+              <option value="9MOBILE">9MOBILE NG</option>
+            </select>
+          </div>
+
+          {/* Select Airtime Type */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Select Airtime Type
+            </label>
+            <select
+              className="w-full border border-gray-300 rounded-lg p-2"
+              value={airtimeType}
+              onChange={(e) => setAirtimeType(e.target.value)}
+            >
+              <option value="VTU">VTU</option>
+            </select>
+          </div>
+
+          {/* Phone Number */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Phone Number
+            </label>
+            <input
+              type="tel"
+              className="w-full border border-gray-300 rounded-lg p-2"
+              placeholder="Enter phone number"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+            />
+          </div>
+
+          {/* Amount */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Amount
+            </label>
+            <input
+              type="text"
+              className="w-full border border-gray-300 rounded-lg p-2"
+              placeholder="Enter amount"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+            />
+          </div>
+
+          {/* Pay Button */}
+          <button
+            className="w-full bg-black text-white py-2 rounded-lg hover:bg-gray-800"
+            onClick={handlePay}
           >
-            <option value="VTU">VTU</option>
-            {/* <option value="Recharge PIN">Recharge PIN</option> */}
-          </select>
+            Pay
+          </button>
         </div>
-
-        {/* Phone Number */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Phone Number
-          </label>
-          <input
-            type="tel"
-            className="w-full border border-gray-300 rounded-lg p-2"
-            placeholder="Enter phone number"
-            value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
-          />
-        </div>
-
-        {/* Amount */}
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Amount
-          </label>
-          <input
-            type="text"
-            className="w-full border border-gray-300 rounded-lg p-2"
-            placeholder="Enter amount"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-          />
-        </div>
-
-        {/* Pay Button */}
-        <button
-          className="w-full bg-black text-white py-2 rounded-lg hover:bg-gray-800"
-          onClick={handlePay}
-        >
-          Pay
-        </button>
-      </div>
+      )}
     </div>
   );
 };
