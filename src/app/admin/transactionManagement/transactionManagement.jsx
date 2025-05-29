@@ -9,8 +9,12 @@ import TrxManagementTable from "./components/trxManagementTable";
 import { toast } from "react-toastify";
 import api from "@/utils/api";
 import ViewTransactionModal from "../components/viewTransactionModal";
+import { useRouter } from "next/navigation";
 
 const TransactionManagement = () => {
+  const router = useRouter();
+  const token = localStorage.getItem("access_token");
+
   const [activeTabPending, setActiveTabPending] =
     React.useState("All Transaction");
   const data = [
@@ -75,6 +79,11 @@ const TransactionManagement = () => {
   });
 
   useEffect(() => {
+    if (!token) {
+      router.push("/account/login");
+      return;
+    }
+
     const fetchDashboardData = async () => {
       setIsLoading(true);
       try {
@@ -135,7 +144,13 @@ const TransactionManagement = () => {
 
         setAllTransaactionData(processedDataTrx);
       } catch (error) {
-        toast.error("Failed to fetch dashboard data. Please try again later.");
+        if (error.response?.status === 401) {
+          router.push("/account/login");
+        } else {
+          toast.error(
+            "Failed to fetch dashboard data. Please try again later."
+          );
+        }
         console.error("Fetch dashboard data error:", error);
       } finally {
         setIsLoading(false);
