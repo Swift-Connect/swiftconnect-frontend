@@ -7,8 +7,11 @@ import UserForm from "./components/editUser";
 import { FaChevronRight } from "react-icons/fa";
 import { toast } from "react-toastify";
 import api from "@/utils/api";
+import { useRouter } from "next/navigation";
 
 const UserManagement = () => {
+  const router = useRouter();
+  const token = localStorage.getItem("access_token");
   const [activeTabPending, setActiveTabPending] = React.useState("Active");
   const [showEdit, setShowEdit] = useState(false);
   const [editData, setEditData] = useState(null);
@@ -17,6 +20,11 @@ const UserManagement = () => {
   const [selectedUserIds, setSelectedUserIds] = useState([]); // Track selected rows
 
   useEffect(() => {
+    if (!token) {
+      router.push("/account/login");
+      return;
+    }
+
     const fetchUsers = async () => {
       setIsLoading(true);
       try {
@@ -40,7 +48,11 @@ const UserManagement = () => {
         setUserData(validUsers);
         // setCheckedItems(new Array(processedData.length).fill(false));
       } catch (error) {
-        toast.error("Failed to fetch users. Please try again later.");
+        if (error.response?.status === 401) {
+          router.push("/account/login");
+        } else {
+          toast.error("Failed to fetch users. Please try again later.");
+        }
         console.error("Fetch users error:", error);
       } finally {
         setIsLoading(false);

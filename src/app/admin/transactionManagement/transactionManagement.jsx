@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 // import TrxManagementTable from "./components/TrxManagementTable";
@@ -9,8 +11,23 @@ import TrxManagementTable from "./components/trxManagementTable";
 import { toast } from "react-toastify";
 import api from "@/utils/api";
 import ViewTransactionModal from "../components/viewTransactionModal";
+import { useRouter } from "next/navigation";
 
 const TransactionManagement = () => {
+  const router = useRouter();
+  const [token, setToken] = useState(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const accessToken = localStorage.getItem("access_token");
+      setToken(accessToken);
+
+      if (!accessToken) {
+        router.push("/account/login");
+      }
+    }
+  }, []);
+
   const [activeTabPending, setActiveTabPending] =
     React.useState("All Transaction");
   const data = [
@@ -75,6 +92,8 @@ const TransactionManagement = () => {
   });
 
   useEffect(() => {
+    if (!token) return;
+
     const fetchDashboardData = async () => {
       setIsLoading(true);
       try {
@@ -135,7 +154,13 @@ const TransactionManagement = () => {
 
         setAllTransaactionData(processedDataTrx);
       } catch (error) {
-        toast.error("Failed to fetch dashboard data. Please try again later.");
+        if (error.response?.status === 401) {
+          router.push("/account/login");
+        } else {
+          toast.error(
+            "Failed to fetch dashboard data. Please try again later."
+          );
+        }
         console.error("Fetch dashboard data error:", error);
       } finally {
         setIsLoading(false);
@@ -143,7 +168,7 @@ const TransactionManagement = () => {
     };
 
     fetchDashboardData();
-  }, []);
+  }, [token]);
 
   const fetchAllPages = async (endpoint, maxPages = 50) => {
     let allData = [];
