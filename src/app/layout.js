@@ -7,6 +7,9 @@ const poppins = Poppins({
   weight: ["300", "400", "500"],
   subsets: ["latin"],
   display: "swap",
+  fallback: ['system-ui', 'arial'],
+  preload: true,
+  adjustFontFallback: true,
 });
 
 export const metadata = {
