@@ -718,7 +718,7 @@ const ApiDetails = ({ title, setCard, path }) => {
               <div className="flex gap-2">
                 <button
                   type="button"
-                  onClick={handleSelectAll}
+                  // onClick={handleSelectAll}
                   className="text-sm text-[#00613A] hover:underline"
                 >
                   {formData.plan_ids.length === getFilteredPlans().length

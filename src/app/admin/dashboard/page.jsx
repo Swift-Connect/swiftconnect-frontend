@@ -15,6 +15,7 @@ import {
 import { BarChart, Bar } from "recharts";
 import { PieChart, Pie, Cell, Legend } from "recharts";
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 import api from "@/utils/api";
 import UsersTable from "./components/userTable";
 import TransactionsTable from "./components/TransactionsTable";
@@ -26,6 +27,8 @@ import { STATIC_STATUS_PAGE_GET_INITIAL_PROPS_ERROR } from "next/dist/lib/consta
 const COLORS = ["#1D4ED8", "#60A5FA"];
 
 const Dashboard = () => {
+  const router = useRouter();
+  const [token, setToken] = useState(null);
   const [activeTabPending, setActiveTabPending] = useState("Approve KYC");
   const [activeTabTransactions, setActiveTabTransactions] =
     useState("All Transactions");
@@ -51,6 +54,19 @@ const Dashboard = () => {
   });
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      const accessToken = localStorage.getItem("access_token");
+      setToken(accessToken);
+
+      if (!accessToken) {
+        router.push("/account/login");
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!token) return;
+
     const fetchDashboardData = async () => {
       setIsLoading(true);
       try {
@@ -274,7 +290,13 @@ const Dashboard = () => {
         // console.log("Processed user breakdown:", userBreakdownData);
         setUserData(userBreakdownData);
       } catch (error) {
-        toast.error("Failed to fetch dashboard data. Please try again later.");
+        if (error.response?.status === 401) {
+          router.push("/account/login");
+        } else {
+          toast.error(
+            "Failed to fetch dashboard data. Please try again later."
+          );
+        }
         console.error("Fetch dashboard data error:", error);
       } finally {
         setIsLoading(false);
@@ -282,7 +304,7 @@ const Dashboard = () => {
     };
 
     fetchDashboardData();
-  }, []);
+  }, [token]);
 
   const fetchAllPages = async (endpoint, maxPages = 50) => {
     let allData = [];
