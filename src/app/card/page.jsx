@@ -55,6 +55,7 @@ const CardPage = () => {
       onConfirm={handlePinConfirm}
       onNext={() => setIsEnteringPin(false)}
       addCard={true}
+      onClose={onClose}
     />
   ) : showAddCardForm ? (
     <AddCardForm onClose={onClose} handlePayCharges={handlePayCharges} />
