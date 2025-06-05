@@ -606,10 +606,22 @@ const ApiDetails = ({ title, setCard, path }) => {
     e.preventDefault();
     const loadingToast = toast.loading("Creating API...");
     try {
-      const requiredFields = getRequiredFields(formData);
+      // Include all form fields in the payload
+      const payload = {
+        ...formData,
+        status: formData.status || "active",
+        request_template: formData.request_template || "{}",
+        response_template: formData.response_template || "{}",
+        plan_ids: formData.plan_ids || [],
+        waec_price: formData.waec_price || "",
+        neco_price: formData.neco_price || "",
+        secret_key: formData.secret_key || "",
+        public_key: formData.public_key || ""
+      };
+
       const response = await api.post(
         `/services/configure/${path}/`,
-        requiredFields
+        payload
       );
 
       setApis(prev => [...prev, response.data]);
@@ -1478,34 +1490,41 @@ const ApiDetails = ({ title, setCard, path }) => {
 
       {showAddModal && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
           onClick={() => setShowAddModal(false)}
         >
           <div
-            className="bg-white p-8 rounded-xl w-[90%] max-w-md shadow-2xl"
+            className="bg-white rounded-lg w-full max-w-md shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="text-xl font-semibold mb-6 text-gray-800">
-              Add New API
-            </h2>
-            <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
-              {renderFormFields()}
-              <div className="flex justify-end gap-4 mt-4">
+            <div className="p-4 border-b">
+              <h2 className="text-base font-medium">Add New API</h2>
+            </div>
+
+            <div className="p-4 max-h-[calc(100vh-200px)] overflow-y-auto">
+              <form className="space-y-4" onSubmit={handleSubmit}>
+                {renderFormFields()}
+              </form>
+            </div>
+
+            <div className="p-4 border-t bg-gray-50">
+              <div className="flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                  className="px-3 py-1.5 text-sm border rounded"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-lg bg-[#00613A] text-white hover:bg-[#004d2d] transition-colors duration-200"
+                  onClick={handleSubmit}
+                  className="px-3 py-1.5 text-sm bg-[#00613A] text-white rounded"
                 >
                   Submit
                 </button>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       )}
@@ -1527,147 +1546,112 @@ const ApiDetails = ({ title, setCard, path }) => {
           }}
         >
           <div
-            className="bg-white p-8 rounded-xl w-[90%] max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl"
+            className="bg-white rounded-lg w-[500px] shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="text-xl font-semibold mb-6 text-gray-800">
-              Add New Plans {selectedApi && `to ${selectedApi.url}`}
-            </h2>
-            <div className="space-y-6">
+            <div className="p-4 border-b">
+              <h2 className="text-base font-medium">Add New Plans</h2>
+            </div>
+
+            <div className="p-4 max-h-[calc(100vh-200px)] overflow-y-auto">
               {newPlans.map((plan, index) => (
-                <div
-                  key={index}
-                  className="border border-gray-200 rounded-lg p-6 space-y-4"
-                >
-                  <div className="flex justify-between items-center">
-                    <h3 className="font-medium text-gray-800">
-                      Plan {index + 1}
-                    </h3>
+                <div key={index} className="mb-3 last:mb-0">
+                  <div className="flex justify-between items-center mb-2">
+                    <h3 className="text-sm font-medium">Plan {index + 1}</h3>
                     {newPlans.length > 1 && (
                       <button
                         type="button"
                         onClick={() => handleRemoveNewPlan(index)}
-                        className="text-gray-400 hover:text-red-500 transition-colors duration-200"
+                        className="text-red-500 text-xs"
                       >
-                        <FaTrashAlt />
+                        Remove
                       </button>
                     )}
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  
+                  <div className="space-y-2">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Name *
-                      </label>
+                      <label className="block text-xs text-gray-600 mb-0.5">Name</label>
                       <input
                         type="text"
                         value={plan.name}
-                        onChange={(e) =>
-                          handleNewPlanChange(index, "name", e.target.value)
-                        }
-                        className="w-full border border-gray-200 rounded-lg p-2.5 focus:border-[#00613A] focus:ring-1 focus:ring-[#00613A] outline-none transition-colors duration-200"
+                        onChange={(e) => handleNewPlanChange(index, "name", e.target.value)}
+                        className="w-full border rounded px-2 py-1 text-sm"
                         placeholder="Enter plan name"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Plan ID *
-                      </label>
+                      <label className="block text-xs text-gray-600 mb-0.5">Plan ID</label>
                       <input
                         type="text"
                         value={plan.plan_id}
-                        onChange={(e) =>
-                          handleNewPlanChange(index, "plan_id", e.target.value)
-                        }
-                        className="w-full border border-gray-200 rounded-lg p-2.5 focus:border-[#00613A] focus:ring-1 focus:ring-[#00613A] outline-none transition-colors duration-200"
+                        onChange={(e) => handleNewPlanChange(index, "plan_id", e.target.value)}
+                        className="w-full border rounded px-2 py-1 text-sm"
                         placeholder="Enter plan ID"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Price *
-                      </label>
+                      <label className="block text-xs text-gray-600 mb-0.5">Price</label>
                       <input
                         type="number"
-                        step="0.01"
-                        min="0"
                         value={plan.price}
-                        onChange={(e) =>
-                          handleNewPlanChange(index, "price", e.target.value)
-                        }
-                        className="w-full border border-gray-200 rounded-lg p-2.5 focus:border-[#00613A] focus:ring-1 focus:ring-[#00613A] outline-none transition-colors duration-200"
+                        onChange={(e) => handleNewPlanChange(index, "price", e.target.value)}
+                        className="w-full border rounded px-2 py-1 text-sm"
                         placeholder="Enter price"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Description
-                      </label>
+                      <label className="block text-xs text-gray-600 mb-0.5">Description</label>
                       <input
                         type="text"
                         value={plan.description}
-                        onChange={(e) =>
-                          handleNewPlanChange(
-                            index,
-                            "description",
-                            e.target.value
-                          )
-                        }
-                        className="w-full border border-gray-200 rounded-lg p-2.5 focus:border-[#00613A] focus:ring-1 focus:ring-[#00613A] outline-none transition-colors duration-200"
-                        placeholder="Enter description (optional)"
+                        onChange={(e) => handleNewPlanChange(index, "description", e.target.value)}
+                        className="w-full border rounded px-2 py-1 text-sm"
+                        placeholder="Enter description"
                       />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Status
-                      </label>
-                      <select
-                        value={plan.status}
-                        onChange={(e) =>
-                          handleNewPlanChange(index, "status", e.target.value)
-                        }
-                        className="w-full border border-gray-200 rounded-lg p-2.5 focus:border-[#00613A] focus:ring-1 focus:ring-[#00613A] outline-none transition-colors duration-200"
-                      >
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                      </select>
                     </div>
                   </div>
                 </div>
               ))}
-              <button
-                type="button"
-                onClick={handleAddNewPlan}
-                className="text-[#00613A] hover:text-[#004d2d] flex items-center gap-2 transition-colors duration-200"
-              >
-                <FaPlus /> Add Another Plan
-              </button>
             </div>
-            <div className="flex justify-end gap-4 mt-6">
-              <button
-                type="button"
-                onClick={() => {
-                  setShowNewPlanModal(false);
-                  setNewPlans([
-                    {
-                      name: "",
-                      plan_id: "",
-                      price: "",
-                      description: "",
-                      status: "active",
-                    },
-                  ]);
-                }}
-                className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleCreatePlans}
-                className="px-4 py-2 rounded-lg bg-[#00613A] text-white hover:bg-[#004d2d] transition-colors duration-200"
-              >
-                Create Plans
-              </button>
+
+            <div className="p-3 border-t bg-gray-50">
+              <div className="flex justify-between items-center">
+                <button
+                  type="button"
+                  onClick={handleAddNewPlan}
+                  className="text-[#00613A] text-xs font-medium"
+                >
+                  + Add Another Plan
+                </button>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowNewPlanModal(false);
+                      setNewPlans([
+                        {
+                          name: "",
+                          plan_id: "",
+                          price: "",
+                          description: "",
+                          status: "active",
+                        },
+                      ]);
+                    }}
+                    className="px-2.5 py-1 text-xs border rounded"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCreatePlans}
+                    className="px-2.5 py-1 text-xs bg-[#00613A] text-white rounded"
+                  >
+                    Create
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

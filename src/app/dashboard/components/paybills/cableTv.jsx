@@ -29,6 +29,7 @@ const CableTv = ({ onNext, setBillType }) => {
   const [verificationData, setVerificationData] = useState(null);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [isLoadingPlans, setIsLoadingPlans] = useState(false);
 
   // Reset all form states
   const resetFormStates = () => {
@@ -91,6 +92,13 @@ const CableTv = ({ onNext, setBillType }) => {
       return;
     }
 
+    // Validate that provider is one of the allowed values
+    const validProviders = ['dstv', 'gotv', 'startimes'];
+    if (!validProviders.includes(provider.toLowerCase())) {
+      toast.error("Please select a valid provider");
+      return;
+    }
+
     setIsVerifying(true);
     const loadingToast = toast.loading("Verifying smartcard...");
     
@@ -102,7 +110,7 @@ const CableTv = ({ onNext, setBillType }) => {
         },
         body: JSON.stringify({
           smartcardNumber,
-          provider
+          provider: provider.toLowerCase()
         }),
       });
 
@@ -168,7 +176,7 @@ const CableTv = ({ onNext, setBillType }) => {
       toast.error("Please select a provider");
       return;
     }
-    if (!plan) {
+    if (!plan || !planName) {
       toast.error("Please select a plan");
       return;
     }
@@ -178,6 +186,10 @@ const CableTv = ({ onNext, setBillType }) => {
     }
     if (!amount) {
       toast.error("Please enter an amount");
+      return;
+    }
+    if (!phoneNumber) {
+      toast.error("Please enter your phone number");
       return;
     }
     handleVerifySmartcard();
@@ -190,12 +202,14 @@ const CableTv = ({ onNext, setBillType }) => {
   const handlePinConfirm = async () => {
     const pinString = pin.join("");
     try {
+      console.log("Sending plan_id:", plan); // Debug log
       const response = await handleBillsConfirm(
         pinString,
         {
           cable_name: provider.toUpperCase(),
-          plan_id: plan,
+          plan_id: plan, // This should be the plan_id from the API
           smart_card_number: smartcardNumber,
+          phone_number: phoneNumber
         },
         "cable-recharges-transactions/",
         setIsLoading
@@ -240,18 +254,24 @@ const CableTv = ({ onNext, setBillType }) => {
 
   useEffect(() => {
     const fetchPlans = async () => {
+      if (!provider) return; // Don't fetch if no provider is selected
+      
+      setIsLoadingPlans(true);
       try {
         const plans = await getData(
-          "services/cable-recharges-transactions/get_plans/"
+          `services/cable-recharges-transactions/get_plans/?service_id=${provider.toLowerCase()}`
         );
         setAvailablePlans(plans);
       } catch (error) {
         console.error("Error fetching plans:", error);
+        toast.error("Failed to fetch plans. Please try again.");
+      } finally {
+        setIsLoadingPlans(false);
       }
     };
 
     fetchPlans();
-  }, []);
+  }, [provider]); // Only run when provider changes
 
   const filteredPlans = availablePlans?.filter(
     (plan) =>
@@ -408,8 +428,13 @@ const CableTv = ({ onNext, setBillType }) => {
     const selectedPlanData = availablePlans.find(p => p.name === selectedPlan);
     if (selectedPlanData) {
       setAmount(selectedPlanData.price);
-      setPlan(selectedPlanData.id);
-      setPlanDetails(selectedPlanData); // Store complete plan details
+      setPlan(selectedPlanData.plan_id); // Using plan_id from API response
+      setPlanDetails(selectedPlanData);
+    } else {
+      // Reset values if no plan is selected
+      setAmount("");
+      setPlan("");
+      setPlanDetails(null);
     }
   };
 
@@ -496,14 +521,30 @@ const CableTv = ({ onNext, setBillType }) => {
                     onChange={handlePlanChange}
                     className="w-full py-1.5 px-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
                     required
+                    disabled={isLoadingPlans}
                   >
                     <option value="">Select a plan</option>
-                    {filteredPlans?.map((plan) => (
-                      <option key={plan.id} value={plan.name}>
-                        {plan.name} - ₦{plan.price}
-                      </option>
-                    ))}
+                    {isLoadingPlans ? (
+                      <option value="" disabled>Loading plans...</option>
+                    ) : filteredPlans && filteredPlans.length > 0 ? (
+                      filteredPlans.map((plan) => (
+                        <option key={plan.plan_id} value={plan.name}>
+                          {plan.name} - ₦{parseFloat(plan.price).toLocaleString()}
+                        </option>
+                      ))
+                    ) : (
+                      <option value="" disabled>No plans available</option>
+                    )}
                   </select>
+                  {isLoadingPlans && (
+                    <div className="mt-2 flex items-center text-sm text-gray-500">
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Loading plans...
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -533,6 +574,22 @@ const CableTv = ({ onNext, setBillType }) => {
                   className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black bg-gray-50"
                   placeholder="Amount will be set based on plan"
                   disabled
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  id="phoneNumber"
+                  name="phoneNumber"
+                  value={phoneNumber}
+                  onChange={handleInputChange}
+                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+                  placeholder="Enter your phone number"
                   required
                 />
               </div>
