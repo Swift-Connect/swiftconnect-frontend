@@ -4,6 +4,7 @@ export async function POST(request) {
   try {
     const { smartCardNumber, cableName } = await request.json();
 
+    console.log('data', smartCardNumber, cableName)
     if (!smartCardNumber || !cableName) {
       return NextResponse.json(
         { status: 'error', message: 'Please provide both smartcard number and cable provider' },

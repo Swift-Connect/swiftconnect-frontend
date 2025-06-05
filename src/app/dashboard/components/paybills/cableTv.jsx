@@ -81,8 +81,8 @@ const CableTv = ({ onNext, setBillType }) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          smartCardNumber: smartcardNumber,
-          cableName: provider
+          smart_card_number: smartcardNumber,
+          cablename: provider,
         }),
       });
 
