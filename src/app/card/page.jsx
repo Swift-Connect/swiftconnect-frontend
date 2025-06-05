@@ -25,6 +25,8 @@ const CardPage = () => {
   };
 
   const onClose = () => {
+    console.log("yooooooo");
+    setIsEnteringPin(false);
     setIsModalOpen(false);
     setShowAddCardForm(false);
     setIsSuccess(false);
