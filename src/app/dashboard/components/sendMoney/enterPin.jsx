@@ -40,7 +40,7 @@ const EnterPinModal = ({
     }
   };
 
-  const isPinComplete = pin.every((digit) => digit !== "");
+  const isPinComplete = pin?.every((digit) => digit !== "");
   if (message) {
     toast.error(message);
   }
@@ -77,7 +77,7 @@ const EnterPinModal = ({
             : "Proceed with your 4 digit pin to complete this process"}
         </p>
         <div className="flex gap-2 justify-center mb-4">
-          {pin.map((digit, index) => (
+          {pin?.map((digit, index) => (
             <input
               key={index}
               id={`pin-${index}`}
