@@ -26,10 +26,12 @@ export const handleBillsConfirm = async (pin, dataa, url, setIsLoading) => {
         body: JSON.stringify(dataa),
       }
     );
+    console.log("api response:::::", response)
     const data = await response.json();
     console.log("API Response:", data);
 
     if (response.ok) {
+      console.log('response okay...')
       toast.dismiss(loadingToast);
       toast.success("Payment processed successfully!", {
         position: "top-right",
@@ -43,22 +45,52 @@ export const handleBillsConfirm = async (pin, dataa, url, setIsLoading) => {
       return data; 
     } else {
       // Handle array of error messages
-      const errorMessage = Array.isArray(data) ? data[0] : (data.detail || "Failed to process payment");
+      console.log('response not okay')
+      let errorMessage;
+      
+      if (typeof data === 'object') {
+        // Handle validation errors like {"plan_id":["A valid integer is required."]}
+        const fieldErrors = Object.entries(data)
+          .map(([field, messages]) => `${field}: ${Array.isArray(messages) ? messages[0] : messages}`)
+          .join('\n');
+        errorMessage = fieldErrors || data.detail || "Failed to process payment";
+      } else if (Array.isArray(data)) {
+        errorMessage = data[0];
+      } else {
+        errorMessage = data.detail || "Failed to process payment";
+      }
+
       toast.dismiss(loadingToast);
-      toast.error(errorMessage, {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+      // toast.error(errorMessage, {
+      //   position: "top-right",
+      //   autoClose: 5000,
+      //   hideProgressBar: false,
+      //   closeOnClick: true,
+      //   pauseOnHover: true,
+      //   draggable: true,
+      // });
       setIsLoading(false);
       throw new Error(errorMessage);
     }
   } catch (err) {
     console.error("Payment error:", err);
-    const errorMessage = err || "An error occurred while processing payment";
+    let errorMessage = "An error occurred while processing payment";
+    
+    if (err.response?.data) {
+      if (typeof err.response.data === 'object') {
+        const fieldErrors = Object.entries(err.response.data)
+          .map(([field, messages]) => `${field}: ${Array.isArray(messages) ? messages[0] : messages}`)
+          .join('\n');
+        errorMessage = fieldErrors || err.response.data.detail || errorMessage;
+      } else if (Array.isArray(err.response.data)) {
+        errorMessage = err.response.data[0];
+      } else if (typeof err.response.data === 'string') {
+        errorMessage = err.response.data;
+      }
+    } else if (err.message) {
+      errorMessage = err.message;
+    }
+
     toast.dismiss(loadingToast);
     toast.error(errorMessage, {
       position: "top-right",

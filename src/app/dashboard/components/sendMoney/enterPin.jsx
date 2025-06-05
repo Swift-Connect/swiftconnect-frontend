@@ -18,7 +18,7 @@ const EnterPinModal = ({
   handleSubmit,
   from,
 }) => {
-  console.log("the pin modal");
+  
 
   const handleChange = (e, index) => {
     const value = e.target.value;
@@ -30,7 +30,6 @@ const EnterPinModal = ({
       // Move to the next input box if the current one is filled
       if (value && index < (addCard ? 5 : 3)) {
         document.getElementById(`pin-${index + 1}`).focus();
-        console.log(newPin.join("")); // Log the complete pin
       }
     }
   };
