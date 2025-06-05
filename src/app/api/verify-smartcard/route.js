@@ -2,47 +2,64 @@ import { NextResponse } from 'next/server';
 
 export async function POST(request) {
   try {
-    const { smartCardNumber, cableName } = await request.json();
+    const { smartcardNumber, provider } = await request.json();
 
-    console.log('data', smartCardNumber, cableName)
-    if (!smartCardNumber || !cableName) {
+    if (!smartcardNumber || !provider) {
       return NextResponse.json(
-        { status: 'error', message: 'Please provide both smartcard number and cable provider' },
+        { error: "Smartcard number and provider are required" },
         { status: 400 }
       );
     }
 
-    // Using vtukonnect's API with API key
-    const response = await fetch(
-      `https://vtukonnect.com/ajax/validate_iuc?smart_card_number=${smartCardNumber}&cablename=${cableName}`,
-      {
-        method: 'GET',
-        headers: {
-          'Authorization': `Token ${process.env.CABLE_VALIDATOR}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+    // Map our provider names to VTpass format
+    const providerMap = {
+      'dstv': 'dstv',
+      'gotv': 'gotv',
+      'startimes': 'startimes'
+    };
 
-    console.log('response:::', response)
+    console.log(process.env.VTPASS_SECRET_KEY)
+    const response = await fetch("https://vtpass.com/api/merchant-verify", {
+      method: "POST",
+      headers: {
+        "api-key": process.env.VTPASS_PUBLIC_KEY,
+        "secret-key": process.env.VTPASS_SECRET_KEY,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        billersCode: smartcardNumber,
+        serviceID: providerMap[provider.toLowerCase()]
+      }),
+    });
 
     const data = await response.json();
-    console.log("data....", data);
-    if (response.ok) {
+    console.log("VTpass response:", data);
+
+    if (data.code === '000' && data.content) {
       return NextResponse.json({
         status: 'success',
-        data: data
+        data: {
+          customer_name: data.content.Customer_Name,
+          status: data.content.Status,
+          due_date: data.content.Due_Date,
+          current_bouquet: data.content.Current_Bouquet,
+          current_bouquet_price: data.content.Current_Bouquet_Price,
+          current_bouquet_code: data.content.Current_Bouquet_Code,
+          renewal_amount: data.content.Renewal_Amount,
+          customer_type: data.content.Customer_Type,
+          customer_number: data.content.Customer_Number
+        }
       });
     } else {
-      return NextResponse.json(
-        { status: 'error', message: data.message || 'Failed to verify smartcard' },
-        { status: 400 }
-      );
+      return NextResponse.json({
+        status: 'error',
+        message: data.response_description || "Failed to verify smartcard"
+      }, { status: 400 });
     }
   } catch (error) {
-    console.error('Error verifying smartcard:', error);
+    console.error("Verification error:", error);
     return NextResponse.json(
-      { status: 'error', message: 'Unable to verify smartcard at this time. Please try again later.' },
+      { error: "Failed to verify smartcard" },
       { status: 500 }
     );
   }

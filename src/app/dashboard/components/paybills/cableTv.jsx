@@ -15,6 +15,7 @@ const CableTv = ({ onNext, setBillType }) => {
   const [provider, setProvider] = useState("");
   const [plan, setPlan] = useState("");
   const [planName, setPlanName] = useState("");
+  const [planDetails, setPlanDetails] = useState(null);
   const [availablePlans, setAvailablePlans] = useState([]);
   const [amount, setAmount] = useState("");
   const [isConfirming, setIsConfirming] = useState(false);
@@ -28,6 +29,25 @@ const CableTv = ({ onNext, setBillType }) => {
   const [verificationData, setVerificationData] = useState(null);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
+
+  // Reset all form states
+  const resetFormStates = () => {
+    setPlan("");
+    setPlanName("");
+    setPlanDetails(null);
+    setAmount("");
+    setSmartcardNumber("");
+    setVerificationData(null);
+    setShowVerificationModal(false);
+    setIsConfirming(false);
+  };
+
+  // Reset only verification related states
+  const resetVerificationStates = () => {
+    setVerificationData(null);
+    setShowVerificationModal(false);
+    setIsConfirming(false);
+  };
 
   // Fetch user data from local storage
   useEffect(() => {
@@ -81,8 +101,8 @@ const CableTv = ({ onNext, setBillType }) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          smart_card_number: smartcardNumber,
-          cablename: provider,
+          smartcardNumber,
+          provider
         }),
       });
 
@@ -91,12 +111,19 @@ const CableTv = ({ onNext, setBillType }) => {
 
       toast.dismiss(loadingToast);
 
-      if (data.status === 'success' && !data.data.invalid) {
+      if (data.status === 'success' && data.data) {
+        console.log("Setting verification data:", {
+          ...data.data,
+          smartcard_number: smartcardNumber
+        });
         setVerificationData({
-          customer_name: data.data.name,
+          customer_name: data.data.customer_name,
           smartcard_number: smartcardNumber,
-          provider: provider,
-          status: "Active"
+          due_date: data.data.due_date,
+          current_bouquet: data.data.current_bouquet,
+          current_bouquet_price: data.data.current_bouquet_price,
+          renewal_amount: data.data.renewal_amount,
+          customer_type: data.data.customer_type
         });
         setShowVerificationModal(true);
         toast.success("Smartcard verified successfully", {
@@ -166,7 +193,7 @@ const CableTv = ({ onNext, setBillType }) => {
       const response = await handleBillsConfirm(
         pinString,
         {
-          cable_name: provider,
+          cable_name: provider.toUpperCase(),
           plan_id: plan,
           smart_card_number: smartcardNumber,
         },
@@ -199,6 +226,7 @@ const CableTv = ({ onNext, setBillType }) => {
   const handleSuccessClose = () => {
     setIsSuccess(false);
     setBillType("dashboard");
+    resetFormStates(); // Reset all form states after successful payment
   };
 
   const handleBack = () => {
@@ -206,12 +234,8 @@ const CableTv = ({ onNext, setBillType }) => {
   };
 
   const handleVerifyAgain = () => {
-    setVerificationData(null);
-    setShowVerificationModal(false);
-    setIsConfirming(false);
+    resetVerificationStates();
     setSmartcardNumber("");
-    setPlan("");
-    setAmount("");
   };
 
   useEffect(() => {
@@ -234,65 +258,80 @@ const CableTv = ({ onNext, setBillType }) => {
       provider && plan.name.toLowerCase().includes(provider.toLowerCase())
   );
 
-  const VerificationModal = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Verification Details</h2>
-          <button
-            onClick={() => setShowVerificationModal(false)}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-        
-        <div className="space-y-4">
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <div className="grid grid-cols-2 gap-4">
+  // Format date to readable format
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  const VerificationModal = () => {
+    console.log("Current verification data:", verificationData);
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg p-6 w-full max-w-md">
+          <h2 className="text-xl font-semibold mb-4">Smartcard Verification</h2>
+          {verificationData ? (
+            <div className="space-y-3">
               <div>
                 <p className="text-sm text-gray-600">Customer Name</p>
-                <p className="font-medium">{verificationData?.customer_name}</p>
+                <p className="font-medium">{verificationData.customer_name}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Smartcard Number</p>
-                <p className="font-medium">{verificationData?.smartcard_number}</p>
+                <p className="font-medium">{verificationData.smartcard_number}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Provider</p>
-                <p className="font-medium">{verificationData?.provider}</p>
+                <p className="text-sm text-gray-600">Due Date</p>
+                <p className="font-medium">{formatDate(verificationData.due_date)}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Current Bouquet</p>
+                <p className="font-medium">{verificationData.current_bouquet || 'N/A'}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Current Bouquet Price</p>
+                <p className="font-medium">{verificationData.current_bouquet_price || 'N/A'}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Renewal Amount</p>
+                <p className="font-medium">₦{verificationData.renewal_amount}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Customer Type</p>
+                <p className="font-medium">{verificationData.customer_type}</p>
+              </div>
+              <div className="flex gap-2 mt-4">
+                <button
+                  onClick={handleVerifyAgain}
+                  className="flex-1 bg-gray-100 text-gray-800 py-1 px-2 rounded-md hover:bg-gray-200 transition-colors"
+                >
+                  Verify Again
+                </button>
+                <button
+                  onClick={() => {
+                    setShowVerificationModal(false);
+                    setIsConfirming(true);
+                  }}
+                  className="flex-1 bg-black text-white py-1 px-2 rounded-md hover:bg-gray-800 transition-colors"
+                >
+                  Proceed to Payment
+                </button>
               </div>
             </div>
-          </div>
-
-          <div className="flex space-x-4">
-            <button
-              onClick={handleVerifyAgain}
-              className="flex-1 bg-gray-100 text-gray-800 py-1 px-2 rounded-md hover:bg-gray-200 transition-colors"
-            >
-              Verify Again
-            </button>
-            <button
-              onClick={() => {
-                setShowVerificationModal(false);
-                setIsConfirming(true);
-              }}
-              className="flex-1 bg-black text-white py-1 px-2 rounded-md hover:bg-gray-800 transition-colors"
-            >
-              Proceed to Payment
-            </button>
-          </div>
+          ) : (
+            <p className="text-gray-500">Verifying smartcard...</p>
+          )}
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const ConfirmationModal = () => {
-    // Find the selected plan's details
-    const selectedPlanData = availablePlans.find(p => p.name === plan);
-
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
@@ -317,7 +356,7 @@ const CableTv = ({ onNext, setBillType }) => {
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Plan</p>
-                  <p className="font-medium">{selectedPlanData?.name}</p>
+                  <p className="font-medium">{planDetails?.name || planName}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Smartcard Number</p>
@@ -327,6 +366,18 @@ const CableTv = ({ onNext, setBillType }) => {
                   <p className="text-sm text-gray-600">Amount</p>
                   <p className="font-medium">₦{amount}</p>
                 </div>
+                {verificationData && (
+                  <>
+                    <div>
+                      <p className="text-sm text-gray-600">Customer Name</p>
+                      <p className="font-medium">{verificationData.customer_name}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Due Date</p>
+                      <p className="font-medium">{formatDate(verificationData.due_date)}</p>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
 
@@ -353,21 +404,19 @@ const CableTv = ({ onNext, setBillType }) => {
   const handlePlanChange = (e) => {
     const selectedPlan = e.target.value;
     setPlanName(selectedPlan);
-    // Find the selected plan's amount and ID from the plans array
+    // Find the selected plan's details from the plans array
     const selectedPlanData = availablePlans.find(p => p.name === selectedPlan);
     if (selectedPlanData) {
       setAmount(selectedPlanData.price);
       setPlan(selectedPlanData.id);
+      setPlanDetails(selectedPlanData); // Store complete plan details
     }
   };
 
   const handleProviderChange = (e) => {
     const selectedProvider = e.target.value;
     setProvider(selectedProvider);
-    setPlan(""); // Reset plan ID
-    setPlanName(""); // Reset plan name
-    setAmount(""); // Reset amount
-    setVerificationData(null); // Reset verification data
+    resetFormStates(); // Reset all form states when provider changes
   };
 
   return (
@@ -401,7 +450,10 @@ const CableTv = ({ onNext, setBillType }) => {
         <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
           <button
             className="text-gray-500 mb-4 flex items-center"
-            onClick={() => setBillType("dashboard")}
+            onClick={() => {
+              setBillType("dashboard");
+              resetFormStates(); // Reset form states when going back
+            }}
           >
             <Image
               src={"backArrow.svg"}
