@@ -13,6 +13,16 @@ import { useRouter } from "next/navigation";
 import axiosInstance from "../../utils/axiosInstance";
 import "../globals.css";
 
+const searchItems = [
+  "Dashboard",
+  "Pay Bills",
+  "Cards",
+  "Reward",
+  "Settings",
+  "KYC",
+  "Developer API",
+];
+
 export default function Home() {
   const [activeSidebar, setActiveSidebar] = useState("Dashboard");
   const [hideSideMenu, setHideSideMenu] = useState(true);
@@ -95,7 +105,11 @@ export default function Home() {
         role="user"
       />
       <main className="flex-1 ">
-        <Header setHideSideMenu={setHideSideMenu} user={user} />
+        <Header
+          setHideSideMenu={setHideSideMenu}
+          user={user}
+          setActiveSidebar={setActiveSidebar}
+        />
         <section className="py-6 px-10 max-md-[400px]:px-5 h-[80vh] max-md-[400px]:h-[90vh] fixed max-md-[400px]:w-full w-[80%] overflow-y-auto custom-scroll bg-[#F6FCF5]">
           {renderComponent()}
         </section>
