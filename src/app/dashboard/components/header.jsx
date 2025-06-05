@@ -1,7 +1,8 @@
 import { Menu } from "lucide-react";
 import Image from "next/image";
+import SearchBar from "./SearchBar";
 
-export default function Header({ setHideSideMenu, user }) {
+export default function Header({ setHideSideMenu, user, setActiveSidebar }) {
   return (
     <header className="flex max-md-[400px]:w-full justify-between  items-center  bg-white py-4 px-8 max-md-[400px]:px-2 header-shadow max-md-[400px]:gap-4">
       <Menu
@@ -12,20 +13,7 @@ export default function Header({ setHideSideMenu, user }) {
         Welcome back, {user?.username}
       </h1>
       <div className="flex items-center gap-4 ">
-        <div className="flex items-center  border rounded-md px-3 py-1 max-md-[400px]:hidden bg-[#D3F1CC33]">
-          <Image
-            src={"/search.svg"}
-            alt="search icon"
-            width={100}
-            height={100}
-            className="w-[2.4em]"
-          />
-          <input
-            type="text"
-            placeholder="Search for something"
-            className="border-none outline-none rounded-md px-3 py-1 text-sm bg-transparent"
-          />
-        </div>
+        <SearchBar setActiveSidebar={setActiveSidebar} />
 
         <div>
           <Image

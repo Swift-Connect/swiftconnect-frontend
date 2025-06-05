@@ -13,6 +13,7 @@ const CardPage = () => {
   const [isEnteringPin, setIsEnteringPin] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [selectedBank, setSelectedBank] = useState(null);
+   const [pin, setPin] = useState(["", "", "", ""]);
 
   const linkedBanks = [
     { bank: "Access Bank", accountNumber: "123453241", name: "Justine Beiber" },
@@ -25,6 +26,8 @@ const CardPage = () => {
   };
 
   const onClose = () => {
+ 
+    setIsEnteringPin(false);
     setIsModalOpen(false);
     setShowAddCardForm(false);
     setIsSuccess(false);
@@ -55,6 +58,9 @@ const CardPage = () => {
       onConfirm={handlePinConfirm}
       onNext={() => setIsEnteringPin(false)}
       addCard={true}
+      onClose={onClose}
+      setPin={setPin}
+      pin={pin}
     />
   ) : showAddCardForm ? (
     <AddCardForm onClose={onClose} handlePayCharges={handlePayCharges} />
