@@ -80,7 +80,7 @@ const Airtime = ({ onNext, setBillType }) => {
             amount: transactionData.amount,
             network: transactionData.network,
             phone_number: transactionData.phone_number,
-            transaction_id: transactionData.transaction_id,
+            // transaction_id: transactionData.transaction_id,
             reference: transactionData.reference,
             status: transactionData.status,
             service_name: transactionData.service_name,
