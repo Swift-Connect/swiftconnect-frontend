@@ -18,7 +18,6 @@ export async function POST(request) {
       'startimes': 'startimes'
     };
 
-    console.log(process.env.VTPASS_SECRET_KEY)
     const response = await fetch("https://vtpass.com/api/merchant-verify", {
       method: "POST",
       headers: {

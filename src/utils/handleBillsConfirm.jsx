@@ -3,7 +3,6 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export const handleBillsConfirm = async (pin, dataa, url, setIsLoading) => {
-  console.log("Entered PIN:", pin);
   // setTransactionPin(pin);
   // setIsPinModalOpen(false);
 
