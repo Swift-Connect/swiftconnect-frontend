@@ -19,6 +19,26 @@ const Airtime = ({ onNext, setBillType }) => {
   const [pin, setPin] = useState(["", "", "", ""]);
   const [paymentData, setPaymentData] = useState(null);
 
+  const formatDate = (date) => {
+    const day = date.getDate();
+    const month = date.toLocaleString('default', { month: 'long' });
+    const year = date.getFullYear();
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    
+    const getOrdinalSuffix = (day) => {
+      if (day > 3 && day < 21) return 'th';
+      switch (day % 10) {
+        case 1: return 'st';
+        case 2: return 'nd';
+        case 3: return 'rd';
+        default: return 'th';
+      }
+    };
+
+    return `${day}${getOrdinalSuffix(day)} ${month} ${year}, ${hours}:${minutes}`;
+  };
+
   const handlePay = () => {
     if (!network || !airtimeType || !phoneNumber || !amount) {
       toast.error("Please fill in all fields");
@@ -38,7 +58,7 @@ const Airtime = ({ onNext, setBillType }) => {
   const handlePinConfirm = async () => {
     const pinString = pin.join("");
     try {
-      const data = await handleBillsConfirm(
+      const response = await handleBillsConfirm(
         pinString,
         {
           network,
@@ -49,20 +69,20 @@ const Airtime = ({ onNext, setBillType }) => {
         setIsLoading
       );
 
-      console.log("Payment response:", data);
+      console.log("Payment response:", response);
 
-      if (data) {
+      if (response?.status === "success") {
         setPaymentData({
           transaction: {
-            amount: data.amount,
-            network: data.network,
-            phone_number: data.phone_number,
-            id: data.id,
-            created_at: data.created_at,
-            transaction_id: data.transaction_id,
-            status: data.status,
-            total_amount: data.total_amount,
-            commission: data.commission
+            amount: response.data.amount,
+            network: response.data.network,
+            phone_number: response.data.phone_number,
+            transaction_id: response.data.transaction_id,
+            reference: response.data.reference,
+            status: response.data.status,
+            service_name: response.data.service_name,
+            created_at: response.data.created_at,
+            wallet_balance: response.data.wallet_balance
           }
         });
 
@@ -155,12 +175,24 @@ const Airtime = ({ onNext, setBillType }) => {
                   <span className="font-medium">{paymentData?.transaction?.transaction_id}</span>
                 </div>
                 <div className="flex justify-between">
+                  <span className="text-gray-600">Reference:</span>
+                  <span className="font-medium">{paymentData?.transaction?.reference}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Service:</span>
+                  <span className="font-medium">{paymentData?.transaction?.service_name}</span>
+                </div>
+                <div className="flex justify-between">
                   <span className="text-gray-600">Date:</span>
-                  <span className="font-medium">{new Date(paymentData?.transaction?.created_at).toLocaleString()}</span>
+                  <span className="font-medium">{formatDate(new Date(paymentData?.transaction?.created_at))}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Status:</span>
                   <span className="font-medium capitalize">{paymentData?.transaction?.status}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Wallet Balance:</span>
+                  <span className="font-medium">₦{paymentData?.transaction?.wallet_balance}</span>
                 </div>
               </div>
             </div>
