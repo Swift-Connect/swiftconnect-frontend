@@ -101,7 +101,7 @@ const ReceiveMoneyModal = ({ isOpen, onClose }) => {
     setIsSubmitting(true);
     try {
       const response = await fetch(
-        "https://swiftconnect-backend.onrender.com/payments/credit-wallet/",
+        "http://127.0.0.1:8000/payments/credit-wallet/",
         {
           method: "POST",
           headers: {

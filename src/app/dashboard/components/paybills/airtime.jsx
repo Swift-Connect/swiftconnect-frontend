@@ -70,26 +70,30 @@ const Airtime = ({ onNext, setBillType }) => {
       );
 
       console.log("Payment response:", response);
-
-      if (response?.status === "success") {
+      
+      if (response?.status === "success" && response?.transaction) {
+        const transactionData = response.transaction;
+        
+        // Build payment data from response
         setPaymentData({
           transaction: {
-            amount: response.data.amount,
-            network: response.data.network,
-            phone_number: response.data.phone_number,
-            transaction_id: response.data.transaction_id,
-            reference: response.data.reference,
-            status: response.data.status,
-            service_name: response.data.service_name,
-            created_at: response.data.created_at,
-            wallet_balance: response.data.wallet_balance
+            amount: transactionData.amount,
+            network: transactionData.network,
+            phone_number: transactionData.phone_number,
+            transaction_id: transactionData.transaction_id,
+            reference: transactionData.reference,
+            status: transactionData.status,
+            service_name: transactionData.service_name,
+            created_at: transactionData.created_at,
+            wallet_balance: transactionData.wallet_balance
           }
         });
 
+        // Reset states and show success
         setPin(["", "", "", ""]);
-        setIsEnteringPin(false);
         setIsConfirming(false);
-        setIsSuccess(true);
+        setIsEnteringPin(false);
+        setIsSuccess(true); // This will trigger showing the success modal
       }
     } catch (error) {
       console.error("Payment error:", error);
