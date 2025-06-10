@@ -92,7 +92,7 @@ const SignupPage = () => {
     };
 
     try {
-      const response = await fetch(`${BASE_URL ? `${BASE_URL}/users/get-otp/`: 'http://127.0.0.1:8000/users/get-otp/'}`, {
+      const response = await fetch(`${BASE_URL ? `${BASE_URL}/users/get-otp/`: 'https://swiftconnect-backend.onrender.com/users/get-otp/'}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -154,7 +154,7 @@ const SignupPage = () => {
     };
 
     try {
-      const response = await fetch(BASE_URL ? `${BASE_URL}/users/verify-otp/` : "http://127.0.0.1:8000/users/verify-otp/", {
+      const response = await fetch(BASE_URL ? `${BASE_URL}/users/verify-otp/` : "https://swiftconnect-backend.onrender.com/users/verify-otp/", {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -202,7 +202,7 @@ const SignupPage = () => {
     };
 
     try {
-      const response = await fetch(`${BASE_URL ? `${BASE_URL}/users/get-otp/` :" http://127.0.0.1:8000/users/get-otp/"}`, {
+      const response = await fetch(`${BASE_URL ? `${BASE_URL}/users/get-otp/` :" https://swiftconnect-backend.onrender.com/users/get-otp/"}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -263,7 +263,7 @@ const SignupPage = () => {
     };
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/users/complete-profile/${user_id}/`, {
+      const response = await fetch(`https://swiftconnect-backend.onrender.com/users/complete-profile/${user_id}/`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -387,7 +387,7 @@ const SignupPage = () => {
     const pinString = txnPin.join('');
 
     try {
-      const response = await fetch(`${BASE_URL ? `${BASE_URL}/users/create-transaction-pin/` : 'http://127.0.0.1:8000/users/create-transaction-pin/'}`, {
+      const response = await fetch(`${BASE_URL ? `${BASE_URL}/users/create-transaction-pin/` : 'https://swiftconnect-backend.onrender.com/users/create-transaction-pin/'}`, {
         method: 'POST',
         headers: {
           'accept': 'application/json',
