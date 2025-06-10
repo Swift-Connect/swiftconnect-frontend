@@ -47,12 +47,12 @@ const EnterPinModal = ({
 
   return (
     <div
-      className="fixed inset-0 z-10 flex items-center justify-center bg-black bg-opacity-50"
+      className="fixed inset-0 z-10 flex items-center justify-center w-full bg-black bg-opacity-50"
       onClick={() => onClose()}
     >
       <ToastContainer />
       <div
-        className="bg-white relative z-50 w-[45%] rounded-xl shadow-lg px-6 py-16 flex items-center justify-center flex-col max-md-[400px]:w-full"
+        className="bg-white relative z-50 w-[50%] rounded-xl shadow-lg px-6 py-16 flex items-center justify-center flex-col max-md-[400px]:w-full"
         onClick={(e) => e.stopPropagation()}
       >
         <button

@@ -18,7 +18,7 @@ const ConfirmPayment = ({
   plan,
 }) => {
   return (
-    <div className="min-h-screen  flex justify-center items-center">
+    <div className="min-h-screen w-full flex justify-center items-center">
       <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
         <button
           className="text-sm text-gray-600 mb-4 flex items-center"

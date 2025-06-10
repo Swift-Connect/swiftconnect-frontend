@@ -13,8 +13,8 @@ export const handleBillsConfirm = async (pin, dataa, url, setIsLoading) => {
   try {
     console.log("my data", dataa);
     const response = await fetch(
-      `https://swiftconnect-backend.onrender.com/services/${url}`,
-      // "https://swiftconnect-backend.onrender.com/services/airtime-topups-transactions/",
+      `http://127.0.0.1:8000/services/${url}`,
+      // "http://127.0.0.1:8000/services/airtime-topups-transactions/",
       {
         method: "POST",
         headers: {
@@ -46,8 +46,11 @@ export const handleBillsConfirm = async (pin, dataa, url, setIsLoading) => {
       // Handle array of error messages
       console.log('response not okay')
       let errorMessage;
+      console.log('error message:::::', data.error)
       
-      if (typeof data === 'object') {
+      if (data.error) {
+        errorMessage = data.error;
+      } else if (typeof data === 'object') {
         // Handle validation errors like {"plan_id":["A valid integer is required."]}
         const fieldErrors = Object.entries(data)
           .map(([field, messages]) => `${field}: ${Array.isArray(messages) ? messages[0] : messages}`)
