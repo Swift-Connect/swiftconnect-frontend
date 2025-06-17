@@ -1,340 +1,469 @@
-"use client";
+'use client'
 
-import { useState, useEffect } from "react";
-import { X, Copy, Share2 } from "lucide-react";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import EnterPinModal from "./sendMoney/enterPin";
-import { fetchWithAuth, postWithAuth } from "@/utils/api";
+import { useState, useEffect } from 'react'
+import { X, Copy, Share2 } from 'lucide-react'
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+import EnterPinModal from './sendMoney/enterPin'
+import { fetchWithAuth, postWithAuth } from '@/utils/api'
 
 const ReceiveMoneyModal = ({ isOpen, onClose }) => {
-  if (!isOpen) return null;
+  if (!isOpen) return null
 
-  const [mode, setMode] = useState("bank"); // "bank" or "form"
-  const [accounts, setAccounts] = useState([]);
-  const [bvn, setBvn] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [accounts, setAccounts] = useState([])
+  const [hasFetchedAccounts, setHasFetchedAccounts] = useState(false)
+  const [bvn, setBvn] = useState('')
+  const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
-    amount: "",
-    payment_type: "",
-    currency: "NGN",
-    reason: "",
-  });
-  const [pin, setPin] = useState(["", "", "", ""]);
-  const [isPinModalOpen, setIsPinModalOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const paymentTypes = ["flutterwave", "monify", "paystack"];
+    amount: '',
+    payment_type: '',
+    currency: 'NGN',
+    reason: ''
+  })
+  const [pin, setPin] = useState(['', '', '', ''])
+  const [isPinModalOpen, setIsPinModalOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showCreateForm, setShowCreateForm] = useState(false)
+  const [bankLogoMap, setBankLogoMap] = useState({})
+  const [addAccountModalOpen, setAddAccountModalOpen] = useState(false)
+  const [gatewayModalOpen, setGatewayModalOpen] = useState(false)
+  const [step, setStep] = useState('main') // 'main', 'addAccount', 'gatewayForm'
+  const [selectedGateway, setSelectedGateway] = useState(null)
+  const paymentTypes = [
+    {
+      id: 'flutterwave',
+      name: 'Flutterwave',
+      logo: '/flutterwave.png',
+      description: 'Fast and secure payments with Flutterwave'
+      // features: ["Instant transfers", "Multiple currencies", "24/7 support"]
+    },
+    {
+      id: 'paystack',
+      name: 'Paystack',
+      logo: '/paystack.svg',
+      description: 'Simple and reliable payments with Paystack'
+      // features: ["Quick setup", "Secure transactions", "Detailed analytics"]
+    },
+    {
+      id: 'monify',
+      name: 'Monify',
+      logo: '/monify.png',
+      description: 'Seamless payment experience with Monify'
+      // features: ["Easy integration", "Real-time tracking", "Competitive rates"]
+    }
+  ]
+
+  // Fetch Nigerian banks and build logo map
+  useEffect(() => {
+    async function fetchBankLogos () {
+      try {
+        const res = await fetch('https://nigerianbanks.xyz')
+        const banks = await res.json()
+        const map = {}
+        banks.forEach(bank => {
+          map[bank.code] = bank.logo
+        })
+        setBankLogoMap(map)
+      } catch (e) {
+        // fallback: do nothing, will use default logo
+      }
+    }
+    fetchBankLogos()
+  }, [])
 
   // Fetch reserved accounts on mount
   useEffect(() => {
-    if (!isOpen || mode !== "bank") return;
+    if (!isOpen || hasFetchedAccounts) return
 
     const fetchAccounts = async () => {
-      const loadingToast = toast.loading("Fetching bank accounts...");
+      const loadingToast = toast.loading('Fetching bank accounts...')
       try {
-        const data = await fetchWithAuth("payments/account-numbers/");
-        setAccounts(data?.accounts || []);
+        const data = await fetchWithAuth('payments/account-numbers/')
+        setAccounts(data?.accounts || [])
+        setHasFetchedAccounts(true)
         toast.update(loadingToast, {
-          render: "Bank accounts fetched successfully!",
-          type: "success",
+          render: 'Bank accounts fetched successfully!',
+          type: 'success',
           isLoading: false,
-          autoClose: 3000,
-        });
+          autoClose: 3000
+        })
       } catch (error) {
         toast.update(loadingToast, {
-          render: `Error: ${error.message || "Failed to fetch accounts"}`,
-          type: "error",
+          render: `Error: ${error.message || 'Failed to fetch accounts'}`,
+          type: 'error',
           isLoading: false,
-          autoClose: 4000,
-        });
+          autoClose: 4000
+        })
       }
-    };
+    }
 
-    fetchAccounts();
-  }, [isOpen, mode]);
+    fetchAccounts()
+  }, [isOpen, hasFetchedAccounts])
+
+  // Reset hasFetchedAccounts when modal closes
+  useEffect(() => {
+    if (!isOpen) setHasFetchedAccounts(false)
+  }, [isOpen])
 
   const handleCreateAccount = async () => {
-    if (!bvn) return toast.error("Enter a valid BVN");
+    if (!bvn) return toast.error('Enter a valid BVN')
 
-    const loadingToast = toast.loading("Creating bank account...");
-    setLoading(true);
+    const loadingToast = toast.loading('Creating bank account...')
+    setLoading(true)
     try {
-      const response = await postWithAuth("payments/create-reserved-account/", {
-        bvn,
-      });
-      if (!response?.account) throw new Error("No account returned");
+      const response = await postWithAuth('payments/create-reserved-account/', {
+        bvn
+      })
+      if (!response?.account) throw new Error('No account returned')
 
-      setAccounts((prev) => [...prev, response.account]);
-      setBvn("");
+      setAccounts(prev => [...prev, response.account])
+      setBvn('')
       toast.update(loadingToast, {
-        render: "Bank account created!",
-        type: "success",
+        render: 'Bank account created!',
+        type: 'success',
         isLoading: false,
-        autoClose: 3000,
-      });
+        autoClose: 3000
+      })
     } catch (err) {
       toast.update(loadingToast, {
         render: `Error: ${err.message}`,
-        type: "error",
+        type: 'error',
         isLoading: false,
-        autoClose: 4000,
-      });
+        autoClose: 4000
+      })
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
-  const handleFormChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  const handleFormChange = e => {
+    setFormData({ ...formData, [e.target.name]: e.target.value })
+  }
 
-  const handleFormSubmit = (e) => {
-    e.preventDefault();
-    setIsPinModalOpen(true);
-  };
+  const handleFormSubmit = e => {
+    e.preventDefault()
+    setIsPinModalOpen(true)
+  }
 
-  const handlePinConfirm = async (e) => {
-    e.preventDefault();
-    const pinString = pin.join("");
-    const loadingToast = toast.loading("Processing payment...");
-    setIsSubmitting(true);
+  const handlePinConfirm = async e => {
+    e.preventDefault()
+    const pinString = pin.join('')
+    const loadingToast = toast.loading('Processing payment...')
+    setIsSubmitting(true)
     try {
       const response = await fetch(
-        "https://swiftconnect-backend.onrender.com/payments/credit-wallet/",
+        'https://swiftconnect-backend.onrender.com/payments/credit-wallet/',
         {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
-            "X-Transaction-PIN": pinString,
-            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+            'Content-Type': 'application/json',
+            'X-Transaction-PIN': pinString,
+            Authorization: `Bearer ${localStorage.getItem('access_token')}`
           },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(formData)
         }
-      );
-      const data = await response.json();
+      )
+      const data = await response.json()
 
       if (response.ok) {
         toast.update(loadingToast, {
-          render: "Payment processed successfully!",
-          type: "success",
+          render: 'Payment processed successfully!',
+          type: 'success',
           isLoading: false,
-          autoClose: 3000,
-        });
-        window.location.href = data.payment_link;
+          autoClose: 3000
+        })
+        window.location.href = data.payment_link
       } else {
         setIsPinModalOpen(false)
-        toast.dismiss(loadingToast);
+        toast.dismiss(loadingToast)
         toast.error(data.message, {
-          position: "top-right",
+          position: 'top-right',
           autoClose: 5000,
           hideProgressBar: false,
           closeOnClick: true,
           pauseOnHover: true,
-          draggable: true,
-        });
+          draggable: true
+        })
       }
     } catch (err) {
       setIsPinModalOpen(false)
-      toast.dismiss(loadingToast);
+      toast.dismiss(loadingToast)
       toast.error(err.message, {
-        position: "top-right",
+        position: 'top-right',
         autoClose: 5000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
-        draggable: true,
-      });
+        draggable: true
+      })
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
-
-  const CreateAccountForm = ({ bvn, setBvn, loading, handleCreateAccount }) => (
-    <div>
-      <input
-        type="text"
-        placeholder="Enter your BVN"
-        value={bvn}
-        onChange={(e) => setBvn(e.target.value)}
-        className="w-full border rounded-md p-2 mb-2"
-      />
-      <button
-        onClick={handleCreateAccount}
-        disabled={loading}
-        className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
-      >
-        {loading ? "Creating..." : "Create Account"}
-      </button>
-    </div>
-  );
+  }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-
+    <div className='fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50'>
       <div
-        className="bg-white rounded-xl p-6 w-full max-w-lg relative"
-        onClick={(e) => e.stopPropagation()}
+        className='bg-white rounded-xl p-4 w-full max-w-md relative shadow-xl'
+        onClick={e => e.stopPropagation()}
       >
         <button
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+          className='absolute top-3 right-3 text-gray-500 hover:text-gray-700'
           onClick={onClose}
         >
           <X />
         </button>
+        <h2 className='text-xl font-bold mb-2 text-center'>Receive Money</h2>
 
-        <div className="flex justify-between mb-4">
-          <h2 className="text-xl font-bold">Receive Money</h2>
-        </div>
-        <button
-          onClick={() => setMode(mode === "bank" ? "form" : "bank")}
-          className="px-4 py-2 bg-white border border-black text-black font-semibold rounded-md hover:bg-blue-50 transition mb-4"
-        >
-          {mode === "bank" ? "Use Form Instead" : "Use Bank Account Instead"}
-        </button>
-
-        {mode === "bank" ? (
+        {step === 'main' && (
           <>
+            {/* Bank Accounts Section */}
+            <div className='mb-3 p-2 bg-green-50 border border-green-200 rounded text-green-800 text-xs'>
+              Send money to any of the accounts below and it will reflect in
+              your wallet automatically.
+            </div>
             {accounts.length === 0 ? (
               <div>
-                <p className="text-sm text-gray-600 mb-2">
+                <p className='text-xs text-gray-600 mb-2'>
                   No account found. Create one below:
                 </p>
-                <CreateAccountForm
-                  bvn={bvn}
-                  setBvn={setBvn}
-                  loading={loading}
-                  handleCreateAccount={handleCreateAccount}
-                />
+                <button
+                  onClick={() => setStep('addAccount')}
+                  className='w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition text-sm'
+                >
+                  Add Account
+                </button>
               </div>
             ) : (
               <>
                 {accounts.map((acc, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-3 border rounded-xl mb-3 hover:shadow-md transition"
+                    className='flex items-center justify-between p-2 border rounded-xl mb-2 hover:shadow transition text-sm'
                   >
-                    <div className="flex items-center space-x-3">
+                    <div className='flex items-center space-x-2'>
                       <img
-                        src={acc.bank_logo || "/default-logo.png"}
+                        src={bankLogoMap[acc.bank_code] || '/default-logo.png'}
                         alt={`${acc.bank_name} logo`}
-                        className="w-10 h-10 rounded-full"
+                        className='w-8 h-8 rounded-full bg-white border'
+                        onError={e => {
+                          e.target.onerror = null
+                          e.target.src = '/default-logo.png'
+                        }}
                       />
                       <div>
-                        <p className="text-sm text-gray-600">
+                        <p className='text-xs text-gray-600'>
                           {acc.account_name} • {acc.bank_name}
                         </p>
-                        <p className="font-semibold text-lg">
+                        <p className='font-semibold text-base'>
                           {acc.account_number}
                         </p>
                       </div>
                     </div>
-                    <div className="flex space-x-2 text-gray-500">
-                      <Share2 className="w-5 h-5 cursor-pointer" />
-                      <Copy className="w-5 h-5 cursor-pointer" />
+                    <div className='flex space-x-1 text-gray-500'>
+                      <Share2 className='w-4 h-4 cursor-pointer' />
+                      <Copy className='w-4 h-4 cursor-pointer' />
                     </div>
                   </div>
                 ))}
-
                 <button
-                  onClick={() => setShowCreateForm(!showCreateForm)}
-                  className="w-full bg-gray-100 text-gray-700 py-2 rounded-md hover:bg-gray-200 transition mb-4"
+                  onClick={() => setStep('addAccount')}
+                  className='w-full bg-gray-100 text-gray-700 py-2 rounded-md hover:bg-gray-200 transition mb-2 text-xs'
                 >
                   + Add Another Account
                 </button>
-
-                {showCreateForm && (
-                  <CreateAccountForm
-                    bvn={bvn}
-                    setBvn={setBvn}
-                    loading={loading}
-                    handleCreateAccount={handleCreateAccount}
-                  />
-                )}
               </>
             )}
-          </>
-        ) : (
-          <form onSubmit={handleFormSubmit} className="space-y-4">
-      
-            <div>
-              <label className="block text-sm font-medium">Amount</label>
-              <input
-                type="number"
-                name="amount"
-                value={formData.amount}
-                onChange={handleFormChange}
-                required
-                className="w-full p-2 border rounded-md"
-                disabled={isSubmitting}
-              />
-            </div>
 
-            {/* <div>
-              <label className="block text-sm font-medium">Payment Type</label>
-              <select
-                name="payment_type"
-                value={formData.payment_type}
-                onChange={handleFormChange}
-                required
-                className="w-full p-2 border rounded-md"
-                disabled={isSubmitting}
-              >
-                <option value="">Select Payment Type</option>
-                {paymentTypes.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
+            {/* Payment Gateways Section */}
+            <div className='mt-4'>
+              <h3 className='text-base font-semibold mb-2'>
+                Or use a payment gateway
+              </h3>
+              <div className='grid grid-cols-1 gap-2 mb-3'>
+                {paymentTypes.map(type => (
+                  <div
+                    key={type.id}
+                    className={`p-2 border rounded-lg cursor-pointer flex items-center space-x-2 transition-all duration-300 ${
+                      formData.payment_type === type.id
+                        ? 'border-green-500 bg-green-50'
+                        : 'border-gray-200 hover:border-green-300'
+                    }`}
+                    onClick={() => {
+                      setFormData({ ...formData, payment_type: type.id })
+                      setSelectedGateway(type.id)
+                      setStep('gatewayForm')
+                    }}
+                  >
+                    <img
+                      src={type.logo}
+                      alt={`${type.name} logo`}
+                      className='w-8 h-8 object-contain'
+                    />
+                    <div>
+                      <h3 className='font-semibold text-base'>{type.name}</h3>
+                      <p className='text-xs text-gray-600'>
+                        {type.description}
+                      </p>
+                    </div>
+                  </div>
                 ))}
-              </select>
-            </div> */}
-
-            <div>
-              <label className="block text-sm font-medium">Currency</label>
-              <input
-                type="text"
-                value="NGN"
-                readOnly
-                className="w-full p-2 border rounded-md bg-gray-100"
-              />
+              </div>
             </div>
+          </>
+        )}
 
+        {step === 'addAccount' && (
+          <div>
+            <button
+              className='mb-2 text-[1.2em] border rounded px-2 shadow-lg hover:bg-green-700 hover:text-white text-green-700 underline'
+              type='button'
+              onClick={() => setStep('main')}
+            >
+              ← Back
+            </button>
+            <h3 className='text-lg font-semibold mb-2 text-center'>
+              Add New Account
+            </h3>
+            <input
+              type='text'
+              placeholder='Enter your BVN'
+              value={bvn}
+              onChange={e => setBvn(e.target.value)}
+              className='w-full border rounded-md p-2 mb-2 text-sm'
+            />
+            <button
+              onClick={handleCreateAccount}
+              disabled={loading}
+              className='w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition text-sm'
+            >
+              {loading ? 'Creating...' : 'Create Account'}
+            </button>
+          </div>
+        )}
+
+        {step === 'gatewayForm' && (
+          <form
+            onSubmit={e => {
+              e.preventDefault()
+              // Only send required fields
+              const payload = {
+                amount: formData.amount,
+                currency: formData.currency,
+                payment_type: formData.payment_type,
+                reason: formData.reason
+              }
+              setIsPinModalOpen(true)
+              // You can use payload in your API call
+            }}
+            className='space-y-3 bg-gray-50 p-3 rounded-lg mt-2'
+          >
+            <button
+              className='mb-2 text-[1.2em] border rounded px-2 shadow-lg hover:bg-green-700 hover:text-white text-green-700 underline'
+              type='button'
+              onClick={() => setStep('main')}
+            >
+              ← Back
+            </button>
+            <h3 className='text-base font-semibold mb-2'>Payment Details</h3>
             <div>
-              <label className="block text-sm font-medium">Reason</label>
+              <label className='block text-xs font-medium mb-1'>
+                Amount (NGN)
+              </label>
+              <div className='relative'>
+                <span className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500'>
+                  ₦
+                </span>
+                <input
+                  type='number'
+                  name='amount'
+                  value={formData.amount}
+                  onChange={handleFormChange}
+                  required
+                  className='w-full p-2 pl-8 border rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm'
+                  disabled={isSubmitting}
+                  placeholder='0.00'
+                />
+              </div>
+            </div>
+            <div>
+              <label className='block text-xs font-medium mb-1'>
+                Payment Reason
+              </label>
               <input
-                type="text"
-                name="reason"
+                type='text'
+                name='reason'
                 value={formData.reason}
                 onChange={handleFormChange}
                 required
-                className="w-full p-2 border rounded-md"
-                placeholder="Enter reason"
+                className='w-full p-2 border rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm'
+                placeholder='Enter reason for payment'
                 disabled={isSubmitting}
               />
             </div>
-
             <button
-              type="submit"
-              className="w-full bg-black text-white py-2 rounded-md hover:bg-[#000000ad]"
+              type='submit'
+              className='w-full bg-black text-white py-2 rounded-md hover:bg-[#000000ad] transition-colors duration-300 flex items-center justify-center space-x-2 text-sm'
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Processing..." : "Submit"}
+              {isSubmitting ? (
+                <>
+                  <svg
+                    className='animate-spin h-4 w-4 text-white'
+                    xmlns='http://www.w3.org/2000/svg'
+                    fill='none'
+                    viewBox='0 0 24 24'
+                  >
+                    <circle
+                      className='opacity-25'
+                      cx='12'
+                      cy='12'
+                      r='10'
+                      stroke='currentColor'
+                      strokeWidth='4'
+                    ></circle>
+                    <path
+                      className='opacity-75'
+                      fill='currentColor'
+                      d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+                    ></path>
+                  </svg>
+                  <span>Processing...</span>
+                </>
+              ) : (
+                <>
+                  <span>Proceed to Payment</span>
+                  <svg
+                    className='w-4 h-4'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth='2'
+                      d='M9 5l7 7-7 7'
+                    />
+                  </svg>
+                </>
+              )}
             </button>
           </form>
         )}
+
+        {isPinModalOpen && (
+          <EnterPinModal
+            onConfirmTopUp={handlePinConfirm}
+            onClose={() => setIsPinModalOpen(false)}
+            setPin={setPin}
+            pin={pin}
+            from='top up'
+          />
+        )}
       </div>
-
-      {isPinModalOpen && (
-        <EnterPinModal
-          onConfirmTopUp={handlePinConfirm}
-          onClose={() => setIsPinModalOpen(false)}
-          setPin={setPin}
-          pin={pin}
-          from="top up"
-        />
-      )}
     </div>
-  );
-};
+  )
+}
 
-export default ReceiveMoneyModal;
+export default ReceiveMoneyModal
