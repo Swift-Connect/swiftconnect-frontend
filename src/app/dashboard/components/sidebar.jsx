@@ -17,20 +17,20 @@ const MenuItems = {
     { label: "User Management", icon: "home.svg" },
     { label: "Role-Based Access Control", icon: "home.svg" },
     { label: "Transaction Management", icon: "home.svg" },
-    { label: "Banking Services", icon: "home.svg" },
+    // { label: "Banking Services", icon: "home.svg" },
     { label: "Payment Gateway Integration", icon: "home.svg" },
-    { label: "Virtual Card Management", icon: "home.svg" },
+    // { label: "Virtual Card Management", icon: "home.svg" },
     { label: "Reseller Management", icon: "home.svg" },
     { label: "Service Management API", icon: "home.svg" },
     { label: "Referral System", icon: "home.svg" },
-    { label: "Marketing Tools", icon: "home.svg" },
-    { label: "Notification System", icon: "home.svg" },
+    // { label: "Marketing Tools", icon: "home.svg" },
+    // { label: "Notification System", icon: "home.svg" },
     { label: "Reports and Analytics", icon: "home.svg" },
-    { label: "System Monitoring", icon: "home.svg" },
-    { label: "API Management", icon: "home.svg" },
-    { label: "Audit Logs", icon: "home.svg" },
+    // { label: "System Monitoring", icon: "home.svg" },
+    // { label: "API Management", icon: "home.svg" },
+    // { label: "Audit Logs", icon: "home.svg" },
     { label: "Settings", icon: "home.svg" },
-    { label: "Customer Support", icon: "home.svg" },
+    // { label: "Customer Support", icon: "home.svg" },
   ],
 };
 export default function Sidebar({
@@ -105,7 +105,7 @@ export default function Sidebar({
                       index === 8 ||
                       index === 11 ||
                       index === 13 ||
-                      label === "Customer Support") && (
+                      label === "Settings") && (
                       <hr className="border-t border-gray-300 my-8 w-[90%] mx-auto" />
                     )
                   : ""}
