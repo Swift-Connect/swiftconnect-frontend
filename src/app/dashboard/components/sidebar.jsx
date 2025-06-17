@@ -52,23 +52,23 @@ export default function Sidebar ({
     <aside
       className={`${
         role === 'admin' ? 'w-[280px]' : 'w-[240px]'
-      } bg-white shadow-md h-screen flex flex-col justify-between transition-all duration-300 ${
+      } bg-white shadow-md h-screen flex flex-col justify-between  transition-all duration-300 ${
         hideSideMenu
           ? 'max-md:hidden'
-          : 'max-md:fixed max-md:inset-0 max-md:z-50 max-md:w-full max-md:bg-black/50'
+          : 'max-md:fixed max-md:inset-0  max-md:z-50 max-md:w-full bg-[#000000ce]'
       }`}
     >
-      <div className='flex items-center justify-between p-4 border-b'>
-        <img src='/logo.svg' alt='Logo' className='w-32' />
+      <div className='flex items-center justify-between  p-4 border-b'>
+        <img src='/logo.svg' alt='Logo' className='w-50 ' />
         <button
           onClick={() => setHideSideMenu(true)}
-          className='hidden max-md:block text-white'
+          className='hidden  max-md:block text-white'
         >
-          <X className='w-6 h-6' />
+          <X className='w-8 h-8' />
         </button>
       </div>
       <div className='flex-1 overflow-y-auto custom-scroll'>
-        <nav className='py-4'>
+        <nav className='py-4 bg-white h-fit'>
           {menuList.map(({ label, icon }, index) => (
             <React.Fragment key={label}>
               <button
@@ -76,7 +76,7 @@ export default function Sidebar ({
                   setActive(label)
                   setActiveSidebar(label)
                 }}
-                className={`flex items-center gap-3 px-4 py-3 text-[15px] text-gray-600 hover:bg-gray-50 w-full transition-colors ${
+                className={`flex items-center gap-3 px-4 py-3 bg-wh text-[15px] text-gray-600 hover:bg-[#00613a48] hover:text-[#000e08] w-full transition-colors ${
                   active === label ? 'bg-[#0E1318] text-white' : ''
                 }`}
               >
