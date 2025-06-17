@@ -73,12 +73,16 @@ export default function WalletCard({ data }) {
 
       if (!response.ok) {
         const errorData = await response.json();
-        toast.update(loadingToast, {
-          render: errorData.message || "Failed to process payment",
-          type: "error",
-          isLoading: false,
-          autoClose: 3000,
+        toast.dismiss(loadingToast);
+        toast.error(errorData.message, {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
         });
+        setCurrentView('main')
         throw new Error(errorData.message || "Failed to make transfer");
       }
 
@@ -205,6 +209,7 @@ export default function WalletCard({ data }) {
 
   return (
     <div className="p-8 max-md-[400px]:p-4 bg-[#ffffff]  rounded-[1.5em] border-[0.5px] border-[#efefef] max-w-s w-[50%] max-md-[400px]:w-full  flex flex-col justify-between">
+      <ToastContainer/>
       <div className="flex justify-between items-center">
         <div>
           <p className="text-gray-500 text-[18px]">Total Balance</p>
@@ -240,6 +245,7 @@ export default function WalletCard({ data }) {
         </button>
       </div>
       {isModalOpen && renderModalContent()}
+      <ToastContainer/>
 
         <ReceiveMoneyModal
           isOpen={isRecieveMoneyModalOpen}

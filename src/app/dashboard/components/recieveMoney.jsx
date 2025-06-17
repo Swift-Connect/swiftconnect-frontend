@@ -123,19 +123,27 @@ const ReceiveMoneyModal = ({ isOpen, onClose }) => {
         });
         window.location.href = data.payment_link;
       } else {
-        toast.update(loadingToast, {
-          render: data.detail || "Failed to process payment",
-          type: "error",
-          isLoading: false,
-          autoClose: 3000,
+        setIsPinModalOpen(false)
+        toast.dismiss(loadingToast);
+        toast.error(data.message, {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
         });
       }
     } catch (err) {
-      toast.update(loadingToast, {
-        render: `Fetch error: ${err.message}`,
-        type: "error",
-        isLoading: false,
-        autoClose: 3000,
+      setIsPinModalOpen(false)
+      toast.dismiss(loadingToast);
+      toast.error(err.message, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
       });
     } finally {
       setIsSubmitting(false);
@@ -163,7 +171,7 @@ const ReceiveMoneyModal = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <ToastContainer />
+
       <div
         className="bg-white rounded-xl p-6 w-full max-w-lg relative"
         onClick={(e) => e.stopPropagation()}
@@ -248,6 +256,7 @@ const ReceiveMoneyModal = ({ isOpen, onClose }) => {
           </>
         ) : (
           <form onSubmit={handleFormSubmit} className="space-y-4">
+      
             <div>
               <label className="block text-sm font-medium">Amount</label>
               <input
