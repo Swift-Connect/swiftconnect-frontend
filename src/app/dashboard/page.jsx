@@ -69,6 +69,7 @@ export default function Home() {
   }, []);
 
   // console.log(data);
+ 
 
   const renderComponent = () => {
     switch (activeSidebar) {
@@ -109,6 +110,7 @@ export default function Home() {
           setHideSideMenu={setHideSideMenu}
           user={user}
           setActiveSidebar={setActiveSidebar}
+          searchItems={searchItems}
         />
         <section className="py-6 px-10 max-md-[400px]:px-5 h-[80vh] max-md-[400px]:h-[90vh] fixed max-md-[400px]:w-full w-[80%] overflow-y-auto custom-scroll bg-[#F6FCF5]">
           {renderComponent()}
