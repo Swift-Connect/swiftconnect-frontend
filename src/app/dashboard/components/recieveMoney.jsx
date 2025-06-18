@@ -75,8 +75,9 @@ const ReceiveMoneyModal = ({ isOpen, onClose }) => {
   useEffect(() => {
     if (!isOpen || hasFetchedAccounts) return
 
+    let loadingToast = null
     const fetchAccounts = async () => {
-      const loadingToast = toast.loading('Fetching bank accounts...')
+      loadingToast = toast.loading('Fetching bank accounts...')
       try {
         const data = await fetchWithAuth('payments/account-numbers/')
         setAccounts(data?.accounts || [])
@@ -98,7 +99,14 @@ const ReceiveMoneyModal = ({ isOpen, onClose }) => {
     }
 
     fetchAccounts()
-  }, [isOpen, hasFetchedAccounts])
+
+    // Cleanup function to dismiss any pending toasts when component unmounts or modal closes
+    return () => {
+      if (loadingToast) {
+        toast.dismiss(loadingToast)
+      }
+    }
+  }, [isOpen])
 
   // Reset hasFetchedAccounts when modal closes
   useEffect(() => {
@@ -201,6 +209,18 @@ const ReceiveMoneyModal = ({ isOpen, onClose }) => {
     }
   }
 
+  const handleCopy = (text, type) => {
+    navigator.clipboard.writeText(text)
+    toast.success(`${type} copied to clipboard!`, {
+      position: 'top-right',
+      autoClose: 2000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true
+    })
+  }
+
   return (
     <div className='fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50'>
       <div
@@ -239,39 +259,64 @@ const ReceiveMoneyModal = ({ isOpen, onClose }) => {
                 {accounts.map((acc, index) => (
                   <div
                     key={index}
-                    className='flex items-center justify-between p-2 border rounded-xl mb-2 hover:shadow transition text-sm'
+                    className='flex items-center justify-between p-4 border rounded-xl mb-2 hover:shadow transition text-sm'
                   >
-                    <div className='flex items-center space-x-2'>
+                    <div className='flex items-center space-x-3'>
                       <img
                         src={bankLogoMap[acc.bank_code] || '/default-logo.png'}
                         alt={`${acc.bank_name} logo`}
-                        className='w-8 h-8 rounded-full bg-white border'
+                        className='w-10 h-10 rounded-full bg-white border'
                         onError={e => {
                           e.target.onerror = null
                           e.target.src = '/default-logo.png'
                         }}
                       />
-                      <div>
-                        <p className='text-xs text-gray-600'>
-                          {acc.account_name} • {acc.bank_name}
+                      <div className='space-y-1'>
+                        <p className='text-sm font-medium text-gray-900'>
+                          {acc.bank_name}
                         </p>
-                        <p className='font-semibold text-base'>
-                          {acc.account_number}
+                        <p className='text-xs text-gray-600'>
+                          Account Number: {acc.account_number}
+                        </p>
+                        <p className='text-xs text-gray-600'>
+                          Reference: {acc.account_reference}
+                        </p>
+                        <p className='text-xs text-gray-500'>
+                          Created:{' '}
+                          {new Date(acc.created_at).toLocaleDateString()}
                         </p>
                       </div>
                     </div>
-                    <div className='flex space-x-1 text-gray-500'>
-                      <Share2 className='w-4 h-4 cursor-pointer' />
-                      <Copy className='w-4 h-4 cursor-pointer' />
+                    <div className='flex flex-col space-y-2'>
+                      <button
+                        onClick={() =>
+                          handleCopy(acc.account_number, 'Account number')
+                        }
+                        className='p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors'
+                        title='Copy account number'
+                      >
+                        <Copy className='w-4 h-4' />
+                      </button>
+                      <button
+                        onClick={() =>
+                          handleCopy(acc.account_reference, 'Reference')
+                        }
+                        className='p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors'
+                        title='Copy reference'
+                      >
+                        <Share2 className='w-4 h-4' />
+                      </button>
                     </div>
                   </div>
                 ))}
-                <button
-                  onClick={() => setStep('addAccount')}
-                  className='w-full bg-gray-100 text-gray-700 py-2 rounded-md hover:bg-gray-200 transition mb-2 text-xs'
-                >
-                  + Add Another Account
-                </button>
+                {accounts.length === 0 && (
+                  <button
+                    onClick={() => setStep('addAccount')}
+                    className='w-full bg-gray-100 text-gray-700 py-2 rounded-md hover:bg-gray-200 transition mb-2 text-xs'
+                  >
+                    + Add Another Account
+                  </button>
+                )}
               </>
             )}
 
