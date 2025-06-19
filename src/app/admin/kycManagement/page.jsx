@@ -16,7 +16,7 @@ import {
 import UsersTable from '../dashboard/components/userTable'
 import Pagination from '../components/pagination'
 import TableTabs from '../components/tableTabs'
-import { FaDownload, FaSearch, FaFilter, FaRefresh } from 'react-icons/fa'
+import { FaDownload, FaSearch, FaFilter, FaSync } from 'react-icons/fa'
 
 const KYCManagement = () => {
   const router = useRouter()
@@ -289,7 +289,7 @@ const KYCManagement = () => {
               onClick={fetchKycData}
               className='px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center gap-2'
             >
-              <FaRefresh />
+              <FaSync />
               Refresh
             </button>
           </div>

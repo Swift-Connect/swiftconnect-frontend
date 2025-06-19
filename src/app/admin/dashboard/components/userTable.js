@@ -29,11 +29,12 @@ const UsersTable = ({
   isLoading,
   actionItem,
   setActionItem,
-  refreshData
+  refreshData,
+  selectedItems = [],
+  onItemSelection = () => {},
+  onSelectAll = () => {}
 }) => {
   const [data, setData] = useState([])
-  const [checkedItems, setCheckedItems] = useState([])
-  const [isAllChecked, setIsAllChecked] = useState(false)
   const [activeRow, setActiveRow] = useState(null)
   const [selectedKyc, setSelectedKyc] = useState(null)
   const [showKycModal, setShowKycModal] = useState(false)
@@ -94,16 +95,17 @@ const UsersTable = ({
   }
 
   const handleHeaderCheckboxChange = () => {
-    const newCheckedState = !isAllChecked
-    setIsAllChecked(newCheckedState)
-    setCheckedItems(new Array(data.length).fill(newCheckedState))
+    const allSelected = data.length > 0 && selectedItems.length === data.length
+    if (allSelected) {
+      onSelectAll(false)
+    } else {
+      onSelectAll(true)
+    }
   }
 
-  const handleCheckboxChange = index => {
-    const newCheckedItems = [...checkedItems]
-    newCheckedItems[index] = !newCheckedItems[index]
-    setCheckedItems(newCheckedItems)
-    setIsAllChecked(newCheckedItems.every(item => item))
+  const handleCheckboxChange = item => {
+    const isSelected = selectedItems.includes(item.id)
+    onItemSelection(item.id, !isSelected)
   }
 
   const handleActionClick = index => {
@@ -150,18 +152,14 @@ const UsersTable = ({
   }
 
   const handleBulkAction = async action => {
-    const selectedIds = checkedItems
-      .map((checked, index) => (checked ? kycData[index]?.id : null))
-      .filter(id => id !== null)
-
-    if (selectedIds.length === 0) {
+    if (selectedItems.length === 0) {
       toast.error('Please select at least one KYC record')
       return
     }
 
     const confirmed = window.confirm(
       `Are you sure you want to ${action.toLowerCase()} ${
-        selectedIds.length
+        selectedItems.length
       } KYC record(s)?`
     )
 
@@ -362,11 +360,11 @@ const UsersTable = ({
       )}
 
       {/* Bulk Actions */}
-      {checkedItems.some(item => item) && (
+      {selectedItems.length > 0 && (
         <div className='mb-4 p-4 bg-blue-50 rounded-lg'>
           <div className='flex items-center gap-4'>
             <span className='text-sm text-gray-600'>
-              {checkedItems.filter(item => item).length} item(s) selected
+              {selectedItems.length} item(s) selected
             </span>
             <button
               onClick={() => handleBulkAction('Approve')}
@@ -394,7 +392,10 @@ const UsersTable = ({
                 <th className='py-[1.3em] px-[1.8em] text-left text-[#6B7280] font-medium'>
                   <input
                     type='checkbox'
-                    checked={isAllChecked}
+                    checked={
+                      selectedItems.length > 0 &&
+                      selectedItems.length === data.length
+                    }
                     onChange={handleHeaderCheckboxChange}
                     className='w-4 h-4'
                   />
@@ -427,8 +428,8 @@ const UsersTable = ({
                   <td className='py-[1.3em] px-[1.8em]'>
                     <input
                       type='checkbox'
-                      checked={checkedItems[idx] || false}
-                      onChange={() => handleCheckboxChange(idx)}
+                      checked={selectedItems.includes(kyc.id)}
+                      onChange={() => handleCheckboxChange(kyc)}
                       className='w-4 h-4'
                     />
                   </td>
