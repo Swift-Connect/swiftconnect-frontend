@@ -2,7 +2,7 @@ import { Menu } from "lucide-react";
 import Image from "next/image";
 import SearchBar from "./SearchBar";
 
-export default function Header({ setHideSideMenu, user, setActiveSidebar }) {
+export default function Header({ setHideSideMenu, user, setActiveSidebar, searchItems }) {
   return (
     <header className="flex max-md-[400px]:w-full justify-between  items-center  bg-white py-4 px-8 max-md-[400px]:px-2 header-shadow max-md-[400px]:gap-4">
       <Menu
@@ -13,7 +13,10 @@ export default function Header({ setHideSideMenu, user, setActiveSidebar }) {
         Welcome back, {user?.username}
       </h1>
       <div className="flex items-center gap-4 ">
-        <SearchBar setActiveSidebar={setActiveSidebar} />
+        <SearchBar
+          setActiveSidebar={setActiveSidebar}
+          searchItems={searchItems}
+        />
 
         <div>
           <Image

@@ -3,17 +3,21 @@
 import Image from "next/image";
 import { useState } from "react";
 
-const searchItems = [
-  "Dashboard",
-  "Pay Bills",
-  "Cards",
-  "Reward",
-  "Settings",
-  "KYC",
-  "Developer API",
-];
+// const searchItems = [
+//   "Dashboard",
+//   "Pay Bills",
+//   "Cards",
+//   "Reward",
+//   "Settings",
+//   "KYC",
+//   "Developer API",
+// ];
 
-export default function SearchBar({ setActiveSidebar }) {
+export default function SearchBar({ setActiveSidebar, searchItems }) {
+  // Debug: Check if props are received correctly
+  // Remove or comment out after debugging
+  // console.log("SearchBar props:", { setActiveSidebar, searchItems });
+
   const [query, setQuery] = useState("");
   const [filteredResults, setFilteredResults] = useState([]);
 

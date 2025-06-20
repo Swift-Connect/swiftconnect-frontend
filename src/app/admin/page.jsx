@@ -106,7 +106,29 @@ const AdminPage = () => {
       default:
         return 'LOL'
     }
-  }
+  };
+
+  const searchItems = [
+    "Dashboard",
+    "User Management",
+    "Transaction Management",
+    "Referral System",
+    "Service Management API",
+    "Payment Gateway Integration",
+    "Banking Services",
+    "Notification System",
+    "Virtual Card Management",
+    "Audit Logs",
+    "Reports and Analytics",
+    "Settings",
+    "Role-Based Access Control",
+    "Reseller Management",
+    "API Management",
+    "System Monitoring",
+    "Customer Support",
+    "Marketing Tools",
+
+  ];
 
   return (
     <div className='flex  bg-[#F6FCF5] '>
@@ -118,9 +140,13 @@ const AdminPage = () => {
         user={user}
         role='admin'
       />
-      <main className='flex-1 w-[70%]'>
-        <Header setHideSideMenu={setHideSideMenu} user={user} />
-        <section className='p-6 h-[80vh] overflow-y-auto'>
+      <main className="flex-1 w-[70%]">
+        <Header
+          setHideSideMenu={setHideSideMenu}
+          user={user}
+          searchItems={searchItems}
+        />
+        <section className="p-6 h-[80vh] overflow-y-auto">
           {renderComponent()}
         </section>
       </main>
