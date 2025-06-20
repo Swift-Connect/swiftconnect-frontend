@@ -21,24 +21,6 @@ const SwiftConnectModal = ({
   const [matchedAccount, setMatchedAccount] = useState(null);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
 
-  const userAccounts = [
-    {
-      name: "John Doe",
-      username: "@johndoe",
-      accountNumber: "123456789",
-    },
-    {
-      name: "Jane Smith",
-      username: "@janesmith",
-      accountNumber: "987654321",
-    },
-    {
-      name: "Alice Johnson",
-      username: "@alicej",
-      accountNumber: "567890123",
-    },
-  ];
-
   const handleInputChange = (e) => {
     const value = e.target.value;
     setInputValue(value);

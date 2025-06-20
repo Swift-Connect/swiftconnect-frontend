@@ -25,7 +25,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
       <div className="flex items-center space-x-2 mt-4 overflow-auto max-w-[70%]">
         <button
           className="px-4 py-2 bg-green-100 text-green-700 rounded-md hover:bg-green-200 transition"
-          disabled={currentPage === 1}
+          disabled={currentPage === 1}    
           onClick={() => onPageChange(currentPage - 1)}
         >
           Previous

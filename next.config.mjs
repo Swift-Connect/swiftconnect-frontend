@@ -1,9 +1,16 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ["plus.unsplash.com"],
-  },
-  
-};
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**'
+      }
+    ]
+    // Optionally, if you want to allow SVGs from any domain:
+    // dangerouslyAllowSVG: true,
+    // contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;"
+  }
+}
 
-export default nextConfig;
+export default nextConfig

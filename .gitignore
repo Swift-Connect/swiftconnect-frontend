@@ -6,6 +6,8 @@
 .pnp.*
 .yarn/*
 !.yarn/patches
+.cursorignore
+swagger.json
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions

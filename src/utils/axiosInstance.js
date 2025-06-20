@@ -1,27 +1,27 @@
-import axios from "axios";
+import axios from 'axios'
 
 const axiosInstance = axios.create({
-  baseURL: "https://swiftconnect-backend.onrender.com",
+  baseURL: 'https://swiftconnect-backend.onrender.com',
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json'
     // "Content-Type": "multipart/form-data",
-  },
-});
+  }
+})
 
 // Add a request interceptor to include tokens dynamically
 axiosInstance.interceptors.request.use(
-  (config) => {
-    if (typeof window !== "undefined") {
-      const token = localStorage.getItem("access_token"); // Adjust based on how you store the token
+  config => {
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('access_token') // Adjust based on how you store the token
       if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+        config.headers.Authorization = `Bearer ${token}`
       }
     }
-    return config;
+    return config
   },
-  (error) => {
-    return Promise.reject(error);
+  error => {
+    return Promise.reject(error)
   }
-);
+)
 
-export default axiosInstance;
+export default axiosInstance
