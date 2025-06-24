@@ -1,7 +1,7 @@
-import axiosInstance from "@/utils/axiosInstance";
-import { useEffect, useState } from "react";
+import axiosInstance from '@/utils/axiosInstance'
+import { useEffect, useState } from 'react'
 
-export default function MobileTransactions() {
+export default function MobileTransactions () {
   // const transactions = [
   //   {
   //     id: 1,
@@ -55,64 +55,77 @@ export default function MobileTransactions() {
   //   },
   // ];
 
-  const [activeTransactionTab, setActiveTransactionTab] = useState("all");
-    const [transactions, setTransactions] = useState([]);
-  
-    const fetchData = async () => {
-      try {
-        const response = await axiosInstance.get("/payments/transactions/");
-        console.log("Transactions For Mobile:", response.data);
-        setTransactions(response.data);
-      } catch (error) {
-        console.error("Error fetching transactions:", error);
-      }
-    };
-  
-    useEffect(() => {
-      fetchData();
-    }, []);
-    const filteredTransactions =
-      activeTransactionTab === "all"
-        ? transactions
-        : activeTransactionTab === "Credit"
-        ? transactions.filter((transaction) =>
-            // String(transaction?.amount).startsWith("+")
-            transaction.transaction_type === "credit" ? transaction.amount : ""
-          )
-        : transactions.filter((transaction) =>
-            transaction.transaction_type === "debit" ? transaction.amount : ""
-        );
-  
-  
+  const [activeTransactionTab, setActiveTransactionTab] = useState('all')
+  const [transactions, setTransactions] = useState([])
+
+  const fetchData = async () => {
+    try {
+      const response = await axiosInstance.get('/payments/transactions/')
+      console.log('Transactions For Mobile:', response.data)
+      // Sort by created_at/updated_at descending and fallback for nulls
+      const sorted = (response.data || [])
+        .map(tx => ({
+          ...tx,
+          amount: tx.amount ?? 0,
+          status: tx.status ?? '-',
+          transaction_id: tx.transaction_id ?? tx.id ?? '-',
+          created_at: tx.created_at ?? tx.updated_at ?? null
+        }))
+        .sort(
+          (a, b) =>
+            new Date(b.created_at || b.updated_at) -
+            new Date(a.created_at || a.updated_at)
+        )
+      setTransactions(sorted)
+    } catch (error) {
+      console.error('Error fetching transactions:', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchData()
+  }, [])
+  const filteredTransactions =
+    activeTransactionTab === 'all'
+      ? transactions
+      : activeTransactionTab === 'Credit'
+      ? transactions.filter(transaction =>
+          // String(transaction?.amount).startsWith("+")
+          transaction.transaction_type === 'credit' ? transaction.amount : ''
+        )
+      : transactions.filter(transaction =>
+          transaction.transaction_type === 'debit' ? transaction.amount : ''
+        )
+
   return (
-    <div className="max-w-md mx-auto  p-4 md-[400px]:hidden">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold">Transactions</h2>
-        <a href="#" className="text-blue-500 text-sm">
+    <div className='max-w-md mx-auto  p-4 md-[400px]:hidden'>
+      <div className='flex justify-between items-center mb-4'>
+        <h2 className='text-lg font-semibold'>Transactions</h2>
+        <a href='#' className='text-blue-500 text-sm'>
           View All
         </a>
       </div>
-      <div className="space-y-4">
+      <div className='space-y-4'>
         {filteredTransactions.map((transaction, idx) => (
-          <div key={idx} className="flex items-center space-x-4">
+          <div key={idx} className='flex items-center space-x-4'>
             <img
               src={transaction.icon}
               alt={transaction.type}
-              className="w-10 h-10 rounded-full"
+              className='w-10 h-10 rounded-full'
             />
-            <div className="flex-1">
-              <h3 className="text-sm font-medium">{transaction.type}</h3>
-              <p className="text-xs text-gray-500">{transaction.date}</p>
+            <div className='flex-1'>
+              <h3 className='text-sm font-medium'>{transaction.type}</h3>
+              <p className='text-xs text-gray-500'>{transaction.date}</p>
             </div>
-            <div className="text-right">
+            <div className='text-right'>
               <p className={`text-sm font-semibold ${transaction.amountColor}`}>
                 ₦{transaction.amount.toLocaleString()}
               </p>
               <p
                 className={`text-[10px]  ${
-                  transaction.type === "debit"
-                    ? "bg-[#f9d9d9] text-red-500"
-                    : "bg-[#dcfcdc] text-green-500"
+                  transaction.type === 'debit'
+                    ? 'bg-[#f9d9d9] text-red-500'
+                    : 'bg-[#dcfcdc] text-green-500'
                 } rounded-full py-[0.3em] px-2 border`}
               >
                 {transaction.status}
@@ -122,5 +135,5 @@ export default function MobileTransactions() {
         ))}
       </div>
     </div>
-  );
+  )
 }

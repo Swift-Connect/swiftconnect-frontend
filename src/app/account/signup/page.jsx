@@ -89,7 +89,8 @@ const SignupPage = () => {
 
     const signupData = {
       email,
-      phone_number: `${phoneNumber ? selectedCountry.code + phoneNumber : ''}`
+      phone_number: `${phoneNumber ? selectedCountry.code + phoneNumber : ''}`,
+      referral_code: referralCode || ''
     }
 
     try {
@@ -213,7 +214,7 @@ const SignupPage = () => {
     const signupData = {
       email,
       phone_number: `${selectedCountry.code}${phoneNumber}`,
-      referral_code: referralCode
+      referral_code: referralCode || ''
     }
 
     try {
@@ -280,7 +281,7 @@ const SignupPage = () => {
       username,
       password,
       email: user?.email,
-      referral_code: referralCode
+      referral_code: referralCode || ''
     }
 
     try {

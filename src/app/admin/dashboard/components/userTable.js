@@ -437,7 +437,7 @@ const UsersTable = ({
                     <div className='flex items-center gap-3'>
                       <div>
                         <p className='font-medium text-gray-900'>
-                          {kyc?.user?.fullname}
+                          {kyc?.user_fullname}
                         </p>
                       </div>
                     </div>
@@ -445,11 +445,9 @@ const UsersTable = ({
                   {/* Contact Info hidden on mobile */}
                   <td className='py-[1.3em] px-[1.8em] hidden md:table-cell'>
                     <div className='space-y-1'>
-                      <p className='text-sm text-gray-900'>
-                        {kyc?.user?.email}
-                      </p>
+                      <p className='text-sm text-gray-900'>{kyc?.user_email}</p>
                       <p className='text-sm text-gray-500'>
-                        {kyc?.user?.phone_number || 'Not provided'}
+                        {kyc?.user_phone_number || 'Not provided'}
                       </p>
                     </div>
                   </td>
@@ -537,21 +535,15 @@ const UsersTable = ({
               <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
                 <div>
                   <p className='text-sm text-gray-500'>Full Name</p>
-                  <p className='font-medium'>{selectedKyc.user.fullname}</p>
-                </div>
-                <div>
-                  <p className='text-sm text-gray-500'>Date of Birth</p>
-                  <p className='font-medium'>
-                    {selectedKyc.user.date_of_birth}
-                  </p>
-                </div>
-                <div>
-                  <p className='text-sm text-gray-500'>Gender</p>
-                  <p className='font-medium'>{selectedKyc.user.gender}</p>
+                  <p className='font-medium'>{selectedKyc.user_fullname}</p>
                 </div>
                 <div>
                   <p className='text-sm text-gray-500'>Email</p>
-                  <p className='font-medium'>{selectedKyc.user.email}</p>
+                  <p className='font-medium'>{selectedKyc.user_email}</p>
+                </div>
+                <div>
+                  <p className='text-sm text-gray-500'>Username</p>
+                  <p className='font-medium'>{selectedKyc.user_username}</p>
                 </div>
                 <div>
                   <p className='text-sm text-gray-500'>Document Type</p>
@@ -561,22 +553,12 @@ const UsersTable = ({
                   <p className='text-sm text-gray-500'>Status</p>
                   <p className='font-medium'>{getStatusText(selectedKyc)}</p>
                 </div>
-                <div className='col-span-1 sm:col-span-2'>
-                  <p className='text-sm text-gray-500'>Residential Address</p>
-                  <p className='font-medium'>
-                    {selectedKyc.user.residential_address}
-                  </p>
-                </div>
                 <div>
                   <p className='text-sm text-gray-500'>Created At</p>
                   <p className='font-medium'>
-                    {new Date(selectedKyc.created_at).toLocaleDateString()}
-                  </p>
-                </div>
-                <div>
-                  <p className='text-sm text-gray-500'>Updated At</p>
-                  <p className='font-medium'>
-                    {new Date(selectedKyc.updated_at).toLocaleDateString()}
+                    {selectedKyc.created_at
+                      ? new Date(selectedKyc.created_at).toLocaleDateString()
+                      : '-'}
                   </p>
                 </div>
               </div>

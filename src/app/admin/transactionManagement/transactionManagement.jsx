@@ -1,241 +1,242 @@
-"use client";
+'use client'
 
-import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import Image from 'next/image'
+import React, { useEffect, useState } from 'react'
 // import TrxManagementTable from "./components/TrxManagementTable";
-import Pagination from "../components/pagination";
-import TableTabs from "../components/tableTabs";
-import EditUserTrx from "./components/editUserTransaction";
-import { FaChevronRight } from "react-icons/fa";
-import TrxManagementTable from "./components/trxManagementTable";
-import { toast } from "react-toastify";
-import api from "@/utils/api";
-import ViewTransactionModal from "../components/viewTransactionModal";
-import { useRouter } from "next/navigation";
+import Pagination from '../components/pagination'
+import TableTabs from '../components/tableTabs'
+import EditUserTrx from './components/editUserTransaction'
+import { FaChevronRight } from 'react-icons/fa'
+import TrxManagementTable from './components/trxManagementTable'
+import { toast } from 'react-toastify'
+import api from '@/utils/api'
+import ViewTransactionModal from '../components/viewTransactionModal'
+import { useRouter } from 'next/navigation'
 
 const TransactionManagement = () => {
-  const router = useRouter();
-  const [token, setToken] = useState(null);
+  const router = useRouter()
+  const [token, setToken] = useState(null)
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const accessToken = localStorage.getItem("access_token");
-      setToken(accessToken);
+    if (typeof window !== 'undefined') {
+      const accessToken = localStorage.getItem('access_token')
+      setToken(accessToken)
 
       if (!accessToken) {
-        router.push("/account/login");
+        router.push('/account/login')
       }
     }
-  }, []);
+  }, [])
 
   const [activeTabPending, setActiveTabPending] =
-    React.useState("All Transaction");
+    React.useState('All Transaction')
   const data = [
     {
       id: 1,
-      user: "John Doe",
-      product: "Airtime",
-      amount: "50,000",
-      date: "2024-03-01",
-      status: "Completed",
+      user: 'John Doe',
+      product: 'Airtime',
+      amount: '50,000',
+      date: '2024-03-01',
+      status: 'Completed'
     },
     {
       id: 2,
-      user: "Jane Smith",
-      product: "Internet",
-      amount: "10,000",
-      date: "2024-03-02",
-      status: "Pending",
+      user: 'Jane Smith',
+      product: 'Internet',
+      amount: '10,000',
+      date: '2024-03-02',
+      status: 'Pending'
     },
     {
       id: 3,
-      user: "Alice Johnson",
-      product: "Transfer",
-      amount: "20,000",
-      date: "2024-03-03",
-      status: "Failed",
+      user: 'Alice Johnson',
+      product: 'Transfer',
+      amount: '20,000',
+      date: '2024-03-03',
+      status: 'Failed'
     },
     {
       id: 4,
-      user: "Bob Brown",
-      product: "Cable",
-      amount: "15,000",
-      date: "2024-03-04",
-      status: "Refunded",
+      user: 'Bob Brown',
+      product: 'Cable',
+      amount: '15,000',
+      date: '2024-03-04',
+      status: 'Refunded'
     },
     {
       id: 5,
-      user: "Charlie Davis",
-      product: "Electricity",
-      amount: "30,000",
-      date: "2024-03-05",
-      status: "Completed",
-    },
-  ];
+      user: 'Charlie Davis',
+      product: 'Electricity',
+      amount: '30,000',
+      date: '2024-03-05',
+      status: 'Completed'
+    }
+  ]
 
   // const [activeTabPending, setActiveTabPending] = useState("Approve KYC");
   const [activeTabTransactions, setActiveTabTransactions] =
-    useState("All Transactions");
+    useState('All Transactions')
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [allTransactionData, setAllTransaactionData] = useState([]);
-  const [transactionFilter, setTransactionFilter] = useState("All");
-  const [checkedItems, setCheckedItems] = useState([]); // Track selected rows
+  const [isLoading, setIsLoading] = useState(true)
+  const [allTransactionData, setAllTransaactionData] = useState([])
+  const [transactionFilter, setTransactionFilter] = useState('All')
+  const [checkedItems, setCheckedItems] = useState([]) // Track selected rows
   // Filtered transaction data based on the selected filter
-  console.log("Clicked Filtered Optiom", transactionFilter);
+  console.log('Clicked Filtered Optiom', transactionFilter)
 
-  const filteredTransactionData = allTransactionData.filter((tx) => {
-    if (transactionFilter === "All") return true;
-    if (transactionFilter === "Success")
-      return tx.status.toLowerCase() === "completed";
-    return tx.status.toLowerCase() === transactionFilter.toLowerCase();
-  });
+  const filteredTransactionData = allTransactionData.filter(tx => {
+    if (transactionFilter === 'All') return true
+    if (transactionFilter === 'Success')
+      return tx.status.toLowerCase() === 'completed'
+    return tx.status.toLowerCase() === transactionFilter.toLowerCase()
+  })
 
   useEffect(() => {
-    if (!token) return;
+    if (!token) return
 
     const fetchDashboardData = async () => {
-      setIsLoading(true);
+      setIsLoading(true)
       try {
         // Fetch all transactions
         const transactionEndpoints = [
-          "/payments/transactions/",
-          "/services/airtime-topups-transactions/",
-          "/services/data-plan-transactions/",
-          "/services/cable-recharges-transactions/",
-          "/services/education-transactions/",
-          "/services/electricity-transactions/",
-          "/services/bulk-sms-transactions/",
-        ];
+          '/payments/transactions/',
+          '/services/airtime-topups-transactions/',
+          '/services/data-plan-transactions/',
+          '/services/cable-recharges-transactions/',
+          '/services/education-transactions/',
+          '/services/electricity-transactions/',
+          '/services/bulk-sms-transactions/'
+        ]
 
-        const transactionPromises = transactionEndpoints.map(
-          async (endpoint) => {
-            try {
-              return await fetchAllPages(endpoint);
-            } catch (error) {
-              toast.error(`Error fetching ${endpoint}`);
-              console.error(`Error fetching ${endpoint}:`, error);
-              return [];
-            }
+        const transactionPromises = transactionEndpoints.map(async endpoint => {
+          try {
+            return await fetchAllPages(endpoint)
+          } catch (error) {
+            toast.error(`Error fetching ${endpoint}`)
+            console.error(`Error fetching ${endpoint}:`, error)
+            return []
           }
-        );
+        })
 
-        const transactionResults = await Promise.all(transactionPromises);
-        const allTransactions = transactionResults.flat();
-        console.log("Fetched transactions:", allTransactions);
+        const transactionResults = await Promise.all(transactionPromises)
+        const allTransactions = transactionResults.flat()
+        console.log('Fetched transactions:', allTransactions)
         // Filter valid transactions
         const validTransactions = allTransactions.filter(
-          (tx) =>
+          tx =>
             tx.id &&
             tx.amount &&
             tx.created_at &&
             tx.status &&
-            typeof tx.amount === "number" // Ensure amount is a number
-        );
-        console.log("Fetched transactions:", allTransactions);
-        console.log("Valid transactions:", validTransactions);
+            typeof tx.amount === 'number' // Ensure amount is a number
+        )
+        console.log('Fetched transactions:', allTransactions)
+        console.log('Valid transactions:', validTransactions)
 
         // Process transactions
-        const processedDataTrx = allTransactions.map((tx) => {
-          console.log("dsdsxsxs", tx);
+        const processedDataTrx = allTransactions
+          .map(tx => ({
+            id: tx.id ?? '-',
+            product: getProductName(tx) ?? '-',
+            amount:
+              tx.amount != null ? formatCurrency(tx.amount, tx.currency) : '0',
+            date: tx.created_at
+              ? new Date(tx.created_at).toLocaleDateString('en-GB')
+              : '-',
+            status: tx.status ? capitalizeFirstLetter(tx.status) : '-',
+            transaction_id: tx.transaction_id ?? '-',
+            created_at: tx.created_at ?? null,
+            updated_at: tx.updated_at ?? null,
+            ...tx // include all other fields for modal
+          }))
+          .sort(
+            (a, b) =>
+              new Date(b.created_at || b.updated_at) -
+              new Date(a.created_at || a.updated_at)
+          )
 
-          // const user = validUsers.find((u) => u.id === tx.user);
-          // console.log("uddd", user);
-
-          return {
-            id: tx.id,
-            // user: user ? "user?.username" : "System",
-            product: getProductName(tx),
-            amount: formatCurrency(tx.amount, tx.currency),
-            date: new Date(tx.created_at).toLocaleDateString("en-GB"),
-            status: tx.status ? capitalizeFirstLetter(tx.status) : "Completed",
-          };
-        });
-
-        setAllTransaactionData(processedDataTrx);
+        setAllTransaactionData(processedDataTrx)
       } catch (error) {
         if (error.response?.status === 401) {
-          router.push("/account/login");
+          router.push('/account/login')
         } else {
-          toast.error(
-            "Failed to fetch dashboard data. Please try again later."
-          );
+          toast.error('Failed to fetch dashboard data. Please try again later.')
         }
-        console.error("Fetch dashboard data error:", error);
+        console.error('Fetch dashboard data error:', error)
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
-    };
+    }
 
-    fetchDashboardData();
-  }, [token]);
+    fetchDashboardData()
+  }, [token])
 
   const fetchAllPages = async (endpoint, maxPages = 50) => {
-    let allData = [];
-    let nextPage = endpoint;
-    let pageCount = 0;
+    let allData = []
+    let nextPage = endpoint
+    let pageCount = 0
 
     try {
       while (nextPage && pageCount < maxPages) {
-        const res = await api.get(nextPage);
-        allData = allData.concat(res.data.results || res.data);
-        nextPage = res.data.next || null;
-        pageCount++;
+        const res = await api.get(nextPage)
+        allData = allData.concat(res.data.results || res.data)
+        nextPage = res.data.next || null
+        pageCount++
       }
 
       if (pageCount >= maxPages) {
-        console.warn(`Reached max page limit (${maxPages}) for ${endpoint}`);
+        console.warn(`Reached max page limit (${maxPages}) for ${endpoint}`)
       }
     } catch (error) {
-      toast.error(`Error fetching data from ${endpoint}`);
-      console.error(`Error fetching ${endpoint}:`, error);
+      toast.error(`Error fetching data from ${endpoint}`)
+      console.error(`Error fetching ${endpoint}:`, error)
     }
 
-    return allData;
-  };
+    return allData
+  }
 
-  const formatCurrency = (amount, currency = "NGN") => {
-    return new Intl.NumberFormat("en-NG", {
-      style: "currency",
-      currency: currency,
-    }).format(amount);
-  };
+  const formatCurrency = (amount, currency = 'NGN') => {
+    return new Intl.NumberFormat('en-NG', {
+      style: 'currency',
+      currency: currency
+    }).format(amount)
+  }
 
-  const getProductName = (transaction) => {
-    if (transaction.reason) return transaction.reason;
-    if (transaction.network) return `${transaction.network} Airtime`;
-    if (transaction.cable_name) return `${transaction.cable_name} Cable`;
-    return "Service Transaction";
-  };
+  const getProductName = transaction => {
+    if (transaction.reason) return transaction.reason
+    if (transaction.network) return `${transaction.network} Airtime`
+    if (transaction.cable_name) return `${transaction.cable_name} Cable`
+    return 'Service Transaction'
+  }
 
-  const capitalizeFirstLetter = (str) => {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  };
+  const capitalizeFirstLetter = str => {
+    return str.charAt(0).toUpperCase() + str.slice(1)
+  }
 
-  const editTrx = true;
-  const itemsPerPage = 10;
-  const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = Math.ceil(filteredTransactionData.length / itemsPerPage);
-  const [showEdit, setShowEdit] = useState(false);
-  const [editData, setEditData] = useState(null);
+  const editTrx = true
+  const itemsPerPage = 10
+  const [currentPage, setCurrentPage] = useState(1)
+  const totalPages = Math.ceil(filteredTransactionData.length / itemsPerPage)
+  const [showEdit, setShowEdit] = useState(false)
+  const [editData, setEditData] = useState(null)
 
-  const handleEditClick = (rowData) => {
-    setEditData(rowData);
-    setShowEdit(true);
-    console.log("shit");
-  };
+  const handleEditClick = rowData => {
+    setEditData(rowData)
+    setShowEdit(true)
+    console.log('shit')
+  }
 
-  const handleCheckedItemsChange = (newCheckedItems) => {
-    setCheckedItems(newCheckedItems);
-  };
+  const handleCheckedItemsChange = newCheckedItems => {
+    setCheckedItems(newCheckedItems)
+  }
 
   return (
-    <div className="overflow-hidden ">
-      <div className="max-md-[400px]:hidden">
+    <div className='overflow-hidden '>
+      <div className='max-md-[400px]:hidden'>
         {showEdit ? (
           <>
             <div>
-              <h1 className="text-[16px] font-semibold mb-8 flex items-center gap-4">
+              <h1 className='text-[16px] font-semibold mb-8 flex items-center gap-4'>
                 Transaction Management <FaChevronRight /> Edit User Transaction
               </h1>
             </div>
@@ -243,20 +244,20 @@ const TransactionManagement = () => {
           </>
         ) : (
           <>
-            <h1 className="text-[16px] font-semibold mb-8">
+            <h1 className='text-[16px] font-semibold mb-8'>
               Transaction Management
             </h1>
 
             <TableTabs
-              header={""}
+              header={''}
               setActiveTab={setActiveTabPending}
               activeTab={activeTabPending}
-              tabs={["All Transaction", "Inactive", "Recently Added"]}
-              from="transactionManagement"
+              tabs={['All Transaction', 'Inactive', 'Recently Added']}
+              from='transactionManagement'
               onPress={() => {}}
               selectedRows={checkedItems} // Pass selected rows
             />
-            <div className="rounded-t-[1em] overflow-auto border border-gray-200 min-h-[50vh]">
+            <div className='rounded-t-[1em] overflow-auto border border-gray-200 min-h-[50vh]'>
               <TrxManagementTable
                 data={filteredTransactionData}
                 currentPage={currentPage}
@@ -275,7 +276,7 @@ const TransactionManagement = () => {
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default TransactionManagement;
+export default TransactionManagement
