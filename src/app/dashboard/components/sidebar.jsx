@@ -65,17 +65,11 @@ export default function Sidebar ({
   setHideSideMenu,
   hideSideMenu,
   data,
-  role
+  role,
+  activeSidebar
 }) {
-  const [active, setActive] = useState('Dashboard')
   const { user } = useUserContext()
   const menuList = MenuItems[role] || []
-
-  useEffect(() => {
-    // On mount, set active from localStorage if available
-    const stored = localStorage.getItem('sidebar_active_label')
-    if (stored) setActive(stored)
-  }, [])
 
   return (
     <>
@@ -96,6 +90,7 @@ export default function Sidebar ({
               : 'max-md-[400px]:absolute max-md-[400px]:w-[70%] max-md-[400px]:z-20'
           }
         `}
+        aria-label="Sidebar navigation"
       >
         <div className='flex items-center justify-between p-4 gap-4'>
           <img src='/logo.svg' alt='Logo' className='w-30' />
@@ -114,26 +109,27 @@ export default function Sidebar ({
                 <React.Fragment key={label}>
                   <button
                     onClick={() => {
-                      setActive(label)
                       setActiveSidebar(label)
-                      localStorage.setItem('sidebar_active_label', label)
                       if (window.innerWidth <= 768) setHideSideMenu(true)
                     }}
-                    className={`flex px-4 py-2 text-[16px] text-gray-600 hover:bg-[#000000c0] hover:text-white items-center gap-4 w-full rounded-r-md ${
-                      active === label ? 'bg-black text-white' : ''
-                    }`}
+                    className={`flex px-4 py-2 text-[16px] items-center gap-4 w-full rounded-r-md transition-all duration-150
+                      ${activeSidebar === label ? 'bg-[#F6FCF5] text-[#00613A] font-bold border-l-4 border-[#00613A] shadow-sm' : 'text-gray-600 hover:bg-[#000000c0] hover:text-white'}
+                    `}
+                    style={{ outline: 'none' }}
+                    tabIndex={0}
+                    aria-label={label}
+                    role="menuitem"
+                    aria-current={activeSidebar === label ? 'page' : undefined}
                   >
                     <Image
                       src={
-                        active === label
-                          ? `sidebar/white/${icon}`
+                        activeSidebar === label
+                          ? `sidebar/black/${icon}`
                           : `sidebar/gray/${icon}`
                       }
                       width={100}
                       height={100}
-                      className={`w-[1.6em] ${
-                        active === label ? 'text-white' : 'text-gray-600'
-                      }`}
+                      className={`w-[1.6em] transition-all duration-150 ${activeSidebar === label ? 'opacity-100' : 'opacity-70'}`}
                       alt={`${label} icon`}
                     />
                     {label}

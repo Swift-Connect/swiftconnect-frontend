@@ -40,6 +40,7 @@ function DeveloperAPIComingSoon() {
 
 export default function Home () {
   const [activeSidebar, setActiveSidebar] = useState('Dashboard')
+  const [version, setVersion] = useState(0)
   const [hideSideMenu, setHideSideMenu] = useState(true)
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -80,18 +81,23 @@ export default function Home () {
   // console.log(data);
  
 
+  const handleSidebarChange = (label) => {
+    setActiveSidebar(label)
+    setVersion(v => v + 1)
+  }
+
   const renderComponent = () => {
     switch (activeSidebar) {
       case 'Dashboard':
         return (
           <Dashboard
-            setActiveSidebar={setActiveSidebar}
+            setActiveSidebar={handleSidebarChange}
             data={data}
             user={user}
           />
         )
       case 'Pay Bills':
-        return <PayBills setActiveSidebar={setActiveSidebar} />
+        return <PayBills setActiveSidebar={handleSidebarChange} />
       case 'Cards':
         return <CardPage />
       case 'Reward':
@@ -99,7 +105,7 @@ export default function Home () {
       case 'Settings':
         return <SettingsPage user={user} />
       case 'KYC':
-        return <KYC user={user} setActiveSidebar={setActiveSidebar} />
+        return <KYC user={user} setActiveSidebar={handleSidebarChange} />
       case 'Developer API':
         return <DeveloperAPIComingSoon />
     }
@@ -107,7 +113,8 @@ export default function Home () {
   return (
     <div className='flex bg-full bg-[#F6FCF5] '>
       <Sidebar
-        setActiveSidebar={setActiveSidebar}
+        setActiveSidebar={handleSidebarChange}
+        activeSidebar={activeSidebar}
         setHideSideMenu={setHideSideMenu}
         hideSideMenu={hideSideMenu}
         data={data}
@@ -121,7 +128,9 @@ export default function Home () {
           setActiveSidebar={setActiveSidebar}
           searchItems={searchItems}
         />
-        <section className='py-6 px-10 max-md-[400px]:px-5 h-[80vh] max-md-[400px]:h-[90vh] fixed max-md-[400px]:w-full w-[80%] overflow-y-auto custom-scroll bg-[#F6FCF5]'>
+        <section className='py-6 px-10 max-md-[400px]:px-5 h-[80vh] max-md-[400px]:h-[90vh] fixed max-md-[400px]:w-full w-[80%] overflow-y-auto custom-scroll bg-[#F6FCF5]'
+          key={activeSidebar + '-' + version}
+        >
           {renderComponent()}
         </section>
       </main>

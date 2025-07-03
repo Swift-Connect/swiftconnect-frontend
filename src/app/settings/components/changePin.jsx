@@ -2,8 +2,9 @@ import { useState, useRef } from "react";
 import { Lock, X, CheckCircle, Loader2 } from "lucide-react";
 import { FaLock } from "react-icons/fa";
 import { changeTransactionPin } from '../../../api/index.js'
+import Modal from "../../../components/common/Modal.jsx"
 
-export default function ChangePinModal({ onClose }) {
+export default function ChangePinModal({ isOpen, onClose }) {
   const [step, setStep] = useState(0); // 0: old pin, 1: new pin
   const [oldPin, setOldPin] = useState(["", "", "", ""]);
   const [newPin, setNewPin] = useState(["", "", "", ""]);
@@ -126,7 +127,7 @@ export default function ChangePinModal({ onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm transition-all">
+    <Modal isOpen={isOpen} onClose={handleClose}>
       <div className="bg-white w-full max-w-sm p-8 rounded-3xl shadow-2xl border border-gray-100 flex flex-col items-center relative animate-fade-in">
         {/* Close Button */}
         <button
@@ -243,6 +244,6 @@ export default function ChangePinModal({ onClose }) {
           )}
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }

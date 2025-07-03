@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react'
 import { ClipboardCopy, Copy } from 'lucide-react'
 import Image from 'next/image'
 import { fetchWithAuth } from '@/utils/api'
+import Modal from '../../../components/common/Modal'
 
-export default function ReferralModal ({ isOpen, onClose }) {
+export default function ReferralModal({ isOpen, onClose }) {
   const [referralCode, setReferralCode] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -32,7 +33,7 @@ export default function ReferralModal ({ isOpen, onClose }) {
   }
 
   return (
-    <div className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm'>
+    <Modal isOpen={isOpen} onClose={onClose}>
       <div className='bg-white w-[90%] max-w-[40%] p-8 rounded-2xl shadow-lg text-center'>
         <div className='flex flex-col items-center justify-center mx-[2em]'>
           {/* Gift Icon */}
@@ -86,6 +87,6 @@ export default function ReferralModal ({ isOpen, onClose }) {
           Okay
         </button>
       </div>
-    </div>
+    </Modal>
   )
 }

@@ -43,26 +43,31 @@ export default function Referrals ({ onBack }) {
                 <th className='p-5'>Username</th>
                 <th className='p-5'>Email</th>
                 <th className='p-5'>Status</th>
-                <th className='p-5'>Bonus</th>
+                <th className='p-5'>Signup Bonus</th>
+                <th className='p-5'>1st Txn Bonus</th>
+                <th className='p-5'>% Bonus</th>
+                <th className='p-5'>Monthly Bonus</th>
+                <th className='p-5'>Any Bonus</th>
+                <th className='p-5'>Total Commission</th>
                 <th className='p-5'>Date</th>
               </tr>
             </thead>
             <tbody className='bg-white'>
               {loading ? (
                 <tr>
-                  <td colSpan={6} className='p-5 text-center text-gray-400'>
+                  <td colSpan={11} className='p-5 text-center text-gray-400'>
                     Loading...
                   </td>
                 </tr>
               ) : error ? (
                 <tr>
-                  <td colSpan={6} className='p-5 text-center text-red-500'>
+                  <td colSpan={11} className='p-5 text-center text-red-500'>
                     {error}
                   </td>
                 </tr>
               ) : users.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className='p-5 text-center text-gray-400'>
+                  <td colSpan={11} className='p-5 text-center text-gray-400'>
                     You have not referred anyone yet.
                   </td>
                 </tr>
@@ -81,7 +86,22 @@ export default function Referrals ({ onBack }) {
                       {user?.is_active ? 'Active' : 'Inactive'}
                     </td>
                     <td className='p-5 text-[#9CA3AF]'>
+                      {user?.signup_bonus_paid ? 'Paid' : 'Not Paid'}
+                    </td>
+                    <td className='p-5 text-[#9CA3AF]'>
+                      {user?.first_transaction_bonus_paid ? 'Paid' : 'Not Paid'}
+                    </td>
+                    <td className='p-5 text-[#9CA3AF]'>
+                      {user?.transaction_percentage_paid ? 'Paid' : 'Not Paid'}
+                    </td>
+                    <td className='p-5 text-[#9CA3AF]'>
+                      {user?.monthly_active_bonus_paid ? 'Paid' : 'Not Paid'}
+                    </td>
+                    <td className='p-5 text-[#9CA3AF]'>
                       {user?.bonus_paid ? 'Paid' : 'Not Paid'}
+                    </td>
+                    <td className='p-5 text-[#9CA3AF]'>
+                      ₦{user?.total_commission ? Number(user.total_commission).toLocaleString() : '0.00'}
                     </td>
                     <td className='p-5  text-[#9CA3AF]'>
                       {user?.created_at

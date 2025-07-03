@@ -217,6 +217,7 @@ const TransactionsTable = () => {
           )}
           {viewTransaction && (
             <ViewTransactionModal
+              isOpen={!!viewTransaction}
               transaction={viewTransaction}
               onClose={() => setViewTransaction(null)}
             />

@@ -3,6 +3,8 @@ import './globals.css'
 import { UserProvider } from '../contexts/UserContext'
 // import Footer from "@/app/account/components/Footer";
 import Image from 'next/image'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 const poppins = Poppins({
   weight: ['300', '400', '500'],
@@ -28,6 +30,22 @@ export default function RootLayout ({ children }) {
           <div className=''>{children}</div>
         </UserProvider>
         <div className='items-center'></div>
+        <ToastContainer
+          position="bottom-right"
+          autoClose={4000}
+          hideProgressBar={false}
+          newestOnTop={true}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          closeButton
+          role="alert"
+          aria-live="assertive"
+          toastClassName="rounded-lg shadow-lg font-semibold text-base bg-white text-gray-900 border border-gray-200"
+          bodyClassName="p-4"
+        />
       </body>
     </html>
   )

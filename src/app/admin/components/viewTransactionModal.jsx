@@ -1,9 +1,10 @@
 import Image from 'next/image'
+import Modal from '../../../components/common/Modal'
 
 const formatKey = key =>
   key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
 
-const ViewTransactionModal = ({ transaction, onClose }) => {
+export default function ViewTransactionModal({ isOpen, onClose, transaction }) {
   if (!transaction) return null
 
   // Filter out 'user' and 'callback_processed'
@@ -26,8 +27,8 @@ const ViewTransactionModal = ({ transaction, onClose }) => {
   const rest = entries.filter(([key]) => !summaryKeys.includes(key))
 
   return (
-    <div className='fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50'>
-      <div className='relative bg-white p-8 rounded-lg max-w-md w-full shadow-xl overflow-hidden'>
+    <Modal isOpen={isOpen} onClose={onClose}>
+      <div className='relative p-8'>
         {/* Watermark */}
         <div className='absolute inset-0 flex justify-center items-center opacity-10 pointer-events-none'>
           <Image
@@ -87,8 +88,6 @@ const ViewTransactionModal = ({ transaction, onClose }) => {
           </button>
         </div>
       </div>
-    </div>
+    </Modal>
   )
 }
-
-export default ViewTransactionModal
