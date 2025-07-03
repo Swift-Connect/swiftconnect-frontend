@@ -97,6 +97,72 @@ export async function validateSmartCard (smartCardNumber, cableName) {
   }
 }
 
+// User API functions
+export async function getUserProfile() {
+  return getData('users/me/');
+}
+
+export async function updateUserProfile(data) {
+  // PATCH /users/edit-profile/
+  const token = localStorage.getItem('access_token');
+  const response = await fetch(`${BASE_URL}users/edit-profile/`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    let errorData;
+    try {
+      errorData = await response.json();
+    } catch (e) {
+      errorData = { detail: response.statusText };
+    }
+    const error = new Error('Profile update failed');
+    error.data = errorData;
+    throw error;
+  }
+  return await response.json();
+}
+
+export async function changePassword(data) {
+  // POST /users/reset-password/
+  return postData('users/reset-password/', data);
+}
+
+export async function requestPasswordReset(data) {
+  // POST /users/request-password-reset/
+  return postData('users/request-password-reset/', data);
+}
+
+export async function changeTransactionPin(data) {
+  // POST /users/change-transaction-pin/
+  const token = localStorage.getItem('access_token');
+  console.log('API CALL: /users/change-transaction-pin/', data);
+  const response = await fetch(`${BASE_URL}users/change-transaction-pin/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    let errorData;
+    try {
+      errorData = await response.json();
+    } catch (e) {
+      errorData = { detail: response.statusText };
+    }
+    const error = new Error('Change PIN failed');
+    error.data = errorData;
+    throw error;
+  }
+  return await response.json();
+}
+
 /**
  * @dev
  * BELOW IS AN EXAMPLE USAGE OF THE FUNCTIONS IN VARIOUS COMPONETS AND PAGES

@@ -89,7 +89,7 @@ export default function Sidebar ({
       <aside
         className={`
           ${role === 'admin' ? 'w-[25%]' : 'w-[18%]'}
-          bg-white shadow-md h-screen flex flex-col justify-between
+          bg-white shadow-md h-screen flex flex-col justify-between overflow-y-auto
           ${
             hideSideMenu
               ? 'max-md-[400px]:hidden'
@@ -117,6 +117,7 @@ export default function Sidebar ({
                       setActive(label)
                       setActiveSidebar(label)
                       localStorage.setItem('sidebar_active_label', label)
+                      if (window.innerWidth <= 768) setHideSideMenu(true)
                     }}
                     className={`flex px-4 py-2 text-[16px] text-gray-600 hover:bg-[#000000c0] hover:text-white items-center gap-4 w-full rounded-r-md ${
                       active === label ? 'bg-black text-white' : ''
@@ -153,7 +154,7 @@ export default function Sidebar ({
             {role === 'admin' ? (
               ''
             ) : (
-              <div className='p-1 mt-12'>
+              <div className='p-1 '>
                 <div className='bg-secondary p-4 rounded-lg text-[#00613A] bg-[#F6FCF5]'>
                   <h1 className='text-[16px] font-semibold mb-1'>
                     Pay Your Bills in Seconds
@@ -185,14 +186,14 @@ export default function Sidebar ({
                   alt='DP'
                   width={100}
                   height={100}
-                  className='w-[3em] h-[3em] rounded-full object-cover'
+                  className='w-8 h-8 sm:w-[3em] sm:h-[3em] rounded-full object-cover'
                 />
               </div>
               <div>
-                <p className='text-sm font-bold text-[#525252]'>
+                <p className='text-xs sm:text-sm font-bold text-[#525252]'>
                   {user?.fullname || 'User'}
                 </p>
-                <p className='text-xs text-gray-500'>
+                <p className='text-[10px] sm:text-xs text-gray-500'>
                   Agent | ₦{data?.balance}
                 </p>
               </div>
@@ -209,7 +210,7 @@ export default function Sidebar ({
                 alt='logout'
                 width={100}
                 height={100}
-                className='w-[2em]'
+                className='w-6 sm:w-[2em]'
               />
             </div>
           </div>

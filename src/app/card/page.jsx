@@ -51,92 +51,37 @@ const CardPage = () => {
     setSelectedBank(bank);
   };
 
-  return isSuccess ? (
-    <SuccessModal onClose={onClose} />
-  ) : isEnteringPin ? (
-    <EnterPinModal
-      onConfirm={handlePinConfirm}
-      onNext={() => setIsEnteringPin(false)}
-      addCard={true}
-      onClose={onClose}
-      setPin={setPin}
-      pin={pin}
-    />
-  ) : showAddCardForm ? (
-    <AddCardForm onClose={onClose} handlePayCharges={handlePayCharges} />
-  ) : isModalOpen ? (
-    <AddCard onClose={onClose} onNext={onNext} />
-  ) : (
-    <div
-      className={`flex flex-col h-full  ${
-        !linkedBanks ? "justify-center items-center" : ""
-      } gap-y-[3em] `}
-    >
-      {selectedBank ? (
-        <div className="flex flex-col  h-full">
-          <button
-            className="text-sm text-gray-600 mb-4 flex items-center"
-            onClick={onClose}
-          >
-            <ChevronLeft size={32} />
-            Back
-          </button>
-          <div className="flex items-center  gap-x-2 mb-6">
-            <div className="w-[3em] h-[3em] rounded-full bg-red-500"></div>
-            <h1 className="text-[42px] font-bold ">{selectedBank.bank}</h1>
-          </div>
-          <div className="flex gap-[4em] max-md-[400px]:flex-col max-md-[400px]:gap-2">
-            <p className="font-bold">Account Details</p>
-            <div className="bg-white p-4 w-[30%] rounded-lg border border-[#c7c7c7] max-md-[400px]:w-fit">
-              <p className="text-[24px] ">{selectedBank.accountNumber}</p>
-              <p className="text-[14px] mb-2 uppercase">{selectedBank.name}</p>
-            </div>
-          </div>
-        </div>
-      ) : linkedBanks.length > 0 ? (
-        <div className="h-full flex flex-col gap-[3em] w-full  ">
-          {linkedBanks.map((bank, index) => (
-            <div
-              key={index}
-              className="flex justify-between hover:cursor-pointer hover:bg-[#dedede] items-center gap-y-[1em] border px-4 py-8 rounded-lg bg-white w-[50%] max-md-[400px]:w-full"
-              onClick={() => handleCardClick(bank)}
-            >
-              <div className="flex items-center gap-x-2 ">
-                <div className="w-[3em] h-[3em] rounded-full bg-red-500"></div>
-                <h1 className="text-[32px] font-extrabold">{bank.bank}</h1>
-              </div>
-              <ChevronRight size={32} />
-            </div>
-          ))}
-        </div>
+  return (
+    <>
+
+      {/* Original Card Page Content Below */}
+      {isSuccess ? (
+        <SuccessModal onClose={onClose} />
+      ) : isEnteringPin ? (
+        <EnterPinModal
+          onConfirm={handlePinConfirm}
+          onNext={() => setIsEnteringPin(false)}
+          addCard={true}
+          onClose={onClose}
+          setPin={setPin}
+          pin={pin}
+        />
+      ) : showAddCardForm ? (
+        <AddCardForm onClose={onClose} handlePayCharges={handlePayCharges} />
+      ) : isModalOpen ? (
+        <AddCard onClose={onClose} onNext={onNext} />
       ) : (
-        <div className="flex flex-col justify-center items-center h-full">
-          <Image
-            src={"Wallet.svg"}
-            alt="mastercard logo"
-            width={100}
-            height={100}
-            className="w-[14em]"
-          />
-          <p className="text-[#9CA3AF] w-[50%] text-center text-[24px]">
-            You haven’t added your card. Tap the plus (+) icon to add one.
-          </p>
+        <div className="flex flex-1 flex-col items-center justify-center min-h-[60vh] w-full">
+          <div className="bg-white rounded-2xl shadow-xl px-8 py-10 flex flex-col items-center gap-4 max-w-xs w-full border-t-4 border-blue-500 animate-fade-in">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-blue-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z" />
+            </svg>
+            <div className="text-2xl font-bold text-gray-800">Coming Soon</div>
+            <div className="text-gray-500 text-center text-sm">The Cards feature is almost here. Stay tuned for something amazing!</div>
+          </div>
         </div>
       )}
-
-      {/* Add Card Button */}
-      <div className="w-full flex justify-end" onClick={handleBankCard}>
-        <button>
-          <Image
-            src={"CrossButton.svg"}
-            alt="mastercard logo"
-            width={100}
-            height={100}
-            className="w-[5em] float-right"
-          />
-        </button>
-      </div>
-    </div>
+    </>
   );
 };
 

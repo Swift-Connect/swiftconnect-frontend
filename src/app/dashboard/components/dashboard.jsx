@@ -56,10 +56,10 @@ const Dashboard = ({ setActiveSidebar, data, user }) => {
       return <CableTv setBillType={setPayBillsType} />
     case 'dashboard':
       return (
-        <>
-          <div className='flex gap-4 justify-between max-md-[400px]:flex-col max-md-[400px]:w-full w-[90%] '>
+        <div className="flex flex-col min-h-screen max-h-screen overflow-hidden items-center justify-center gap-y-12 py-8">
+          <div className='flex gap-8 justify-between max-md-[400px]:flex-col max-md-[400px]:w-full w-[90%]'>
             <WalletCard data={data} />
-            <div className='grid grid-cols-2 gap-4 max-md-[400px]:grid-cols-2'>
+            <div className='grid grid-cols-2 gap-8 max-md-[400px]:grid-cols-2'>
               <DashboardCard
                 title='Airtime'
                 icon='/airtime.svg'
@@ -86,11 +86,10 @@ const Dashboard = ({ setActiveSidebar, data, user }) => {
               />
             </div>
           </div>
-
           <AgentKycComponent setActiveSidebar={setActiveSidebar} />
           {/* <MobileTransaction /> */}
           <TransactionsTable />
-        </>
+        </div>
       )
     // }
   }

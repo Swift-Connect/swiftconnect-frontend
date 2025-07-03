@@ -1,6 +1,4 @@
 import { data } from 'autoprefixer'
-import { toast } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
 
 export const handleBillsConfirm = async (pin, dataa, url, setIsLoading) => {
   // setTransactionPin(pin);
@@ -8,7 +6,7 @@ export const handleBillsConfirm = async (pin, dataa, url, setIsLoading) => {
 
   // Make the API request with the entered PIN
   setIsLoading(true)
-  const loadingToast = toast.loading('Processing payment...')
+  let errorMessage = ''
 
   try {
     console.log('my data', dataa)
@@ -31,21 +29,11 @@ export const handleBillsConfirm = async (pin, dataa, url, setIsLoading) => {
 
     if (response.ok) {
       console.log('response okay...')
-      toast.dismiss(loadingToast)
-      toast.success('Payment processed successfully!', {
-        position: 'top-right',
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true
-      })
       setIsLoading(false)
-      return data
+      return { success: true, data }
     } else {
       // Handle array of error messages
       console.log('response not okay')
-      let errorMessage
       console.log('error message:::::', data.error)
 
       if (data.error) {
@@ -65,21 +53,12 @@ export const handleBillsConfirm = async (pin, dataa, url, setIsLoading) => {
         errorMessage = data.detail || 'Failed to process payment'
       }
 
-      toast.dismiss(loadingToast)
-      // toast.error(errorMessage, {
-      //   position: "top-right",
-      //   autoClose: 5000,
-      //   hideProgressBar: false,
-      //   closeOnClick: true,
-      //   pauseOnHover: true,
-      //   draggable: true,
-      // });
       setIsLoading(false)
-      throw new Error(errorMessage)
+      return { success: false, error: errorMessage }
     }
   } catch (err) {
     console.error('Payment error:', err)
-    let errorMessage = 'An error occurred while processing payment'
+    errorMessage = 'An error occurred while processing payment'
 
     if (err.response?.data) {
       if (typeof err.response.data === 'object') {
@@ -99,16 +78,7 @@ export const handleBillsConfirm = async (pin, dataa, url, setIsLoading) => {
       errorMessage = err.message
     }
 
-    toast.dismiss(loadingToast)
-    toast.error(errorMessage, {
-      position: 'top-right',
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true
-    })
     setIsLoading(false)
-    throw err
+    return { success: false, error: errorMessage }
   }
 }

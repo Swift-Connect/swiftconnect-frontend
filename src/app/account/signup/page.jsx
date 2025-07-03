@@ -461,334 +461,342 @@ const SignupPage = () => {
   }
 
   return (
-    <div className='flex min-h-[80vh] flex-col items-center justify-center align-baseline bg-white gap-16 px-4'>
-      <ToastContainer />
-      <div className='w-full max-w-md bg-white rounded-2xl p-8 shadow-sm border border-gray-100'>
-        {step === 1 && (
-          <>
-            <h1 className='text-2xl font-semibold text-gray-900 mb-2'>
-              Sign Up
-            </h1>
-            <p className='text-gray-600 mb-6'>
-              Input your details to Register.
-            </p>
-            <form onSubmit={handleStep1Submit} className='space-y-6'>
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-2'>
-                  Email Address
-                </label>
-                <input
-                  type='email'
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  className={`w-full border border-gray-300 rounded-lg p-3 focus:border-green-600 focus:ring-1 focus:ring-green-600 focus:outline-none ${
-                    errors.contact ? 'border-red-500' : ''
-                  }`}
-                  placeholder='Input your email address'
-                />
-              </div>
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-2'>
-                  Mobile number
-                </label>
-                <div
-                  className={`flex items-center relative border p-1 rounded-lg focus-within:border-green-600 focus-within:ring-1 focus-within:ring-green-600 ${
-                    errors.phoneNumber ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                >
-                  {selectedCountry && (
-                    <div className='flex h-full'>
-                      <CountrySelector
-                        selectedCountry={selectedCountry}
-                        onSelect={setSelectedCountry}
-                      />
-                    </div>
+    <div className='flex min-h-screen flex-col items-center justify-center px-2 sm:px-4'>
+      <div className='flex flex-col items-center w-full max-w-md gap-4'>
+        <Image
+          src="/logo.svg"
+          alt="Swift Connect"
+          width={180}
+          height={60}
+          className='mb-2'
+        />
+        <div className='w-full bg-white rounded-2xl p-4 sm:p-8 shadow-sm border border-gray-100'>
+          {step === 1 && (
+            <>
+              <h1 className='text-2xl font-semibold text-gray-900 mb-2'>
+                Sign Up
+              </h1>
+              <p className='text-gray-600 mb-6'>
+                Input your details to Register.
+              </p>
+              <form onSubmit={handleStep1Submit} className='space-y-6'>
+                <div>
+                  <label className='block text-sm font-medium text-gray-700 mb-2'>
+                    Email Address
+                  </label>
+                  <input
+                    type='email'
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    className={`w-full border border-gray-300 rounded-lg p-3 focus:border-green-600 focus:ring-1 focus:ring-green-600 focus:outline-none ${
+                      errors.contact ? 'border-red-500' : ''
+                    }`}
+                    placeholder='Input your email address'
+                  />
+                </div>
+                <div>
+                  <label className='block text-sm font-medium text-gray-700 mb-2'>
+                    Mobile number
+                  </label>
+                  <div
+                    className={`flex items-center relative border p-1 rounded-lg focus-within:border-green-600 focus-within:ring-1 focus-within:ring-green-600 ${
+                      errors.phoneNumber ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                  >
+                    {selectedCountry && (
+                      <div className='flex h-full'>
+                        <CountrySelector
+                          selectedCountry={selectedCountry}
+                          onSelect={setSelectedCountry}
+                        />
+                      </div>
+                    )}
+                    <input
+                      type='tel'
+                      value={phoneNumber}
+                      onChange={e => setPhoneNumber(e.target.value)}
+                      className={`flex border-0 p-3 focus:ring-0 rounded-xl focus:outline-none w-full ${
+                        errors.phoneNumber ? 'border-red-500' : ''
+                      }`}
+                      placeholder='Enter phone number'
+                    />
+                  </div>
+                  {errors.phoneNumber && (
+                    <p className='text-red-500 text-sm mt-1'>
+                      {errors.phoneNumber}
+                    </p>
                   )}
+                </div>
+                <div>
+                  <label className='block text-sm font-medium text-gray-700 mb-2'>
+                    Referral Code (Optional)
+                  </label>
                   <input
-                    type='tel'
-                    value={phoneNumber}
-                    onChange={e => setPhoneNumber(e.target.value)}
-                    className={`flex border-0 p-3 focus:ring-0 rounded-xl focus:outline-none w-full ${
-                      errors.phoneNumber ? 'border-red-500' : ''
-                    }`}
-                    placeholder='Enter phone number'
+                    type='text'
+                    value={referralCode}
+                    onChange={e => setReferralCode(e.target.value)}
+                    className='w-full border border-gray-300 rounded-lg p-3 focus:border-green-600 focus:ring-1 focus:ring-green-600 focus:outline-none'
+                    placeholder='Enter Referral Code'
                   />
                 </div>
-                {errors.phoneNumber && (
-                  <p className='text-red-500 text-sm mt-1'>
-                    {errors.phoneNumber}
-                  </p>
-                )}
-              </div>
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-2'>
-                  Referral Code (Optional)
-                </label>
-                <input
-                  type='text'
-                  value={referralCode}
-                  onChange={e => setReferralCode(e.target.value)}
-                  className='w-full border border-gray-300 rounded-lg p-3 focus:border-green-600 focus:ring-1 focus:ring-green-600 focus:outline-none'
-                  placeholder='Enter Referral Code'
-                />
-              </div>
-              <div className='flex gap-4'>
-                <button
-                  type='submit'
-                  disabled={!isStep1Valid || isLoadingStep1}
-                  className={`flex-1 bg-[#0E1318] text-[#FAFAFA] py-3 px-4 rounded-lg hover:bg-gray-800 transition-colors ${
-                    !isStep1Valid || isLoadingStep1
-                      ? 'opacity-50 cursor-not-allowed'
-                      : ''
-                  }`}
-                >
-                  {isLoadingStep1 ? 'Sending OTP...' : 'Continue'}
-                </button>
-              </div>
-            </form>
-          </>
-        )}
-
-        {step === 2 && (
-          <>
-            <h1 className='text-2xl font-semibold text-gray-900 mb-2'>
-              Enter OTP
-            </h1>
-            <p className='text-black font-bold mb-6'>
-              Enter the 6-digit code sent to{' '}
-              <span className='text-[#9CA3AF] '></span>{' '}
-              {email || `+${selectedCountry.code}${phoneNumber}`}
-            </p>
-            <p
-              className='text-[#00613A] cursor-pointer'
-              onClick={() => setStep(1)}
-            >
-              Wrong {email ? 'email' : 'phoneNumber'}?{' '}
-            </p>
-            <form onSubmit={handleStep2Submit} className='space-y-6'>
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-2'>
-                  Input Code
-                </label>
-                <input
-                  type='text'
-                  value={otp}
-                  onChange={e => setOtp(e.target.value)}
-                  className={`w-full border border-gray-300 rounded-lg p-3 focus:border-green-600 focus:ring-1 focus:ring-green-600 focus:outline-none ${
-                    errors.otp ? 'border-red-500' : ''
-                  }`}
-                  placeholder='Input your code'
-                />
-                {errors.otp && (
-                  <p className='text-red-500 text-sm mt-1'>{errors.otp}</p>
-                )}
-                <p className=''>
-                  Didn't get OTP?{' '}
-                  <span
-                    className='text-[#00613A]'
-                    onClick={resendOtp}
-                    style={{ cursor: canResendOtp ? 'pointer' : 'not-allowed' }}
-                  >
-                    {canResendOtp ? 'Resend' : `Resend in ${countdown}s`}
-                  </span>
-                </p>
-              </div>
-              <div className='flex gap-4'>
-                <button
-                  type='submit'
-                  disabled={!isStep2Valid || isLoadingStep2}
-                  className={`flex-1 bg-[#0E1318] text-[#FAFAFA] py-3 px-4 rounded-lg hover:bg-gray-800 transition-colors ${
-                    !isStep2Valid || isLoadingStep2
-                      ? 'opacity-50 cursor-not-allowed'
-                      : ''
-                  }`}
-                >
-                  {isLoadingStep2 ? 'Verifying...' : 'Continue'}
-                </button>
-              </div>
-            </form>
-          </>
-        )}
-
-        {step === 3 && (
-          <>
-            <h1 className='text-2xl font-semibold text-gray-900 mb-2'>
-              Setup Password
-            </h1>
-            <form onSubmit={handleStep3Submit} className='space-y-6'>
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-2'>
-                  Username
-                </label>
-                <input
-                  type='text'
-                  value={username}
-                  onChange={e => setUsername(e.target.value)}
-                  className={`w-full border border-gray-300 rounded-lg p-3 focus:border-green-600 focus:ring-1 focus:ring-green-600 focus:outline-none ${
-                    errors.username ? 'border-red-500' : ''
-                  }`}
-                  placeholder='Input your Username'
-                />
-                {errors.username && (
-                  <p className='text-red-500 text-sm mt-1'>{errors.username}</p>
-                )}
-              </div>
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-2'>
-                  Password
-                </label>
-                <div className='relative'>
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    className={`w-full border border-gray-300 rounded-lg p-3 focus:border-green-600 focus:ring-1 focus:ring-green-600 focus:outline-none ${
-                      errors.password ? 'border-red-500' : ''
-                    }`}
-                  />
+                <div className='flex gap-4'>
                   <button
-                    type='button'
-                    onClick={() => setShowPassword(!showPassword)}
-                    className='absolute right-3 top-3'
+                    type='submit'
+                    disabled={!isStep1Valid || isLoadingStep1}
+                    className={`flex-1 bg-[#0E1318] text-[#FAFAFA] py-3 px-4 rounded-lg hover:bg-gray-800 transition-colors ${
+                      !isStep1Valid || isLoadingStep1
+                        ? 'opacity-50 cursor-not-allowed'
+                        : ''
+                    }`}
                   >
-                    {showPassword ? (
-                      <FaEyeSlash className='h-5 w-5 text-gray-500' />
-                    ) : (
-                      <FaEye className='h-5 w-5 text-gray-500' />
-                    )}
+                    {isLoadingStep1 ? 'Sending OTP...' : 'Continue'}
                   </button>
                 </div>
-                {errors.password && (
-                  <p className='text-red-500 text-sm'>{errors.password}</p>
-                )}
-              </div>
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-2'>
-                  Confirm Password
-                </label>
-                <div className='relative'>
+              </form>
+            </>
+          )}
+
+          {step === 2 && (
+            <>
+              <h1 className='text-2xl font-semibold text-gray-900 mb-2'>
+                Enter OTP
+              </h1>
+              <p className='text-black font-bold mb-6'>
+                Enter the 6-digit code sent to{' '}
+                <span className='text-[#9CA3AF] '></span>{' '}
+                {email || `+${selectedCountry.code}${phoneNumber}`}
+              </p>
+              <p
+                className='text-[#00613A] cursor-pointer'
+                onClick={() => setStep(1)}
+              >
+                Wrong {email ? 'email' : 'phoneNumber'}?{' '}
+              </p>
+              <form onSubmit={handleStep2Submit} className='space-y-6'>
+                <div>
+                  <label className='block text-sm font-medium text-gray-700 mb-2'>
+                    Input Code
+                  </label>
                   <input
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    value={confirmPassword}
-                    onChange={e => setConfirmPassword(e.target.value)}
+                    type='text'
+                    value={otp}
+                    onChange={e => setOtp(e.target.value)}
                     className={`w-full border border-gray-300 rounded-lg p-3 focus:border-green-600 focus:ring-1 focus:ring-green-600 focus:outline-none ${
-                      errors.confirmPassword ? 'border-red-500' : ''
+                      errors.otp ? 'border-red-500' : ''
                     }`}
+                    placeholder='Input your code'
                   />
+                  {errors.otp && (
+                    <p className='text-red-500 text-sm mt-1'>{errors.otp}</p>
+                  )}
+                  <p className=''>
+                    Didn't get OTP?{' '}
+                    <span
+                      className='text-[#00613A]'
+                      onClick={resendOtp}
+                      style={{ cursor: canResendOtp ? 'pointer' : 'not-allowed' }}
+                    >
+                      {canResendOtp ? 'Resend' : `Resend in ${countdown}s`}
+                    </span>
+                  </p>
+                </div>
+                <div className='flex gap-4'>
                   <button
-                    type='button'
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className='absolute right-3 top-3'
+                    type='submit'
+                    disabled={!isStep2Valid || isLoadingStep2}
+                    className={`flex-1 bg-[#0E1318] text-[#FAFAFA] py-3 px-4 rounded-lg hover:bg-gray-800 transition-colors ${
+                      !isStep2Valid || isLoadingStep2
+                        ? 'opacity-50 cursor-not-allowed'
+                        : ''
+                    }`}
                   >
-                    {showConfirmPassword ? (
-                      <FaEyeSlash className='h-5 w-5 text-gray-500' />
-                    ) : (
-                      <FaEye className='h-5 w-5 text-gray-500' />
-                    )}
+                    {isLoadingStep2 ? 'Verifying...' : 'Continue'}
                   </button>
                 </div>
-                {errors.confirmPassword && (
-                  <p className='text-red-500 text-sm'>
-                    {errors.confirmPassword}
-                  </p>
-                )}
-              </div>
-              <div className='flex gap-4'>
-                <button
-                  type='submit'
-                  disabled={!isStep3Valid || isLoadingStep3}
-                  className={`flex-1 bg-[#0E1318] text-[#FAFAFA] py-3 px-4 rounded-lg hover:bg-gray-800 transition-colors ${
-                    !isStep3Valid || isLoadingStep3
-                      ? 'opacity-50 cursor-not-allowed'
-                      : ''
-                  }`}
-                >
-                  {isLoadingStep3 ? 'Setting up...' : 'Continue'}
-                </button>
-              </div>
-            </form>
-          </>
-        )}
+              </form>
+            </>
+          )}
 
-        {step === 4 && (
-          <div className='items-center justify-center flex flex-col'>
-            <h1 className='text-2xl font-semibold text-gray-900 mb-4'>
-              Create PIN
-            </h1>
-            <Image
-              src={'/lockicon.svg'}
-              height={30}
-              width={50}
-              alt='lockicon'
-            />
-            <p className='text-[#9CA3AF] mb-6 text-center justify-center m-auto'>
-              Your PIN adds extra security to your Swift Connect account.
-            </p>
-            <form
-              onSubmit={handleTxnPinSubmit}
-              className='space-y-6 w-full max-w-sm'
-            >
-              <div className='flex justify-between flex-col items-center text-center gap-4'>
-                <p className='text-sm font-[400] text-[#525252] '>
-                  Create your PIN
-                </p>
-                <div className='flex gap-8 items-center justify-center'>
-                  {txnPin.map((digit, index) => (
-                    <input
-                      key={index}
-                      id={`pin-input-${index}`}
-                      type='password'
-                      value={digit}
-                      onChange={e => handlePinChange(index, e.target.value)}
-                      className='w-12 h-12 border border-[#9CA3AF] rounded-lg text-center text-2xl focus:border-green-600 focus:ring-1 focus:ring-green-600 focus:outline-none'
-                      maxLength={1}
-                      inputMode='numeric'
-                      pattern='[0-9]*'
-                    />
-                  ))}
+          {step === 3 && (
+            <>
+              <h1 className='text-2xl font-semibold text-gray-900 mb-2'>
+                Setup Password
+              </h1>
+              <form onSubmit={handleStep3Submit} className='space-y-6'>
+                <div>
+                  <label className='block text-sm font-medium text-gray-700 mb-2'>
+                    Username
+                  </label>
+                  <input
+                    type='text'
+                    value={username}
+                    onChange={e => setUsername(e.target.value)}
+                    className={`w-full border border-gray-300 rounded-lg p-3 focus:border-green-600 focus:ring-1 focus:ring-green-600 focus:outline-none ${
+                      errors.username ? 'border-red-500' : ''
+                    }`}
+                    placeholder='Input your Username'
+                  />
+                  {errors.username && (
+                    <p className='text-red-500 text-sm mt-1'>{errors.username}</p>
+                  )}
                 </div>
-              </div>
-              <div className='flex justify-between flex-col items-center text-center gap-4'>
-                <label className='text-sm font-[400] text-[#525252] '>
-                  Confirm your PIN
-                </label>
-                <div className='flex gap-8 items-center justify-center'>
-                  {confirmTxnPin.map((digit, index) => (
+                <div>
+                  <label className='block text-sm font-medium text-gray-700 mb-2'>
+                    Password
+                  </label>
+                  <div className='relative'>
                     <input
-                      key={index}
-                      id={`confirm-pin-input-${index}`}
-                      type='password'
-                      value={digit}
-                      onChange={e =>
-                        handlePinChange(index, e.target.value, true)
-                      }
-                      className='w-12 h-12 border border-[#9CA3AF] rounded-lg text-center text-2xl focus:border-green-600 focus:ring-1 focus:ring-green-600 focus:outline-none'
-                      maxLength={1}
-                      inputMode='numeric'
-                      pattern='[0-9]*'
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
+                      className={`w-full border border-gray-300 rounded-lg p-3 focus:border-green-600 focus:ring-1 focus:ring-green-600 focus:outline-none ${
+                        errors.password ? 'border-red-500' : ''
+                      }`}
                     />
-                  ))}
+                    <button
+                      type='button'
+                      onClick={() => setShowPassword(!showPassword)}
+                      className='absolute right-3 top-3'
+                    >
+                      {showPassword ? (
+                        <FaEyeSlash className='h-5 w-5 text-gray-500' />
+                      ) : (
+                        <FaEye className='h-5 w-5 text-gray-500' />
+                      )}
+                    </button>
+                  </div>
+                  {errors.password && (
+                    <p className='text-red-500 text-sm'>{errors.password}</p>
+                  )}
                 </div>
-              </div>
-              {errors.txnPin && (
-                <p className='text-red-500 text-center'>{errors.txnPin}</p>
-              )}
-              <div className='flex pt-8'>
-                <button
-                  type='submit'
-                  disabled={!isTxnPinValid || isLoadingPin}
-                  className={`flex-1 bg-[#0E1318] text-[#FAFAFA] py-3 px-4 rounded-lg hover:bg-gray-800 transition-colors ${
-                    !isTxnPinValid || isLoadingPin
-                      ? 'opacity-50 cursor-not-allowed'
-                      : ''
-                  }`}
-                >
-                  {isLoadingPin ? 'Creating PIN...' : 'Create PIN'}
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
+                <div>
+                  <label className='block text-sm font-medium text-gray-700 mb-2'>
+                    Confirm Password
+                  </label>
+                  <div className='relative'>
+                    <input
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      value={confirmPassword}
+                      onChange={e => setConfirmPassword(e.target.value)}
+                      className={`w-full border border-gray-300 rounded-lg p-3 focus:border-green-600 focus:ring-1 focus:ring-green-600 focus:outline-none ${
+                        errors.confirmPassword ? 'border-red-500' : ''
+                      }`}
+                    />
+                    <button
+                      type='button'
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className='absolute right-3 top-3'
+                    >
+                      {showConfirmPassword ? (
+                        <FaEyeSlash className='h-5 w-5 text-gray-500' />
+                      ) : (
+                        <FaEye className='h-5 w-5 text-gray-500' />
+                      )}
+                    </button>
+                  </div>
+                  {errors.confirmPassword && (
+                    <p className='text-red-500 text-sm'>
+                      {errors.confirmPassword}
+                    </p>
+                  )}
+                </div>
+                <div className='flex gap-4'>
+                  <button
+                    type='submit'
+                    disabled={!isStep3Valid || isLoadingStep3}
+                    className={`flex-1 bg-[#0E1318] text-[#FAFAFA] py-3 px-4 rounded-lg hover:bg-gray-800 transition-colors ${
+                      !isStep3Valid || isLoadingStep3
+                        ? 'opacity-50 cursor-not-allowed'
+                        : ''
+                    }`}
+                  >
+                    {isLoadingStep3 ? 'Setting up...' : 'Continue'}
+                  </button>
+                </div>
+              </form>
+            </>
+          )}
+
+          {step === 4 && (
+            <div className='items-center justify-center flex flex-col'>
+              <h1 className='text-2xl font-semibold text-gray-900 mb-4'>
+                Create PIN
+              </h1>
+              <Image
+                src={'/lockicon.svg'}
+                height={30}
+                width={50}
+                alt='lockicon'
+              />
+              <p className='text-[#9CA3AF] mb-6 text-center justify-center m-auto'>
+                Your PIN adds extra security to your Swift Connect account.
+              </p>
+              <form
+                onSubmit={handleTxnPinSubmit}
+                className='space-y-6 w-full max-w-sm'
+              >
+                <div className='flex justify-between flex-col items-center text-center gap-4'>
+                  <p className='text-sm font-[400] text-[#525252] '>
+                    Create your PIN
+                  </p>
+                  <div className='flex gap-8 items-center justify-center'>
+                    {txnPin.map((digit, index) => (
+                      <input
+                        key={index}
+                        id={`pin-input-${index}`}
+                        type='password'
+                        value={digit}
+                        onChange={e => handlePinChange(index, e.target.value)}
+                        className='w-12 h-12 border border-[#9CA3AF] rounded-lg text-center text-2xl focus:border-green-600 focus:ring-1 focus:ring-green-600 focus:outline-none'
+                        maxLength={1}
+                        inputMode='numeric'
+                        pattern='[0-9]*'
+                      />
+                    ))}
+                  </div>
+                </div>
+                <div className='flex justify-between flex-col items-center text-center gap-4'>
+                  <label className='text-sm font-[400] text-[#525252] '>
+                    Confirm your PIN
+                  </label>
+                  <div className='flex gap-8 items-center justify-center'>
+                    {confirmTxnPin.map((digit, index) => (
+                      <input
+                        key={index}
+                        id={`confirm-pin-input-${index}`}
+                        type='password'
+                        value={digit}
+                        onChange={e =>
+                          handlePinChange(index, e.target.value, true)
+                        }
+                        className='w-12 h-12 border border-[#9CA3AF] rounded-lg text-center text-2xl focus:border-green-600 focus:ring-1 focus:ring-green-600 focus:outline-none'
+                        maxLength={1}
+                        inputMode='numeric'
+                        pattern='[0-9]*'
+                      />
+                    ))}
+                  </div>
+                </div>
+                {errors.txnPin && (
+                  <p className='text-red-500 text-center'>{errors.txnPin}</p>
+                )}
+                <div className='flex pt-8'>
+                  <button
+                    type='submit'
+                    disabled={!isTxnPinValid || isLoadingPin}
+                    className={`flex-1 bg-[#0E1318] text-[#FAFAFA] py-3 px-4 rounded-lg hover:bg-gray-800 transition-colors ${
+                      !isTxnPinValid || isLoadingPin
+                        ? 'opacity-50 cursor-not-allowed'
+                        : ''
+                    }`}
+                  >
+                    {isLoadingPin ? 'Creating PIN...' : 'Create PIN'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+        </div>
       </div>
       <Footer />
     </div>

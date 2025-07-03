@@ -19,18 +19,8 @@ export const metadata = {
 
 export default function RootLayout ({ children }) {
   return (
-    <div className={`${poppins.className} antialiased`}>
-      {/* Logo */}
-      <div className='w-full items-center justify-center p-4 flex m-auto'>
-        <Image
-          src='/logo.svg'
-          alt='Swift Connect'
-          width={280}
-          height={100}
-          className=''
-        />
-      </div>
-      <div className=''>{children}</div>
+    <div className={`${poppins.className} antialiased min-h-screen flex flex-col bg-white`}>
+      <div className='flex-1 flex flex-col items-center justify-center'>{children}</div>
     </div>
   )
 }

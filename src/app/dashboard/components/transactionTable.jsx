@@ -59,13 +59,13 @@ const TransactionsTable = () => {
   )
 
   return (
-    <div className='pt-8 w-[90%] max-md-[400px]:hidde max-md-[400px]:w-full'>
+    <div className='pt-4 w-[90%] max-md-[400px]:w-full'>
       <div className=''>
-        <h1 className='text-[22px] font-semibold mb-4'>Recent Transactions</h1>
-        <div className='flex  flex-col justify-between mb-4'>
-          <ul className='flex items-center gap-[5em] text-[16px] max-md-[400px]:text-[12px] mb-4 border-b-[1px] border-gray-200'>
+        <h1 className='text-base sm:text-lg font-semibold mb-2'>Recent Transactions</h1>
+        <div className='flex  flex-col justify-between mb-2'>
+          <ul className='flex items-center gap-4 sm:gap-12 text-xs sm:text-sm mb-2 border-b border-gray-200'>
             <li
-              className={`font-medium   px-2 cursor-pointer ${
+              className={`font-medium px-2 cursor-pointer ${
                 activeTransactionTab === 'all'
                   ? 'text-green-600 border-b-2 border-green-600'
                   : 'text-gray-500'
@@ -96,7 +96,7 @@ const TransactionsTable = () => {
             </li>
           </ul>
           <div className='flex items-center justify-between'>
-            <div className='flex items-center w-[50%] border rounded-[4em] px-3 py-1 '>
+            <div className='flex items-center w-[60%] border rounded-full px-2 py-1'>
               <Image
                 src={'/search.svg'}
                 alt='search icon'
@@ -107,11 +107,11 @@ const TransactionsTable = () => {
               <input
                 type='text'
                 placeholder='Search for something'
-                className='border-none outline-none rounded-md px-3 py-1 text-sm bg-transparent w-full'
+                className='border-none outline-none rounded-md px-2 py-1 text-xs sm:text-sm bg-transparent w-full'
               />
             </div>
             <div className='flex items-center space-x-2 '>
-              <button className='flex items-center text-gray-500 text-sm gap-3 px-4 py-3 border rounded-[4em]'>
+              <button className='flex items-center text-gray-500 text-xs sm:text-sm gap-2 sm:gap-3 px-2 sm:px-4 py-1 sm:py-2 border rounded-full'>
                 <Image
                   src={'/calendar.svg'}
                   alt='calendar'
@@ -123,7 +123,7 @@ const TransactionsTable = () => {
                   Nov 1, 2024 - Nov 24, 2024
                 </span>
               </button>
-              <button className='text-gray-500 text-sm flex items-center gap-3 px-4 py-3 border rounded-[4em]'>
+              <button className='text-gray-500 text-xs sm:text-sm flex items-center gap-2 sm:gap-3 px-2 sm:px-4 py-1 sm:py-2 border rounded-full'>
                 <Image
                   src={'/filter.svg'}
                   alt='calendar'
@@ -137,21 +137,21 @@ const TransactionsTable = () => {
           </div>
         </div>
 
-        <div className='rounded-t-[1em] overflow-scroll border border-gray-200'>
+        <div className='rounded-t-lg overflow-scroll border border-gray-200'>
           {filteredTransactions.length === 0 ? (
             <div className='text-center py-8 text-gray-500'>
               No Transactions yet
             </div>
           ) : (
-            <table className='w-full text-sm max-md-[400px]:text-[12px] border-collapse'>
+            <table className='w-full text-xs sm:text-sm border-collapse'>
               <thead>
                 <tr className='bg-[#F9F8FA] text-left text-[#525252]'>
-                  <th className='py-[1.3em] px-[1.8em]'>Product</th>
-                  <th className='py-[1.3em] px-[1.8em]'>Transaction ID</th>
-                  <th className='py-[1.3em] px-[1.8em]'>Date</th>
-                  <th className='py-[1.3em] px-[1.8em]'>Amount</th>
-                  <th className='py-[1.3em] px-[1.8em]'>Status</th>
-                  <th className='py-[1.3em] px-[1.8em]'>Receipt</th>
+                  <th className='py-2 px-2 sm:py-3 sm:px-4'>Product</th>
+                  <th className='py-2 px-2 sm:py-3 sm:px-4'>Transaction ID</th>
+                  <th className='py-2 px-2 sm:py-3 sm:px-4'>Date</th>
+                  <th className='py-2 px-2 sm:py-3 sm:px-4'>Amount</th>
+                  <th className='py-2 px-2 sm:py-3 sm:px-4'>Status</th>
+                  <th className='py-2 px-2 sm:py-3 sm:px-4'>Receipt</th>
                 </tr>
               </thead>
               <tbody>
@@ -163,24 +163,20 @@ const TransactionsTable = () => {
                     }`}
                   >
                     {/* {console.log(transaction)} */}
-                    <td className='py-[1.3em] px-[1.8em] font-semibold text-[#232323]'>
-                      {transaction.reason === 'Wallet funding' ||
-                      transaction.reason === 'Bank Transfer' ||
-                      transaction.reason === 'Internal Transfer'
-                        ? 'Transfer'
-                        : ''}
+                    <td className='py-2 px-2 sm:py-3 sm:px-4 font-semibold text-[#232323]'>
+                      {transaction.reason}
                     </td>
-                    <td className='py-[1.3em] px-[1.8em] text-[#9CA3AF]'>
+                    <td className='py-2 px-2 sm:py-3 sm:px-4 text-[#9CA3AF]'>
                       #{transaction.transaction_id}
                     </td>
-                    <td className='py-[1.3em] px-[1.8em] text-[#9CA3AF]'>
+                    <td className='py-2 px-2 sm:py-3 sm:px-4 text-[#9CA3AF]'>
                       {new Date(transaction.created_at).toLocaleDateString(
                         'en-GB'
                       )}
                     </td>
 
                     <td
-                      className={`py-[1.3em] px-[1.8em] font-medium text-${
+                      className={`py-2 px-2 sm:py-3 sm:px-4 font-medium text-${
                         transaction.transaction_type === 'credit'
                           ? 'green'
                           : 'red'
@@ -189,7 +185,7 @@ const TransactionsTable = () => {
                       {transaction.transaction_type === 'credit' ? '+' : '-'}₦
                       {transaction.amount}
                     </td>
-                    <td className='py-[1.3em] px-[1.8em]'>
+                    <td className='py-2 px-2 sm:py-3 sm:px-4'>
                       <div
                         className={`py-1 text-center text-xs font-medium rounded-full ${
                           transaction.status === 'completed'
@@ -206,7 +202,7 @@ const TransactionsTable = () => {
                         {transaction.status}
                       </div>
                     </td>
-                    <td className='py-[1.3em] px-[1.8em]'>
+                    <td className='py-2 px-2 sm:py-3 sm:px-4'>
                       <button
                         className='text-[#525252] border border-[#525252] text-sm font-semibold py-1 px-5 hover:bg-[#e1e1e1]  text-center   rounded-full'
                         onClick={() => setViewTransaction(transaction)}

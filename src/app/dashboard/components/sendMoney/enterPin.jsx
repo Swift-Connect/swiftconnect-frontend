@@ -1,8 +1,6 @@
 import Image from "next/image";
 import React, { useState } from "react";
 import { FaTimes } from "react-icons/fa";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 
 const EnterPinModal = ({
@@ -41,18 +39,14 @@ const EnterPinModal = ({
   };
 
   const isPinComplete = pin?.every((digit) => digit !== "");
-  if (message) {
-    toast.error(message);
-  }
 
   return (
     <div
       className="fixed inset-0 z-10 flex items-center justify-center w-full bg-black bg-opacity-50"
       onClick={() => onClose()}
     >
-      {/* <ToastContainer /> */}
       <div
-        className="bg-white relative z-50 w-[50%] rounded-xl shadow-lg px-6 py-16 flex items-center justify-center flex-col max-md-[400px]:w-full"
+        className="bg-white relative z-50 w-[50%] rounded-xl shadow-lg px-6 py-12 flex items-center justify-center flex-col max-md-[400px]:w-full"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -66,16 +60,21 @@ const EnterPinModal = ({
           alt="padlock"
           width={100}
           height={100}
-          className="w-[8em] max-md-[400px]:w-[6em]"
+          className="w-[6em] max-md-[400px]:w-[4em]"
         />
-        <h2 className="text-[48px] font-bold text-gray-800 mb-4 max-md-[400px]:text-[32px]">
+        <h2 className="text-2xl font-bold text-gray-800 mb-2 max-md-[400px]:text-xl">
           Enter PIN
         </h2>
-        <p className="text-[16px] text-[#6B7280] w-[50%] max-md-[400px]:w-full text-center mb-10">
+        <p className="text-sm text-[#6B7280] w-[80%] max-md-[400px]:w-full text-center mb-6">
           {addCard
             ? "Kindly enter the otp sent to *******2312"
             : "Proceed with your 4 digit pin to complete this process"}
         </p>
+        {message && (
+          <div className="w-full mb-2 bg-red-100 border border-red-400 text-red-800 px-4 py-2 rounded text-center text-xs">
+            {message}
+          </div>
+        )}
         <div className="flex gap-2 justify-center mb-4">
           {pin?.map((digit, index) => (
             <input
@@ -85,14 +84,15 @@ const EnterPinModal = ({
               value={digit}
               onChange={(e) => handleChange(e, index)}
               onKeyDown={(e) => handleKeyDown(e, index)}
-              
               maxLength="1"
-              className="w-12 h-12 text-center border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-xl"
+              className={`w-10 h-10 text-center border rounded-md focus:ring-blue-500 focus:border-blue-500 text-base ${
+                message ? 'border-red-500' : 'border-gray-300'
+              }`}
             />
           ))}
         </div>
         <button
-          className={`w-full text-white py-4 rounded-lg shadow-sm ${
+          className={`w-full text-white py-3 rounded-lg shadow-sm text-sm ${
             isPinComplete ? "bg-black hover:bg-[#484848]" : "bg-[#d2d2d2]"
           }`}
           disabled={!isPinComplete || isLoading}
@@ -106,7 +106,7 @@ const EnterPinModal = ({
                 }
           }
         >
-          Authorize
+          Submit
         </button>
       </div>
     </div>
