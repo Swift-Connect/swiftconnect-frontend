@@ -197,11 +197,17 @@ const Internet = ({ onNext, setBillType }) => {
     fetchPlans()
   }, []) // Fetch plans only once on component mount
 
-  const filteredPlans = availablePlans?.filter(
-    plan => network && plan.name.toLowerCase() === network.toLowerCase()
-  )
+  // Normalize network and plan name for robust matching
+  function normalizeNetwork(str) {
+    return str.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+  }
 
-  // console.log(filteredPlans);
+  const filteredPlans = availablePlans?.filter(plan => {
+    if (!network) return false;
+    // Extract the network part from the plan name (e.g., 'MTN' from 'MTN (SME) 1000MB 7 DAYS')
+    const planNetwork = plan.name.split(' ')[0];
+    return normalizeNetwork(planNetwork) === normalizeNetwork(network);
+  });
 
   const handleInputChange = e => {
     const { name, value } = e.target
@@ -222,7 +228,6 @@ const Internet = ({ onNext, setBillType }) => {
       setSmartcardNumber(value)
     }
   }
-  // console.log(filteredPlans);
 
   return (
     <div className='flex justify-center w-full'>
@@ -408,8 +413,8 @@ const Internet = ({ onNext, setBillType }) => {
                   onChange={e => setNetwork(e.target.value)}
                 >
                   <option value=''>Select a Network</option>
-                  <option value='GLO'>GLO NG</option>
                   <option value='MTN'>MTN NG</option>
+                  <option value='GLO'>GLO NG</option>
                   <option value='AIRTEL'>AIRTEL NG</option>
                   <option value='9MOBILE'>9MOBILE NG</option>
                 </select>
