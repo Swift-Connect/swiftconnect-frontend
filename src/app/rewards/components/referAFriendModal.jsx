@@ -34,7 +34,7 @@ export default function ReferralModal({ isOpen, onClose }) {
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
-      <div className='bg-white w-[90%] max-w-[40%] p-8 rounded-2xl shadow-lg text-center'>
+      <div className='bg-white w-full max-w-lg p-8 max-sm:p-4 rounded-2xl shadow-lg text-center mx-auto'>
         <div className='flex flex-col items-center justify-center mx-[2em]'>
           {/* Gift Icon */}
           <div className='flex justify-center mb-4'>

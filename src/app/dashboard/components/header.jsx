@@ -4,12 +4,12 @@ import SearchBar from "./SearchBar";
 
 export default function Header({ setHideSideMenu, user, setActiveSidebar, searchItems }) {
   return (
-    <header className="flex max-md-[400px]:w-full justify-between  items-center  bg-white py-4 px-8 max-md-[400px]:px-2 header-shadow max-md-[400px]:gap-4">
+    <header className="flex max-md-[400px]:w-full justify-between  items-center  bg-white py-4 px-8 max-md-[400px]:px-2 header-shadow max-md-[400px]:gap-4 sticky top-0 z-30">
       <Menu
         onClick={() => setHideSideMenu(false)}
         className="max-md-[400px]:block hidden cursor-pointer"
       />
-      <h1 className="text-[28px] text-[#101828] font-semibold max-md-[400px]:text-[14px]">
+      <h1 className="text-[1em] text-[#101828] font-semibold ">
         Welcome back, {user?.username}
       </h1>
       <div className="flex items-center gap-4 ">

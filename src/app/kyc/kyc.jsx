@@ -100,12 +100,12 @@ const KYCForm = ({ setActiveSidebar }) => {
       }
 
       toast.update(loadingToast, {
-        render: 'KYC Submitted Successfully!',
+        render: response.data?.message || 'KYC Submitted Successfully!',
         type: 'success',
         isLoading: false,
         autoClose: 3000
       })
-      // setMessage("KYC Submitted Successfully!");
+      setMessage(response.data?.message || 'KYC Submitted Successfully!')
       setStep(3) // Move to success step
     } catch (error) {
       toast.update(loadingToast, {
@@ -124,11 +124,11 @@ const KYCForm = ({ setActiveSidebar }) => {
 
   return (
     <div className='max-w-lg mx-auto p-6 bg-white shadow-md rounded-lg'>
-      {/* {message && (
-        <div className="text-green-600 font-semibold text-center">
+      {message && (
+        <div className="text-green-600 font-semibold text-center mb-2">
           {message}
         </div>
-      )} */}
+      )}
 
       <ToastContainer />
       {step < 3 && (

@@ -36,19 +36,19 @@ export default function SearchBar({ setActiveSidebar, searchItems }) {
   };
 
   return (
-    <div className="relative w-full max-w-sm">
-      <div className="flex items-center  border rounded-md px-3 py-1 max-md-[400px]:hidden bg-[#D3F1CC33]">
+    <div className="relative w-full max-w-fit">
+      <div className="flex items-center  border rounded-xl px-2 py-1 max-md-[400px]:hidden bg-[#D3F1CC33]">
         <Image
           src={"/search.svg"}
           alt="search icon"
-          width={100}
+          width={50}
           height={100}
-          className="w-[2.4em]"
+          className="w-[2em]"
         />
         <input
           type="text"
           placeholder="Search for something"
-          className="border-none outline-none rounded-md px-3 py-1 text-sm bg-transparent"
+          className="border-none outline-none rounded-md py-1 text-sm bg-transparent"
           value={query}
           onChange={(e) => handleSearch(e.target.value)}
         />
