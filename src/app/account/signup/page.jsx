@@ -562,7 +562,7 @@ const SignupPage = () => {
                 Enter OTP
               </h1>
               <p className='text-black font-bold mb-6'>
-                Enter the 6-digit code sent to{' '}
+                Enter the 4-digit code sent to{' '}
                 <span className='text-[#9CA3AF] '></span>{' '}
                 {email || `+${selectedCountry.code}${phoneNumber}`}
               </p>
