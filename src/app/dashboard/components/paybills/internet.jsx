@@ -225,7 +225,7 @@ const Internet = ({ onNext, setBillType }) => {
   // console.log(filteredPlans);
 
   return (
-    <div className='flex justify-center w-full'>
+    <div className='flex  justify-center w-full'>
       <ToastContainer
         position='top-right'
         autoClose={5000}
@@ -378,7 +378,7 @@ const Internet = ({ onNext, setBillType }) => {
           setBillType={setBillType}
         />
       ) : (
-        <div className='min-h-screen flex justify-center w-full  px-3 items-center'>
+        <div className='min-h-screen flex justify-center w-full  px-3 items-center max-md-[400px]:items-start'>
           {' '}
           <div className='sm:w-[50%] md:w-[80%] lg:w-[55%] w-full bg-white rounded-lg shadow-md p-6'>
             <button
