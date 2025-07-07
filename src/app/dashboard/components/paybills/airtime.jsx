@@ -5,7 +5,7 @@ import Image from "next/image";
 import { handleBillsConfirm } from "@/utils/handleBillsConfirm";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import html2canvas from 'html2canvas';
+import html2canvas from "html2canvas";
 
 const Airtime = ({ onNext, setBillType }) => {
   const [network, setNetwork] = useState("GLO");
@@ -21,22 +21,28 @@ const Airtime = ({ onNext, setBillType }) => {
 
   const formatDate = (date) => {
     const day = date.getDate();
-    const month = date.toLocaleString('default', { month: 'long' });
+    const month = date.toLocaleString("default", { month: "long" });
     const year = date.getFullYear();
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    
+    const hours = date.getHours().toString().padStart(2, "0");
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+
     const getOrdinalSuffix = (day) => {
-      if (day > 3 && day < 21) return 'th';
+      if (day > 3 && day < 21) return "th";
       switch (day % 10) {
-        case 1: return 'st';
-        case 2: return 'nd';
-        case 3: return 'rd';
-        default: return 'th';
+        case 1:
+          return "st";
+        case 2:
+          return "nd";
+        case 3:
+          return "rd";
+        default:
+          return "th";
       }
     };
 
-    return `${day}${getOrdinalSuffix(day)} ${month} ${year}, ${hours}:${minutes}`;
+    return `${day}${getOrdinalSuffix(
+      day
+    )} ${month} ${year}, ${hours}:${minutes}`;
   };
 
   const handlePay = () => {
@@ -56,6 +62,7 @@ const Airtime = ({ onNext, setBillType }) => {
   };
 
   const handlePinConfirm = async () => {
+    const loadingToast = toast.loading("Processing payment...");
     const pinString = pin.join("");
     try {
       const response = await handleBillsConfirm(
@@ -70,10 +77,10 @@ const Airtime = ({ onNext, setBillType }) => {
       );
 
       console.log("Payment response:", response);
-      
+
       if (response?.status === "success" && response?.transaction) {
         const transactionData = response.transaction;
-        
+
         // Build payment data from response
         setPaymentData({
           transaction: {
@@ -85,8 +92,8 @@ const Airtime = ({ onNext, setBillType }) => {
             status: transactionData.status,
             service_name: transactionData.service_name,
             created_at: transactionData.created_at,
-            wallet_balance: transactionData.wallet_balance
-          }
+            wallet_balance: transactionData.wallet_balance,
+          },
         });
 
         // Reset states and show success
@@ -95,7 +102,21 @@ const Airtime = ({ onNext, setBillType }) => {
         setIsEnteringPin(false);
         setIsSuccess(true); // This will trigger showing the success modal
       }
+      toast.update(loadingToast, {
+        render:
+          response?.message || "An error occurred while processing payment",
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+      });
     } catch (error) {
+      toast.update(loadingToast, {
+        render:
+          error?.message || "An error occurred while processing payment",
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+      });
       console.error("Payment error:", error);
       setPin(["", "", "", ""]);
       setIsEnteringPin(false);
@@ -112,20 +133,20 @@ const Airtime = ({ onNext, setBillType }) => {
   };
 
   const handleDownloadReceipt = async () => {
-    const receiptElement = document.getElementById('receipt-container');
+    const receiptElement = document.getElementById("receipt-container");
     if (receiptElement) {
       try {
         const canvas = await html2canvas(receiptElement);
-        const image = canvas.toDataURL('image/png');
-        const link = document.createElement('a');
+        const image = canvas.toDataURL("image/png");
+        const link = document.createElement("a");
         link.href = image;
         link.download = `airtime-receipt-${paymentData?.transaction?.id}.png`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
       } catch (error) {
-        console.error('Error downloading receipt:', error);
-        toast.error('Failed to download receipt');
+        console.error("Error downloading receipt:", error);
+        toast.error("Failed to download receipt");
       }
     }
   };
@@ -147,56 +168,95 @@ const Airtime = ({ onNext, setBillType }) => {
       />
       {isSuccess ? (
         <div className="flex justify-center items-center min-h-screen bg-gray-50 w-full">
-          <div id="receipt-container" className="w-full max-w-2xl p-6 bg-white rounded-lg shadow-lg">
+          <div
+            id="receipt-container"
+            className="w-full max-w-2xl p-6 bg-white rounded-lg shadow-lg"
+          >
             <div className="text-center mb-6">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                <svg
+                  className="w-8 h-8 text-green-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5 13l4 4L19 7"
+                  />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold text-gray-800 mb-2">Payment Successful!</h2>
-              <p className="text-gray-600">Your airtime purchase was successful</p>
-              <p className="text-sm text-gray-500 mt-2">A receipt has been sent to your email</p>
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                Payment Successful!
+              </h2>
+              <p className="text-gray-600">
+                Your airtime purchase was successful
+              </p>
+              <p className="text-sm text-gray-500 mt-2">
+                A receipt has been sent to your email
+              </p>
             </div>
 
             <div className="bg-gray-50 rounded-lg p-4 mb-6">
-              <h3 className="text-lg font-semibold mb-4 text-gray-800">Transaction Details</h3>
+              <h3 className="text-lg font-semibold mb-4 text-gray-800">
+                Transaction Details
+              </h3>
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Amount:</span>
-                  <span className="font-medium">₦{paymentData?.transaction?.amount}</span>
+                  <span className="font-medium">
+                    ₦{paymentData?.transaction?.amount}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Network:</span>
-                  <span className="font-medium">{paymentData?.transaction?.network}</span>
+                  <span className="font-medium">
+                    {paymentData?.transaction?.network}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Phone Number:</span>
-                  <span className="font-medium">{paymentData?.transaction?.phone_number}</span>
+                  <span className="font-medium">
+                    {paymentData?.transaction?.phone_number}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Transaction ID:</span>
-                  <span className="font-medium">{paymentData?.transaction?.transaction_id}</span>
+                  <span className="font-medium">
+                    {paymentData?.transaction?.transaction_id}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Reference:</span>
-                  <span className="font-medium">{paymentData?.transaction?.reference}</span>
+                  <span className="font-medium">
+                    {paymentData?.transaction?.reference}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Service:</span>
-                  <span className="font-medium">{paymentData?.transaction?.service_name}</span>
+                  <span className="font-medium">
+                    {paymentData?.transaction?.service_name}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Date:</span>
-                  <span className="font-medium">{formatDate(new Date(paymentData?.transaction?.created_at))}</span>
+                  <span className="font-medium">
+                    {formatDate(new Date(paymentData?.transaction?.created_at))}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Status:</span>
-                  <span className="font-medium capitalize">{paymentData?.transaction?.status}</span>
+                  <span className="font-medium capitalize">
+                    {paymentData?.transaction?.status}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Wallet Balance:</span>
-                  <span className="font-medium">₦{paymentData?.transaction?.wallet_balance}</span>
+                  <span className="font-medium">
+                    ₦{paymentData?.transaction?.wallet_balance}
+                  </span>
                 </div>
               </div>
             </div>
@@ -206,8 +266,18 @@ const Airtime = ({ onNext, setBillType }) => {
                 onClick={handleDownloadReceipt}
                 className="flex-1 bg-gray-100 text-gray-800 py-3 px-4 rounded-md hover:bg-gray-200 transition-colors flex items-center justify-center"
               >
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                  />
                 </svg>
                 Download Receipt
               </button>
