@@ -102,9 +102,10 @@ const Airtime = ({ onNext, setBillType }) => {
         setIsEnteringPin(false);
         setIsSuccess(true); // This will trigger showing the success modal
       }
+      
       toast.update(loadingToast, {
         render:
-          response?.message || "An error occurred while processing payment",
+          response?.error || "An error occurred while processing payment",
         type: "error",
         isLoading: false,
         autoClose: 3000,

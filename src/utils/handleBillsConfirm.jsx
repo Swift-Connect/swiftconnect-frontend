@@ -36,8 +36,8 @@ export const handleBillsConfirm = async (pin, dataa, url, setIsLoading) => {
       console.log('response not okay')
       console.log('error message:::::', data.error)
 
-      if (data.error) {
-        errorMessage = data.error
+      if (data.detail) {
+        errorMessage = data.detail
       } else if (typeof data === 'object') {
         // Handle validation errors like {"plan_id":["A valid integer is required."]}
         const fieldErrors = Object.entries(data)
