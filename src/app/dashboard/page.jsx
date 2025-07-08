@@ -128,7 +128,7 @@ export default function Home () {
           setActiveSidebar={setActiveSidebar}
           searchItems={searchItems}
         />
-        <section className='py-6 px-10 max-md-[400px]:px-5 h-[80vh] max-md-[400px]:h-[90vh] max-md-[400px]:w-full w-full overflow-y-auto custom-scroll bg-[#F6FCF5]'
+        <section className='py-6 px-2 w-full custom-scroll bg-[#F6FCF5]'
           key={activeSidebar + '-' + version}
         >
           {renderComponent()}

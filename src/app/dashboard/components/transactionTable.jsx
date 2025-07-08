@@ -59,13 +59,13 @@ const TransactionsTable = () => {
   )
 
   return (
-    <div className='pt-4 w-[90%] max-md-[400px]:w-full'>
+    <div className='pt-4 w-[90%] max-md-[400px]:w-full max-md-[400px]:text-xl overflow-scroll'>
       <div className=''>
-        <h1 className='text-base sm:text-lg font-semibold mb-2'>Recent Transactions</h1>
+        <h1 className='text-base sm:text-lg max-md-[400px]:text-xl font-semibold mb-2'>Recent Transactions</h1>
         <div className='flex  flex-col justify-between mb-2'>
-          <ul className='flex items-center gap-4 sm:gap-12 text-xs sm:text-sm mb-2 border-b border-gray-200'>
+          <ul className='flex items-center gap-4 sm:gap-12 text-xs sm:text-md max-md-[400px]:text-xl mb-2 border-b border-gray-200'>
             <li
-              className={`font-medium px-2 cursor-pointer ${
+              className={`font-medium px-2 max-md-[400px]:text-[1.2em] cursor-pointer ${
                 activeTransactionTab === 'all'
                   ? 'text-green-600 border-b-2 border-green-600'
                   : 'text-gray-500'
@@ -143,7 +143,7 @@ const TransactionsTable = () => {
               No Transactions yet
             </div>
           ) : (
-            <table className='w-full text-xs sm:text-sm border-collapse'>
+            <table className='w-full text-xs sm:text-sm border-collapse max-md-[400px]:scale-[3em] overflow-scroll'>
               <thead>
                 <tr className='bg-[#F9F8FA] text-left text-[#525252]'>
                   <th className='py-2 px-2 sm:py-3 sm:px-4'>Product</th>

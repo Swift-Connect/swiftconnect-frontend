@@ -79,7 +79,6 @@ const Internet = ({ onNext, setBillType }) => {
   const handlePinConfirm = async () => {
     const loadingToast = toast.loading("Processing payment...");
     const pinString = pin.join("");
-    console.log("Entered PIN:", pinString);
     try {
       const response = await handleBillsConfirm(
         pinString,
@@ -93,10 +92,11 @@ const Internet = ({ onNext, setBillType }) => {
         setIsLoading
       );
 
-      console.log("Payment response:", response);
-
-      if (response?.status === "success" && response?.transaction) {
-        const transactionData = response.transaction;
+      if (
+        response?.success === true &&
+        (response?.data?.status === "success" || response?.data?.status === "completed")
+      ) {
+        const transactionData = response.data.transaction || response.data;
 
         setPaymentData({
           transaction: {
@@ -115,62 +115,34 @@ const Internet = ({ onNext, setBillType }) => {
         setIsConfirming(false);
         setIsEnteringPin(false);
         setIsSuccess(true);
-      } else {
-        // Handle non-successful response
-        setPin(["", "", "", ""]);
-        setIsEnteringPin(false);
-        setIsConfirming(false);
-        setTimeout(() => {
-             toast.update(loadingToast, {
-               render:
-                 response?.message ||
-                 "An error occurred while processing payment",
-               type: "error",
-               isLoading: false,
-               autoClose: 3000,
-             });
-          // toast.error(
-          //   response?.message || "An error occurred while processing payment",
-          //   {
-          //     position: "top-right",
-          //     autoClose: 5000,
-          //     hideProgressBar: false,
-          //     closeOnClick: true,
-          //     pauseOnHover: true,
-          //     draggable: true,
-          //     zIndex: 9999,
-          //   }
-          // );
-        }, 100);
-      }
-    } catch (error) {
-      console.error("Payment error:", error);
-      // First close the modals
-      setPin(["", "", "", ""]);
-      setIsEnteringPin(false);
-      setIsConfirming(false);
-
-      // Wait a bit then show the error
-      setTimeout(() => {
         toast.update(loadingToast, {
-          render: error.message || "An error occurred while processing payment",
-          type: "error",
+          render: "Data plan purchase successful!",
+          type: "success",
           isLoading: false,
           autoClose: 3000,
         });
-        // toast.error(
-        //   error.message || "An error occurred while processing payment",
-        //   {
-        //     position: "top-right",
-        //     autoClose: 5000,
-        //     hideProgressBar: false,
-        //     closeOnClick: true,
-        //     pauseOnHover: true,
-        //     draggable: true,
-        //     zIndex: 9999,
-        //   }
-        // );
-      }, 100);
+      } else {
+        setPin(["", "", "", ""]);
+        setIsEnteringPin(false);
+        setIsConfirming(false);
+        toast.update(loadingToast, {
+          render:
+            response?.error || response?.message || "An error occurred while processing payment",
+          type: "error",
+          isLoading: false,
+          autoClose: false,
+        });
+      }
+    } catch (error) {
+      setPin(["", "", "", ""]);
+      setIsEnteringPin(false);
+      setIsConfirming(false);
+      toast.update(loadingToast, {
+        render: error.message || "An error occurred while processing payment",
+        type: "error",
+        isLoading: false,
+        autoClose: false,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -250,8 +222,7 @@ const Internet = ({ onNext, setBillType }) => {
     <div className="flex  justify-center w-full">
      
       <ToastContainer
-        position="top-right"
-        autoClose={5000}
+        position="bottom-center"
         hideProgressBar={false}
         newestOnTop
         closeOnClick
@@ -259,7 +230,7 @@ const Internet = ({ onNext, setBillType }) => {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        theme="light"
+        theme="colored"
         style={{ zIndex: 9999 }}
       />
 

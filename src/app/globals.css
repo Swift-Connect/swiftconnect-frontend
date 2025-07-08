@@ -33,22 +33,17 @@
   font-display: swap;
 }
 
-html, body {
+/* html, body {
   font-size: 14px;
   line-height: 1.4;
 }
 
-@media (max-width: 640px) {
-  html, body {
-    font-size: 12px;
-  }
-}
 
 input, button, select, textarea {
   font-size: 1em;
   padding: 0.5em 0.75em;
-}
-
+} */
+/* 
 h1 {
   font-size: 1.5rem;
 }
@@ -57,9 +52,9 @@ h2 {
 }
 h3 {
   font-size: 1.1rem;
-}
+} */
 
-.p-8, .px-8, .py-8 {
+/* .p-8, .px-8, .py-8 {
   padding: 1.5rem !important;
 }
 .p-6, .px-6, .py-6 {
@@ -67,4 +62,10 @@ h3 {
 }
 .rounded-2xl {
   border-radius: 1rem !important;
-}
+} */
+
+  @media (max-width: 640px) {
+    html, body {
+      font-size: 12px;
+    }
+  }

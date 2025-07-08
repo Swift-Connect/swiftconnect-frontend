@@ -80,7 +80,7 @@ const EnterPinModal = ({
             <input
               key={index}
               id={`pin-${index}`}
-              type="text"
+              type="password"
               value={digit}
               onChange={(e) => handleChange(e, index)}
               onKeyDown={(e) => handleKeyDown(e, index)}

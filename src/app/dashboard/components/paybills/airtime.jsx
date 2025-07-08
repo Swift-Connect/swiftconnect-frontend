@@ -78,49 +78,58 @@ const Airtime = ({ onNext, setBillType }) => {
 
       console.log("Payment response:", response);
 
-      if (response?.status === "success" && response?.transaction) {
-        const transactionData = response.transaction;
+      if (
+        response?.success === true &&
+        response?.data?.status === "success" &&
+        response?.data?.transaction
+      ) {
+        const transactionData = response.data.transaction;
 
-        // Build payment data from response
         setPaymentData({
           transaction: {
             amount: transactionData.amount,
             network: transactionData.network,
             phone_number: transactionData.phone_number,
-            // transaction_id: transactionData.transaction_id,
             reference: transactionData.reference,
             status: transactionData.status,
             service_name: transactionData.service_name,
             created_at: transactionData.created_at,
             wallet_balance: transactionData.wallet_balance,
+            transaction_id: transactionData.transaction_id,
           },
         });
 
-        // Reset states and show success
         setPin(["", "", "", ""]);
         setIsConfirming(false);
         setIsEnteringPin(false);
-        setIsSuccess(true); // This will trigger showing the success modal
+        setIsSuccess(true);
+        toast.update(loadingToast, {
+          render: "Airtime top-up successful!",
+          type: "success",
+          isLoading: false,
+          autoClose: 3000,
+        });
+      } else {
+        setIsEnteringPin(false);
+        toast.update(loadingToast, {
+          render:
+            response?.error || "An error occurred while processing payment",
+          type: "error",
+          isLoading: false,
+          autoClose: false,
+        });
       }
-      
-      toast.update(loadingToast, {
-        render:
-          response?.error || "An error occurred while processing payment",
-        type: "error",
-        isLoading: false,
-        autoClose: 3000,
-      });
     } catch (error) {
+      setIsEnteringPin(false);
       toast.update(loadingToast, {
         render:
           error?.message || "An error occurred while processing payment",
         type: "error",
         isLoading: false,
-        autoClose: 3000,
+        autoClose: false,
       });
       console.error("Payment error:", error);
       setPin(["", "", "", ""]);
-      setIsEnteringPin(false);
       setIsConfirming(false);
     } finally {
       setIsLoading(false);
@@ -155,8 +164,7 @@ const Airtime = ({ onNext, setBillType }) => {
   return (
     <div className="flex justify-center w-full">
       <ToastContainer
-        position="top-right"
-        autoClose={5000}
+        position="bottom-center"
         hideProgressBar={false}
         newestOnTop
         closeOnClick
@@ -164,7 +172,7 @@ const Airtime = ({ onNext, setBillType }) => {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        theme="light"
+        theme="colored"
         style={{ zIndex: 9999 }}
       />
       {isSuccess ? (
