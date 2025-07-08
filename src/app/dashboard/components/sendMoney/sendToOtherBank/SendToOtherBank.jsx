@@ -13,6 +13,8 @@ export default function SendToOtherBanksModal({
   setBankCode,
   accountNum,
   setBankName,
+  error,
+  onDismissError
 }) {
   const [selectedBank, setSelectedBank] = useState("");
   const [selectedBankCode, setSelectedBankCode] = useState("");
@@ -114,6 +116,7 @@ export default function SendToOtherBanksModal({
         setAccountHolderName(data.data.account_name);
         setValidationError("");
         toast.success('Account verified successfully');
+        setName(data.data.account_name); // <-- Add this line
       } else {
         const errorMessage = data.message || 'Invalid account number';
         setValidationError(errorMessage);
@@ -152,6 +155,7 @@ export default function SendToOtherBanksModal({
     setAccountHolderName("");
     setValidationError("");
     setIsDropdownOpen(false);
+    if (typeof setBankName === 'function') setBankName(bank.name);
   };
 
   // Handle account number change
@@ -171,16 +175,22 @@ export default function SendToOtherBanksModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" onClick={onClose}>
-      <div className="bg-white w-[45%] rounded-xl shadow-lg p-6 max-md-[400px]:w-full max-md-[400px]:p-2" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-white max-w-lg w-full mx-auto rounded-2xl shadow-2xl p-6 max-md:p-4 flex flex-col gap-6" onClick={(e) => e.stopPropagation()}>
+        {error && (
+          <div className="w-full mb-4 bg-red-100 border border-red-400 text-red-800 px-4 py-2 rounded text-center text-xs flex items-center justify-between">
+            <span>{error}</span>
+            <button onClick={onDismissError} className="ml-2 text-red-600 font-bold">x</button>
+          </div>
+        )}
         {/* Header */}
-        <div className="flex items-center gap-10 px-4 py-3 border-b">
+        <div className="flex items-center gap-2 px-2 py-3 border-b">
           <button
             onClick={onBack}
-            className="text-gray-400 hover:text-gray-600 flex items-center space-x-2 text-[24px] max-md-[400px]:text-[18px]"
+            className="text-gray-400 hover:text-gray-600 flex items-center gap-1 text-base sm:text-lg px-2 py-1 rounded-md focus:outline-none"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
+              className="h-4 w-4 sm:h-5 sm:w-5"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -191,10 +201,10 @@ export default function SendToOtherBanksModal({
                 strokeWidth={2}
                 d="M15 19l-7-7 7-7"
               />
-            </svg>{" "}
-            Back
+            </svg>
+            <span className="ml-1">Back</span>
           </button>
-          <h2 className="text-[24px] font-bold text-gray-800 max-md-[400px]:text-[18px]">
+          <h2 className="text-base sm:text-lg font-bold text-gray-800">
             Send to other banks
           </h2>
         </div>
@@ -304,7 +314,7 @@ export default function SendToOtherBanksModal({
             className={`w-full text-white py-4 rounded-lg shadow-sm ${
               isButtonDisabled
                 ? "bg-[#d2d2d2]"
-                : "bg-blue-600 hover:bg-blue-700"
+                : "bg-black hover:bg-gray-800"
             }`}
             disabled={isButtonDisabled}
             onClick={() => {

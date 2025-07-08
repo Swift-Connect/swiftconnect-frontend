@@ -37,16 +37,16 @@ const SwiftConnectModal = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" onClick={onClose}>
-      <div className="bg-white rounded-xl shadow-lg  p-6" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-white max-w-lg w-full mx-auto rounded-2xl shadow-2xl p-6 max-md:p-4 flex flex-col gap-6" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div className="flex items-center justify-between gap-12 pb-8 ">
+        <div className="flex items-center gap-2 pb-4 border-b">
           <button
             onClick={onBack}
-            className="text-gray-400 hover:text-gray-600 flex items-center space-x- text-[24px] max-md-[400px]:text-[18px]"
+            className="text-gray-400 hover:text-gray-600 flex items-center gap-1 text-base sm:text-lg px-2 py-1 rounded-md focus:outline-none"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
+              className="h-4 w-4 sm:h-5 sm:w-5"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -58,42 +58,15 @@ const SwiftConnectModal = ({
                 d="M15 19l-7-7 7-7"
               />
             </svg>
-            <span>Back</span>
+            <span className="ml-1">Back</span>
           </button>
-          <h2 className="text-[24px] font-bold text-gray-800 max-md-[400px]:text-[14px]">
+          <h2 className="text-base sm:text-lg font-bold text-gray-800">
             Send to Swift Connect Account
           </h2>
         </div>
-        <div
-          className={`flex gap-4 mt- mb-[3em ${
-            sendTo === "username"
-              ? "flex-row-reverse items-start justify-end"
-              : ""
-          }`}
-        >
-          {/* <h2
-            className={`text-[20px] text-[gray] flex items-center justify-center rounded-[4em] cursor-pointer py-[0.5em] px-[1em] max-md-[400px]:text-[14px] ${
-              sendTo === "Account Number"
-                ? "bg-[#d2d2d2]   text-[#0E1318] font-bold"
-                : "hover:bg-[#f2f2f2]"
-            }`}
-            onClick={() => setSendTo("Account Number")}
-          >
-            Account Number
-          </h2> */}
-          {/* <h2
-            className={`text-[20px] text-[gray] flex items-center justify-center cursor-pointer rounded-[4em]  py-[0.5em] px-[1em] max-md-[400px]:text-[18px] ${
-              sendTo
-                ? "bg-[#d2d2d2]  text-[#0E1318] font-bold"
-                : "hover:bg-[#f2f2f2]"
-            }`}
-            onClick={() => setSendTo("email")}
-          >
-            @email
-          </h2> */}
-        </div>
+        {/* Optionally add a switch for sendTo type here if needed */}
         {/* Form */}
-        <div className="space-y-4 mt-">
+        <div className="space-y-6 mt-2">
           <div>
             <label className="block text-sm font-medium text-gray-700">
               {sendTo === "email" ? "" : "email"}
@@ -103,7 +76,7 @@ const SwiftConnectModal = ({
               value={inputValue}
               onChange={handleInputChange}
               placeholder={`Type in the email of the recipient.`}
-              className="mt-1 block w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 p-4"
+              className="mt-1 block w-full border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 p-3 text-base"
             />
             <div className="flex mt-2 gap-2 items-center">
               {isLoading && <p>Loading...</p>}
@@ -133,7 +106,7 @@ const SwiftConnectModal = ({
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="How much do you want to send?"
-              className="mt-1 block w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 p-4"
+              className="mt-1 block w-full border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 p-3 text-base"
             />
           </div>
 
@@ -151,14 +124,14 @@ const SwiftConnectModal = ({
           </div> */}
 
           <button
-            className={`w-full text-white py-4 rounded-lg shadow-sm ${
+            className={`w-full text-white py-3 rounded-lg shadow-md text-lg font-semibold transition-colors duration-200 ${
               isButtonDisabled
-                ? "bg-[#d2d2d2]"
-                : "bg-blue-600 hover:bg-blue-700"
+                ? "bg-[#d2d2d2] cursor-not-allowed"
+                : "bg-black hover:bg-gray-800"
             }`}
             disabled={isButtonDisabled}
             onClick={() => {
-            onNext();
+              onNext();
             }}
           >
             Continue

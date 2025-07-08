@@ -4,59 +4,36 @@ import Pagination from '@/app/admin/components/pagination'
 import axiosInstance from '../../../utils/axiosInstance'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
+import { useTransactionContext } from '../../../contexts/TransactionContext'
 import ViewTransactionModal from '@/app/admin/components/viewTransactionModal'
 
 const TransactionsTable = () => {
   const [activeTransactionTab, setActiveTransactionTab] = useState('all')
-  const [transactions, setTransactions] = useState([])
-  const itemsPerPage = 5
   const [currentPage, setCurrentPage] = useState(1)
   const [viewTransaction, setViewTransaction] = useState(null)
-
-  const fetchData = async () => {
-    try {
-      const response = await axiosInstance.get('/payments/transactions/')
-      console.log('Transactions:', response.data)
-      // Sort by created_at/updated_at descending and fallback for nulls
-      const sorted = (response.data || [])
-        .map(tx => ({
-          ...tx,
-          amount: tx.amount ?? 0,
-          status: tx.status ?? '-',
-          transaction_id: tx.transaction_id ?? tx.id ?? '-',
-          created_at: tx.created_at ?? tx.updated_at ?? null
-        }))
-        .sort(
-          (a, b) =>
-            new Date(b.created_at || b.updated_at) -
-            new Date(a.created_at || a.updated_at)
-        )
-      setTransactions(sorted)
-    } catch (error) {
-      console.error('Error fetching transactions:', error)
-    }
-  }
+  const { transactions, loading, total, pageSize, fetchTransactions, refetch } = useTransactionContext();
+  const itemsPerPage = pageSize;
 
   useEffect(() => {
-    fetchData()
-  }, [])
+    fetchTransactions(currentPage, itemsPerPage, false);
+    // eslint-disable-next-line
+  }, [currentPage, itemsPerPage]);
   const filteredTransactions =
     activeTransactionTab === 'all'
       ? transactions
       : activeTransactionTab === 'Credit'
       ? transactions.filter(transaction =>
-          // String(transaction?.amount).startsWith("+")
           transaction.transaction_type === 'credit' ? transaction.amount : ''
         )
       : transactions.filter(transaction =>
           transaction.transaction_type === 'debit' ? transaction.amount : ''
-        )
-  const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage)
-  const startIndex = (currentPage - 1) * itemsPerPage
+        );
+  const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
   const selectedData = filteredTransactions.slice(
     startIndex,
     startIndex + itemsPerPage
-  )
+  );
 
   return (
     <div className='pt-4 w-[90%] max-md-[400px]:w-full max-md-[400px]:text-xl overflow-scroll'>

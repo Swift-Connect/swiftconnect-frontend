@@ -6,8 +6,10 @@ import { handleBillsConfirm } from "@/utils/handleBillsConfirm";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import html2canvas from "html2canvas";
+import { useTransactionContext } from '../../../../contexts/TransactionContext';
 
 const Airtime = ({ onNext, setBillType }) => {
+  const { refetch } = useTransactionContext();
   const [network, setNetwork] = useState("GLO");
   const [airtimeType, setAirtimeType] = useState("VTU");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -103,6 +105,7 @@ const Airtime = ({ onNext, setBillType }) => {
         setIsConfirming(false);
         setIsEnteringPin(false);
         setIsSuccess(true);
+        refetch();
         toast.update(loadingToast, {
           render: "Airtime top-up successful!",
           type: "success",

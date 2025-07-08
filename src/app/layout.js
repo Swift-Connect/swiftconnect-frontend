@@ -1,6 +1,7 @@
 import { Poppins } from 'next/font/google'
 import './globals.css'
 import { UserProvider } from '../contexts/UserContext'
+import { TransactionProvider } from '../contexts/TransactionContext'
 // import Footer from "@/app/account/components/Footer";
 import Image from 'next/image'
 import { ToastContainer } from 'react-toastify'
@@ -27,7 +28,9 @@ export default function RootLayout ({ children }) {
         {/* Logo */}
         <div className='w-full items-center m-auto'></div>
         <UserProvider>
-          <div className=''>{children}</div>
+          <TransactionProvider>
+            <div className='container mx-auto px-2 sm:px-4 md:px-6 lg:px-8'>{children}</div>
+          </TransactionProvider>
         </UserProvider>
         <div className='items-center'></div>
         <ToastContainer

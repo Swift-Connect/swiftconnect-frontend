@@ -30,6 +30,8 @@ export default function WalletCard ({ data }) {
   const [bankcode, setBankCode] = useState('')
   const [channel, setchannel] = useState('')
   const [bank_name, setBankName] = useState('')
+  const [transferError, setTransferError] = useState('')
+  const [lastTransferStep, setLastTransferStep] = useState('toOtherBank')
 
   //  console.log(data);
 
@@ -73,17 +75,9 @@ export default function WalletCard ({ data }) {
 
       if (!response.ok) {
         const errorData = await response.json()
-        toast.dismiss(loadingToast)
-        toast.error(errorData.message, {
-          position: 'top-right',
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true
-        })
-        setCurrentView('main')
-        throw new Error(errorData.message || 'Failed to make transfer')
+        setTransferError(errorData.message || 'Bank transfer failed. Please check details and try again.')
+        setCurrentView(lastTransferStep)
+        return
       }
 
       const data = await response.json()
@@ -97,12 +91,8 @@ export default function WalletCard ({ data }) {
     } catch (error) {
       console.log(error.error)
 
-      toast.update(loadingToast, {
-        render: error,
-        type: 'error',
-        isLoading: false,
-        autoClose: 3000
-      })
+      setTransferError(error.message || 'Bank transfer failed. Please check details and try again.')
+      setCurrentView(lastTransferStep)
       console.error('Fetch error:', error)
     }
   }
@@ -117,18 +107,26 @@ export default function WalletCard ({ data }) {
     switch (currentView) {
       case 'main':
         return (
-          <SendMoneyModal
-            isOpen={isModalOpen}
-            setView={setCurrentView}
-            onClose={() => setIsModalOpen(false)}
-            setIsInternal={setIsInternal}
-          />
+          <>
+            {transferError && (
+              <div className="w-full mb-4 bg-red-100 border border-red-400 text-red-800 px-4 py-2 rounded text-center text-xs flex items-center justify-between">
+                <span>{transferError}</span>
+                <button onClick={() => setTransferError('')} className="ml-2 text-red-600 font-bold">x</button>
+              </div>
+            )}
+            <SendMoneyModal
+              isOpen={isModalOpen}
+              setView={setCurrentView}
+              onClose={() => { setIsModalOpen(false); setTransferError(''); }}
+              setIsInternal={setIsInternal}
+            />
+          </>
         )
       case 'swiftConnect':
         return (
           <SwiftConnectModal
-            onClose={() => setIsModalOpen(false)}
-            onBack={() => setCurrentView('main')}
+            onClose={() => { setIsModalOpen(false); setTransferError(''); }}
+            onBack={() => { setCurrentView('main'); setTransferError(''); }}
             onNext={() => setCurrentView('confirmDetails')}
             setNarrationn={setNarration}
             setUsername={setUsername}
@@ -144,8 +142,8 @@ export default function WalletCard ({ data }) {
       case 'toOtherBank':
         return (
           <SendToOtherBanksModal
-            onClose={() => setIsModalOpen(false)}
-            onBack={() => setCurrentView('main')}
+            onClose={() => { setIsModalOpen(false); setTransferError(''); }}
+            onBack={() => { setCurrentView('main'); setTransferError(''); }}
             onNext={() => setCurrentView('ToOtherBankSecondStep')}
             setName={setName}
             setAcctNum={setAcctNum}
@@ -153,32 +151,46 @@ export default function WalletCard ({ data }) {
             setBankCode={setBankCode}
             accountNum={acctNum}
             setBankName={setBankName}
+            error={transferError}
+            onDismissError={() => setTransferError('')}
             // transferType="bank"
           />
         )
       case 'ToOtherBankSecondStep':
         return (
           <SendToOtherBanksModalSecondStep
-            onClose={() => setIsModalOpen(false)}
-            onBack={() => setCurrentView('toOtherBank')}
+            onClose={() => { setIsModalOpen(false); setTransferError(''); }}
+            onBack={() => { setCurrentView('toOtherBank'); setTransferError(''); }}
             name={name}
             bank={bank_name}
             acctNum={acctNum}
             setNarrationn={setNarration}
             setUsername={setUsername}
-            onNext={() => setCurrentView('confirmDetails')}
             setAmount={setAmount}
+            error={transferError}
+            onDismissError={() => setTransferError('')}
+            onNext={({ username, accountNumber, bankName }) => {
+              setUsername(username);
+              setAcctNum(accountNumber);
+              setBankName(bankName);
+              setLastTransferStep('ToOtherBankSecondStep');
+              setCurrentView('confirmDetails');
+            }}
           />
         )
       case 'confirmDetails':
         return (
           <ConfirmDetials
-            onClose={() => setIsModalOpen(false)}
-            onBackSwift={() => setCurrentView('swiftConnect')}
-            onBack={() => setCurrentView('toOtherBank')}
+            onClose={() => { setIsModalOpen(false); setTransferError(''); }}
+            onBackSwift={() => { setCurrentView('swiftConnect'); setTransferError(''); }}
+            onBack={() => { setCurrentView('toOtherBank'); setTransferError(''); }}
             narration={narration}
             username={username}
-            onNext={() => setCurrentView('enterPin')}
+            accountNumber={acctNum}
+            bankName={bank_name}
+            error={transferError}
+            onDismissError={() => setTransferError('')}
+            onNext={() => { setLastTransferStep(currentView); setCurrentView('enterPin'); }}
             transferType={1}
           />
         )
@@ -187,7 +199,7 @@ export default function WalletCard ({ data }) {
           <>
             <ToastContainer />
             <EnterPinModal
-              onClose={() => setIsModalOpen(false) || setCurrentView('main')}
+              onClose={() => { setIsModalOpen(false); setTransferError(''); setCurrentView('main'); }}
               onConfirm={onConfirm}
               onNext={() => setCurrentView('success')}
               transferType={
@@ -197,6 +209,8 @@ export default function WalletCard ({ data }) {
               setPin={setPin}
               pin={pin}
               handleSubmit={makeTransfer}
+              // Set lastTransferStep before opening EnterPin
+              // This is done in ConfirmDetials onNext and ToOtherBankSecondStep onNext
             />
           </>
         )

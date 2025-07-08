@@ -8,8 +8,10 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { getData } from "@/api";
 import html2canvas from "html2canvas";
+import { useTransactionContext } from '../../../../contexts/TransactionContext';
 
 const Internet = ({ onNext, setBillType }) => {
+  const { refetch } = useTransactionContext();
   const [network, setNetwork] = useState("");
   const [dataPlan, setDataPlan] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -115,6 +117,7 @@ const Internet = ({ onNext, setBillType }) => {
         setIsConfirming(false);
         setIsEnteringPin(false);
         setIsSuccess(true);
+        refetch();
         toast.update(loadingToast, {
           render: "Data plan purchase successful!",
           type: "success",
