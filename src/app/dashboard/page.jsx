@@ -45,6 +45,8 @@ export default function Home () {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [kycStatus, setKycStatus] = useState(null)
+  const [kycLoading, setKycLoading] = useState(true)
 
   const { user, loading: userLoading, error: userError } = useUserContext()
   const router = useRouter()
@@ -60,13 +62,11 @@ export default function Home () {
     }
   }, [router])
 
+  // Fetch wallet
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axiosInstance.get('/payments/wallet/')
-
-        console.log('dddddddd', response.data)
-
         setData(response.data)
       } catch (error) {
         setError(error.response ? error.response.data.message : error.message)
@@ -74,8 +74,23 @@ export default function Home () {
         setLoading(false)
       }
     }
-
     fetchData()
+  }, [])
+
+  // Fetch KYC status
+  const fetchKycStatus = async () => {
+    setKycLoading(true)
+    try {
+      const response = await axiosInstance.get('/users/kyc-status/me/')
+      setKycStatus(response.data)
+    } catch (err) {
+      setKycStatus(null)
+    } finally {
+      setKycLoading(false)
+    }
+  }
+  useEffect(() => {
+    fetchKycStatus()
   }, [])
 
   // console.log(data);
@@ -94,6 +109,9 @@ export default function Home () {
             setActiveSidebar={handleSidebarChange}
             data={data}
             user={user}
+            kycStatus={kycStatus}
+            kycLoading={kycLoading}
+            refetchKycStatus={fetchKycStatus}
           />
         )
       case 'Pay Bills':
@@ -111,7 +129,7 @@ export default function Home () {
     }
   }
   return (
-    <div className='flex bg-full bg-[#F6FCF5] '>
+    <div className='flex  bg-[#F6FCF5] '>
       <Sidebar
         setActiveSidebar={handleSidebarChange}
         activeSidebar={activeSidebar}
@@ -121,14 +139,14 @@ export default function Home () {
         user={user}
         role='user'
       />
-      <main className='flex-1 '>
+      <main className='flex-1 ml-[20%] max-md:ml-0'>
         <Header
           setHideSideMenu={setHideSideMenu}
           user={user}
           setActiveSidebar={setActiveSidebar}
           searchItems={searchItems}
         />
-        <section className='py-6 px-2 w-full custom-scroll bg-[#F6FCF5]'
+        <section className=' px-2 w-full custom-scroll bg-[#F6FCF5]'
           key={activeSidebar + '-' + version}
         >
           {renderComponent()}

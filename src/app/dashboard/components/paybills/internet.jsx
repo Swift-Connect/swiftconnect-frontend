@@ -241,8 +241,18 @@ const Internet = ({ onNext, setBillType }) => {
         <div className="flex justify-center items-center min-h-screen bg-gray-50 w-full">
           <div
             id="receipt-container"
-            className="w-full max-w-2xl p-6 bg-white rounded-lg shadow-lg"
+            className="w-full max-w-2xl p-6 bg-white rounded-lg shadow-lg sm:max-w-[80%]"
+            style={{ minWidth: 0, transform: 'scale(1)', transformOrigin: 'top center' }}
           >
+            <style jsx>{`
+              @media (max-width: 500px) {
+                #receipt-container {
+                  transform: scale(0.85);
+                  width: 100vw !important;
+                  min-width: 0 !important;
+                }
+              }
+            `}</style>
             <div className="text-center mb-6">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg
@@ -259,77 +269,58 @@ const Internet = ({ onNext, setBillType }) => {
                   />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                Payment Successful!
-              </h2>
-              <p className="text-gray-600">
+              <h2 className="text-2xl font-bold text-gray-800 mb-2 max-sm:text-lg">Payment Successful!</h2>
+              <p className="text-gray-600 max-sm:text-sm">
                 Your data plan purchase was successful
               </p>
-              <p className="text-sm text-gray-500 mt-2">
+              <p className="text-sm text-gray-500 mt-2 max-sm:text-xs">
                 A receipt has been sent to your email
               </p>
             </div>
 
             <div className="bg-gray-50 rounded-lg p-4 mb-6">
-              <h3 className="text-lg font-semibold mb-4 text-gray-800">
-                Transaction Details
-              </h3>
+              <h3 className="text-lg font-semibold mb-4 text-gray-800 max-sm:text-base">Transaction Details</h3>
               <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Amount:</span>
-                  <span className="font-medium">
-                    ₦{paymentData?.transaction?.amount}
-                  </span>
+                {/* Responsive row with ellipsis for overflow */}
+                <div className="flex flex-wrap justify-between sm:items-center gap-1 sm:gap-0">
+                  <span className="text-gray-600 text-sm sm:text-base">Amount:</span>
+                  <span className="font-medium text-nowrap text-ellipsis overflow-hidden text-sm sm:text-base">₦{paymentData?.transaction?.amount}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Network:</span>
-                  <span className="font-medium">
-                    {paymentData?.transaction?.network}
-                  </span>
+                <div className="flex flex-wrap justify-between sm:items-center gap-1 sm:gap-0">
+                  <span className="text-gray-600 text-sm sm:text-base">Network:</span>
+                  <span className="font-medium text-nowrap text-ellipsis overflow-hidden text-sm sm:text-base">{paymentData?.transaction?.network}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Phone Number:</span>
-                  <span className="font-medium">
-                    {paymentData?.transaction?.phone_number}
-                  </span>
+                <div className="flex flex-wrap justify-between sm:items-center gap-1 sm:gap-0">
+                  <span className="text-gray-600 text-sm sm:text-base">Phone Number:</span>
+                  <span className="font-medium text-nowrap text-ellipsis overflow-hidden text-sm sm:text-base">{paymentData?.transaction?.phone_number}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Reference:</span>
-                  <span className="font-medium">
-                    {paymentData?.transaction?.reference}
-                  </span>
+                <div className="flex flex-wrap justify-between sm:items-center gap-1 sm:gap-0">
+                  <span className="text-gray-600 text-sm sm:text-base">Reference:</span>
+                  <span className="font-medium text-nowrap text-ellipsis overflow-hidden text-sm sm:text-base">{paymentData?.transaction?.reference}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Service:</span>
-                  <span className="font-medium">
-                    {paymentData?.transaction?.service_name}
-                  </span>
+                <div className="flex flex-wrap justify-between sm:items-center gap-1 sm:gap-0">
+                  <span className="text-gray-600 text-sm sm:text-base">Service:</span>
+                  <span className="font-medium text-nowrap text-ellipsis overflow-hidden text-sm sm:text-base">{paymentData?.transaction?.service_name}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Date:</span>
-                  <span className="font-medium">
-                    {formatDate(new Date(paymentData?.transaction?.created_at))}
-                  </span>
+                <div className="flex flex-wrap justify-between sm:items-center gap-1 sm:gap-0">
+                  <span className="text-gray-600 text-sm sm:text-base">Date:</span>
+                  <span className="font-medium text-nowrap text-ellipsis overflow-hidden text-sm sm:text-base">{paymentData?.transaction?.created_at}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Status:</span>
-                  <span className="font-medium capitalize">
-                    {paymentData?.transaction?.status}
-                  </span>
+                <div className="flex flex-wrap justify-between sm:items-center gap-1 sm:gap-0">
+                  <span className="text-gray-600 text-sm sm:text-base">Status:</span>
+                  <span className="font-medium text-nowrap text-ellipsis overflow-hidden capitalize text-sm sm:text-base">{paymentData?.transaction?.status}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Wallet Balance:</span>
-                  <span className="font-medium">
-                    ₦{paymentData?.transaction?.wallet_balance}
-                  </span>
+                <div className="flex flex-wrap justify-between sm:items-center gap-1 sm:gap-0">
+                  <span className="text-gray-600 text-sm sm:text-base">Wallet Balance:</span>
+                  <span className="font-medium text-nowrap text-ellipsis overflow-hidden text-sm sm:text-base">₦{paymentData?.transaction?.wallet_balance}</span>
                 </div>
               </div>
             </div>
 
-            <div className="flex space-x-4">
+            <div className="flex flex-wrap gap-3 sm:space-x-4">
               <button
                 onClick={handleDownloadReceipt}
-                className="flex-1 bg-gray-100 text-gray-800 py-3 px-4 rounded-md hover:bg-gray-200 transition-colors flex items-center justify-center"
+                className="w-full sm:flex-1 bg-gray-100 text-gray-800 py-3 px-4 rounded-md hover:bg-gray-200 transition-colors flex items-center justify-center text-sm sm:text-base"
               >
                 <svg
                   className="w-5 h-5 mr-2"
@@ -348,7 +339,7 @@ const Internet = ({ onNext, setBillType }) => {
               </button>
               <button
                 onClick={handleSuccessClose}
-                className="flex-1 bg-black text-white py-3 px-4 rounded-md hover:bg-gray-800 transition-colors"
+                className="w-full sm:flex-1 bg-black text-white py-3 px-4 rounded-md hover:bg-gray-800 transition-colors text-sm sm:text-base"
               >
                 Done
               </button>

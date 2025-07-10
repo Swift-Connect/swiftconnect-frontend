@@ -140,7 +140,7 @@ const AdminPage = () => {
         user={user}
         role='admin'
       />
-      <main className="flex-1 w-[70%]">
+      <main className='flex-1 ml-[20%] max-md:ml-0'>
         <Header
           setHideSideMenu={setHideSideMenu}
           user={user}

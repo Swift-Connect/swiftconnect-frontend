@@ -71,23 +71,37 @@ export default function Sidebar ({
   const { user } = useUserContext()
   const menuList = MenuItems[role] || []
 
+  // Prevent background scroll when sidebar is open on mobile
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const mediaQuery = window.matchMedia('(max-width: 768px)');
+    if (!hideSideMenu && mediaQuery.matches) {
+      document.body.classList.add('overflow-hidden');
+    } else {
+      document.body.classList.remove('overflow-hidden');
+    }
+    return () => {
+      document.body.classList.remove('overflow-hidden');
+    };
+  }, [hideSideMenu]);
+
   return (
     <>
       {/* Overlay for mobile, only when sidebar is open */}
       {!hideSideMenu && (
         <div
-          className='fixed inset-0 bg-black bg-opacity-30 z-10 max-md-[400px]:block hidden'
+          className='fixed inset-0 bg-black bg-opacity-30 z-10 block md:hidden'
           onClick={() => setHideSideMenu(true)}
         />
       )}
       <aside
         className={`
-          ${role === 'admin' ? 'w-[25%]' : 'w-[18%]'}
-          bg-white shadow-md h-screen flex flex-col justify-between overflow-y-auto
+          bg-white shadow-md flex flex-col justify-between
+          fixed top-0 left-0 bottom-0 h-screen w-[20%] z-20 overflow-y-auto
           ${
             hideSideMenu
-              ? 'max-md-[400px]:hidden'
-              : 'max-md-[400px]:absolute max-md-[400px]:w-[70%] max-md-[400px]:z-20'
+              ? 'max-md:hidden'
+              : 'max-md:fixed max-md:top-0 max-md:left-0 max-md:bottom-0 max-md:h-screen max-md:w-[70%] max-md:z-20 max-md:overflow-y-auto'
           }
         `}
         aria-label="Sidebar navigation"
