@@ -78,15 +78,12 @@ const Airtime = ({ onNext, setBillType }) => {
         setIsLoading
       );
 
-      console.log("Payment response:", response);
-
       if (
         response?.success === true &&
         response?.data?.status === "success" &&
         response?.data?.transaction
       ) {
         const transactionData = response.data.transaction;
-
         setPaymentData({
           transaction: {
             amount: transactionData.amount,
@@ -100,7 +97,6 @@ const Airtime = ({ onNext, setBillType }) => {
             transaction_id: transactionData.transaction_id,
           },
         });
-
         setPin(["", "", "", ""]);
         setIsConfirming(false);
         setIsEnteringPin(false);
@@ -116,17 +112,19 @@ const Airtime = ({ onNext, setBillType }) => {
         setIsEnteringPin(false);
         toast.update(loadingToast, {
           render:
-            response?.error || "An error occurred while processing payment",
+            response?.error || response?.message || "An error occurred while processing payment",
           type: "error",
           isLoading: false,
           autoClose: false,
         });
       }
     } catch (error) {
+      setPin(["", "", "", ""]);
       setIsEnteringPin(false);
+      setIsConfirming(false);
+      let backendMsg = error?.response?.data?.message || error?.response?.data?.error;
       toast.update(loadingToast, {
-        render:
-          error?.message || "An error occurred while processing payment",
+        render: backendMsg || error.message || "An error occurred while processing payment",
         type: "error",
         isLoading: false,
         autoClose: false,

@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react'
 import { useTransactionContext } from '../../../contexts/TransactionContext'
 import ViewTransactionModal from '@/app/admin/components/viewTransactionModal'
 
-const TransactionsTable = () => {
+const TransactionsTable = ({ refreshTransactions }) => {
   const [activeTransactionTab, setActiveTransactionTab] = useState('all')
   const [currentPage, setCurrentPage] = useState(1)
   const [viewTransaction, setViewTransaction] = useState(null)
@@ -18,14 +18,16 @@ const TransactionsTable = () => {
     fetchTransactions(currentPage, itemsPerPage, false);
     // eslint-disable-next-line
   }, [currentPage, itemsPerPage]);
+  // Order transactions by latest (descending by created_at)
+  const orderedTransactions = [...transactions].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   const filteredTransactions =
     activeTransactionTab === 'all'
-      ? transactions
+      ? orderedTransactions
       : activeTransactionTab === 'Credit'
-      ? transactions.filter(transaction =>
+      ? orderedTransactions.filter(transaction =>
           transaction.transaction_type === 'credit' ? transaction.amount : ''
         )
-      : transactions.filter(transaction =>
+      : orderedTransactions.filter(transaction =>
           transaction.transaction_type === 'debit' ? transaction.amount : ''
         );
   const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);

@@ -99,7 +99,6 @@ const Internet = ({ onNext, setBillType }) => {
         (response?.data?.status === "success" || response?.data?.status === "completed")
       ) {
         const transactionData = response.data.transaction || response.data;
-
         setPaymentData({
           transaction: {
             amount: transactionData.amount,
@@ -112,7 +111,6 @@ const Internet = ({ onNext, setBillType }) => {
             wallet_balance: transactionData.wallet_balance,
           },
         });
-
         setPin(["", "", "", ""]);
         setIsConfirming(false);
         setIsEnteringPin(false);
@@ -140,8 +138,9 @@ const Internet = ({ onNext, setBillType }) => {
       setPin(["", "", "", ""]);
       setIsEnteringPin(false);
       setIsConfirming(false);
+      let backendMsg = error?.response?.data?.message || error?.response?.data?.error;
       toast.update(loadingToast, {
-        render: error.message || "An error occurred while processing payment",
+        render: backendMsg || error.message || "An error occurred while processing payment",
         type: "error",
         isLoading: false,
         autoClose: false,

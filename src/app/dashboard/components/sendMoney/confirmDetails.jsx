@@ -9,10 +9,10 @@ const ConfirmDetials = ({
   username,
   accountNumber,
   bankName,
+  error,
+  onDismissError,
   onNext,
   transferType,
-  error,
-  onDismissError
 }) => {
   const [isEnabled, setIsEnabled] = useState(false);
 
@@ -22,7 +22,7 @@ const ConfirmDetials = ({
         {/* Header */}
         <div className="flex items-center gap-2 pb-4 border-b">
           <button
-            onClick={transferType === 1 ? onBack : onBackSwift}
+            onClick={transferType === 1 ? onBackSwift : onBack}
             className="text-gray-400 hover:text-gray-600 flex items-center gap-1 text-base sm:text-lg px-2 py-1 rounded-md focus:outline-none"
             >
             <svg
@@ -53,33 +53,57 @@ const ConfirmDetials = ({
               <button onClick={onDismissError} className="ml-2 text-red-600 font-bold">x</button>
             </div>
           )}
-          <div className="flex justify-between text-[#232323] text-sm sm:text-base">
-            <span>Recipient</span>
-            <span className="font-semibold">{username}</span>
-          </div>
-          <div className="flex justify-between text-[#232323] text-sm sm:text-base">
-            <span>Bank</span>
-            <span className="font-semibold">{bankName}</span>
-          </div>
-          <div className="flex justify-between text-[#232323] text-sm sm:text-base">
-            <span>Account Number</span>
-            <span className="font-semibold">{accountNumber}</span>
-          </div>
-          <div className="flex justify-between text-[#232323] text-sm sm:text-base">
-            <span>Narration</span>
-            <span className="font-semibold">{narration}</span>
-          </div>
-          <div className="flex justify-between text-[#232323] text-sm sm:text-base">
-            <span>Fee</span>
-            <span className="font-semibold">Free</span>
-          </div>
+          {/* For internal (Swift Connect) transfer, only show Recipient, Narration, Fee */}
+          {transferType === 1 ? (
+            <>
+              <div className="flex justify-between text-[#232323] text-sm sm:text-base">
+                <span>Recipient</span>
+                <span className="font-semibold">{username}</span>
+              </div>
+              <div className="flex justify-between text-[#232323] text-sm sm:text-base">
+                <span>Bank</span>
+                <span className="font-semibold">Internal Transfer</span>
+              </div>
+              <div className="flex justify-between text-[#232323] text-sm sm:text-base">
+                <span>Narration</span>
+                <span className="font-semibold">{narration}</span>
+              </div>
+              <div className="flex justify-between text-[#232323] text-sm sm:text-base">
+                <span>Fee</span>
+                <span className="font-semibold">Free</span>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="flex justify-between text-[#232323] text-sm sm:text-base">
+                <span>Recipient</span>
+                <span className="font-semibold">{username}</span>
+              </div>
+              <div className="flex justify-between text-[#232323] text-sm sm:text-base">
+                <span>Bank</span>
+                <span className="font-semibold">{bankName}</span>
+              </div>
+              <div className="flex justify-between text-[#232323] text-sm sm:text-base">
+                <span>Account Number</span>
+                <span className="font-semibold">{accountNumber}</span>
+              </div>
+              <div className="flex justify-between text-[#232323] text-sm sm:text-base">
+                <span>Narration</span>
+                <span className="font-semibold">{narration}</span>
+              </div>
+              <div className="flex justify-between text-[#232323] text-sm sm:text-base">
+                <span>Fee</span>
+                <span className="font-semibold">Free</span>
+              </div>
+            </>
+          )}
+          <button
+            className="w-full text-white py-3 rounded-lg shadow-md text-base font-semibold bg-black hover:bg-gray-800 transition-colors duration-200"
+            onClick={onNext}
+          >
+            Continue
+          </button>
         </div>
-        <button
-          className="w-full text-white py-3 rounded-lg shadow-md text-base font-semibold bg-black hover:bg-gray-800 transition-colors duration-200"
-          onClick={onNext}
-        >
-          Continue
-        </button>
       </div>
     </div>
   );

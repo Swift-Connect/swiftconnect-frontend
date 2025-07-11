@@ -13,6 +13,7 @@ const AgentKycComponent = ({ setActiveSidebar }) => {
   const [editing, setEditing] = useState(false)
   const [editForm, setEditForm] = useState({})
   const [editLoading, setEditLoading] = useState(false)
+  const [modalLoading, setModalLoading] = useState(false)
 
   // Check if KYC is approved using utility function
   const kycApproved = isKycApproved(user)
@@ -46,7 +47,13 @@ const AgentKycComponent = ({ setActiveSidebar }) => {
     }
   }
 
-  
+  const handleOpenKycModal = async () => {
+    setModalLoading(true)
+    setShowKycModal(true)
+    // If you want to fetch fresh KYC/user data, do it here. For now, just simulate loading.
+    // await fetchAndUpdateUserData();
+    setModalLoading(false)
+  }
 
   const handleEditSubmit = async e => {
     e.preventDefault()
@@ -87,17 +94,22 @@ const AgentKycComponent = ({ setActiveSidebar }) => {
       {showKycModal && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40"
-          onClick={() => { setShowKycModal(false); setEditing(false); }}
+          onClick={() => { if (!modalLoading && !editLoading) { setShowKycModal(false); setEditing(false); } }}
         >
           <div
             className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md relative border border-gray-200"
             onClick={e => e.stopPropagation()}
           >
-            <button className="absolute top-2 right-2 text-gray-400 hover:text-black text-2xl font-bold" onClick={() => { setShowKycModal(false); setEditing(false); }}>
+            <button className="absolute top-2 right-2 text-gray-400 hover:text-black text-2xl font-bold disabled:opacity-50" onClick={() => { if (!modalLoading && !editLoading) { setShowKycModal(false); setEditing(false); } }} disabled={modalLoading || editLoading}>
               &times;
             </button>
             <h2 className="text-2xl font-bold mb-4 text-center text-gray-800">KYC Submission Details</h2>
-            {!editing ? (
+            {modalLoading ? (
+              <div className="flex flex-col items-center justify-center py-10">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mb-2"></div>
+                <span className="text-gray-600">Loading...</span>
+              </div>
+            ) : !editing ? (
               <>
                 <div className="mb-4 space-y-3 divide-y divide-gray-100">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-1">
@@ -151,7 +163,11 @@ const AgentKycComponent = ({ setActiveSidebar }) => {
                     </div>
                   )}
                 </div>
-                <button className="bg-black text-white px-4 py-2 rounded-lg w-full mt-2 hover:bg-orange-500 font-semibold transition" onClick={handleEditClick}>Edit/Resubmit</button>
+                <button className="bg-black text-white px-4 py-2 rounded-lg w-full mt-2 hover:bg-orange-500 font-semibold transition disabled:opacity-50" onClick={handleEditClick} disabled={editLoading}>
+                  {editLoading ? (
+                    <span className="flex items-center justify-center"><span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>Loading...</span>
+                  ) : 'Edit/Resubmit'}
+                </button>
               </>
             ) : (
               <form onSubmit={handleEditSubmit} className="space-y-3">
@@ -188,7 +204,11 @@ const AgentKycComponent = ({ setActiveSidebar }) => {
                   <label className="block text-gray-700 font-semibold mb-1">ID Document (Image)</label>
                   <input type="file" name="id_document" accept="image/*" onChange={handleEditChange} className="w-full border rounded px-3 py-2" />
                 </div>
-                <button type="submit" className="bg-black text-white px-4 py-2 rounded-lg w-full mt-2 hover:bg-orange-500 font-semibold transition" disabled={editLoading}>{editLoading ? 'Submitting...' : 'Submit Changes'}</button>
+                <button type="submit" className="bg-black text-white px-4 py-2 rounded-lg w-full mt-2 hover:bg-orange-500 font-semibold transition disabled:opacity-50" disabled={editLoading}>
+                  {editLoading ? (
+                    <span className="flex items-center justify-center"><span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>Submitting...</span>
+                  ) : 'Submit Changes'}
+                </button>
               </form>
             )}
           </div>
@@ -286,10 +306,13 @@ const AgentKycComponent = ({ setActiveSidebar }) => {
               </div>
             </div>
             <button
-              className='bg-orange-500 text-white w-[20%] rounded-lg hover:bg-orange-600 p-2 sm:p-3 hidden sm:block text-xs sm:text-sm'
-              onClick={() => setShowKycModal(true)}
+              className='bg-orange-500 text-white w-[20%] rounded-lg hover:bg-orange-600 p-2 sm:p-3 hidden sm:block text-xs sm:text-sm disabled:opacity-50'
+              onClick={handleOpenKycModal}
+              disabled={modalLoading}
             >
-              View
+              {modalLoading ? (
+                <span className="flex items-center justify-center"><span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>Loading...</span>
+              ) : 'View'}
             </button>
           </div>
         )}

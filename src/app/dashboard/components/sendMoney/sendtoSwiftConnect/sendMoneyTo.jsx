@@ -12,6 +12,9 @@ const SwiftConnectModal = ({
   inputValue,
   amount,
   narration,
+  error,
+  isLoadingRecipient = false,
+  setIsLoadingRecipient = () => {},
 }) => {
   const [sendTo, setSendTo] = useState("Account Number");
   
@@ -28,12 +31,12 @@ const SwiftConnectModal = ({
   };
 
   useEffect(() => {
-    if (inputValue && amount) {
+    if (inputValue && amount && !isLoadingRecipient) {
       setIsButtonDisabled(false);
     } else {
       setIsButtonDisabled(true);
     }
-  }, [inputValue, amount]);
+  }, [inputValue, amount, isLoadingRecipient]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" onClick={onClose}>
@@ -43,6 +46,7 @@ const SwiftConnectModal = ({
           <button
             onClick={onBack}
             className="text-gray-400 hover:text-gray-600 flex items-center gap-1 text-base sm:text-lg px-2 py-1 rounded-md focus:outline-none"
+            disabled={isLoadingRecipient}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -77,24 +81,17 @@ const SwiftConnectModal = ({
               onChange={handleInputChange}
               placeholder={`Type in the email of the recipient.`}
               className="mt-1 block w-full border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 p-3 text-base"
+              disabled={isLoadingRecipient}
             />
-            <div className="flex mt-2 gap-2 items-center">
-              {isLoading && <p>Loading...</p>}
-              {/* {!isLoading && matchedAccount && (
-                <div className="flex gap-2 items-center">
-                  <Image
-                    src={"green-checked.svg"}
-                    alt="confirmation icon"
-                    width={16}
-                    height={16}
-                    className="w-[1em]"
-                  />
-                  <p>{matchedAccount.name}</p>
-                </div>
-              )} */}
-              {/* {!isLoading && !matchedAccount && inputValue && (
-                <p className="text-red-500">No Account Found</p>
-              )} */}
+            <div className="flex mt-2 gap-2 items-center min-h-[1.5em]">
+              {isLoadingRecipient && <span className="text-blue-500 animate-pulse">Validating recipient...</span>}
+              {/* Show recipient after validation if available */}
+              {!isLoadingRecipient && inputValue && !error && (
+                <span className="text-green-600 text-sm">Recipient email looks valid.</span>
+              )}
+              {error && !isLoadingRecipient && (
+                <span className="text-red-500 text-sm">{error}</span>
+              )}
             </div>
           </div>
           <div>
@@ -107,10 +104,10 @@ const SwiftConnectModal = ({
               onChange={(e) => setAmount(e.target.value)}
               placeholder="How much do you want to send?"
               className="mt-1 block w-full border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 p-3 text-base"
+              disabled={isLoadingRecipient}
             />
           </div>
-
-          {/* <div>
+          <div>
             <label className="block text-sm font-medium text-gray-700">
               Narration
             </label>
@@ -120,22 +117,26 @@ const SwiftConnectModal = ({
               onChange={(e) => setNarrationn(e.target.value)}
               placeholder="What is this transaction for?"
               className="mt-1 block w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 p-4"
+              disabled={isLoadingRecipient}
             />
-          </div> */}
+          </div>
 
-          <button
-            className={`w-full text-white py-3 rounded-lg shadow-md text-lg font-semibold transition-colors duration-200 ${
-              isButtonDisabled
-                ? "bg-[#d2d2d2] cursor-not-allowed"
-                : "bg-black hover:bg-gray-800"
-            }`}
-            disabled={isButtonDisabled}
-            onClick={() => {
-              onNext();
-            }}
-          >
-            Continue
-          </button>
+          {/* Footer */}
+          <div className="px-6 py-4">
+            <button
+              className={`w-full text-white py-4 rounded-lg shadow-sm ${
+                isButtonDisabled || isLoadingRecipient
+                  ? "bg-[#d2d2d2] cursor-not-allowed"
+                  : "bg-black hover:bg-gray-800"
+              }`}
+              disabled={isButtonDisabled || isLoadingRecipient}
+              onClick={onNext}
+            >
+              {isLoadingRecipient ? (
+                <span className="flex items-center justify-center"><span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>Validating...</span>
+              ) : 'Continue'}
+            </button>
+          </div>
         </div>
       </div>
     </div>

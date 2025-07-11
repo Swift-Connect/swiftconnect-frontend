@@ -13,8 +13,11 @@ import ReceiveMoneyModal from './recieveMoney'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { handleBillsConfirm } from '@/utils/handleBillsConfirm'
+import SwiftConnectReceiptModal from './sendMoney/sendtoSwiftConnect/SwiftConnectReceiptModal';
+import { useUserContext } from '../../../contexts/UserContext'
+import { useTransactionContext } from '../../../contexts/TransactionContext'
 
-export default function WalletCard ({ data }) {
+export default function WalletCard ({ data, refreshWallet, refreshTransactions }) {
   const [cardNumber] = useState('**** 3241')
   const [amount, setAmount] = useState('')
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -32,8 +35,35 @@ export default function WalletCard ({ data }) {
   const [bank_name, setBankName] = useState('')
   const [transferError, setTransferError] = useState('')
   const [lastTransferStep, setLastTransferStep] = useState('toOtherBank')
+  const [swiftConnectError, setSwiftConnectError] = useState('')
+  const [swiftConnectLoading, setSwiftConnectLoading] = useState(false)
+  const [modalType, setModalType] = useState('main'); // 'main', 'swiftConnect', 'toOtherBank', etc.
+  const [swiftConnectReceipt, setSwiftConnectReceipt] = useState(null);
+  const [showSwiftConnectReceipt, setShowSwiftConnectReceipt] = useState(false);
+  const { refreshUserData, user } = useUserContext();
+  const { refetch } = useTransactionContext();
 
   //  console.log(data);
+
+  const clearTransferState = () => {
+    setAmount('');
+    setNarration('');
+    setUsername('');
+    setName('');
+    setAcctNum('');
+    setInputValue('');
+    setPin(['', '', '', '']);
+    setIsInternal(false);
+    setBankCode('');
+    setchannel('');
+    setBankName('');
+    setTransferError('');
+    setLastTransferStep('toOtherBank');
+    setSwiftConnectError('');
+    setSwiftConnectLoading(false);
+    setModalType('main');
+    setIsModalOpen(false);
+  };
 
   const makeTransfer = async () => {
     const loadingToast = toast.loading('Processing payment...')
@@ -73,11 +103,27 @@ export default function WalletCard ({ data }) {
         }
       )
 
+      let errorMessage = 'Bank transfer failed. Please check details and try again.';
+      let errorData = null;
       if (!response.ok) {
-        const errorData = await response.json()
-        setTransferError(errorData.message || 'Bank transfer failed. Please check details and try again.')
-        setCurrentView(lastTransferStep)
-        return
+        let isServerError = response.status >= 500;
+        try {
+          errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch (jsonErr) {
+          // If response is not JSON, keep generic error message
+        }
+        if (isServerError) {
+          errorMessage = 'A system error occurred. Please try again later.';
+          setModalType('confirmDetails');
+          // setIsModalOpen(false);
+        } else {
+          setModalType('confirmDetails'); // Go back to confirm details for 400 errors
+        }
+        setTransferError(errorMessage);
+        toast.dismiss(loadingToast);
+        toast.error(errorMessage, { autoClose: 8000 });
+        return;
       }
 
       const data = await response.json()
@@ -88,12 +134,33 @@ export default function WalletCard ({ data }) {
         isLoading: false,
         autoClose: 3000
       })
+      await refreshUserData();
+      refetch && refetch();
+      refreshWallet && (await refreshWallet());
+      refreshTransactions && (await refreshTransactions());
+      // Capture essential values before clearing state
+      const localTxn = {
+        amount,
+        narration,
+        recipient: username,
+        accountNumber: acctNum,
+        bankName: bank_name,
+        inputValue,
+        date: new Date().toLocaleString(),
+      };
+      setSwiftConnectReceipt({ ...data, ...localTxn });
+      setShowSwiftConnectReceipt(true);
     } catch (error) {
-      console.log(error.error)
-
-      setTransferError(error.message || 'Bank transfer failed. Please check details and try again.')
-      setCurrentView(lastTransferStep)
-      console.error('Fetch error:', error)
+      let errorMessage = 'Bank transfer failed. Please check details and try again.';
+      if (error && error.message) {
+        errorMessage = error.message;
+      }
+      setTransferError(errorMessage);
+      setModalType('main');
+      setIsModalOpen(false);
+      toast.dismiss(loadingToast);
+      toast.error(errorMessage, { autoClose: 8000 });
+      console.error('Fetch error:', error);
     }
   }
 
@@ -104,7 +171,7 @@ export default function WalletCard ({ data }) {
   console.log(currentView)
 
   const renderModalContent = () => {
-    switch (currentView) {
+    switch (modalType) {
       case 'main':
         return (
           <>
@@ -116,8 +183,8 @@ export default function WalletCard ({ data }) {
             )}
             <SendMoneyModal
               isOpen={isModalOpen}
-              setView={setCurrentView}
-              onClose={() => { setIsModalOpen(false); setTransferError(''); }}
+              setView={view => setModalType(view)}
+              onClose={() => { setIsModalOpen(false); setTransferError(''); setModalType('main'); }}
               setIsInternal={setIsInternal}
             />
           </>
@@ -125,9 +192,36 @@ export default function WalletCard ({ data }) {
       case 'swiftConnect':
         return (
           <SwiftConnectModal
-            onClose={() => { setIsModalOpen(false); setTransferError(''); }}
-            onBack={() => { setCurrentView('main'); setTransferError(''); }}
-            onNext={() => setCurrentView('confirmDetails')}
+            onClose={() => { setIsModalOpen(false); setTransferError(''); setSwiftConnectError(''); setModalType('main'); }}
+            onBack={() => { setModalType('main'); setIsInternal(false); setTransferError(''); setSwiftConnectError(''); }}
+            onNext={async () => {
+              setSwiftConnectError('');
+              if (!inputValue) {
+                setSwiftConnectError('Please enter recipient email.');
+                return;
+              }
+              setSwiftConnectLoading(true);
+              try {
+                const response = await fetch(`https://swiftconnect-backend.onrender.com/payments/get-swiftconnect-recipient/?email=${encodeURIComponent(inputValue)}`, {
+                  method: 'GET',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${localStorage.getItem('access_token')}`
+                  }
+                });
+                const data = await response.json();
+                if (response.ok && (data?.username || data?.email)) {
+                  setUsername(data.username || data.email);
+                  setModalType('confirmDetails');
+                } else {
+                  setSwiftConnectError(data?.message || 'Recipient not found.');
+                }
+              } catch (err) {
+                setSwiftConnectError('Failed to fetch recipient. Please try again.');
+              } finally {
+                setSwiftConnectLoading(false);
+              }
+            }}
             setNarrationn={setNarration}
             setUsername={setUsername}
             setInputValue={setInputValue}
@@ -136,15 +230,17 @@ export default function WalletCard ({ data }) {
             inputValue={inputValue}
             amount={amount}
             narration={narration}
-            // transferType="internal"
+            error={swiftConnectError}
+            isLoadingRecipient={swiftConnectLoading}
+            setIsLoadingRecipient={setSwiftConnectLoading}
           />
         )
       case 'toOtherBank':
         return (
           <SendToOtherBanksModal
-            onClose={() => { setIsModalOpen(false); setTransferError(''); }}
-            onBack={() => { setCurrentView('main'); setTransferError(''); }}
-            onNext={() => setCurrentView('ToOtherBankSecondStep')}
+            onClose={() => { setIsModalOpen(false); setTransferError(''); setModalType('main'); }}
+            onBack={() => { setModalType('main'); setTransferError(''); }}
+            onNext={() => setModalType('ToOtherBankSecondStep')}
             setName={setName}
             setAcctNum={setAcctNum}
             setchannel={setchannel}
@@ -160,7 +256,7 @@ export default function WalletCard ({ data }) {
         return (
           <SendToOtherBanksModalSecondStep
             onClose={() => { setIsModalOpen(false); setTransferError(''); }}
-            onBack={() => { setCurrentView('toOtherBank'); setTransferError(''); }}
+            onBack={() => { setModalType('toOtherBank'); setTransferError(''); }}
             name={name}
             bank={bank_name}
             acctNum={acctNum}
@@ -174,24 +270,24 @@ export default function WalletCard ({ data }) {
               setAcctNum(accountNumber);
               setBankName(bankName);
               setLastTransferStep('ToOtherBankSecondStep');
-              setCurrentView('confirmDetails');
+              setModalType('confirmDetails');
             }}
           />
         )
       case 'confirmDetails':
         return (
           <ConfirmDetials
-            onClose={() => { setIsModalOpen(false); setTransferError(''); }}
-            onBackSwift={() => { setCurrentView('swiftConnect'); setTransferError(''); }}
-            onBack={() => { setCurrentView('toOtherBank'); setTransferError(''); }}
+            // No onClose handler to prevent accidental closure of the main modal
+            onBackSwift={() => { setModalType('swiftConnect'); setTransferError(''); }}
+            onBack={() => { setModalType('ToOtherBankSecondStep'); setTransferError(''); }}
             narration={narration}
             username={username}
             accountNumber={acctNum}
             bankName={bank_name}
             error={transferError}
             onDismissError={() => setTransferError('')}
-            onNext={() => { setLastTransferStep(currentView); setCurrentView('enterPin'); }}
-            transferType={1}
+            onNext={() => { setLastTransferStep(modalType); setModalType('enterPin'); }}
+            transferType={isInternal ? 1 : 0}
           />
         )
       case 'enterPin':
@@ -199,23 +295,27 @@ export default function WalletCard ({ data }) {
           <>
             <ToastContainer />
             <EnterPinModal
-              onClose={() => { setIsModalOpen(false); setTransferError(''); setCurrentView('main'); }}
+              onClose={() => { setTransferError(''); setModalType('confirmDetails'); }}
               onConfirm={onConfirm}
-              onNext={() => setCurrentView('success')}
-              transferType={
-                currentView === 'swiftConnect' ? 'internal' : 'bank'
-              }
-              data={currentView === 'swiftConnect' ? {} : {}}
+              handleSubmit={makeTransfer}
+              transferType={modalType === 'swiftConnect' ? 'internal' : 'bank'}
+              data={modalType === 'swiftConnect' ? {} : {}}
               setPin={setPin}
               pin={pin}
-              handleSubmit={makeTransfer}
-              // Set lastTransferStep before opening EnterPin
-              // This is done in ConfirmDetials onNext and ToOtherBankSecondStep onNext
             />
           </>
         )
       case 'success':
-        return <SuccessModal onClose={() => setIsModalOpen(false)} />
+        return (
+          <SwiftConnectReceiptModal
+            isOpen={modalType === 'success'}
+            onClose={() => { setIsModalOpen(false); setModalType('main'); setSwiftConnectReceipt(null); }}
+            receiptData={swiftConnectReceipt}
+            recipient={username}
+            narration={narration}
+            amount={amount}
+          />
+        )
       default:
         return null
     }
@@ -260,6 +360,18 @@ export default function WalletCard ({ data }) {
       </div>
       {isModalOpen && renderModalContent()}
       <ToastContainer />
+
+      {/* Show Swift Connect Receipt Modal */}
+      {showSwiftConnectReceipt && (
+        <SwiftConnectReceiptModal
+          isOpen={showSwiftConnectReceipt}
+          onClose={() => { setShowSwiftConnectReceipt(false); setSwiftConnectReceipt(null); clearTransferState(); }}
+          receiptData={swiftConnectReceipt}
+          recipient={username}
+          narration={narration}
+          amount={amount}
+        />
+      )}
 
       <ReceiveMoneyModal
         isOpen={isRecieveMoneyModalOpen}

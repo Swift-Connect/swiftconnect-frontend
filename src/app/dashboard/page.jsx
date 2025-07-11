@@ -63,19 +63,22 @@ export default function Home () {
   }, [router])
 
   // Fetch wallet
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axiosInstance.get('/payments/wallet/')
-        setData(response.data)
-      } catch (error) {
-        setError(error.response ? error.response.data.message : error.message)
-      } finally {
-        setLoading(false)
-      }
+  const fetchWallet = async () => {
+    try {
+      const response = await axiosInstance.get('/payments/wallet/')
+      setData(response.data)
+    } catch (error) {
+      setError(error.response ? error.response.data.message : error.message)
+    } finally {
+      setLoading(false)
     }
-    fetchData()
+  }
+  useEffect(() => {
+    fetchWallet()
   }, [])
+
+  // Expose a refreshWallet function
+  const refreshWallet = fetchWallet;
 
   // Fetch KYC status
   const fetchKycStatus = async () => {
@@ -112,6 +115,7 @@ export default function Home () {
             kycStatus={kycStatus}
             kycLoading={kycLoading}
             refetchKycStatus={fetchKycStatus}
+            refreshWallet={refreshWallet}
           />
         )
       case 'Pay Bills':
