@@ -4,68 +4,47 @@ import Pagination from '@/app/admin/components/pagination'
 import axiosInstance from '../../../utils/axiosInstance'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
+import { useTransactionContext } from '../../../contexts/TransactionContext'
 import ViewTransactionModal from '@/app/admin/components/viewTransactionModal'
 
-const TransactionsTable = () => {
+const TransactionsTable = ({ refreshTransactions }) => {
   const [activeTransactionTab, setActiveTransactionTab] = useState('all')
-  const [transactions, setTransactions] = useState([])
-  const itemsPerPage = 5
   const [currentPage, setCurrentPage] = useState(1)
   const [viewTransaction, setViewTransaction] = useState(null)
-
-  const fetchData = async () => {
-    try {
-      const response = await axiosInstance.get('/payments/transactions/')
-      console.log('Transactions:', response.data)
-      // Sort by created_at/updated_at descending and fallback for nulls
-      const sorted = (response.data || [])
-        .map(tx => ({
-          ...tx,
-          amount: tx.amount ?? 0,
-          status: tx.status ?? '-',
-          transaction_id: tx.transaction_id ?? tx.id ?? '-',
-          created_at: tx.created_at ?? tx.updated_at ?? null
-        }))
-        .sort(
-          (a, b) =>
-            new Date(b.created_at || b.updated_at) -
-            new Date(a.created_at || a.updated_at)
-        )
-      setTransactions(sorted)
-    } catch (error) {
-      console.error('Error fetching transactions:', error)
-    }
-  }
+  const { transactions, loading, total, pageSize, fetchTransactions, refetch } = useTransactionContext();
+  const itemsPerPage = pageSize;
 
   useEffect(() => {
-    fetchData()
-  }, [])
+    fetchTransactions(currentPage, itemsPerPage, false);
+    // eslint-disable-next-line
+  }, [currentPage, itemsPerPage]);
+  // Order transactions by latest (descending by created_at)
+  const orderedTransactions = [...transactions].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   const filteredTransactions =
     activeTransactionTab === 'all'
-      ? transactions
+      ? orderedTransactions
       : activeTransactionTab === 'Credit'
-      ? transactions.filter(transaction =>
-          // String(transaction?.amount).startsWith("+")
+      ? orderedTransactions.filter(transaction =>
           transaction.transaction_type === 'credit' ? transaction.amount : ''
         )
-      : transactions.filter(transaction =>
+      : orderedTransactions.filter(transaction =>
           transaction.transaction_type === 'debit' ? transaction.amount : ''
-        )
-  const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage)
-  const startIndex = (currentPage - 1) * itemsPerPage
+        );
+  const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
   const selectedData = filteredTransactions.slice(
     startIndex,
     startIndex + itemsPerPage
-  )
+  );
 
   return (
-    <div className='pt-4 w-[90%] max-md-[400px]:w-full'>
+    <div className='pt-4 w-[90%] max-md-[400px]:w-full max-md-[400px]:text-xl overflow-scroll'>
       <div className=''>
-        <h1 className='text-base sm:text-lg font-semibold mb-2'>Recent Transactions</h1>
+        <h1 className='text-base sm:text-lg max-md-[400px]:text-xl font-semibold mb-2'>Recent Transactions</h1>
         <div className='flex  flex-col justify-between mb-2'>
-          <ul className='flex items-center gap-4 sm:gap-12 text-xs sm:text-sm mb-2 border-b border-gray-200'>
+          <ul className='flex items-center gap-4 sm:gap-12 text-xs sm:text-md max-md-[400px]:text-xl mb-2 border-b border-gray-200'>
             <li
-              className={`font-medium px-2 cursor-pointer ${
+              className={`font-medium px-2 max-md-[400px]:text-[1.2em] cursor-pointer ${
                 activeTransactionTab === 'all'
                   ? 'text-green-600 border-b-2 border-green-600'
                   : 'text-gray-500'
@@ -143,7 +122,7 @@ const TransactionsTable = () => {
               No Transactions yet
             </div>
           ) : (
-            <table className='w-full text-xs sm:text-sm border-collapse'>
+            <table className='w-full text-xs sm:text-sm border-collapse max-md-[400px]:scale-[3em] overflow-scroll'>
               <thead>
                 <tr className='bg-[#F9F8FA] text-left text-[#525252]'>
                   <th className='py-2 px-2 sm:py-3 sm:px-4'>Product</th>

@@ -191,18 +191,18 @@ const Page = () => {
 
   console.log(position)
   return (
-    <div className='flex min-h-screen flex-col items-center justify-center px-2 sm:px-4'>
-      <div className='flex flex-col items-center w-full max-w-full sm:max-w-md gap-4'>
+    <div className='flex min-h-screen flex-col w-full items-center justify-center px-2 sm:px-4 bg-[#f8fafc]'>
+      <div className='flex flex-col items-center w-fit gap-8 sm:gap-4 pt-12 sm:pt-0'>
         <Image
           src='/logo.svg'
           alt='Swift Connect'
-          width={180}
-          height={60}
-          className='mb-2'
+          width={280}
+          height={100}
+          // className='w-32 h-12 sm:w-44 sm:h-16'
         />
         {notification && (
           <div
-            className={`w-full mb-2 px-4 py-2 rounded text-center text-sm
+            className={`w-full mb-4 px-6 py-4 rounded text-center text-lg sm:text-sm
               ${notificationType === 'error' ? 'bg-red-100 border border-red-400 text-red-800' : ''}
               ${notificationType === 'success' ? 'bg-green-100 border border-green-400 text-green-800' : ''}
               ${notificationType === 'warning' ? 'bg-yellow-100 border border-yellow-400 text-yellow-800' : ''}
@@ -212,21 +212,21 @@ const Page = () => {
             {notification}
           </div>
         )}
-        <div className='w-full bg-white rounded-2xl p-3 sm:p-8 shadow-sm border border-gray-100'>
-          <h1 className='text-lg sm:text-2xl font-semibold text-gray-900 mb-2'>Log in</h1>
-          <p className='text-gray-600 mb-3 sm:mb-6 text-xs sm:text-base'>
+        <div className='w-full bg-white rounded-3xl sm:rounded-2xl p-8 sm:p-8 shadow-lg sm:shadow-md border border-gray-100'>
+          <h1 className='text-3xl sm:text-2xl font-bold text-gray-900 mb-6 sm:mb-2 text-center'>Log in</h1>
+          <p className='text-gray-600 mb-6 sm:mb-6 text-xl sm:text-base text-center'>
             Enter your {authMode === 'mobile' ? 'phone number' : 'email'}.
           </p>
-          <form onSubmit={handleSubmit} className='space-y-3 sm:space-y-6'>
+          <form onSubmit={handleSubmit} className='space-y-8 sm:space-y-6'>
             <div>
               <label
                 htmlFor={authMode === 'mobile' ? 'phone' : 'email'}
-                className='block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2'
+                className='block text-xl sm:text-sm font-medium text-gray-700 mb-3 sm:mb-2'
               >
                 {authMode === 'mobile' ? 'Mobile number' : 'Email'}
               </label>
               <div
-                className={`flex items-center relative border p-1 rounded-lg focus-within:border-green-600 focus-within:ring-1 focus-within:ring-green-600 ${
+                className={`flex items-center relative border-2 sm:border p-2 sm:p-1 rounded-xl sm:rounded-lg focus-within:border-green-600 focus-within:ring-2 sm:focus-within:ring-1 focus-within:ring-green-600 ${
                   errors.phoneNumber || errors.email
                     ? 'border-red-500'
                     : 'border-gray-300'
@@ -247,7 +247,7 @@ const Page = () => {
                     value={phoneNumber}
                     onChange={e => setPhoneNumber(e.target.value)}
                     ref={phoneInputRef}
-                    className={`flex border-0 p-2 sm:p-3 focus:ring-0 rounded-xl focus:outline-none w-full text-xs sm:text-base ${
+                    className={`flex border-0 p-4 sm:p-3 focus:ring-0 rounded-xl focus:outline-none w-full text-lg sm:text-base ${
                       errors.phoneNumber ? 'border-red-500' : ''
                     }`}
                     placeholder='Enter phone number'
@@ -259,7 +259,7 @@ const Page = () => {
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     ref={emailInputRef}
-                    className={`flex-1 border-0 p-2 sm:p-3 focus:ring-0 rounded-xl focus:outline-none w-fit text-xs sm:text-base ${
+                    className={`flex-1 border-0 p-4 sm:p-3 focus:ring-0 rounded-xl focus:outline-none w-fit text-lg sm:text-base ${
                       errors.email ? 'border-red-500' : ''
                     }`}
                     placeholder='Enter email'
@@ -267,16 +267,16 @@ const Page = () => {
                 )}
               </div>
               {errors.phoneNumber && (
-                <p className='text-red-500 text-xs sm:text-sm mt-1'>{errors.phoneNumber}</p>
+                <p className='text-red-500 text-xl sm:text-sm mt-3 sm:mt-1'>{errors.phoneNumber}</p>
               )}
               {errors.email && (
-                <p className='text-red-500 text-xs sm:text-sm mt-1'>{errors.email}</p>
+                <p className='text-red-500 text-xl sm:text-sm mt-3 sm:mt-1'>{errors.email}</p>
               )}
             </div>
             <div>
               <label
                 htmlFor='password'
-                className='block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2'
+                className='block text-xl sm:text-sm font-medium text-gray-700 mb-3 sm:mb-2'
               >
                 Password
               </label>
@@ -285,27 +285,27 @@ const Page = () => {
                 id='password'
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                className={`w-full border rounded-lg p-2 sm:p-3 focus:border-green-600 focus:ring-1 focus:ring-green-600 focus:outline-none text-xs sm:text-base ${
+                className={`w-full border-2 sm:border rounded-xl sm:rounded-lg p-4 sm:p-3 focus:border-green-600 focus:ring-2 sm:focus:ring-1 focus:ring-green-600 focus:outline-none text-lg sm:text-base ${
                   errors.password ? 'border-red-500' : 'border-gray-300'
                 }`}
               />
               {errors.password && (
-                <p className='text-red-500 text-xs sm:text-sm'>{errors.password}</p>
+                <p className='text-red-500 text-xl sm:text-sm mt-3'>{errors.password}</p>
               )}
             </div>
-            <div className='flex gap-2 sm:gap-4'>
+            <div className='flex gap-4 sm:gap-4'>
               <button
                 type='button'
                 onClick={handleAuthModeSwitch}
                 disabled={isLoading}
-                className='flex-1 bg-[#0E131833] text-[#3d3d3d] py-2 sm:py-3 px-2 sm:px-4 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-base'
+                className='flex-1 bg-[#0E131833] text-[#3d3d3d] py-4 sm:py-3 px-4 sm:px-4 rounded-xl sm:rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-lg sm:text-base font-medium'
               >
                 {authMode === 'mobile' ? 'Use email' : 'Use mobile'}
               </button>
               <button
                 type='submit'
                 disabled={isLoading || Object.keys(errors).length > 0}
-                className='flex-1 bg-[#0E1318] text-[#FAFAFA] py-2 sm:py-3 px-2 sm:px-4 rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-base'
+                className='flex-1 bg-[#0E1318] text-[#FAFAFA] py-4 sm:py-3 px-4 sm:px-4 rounded-xl sm:rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-lg sm:text-base font-medium'
               >
                 {isLoading ? 'Loading...' : 'Continue'}
               </button>

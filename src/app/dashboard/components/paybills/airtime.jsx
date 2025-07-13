@@ -6,8 +6,10 @@ import { handleBillsConfirm } from "@/utils/handleBillsConfirm";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import html2canvas from "html2canvas";
+import { useTransactionContext } from '../../../../contexts/TransactionContext';
 
 const Airtime = ({ onNext, setBillType }) => {
+  const { refetch } = useTransactionContext();
   const [network, setNetwork] = useState("GLO");
   const [airtimeType, setAirtimeType] = useState("VTU");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -76,51 +78,59 @@ const Airtime = ({ onNext, setBillType }) => {
         setIsLoading
       );
 
-      console.log("Payment response:", response);
-
-      if (response?.status === "success" && response?.transaction) {
-        const transactionData = response.transaction;
-
-        // Build payment data from response
+      if (
+        response?.success === true &&
+        response?.data?.status === "success" &&
+        response?.data?.transaction
+      ) {
+        const transactionData = response.data.transaction;
         setPaymentData({
           transaction: {
             amount: transactionData.amount,
             network: transactionData.network,
             phone_number: transactionData.phone_number,
-            // transaction_id: transactionData.transaction_id,
             reference: transactionData.reference,
             status: transactionData.status,
             service_name: transactionData.service_name,
             created_at: transactionData.created_at,
             wallet_balance: transactionData.wallet_balance,
+            transaction_id: transactionData.transaction_id,
           },
         });
-
-        // Reset states and show success
         setPin(["", "", "", ""]);
         setIsConfirming(false);
         setIsEnteringPin(false);
-        setIsSuccess(true); // This will trigger showing the success modal
+        setIsSuccess(true);
+        refetch();
+        toast.update(loadingToast, {
+          render: "Airtime top-up successful!",
+          type: "success",
+          isLoading: false,
+          autoClose: 3000,
+        });
+      } else {
+        setIsEnteringPin(false);
+        toast.update(loadingToast, {
+          render:
+            response?.error || response?.message || "An error occurred while processing payment",
+          type: "error",
+          isLoading: false,
+          autoClose: false,
+        });
       }
-      
-      toast.update(loadingToast, {
-        render:
-          response?.error || "An error occurred while processing payment",
-        type: "error",
-        isLoading: false,
-        autoClose: 3000,
-      });
     } catch (error) {
+      setPin(["", "", "", ""]);
+      setIsEnteringPin(false);
+      setIsConfirming(false);
+      let backendMsg = error?.response?.data?.message || error?.response?.data?.error;
       toast.update(loadingToast, {
-        render:
-          error?.message || "An error occurred while processing payment",
+        render: backendMsg || error.message || "An error occurred while processing payment",
         type: "error",
         isLoading: false,
-        autoClose: 3000,
+        autoClose: false,
       });
       console.error("Payment error:", error);
       setPin(["", "", "", ""]);
-      setIsEnteringPin(false);
       setIsConfirming(false);
     } finally {
       setIsLoading(false);
@@ -155,8 +165,7 @@ const Airtime = ({ onNext, setBillType }) => {
   return (
     <div className="flex justify-center w-full">
       <ToastContainer
-        position="top-right"
-        autoClose={5000}
+        position="bottom-center"
         hideProgressBar={false}
         newestOnTop
         closeOnClick
@@ -164,15 +173,25 @@ const Airtime = ({ onNext, setBillType }) => {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        theme="light"
+        theme="colored"
         style={{ zIndex: 9999 }}
       />
       {isSuccess ? (
         <div className="flex justify-center items-center min-h-screen bg-gray-50 w-full">
           <div
             id="receipt-container"
-            className="w-full max-w-2xl p-6 bg-white rounded-lg shadow-lg"
+            className="w-full  p-6 bg-white rounded-lg shadow-lg sm:max-w-[80%]"
+            style={{ transform: 'scale(1)', transformOrigin: 'top center' }}
           >
+            <style jsx>{`
+              @media (max-width: 500px) {
+                #receipt-container {
+                  transform: scale(0.85);
+                  width: 100vw !important;
+                  min-width: 0 !important;
+                }
+              }
+            `}</style>
             <div className="text-center mb-6">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg
@@ -189,83 +208,62 @@ const Airtime = ({ onNext, setBillType }) => {
                   />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                Payment Successful!
-              </h2>
-              <p className="text-gray-600">
+              <h2 className="text-2xl font-bold text-gray-800 mb-2 max-sm:text-lg">Payment Successful!</h2>
+              <p className="text-gray-600 max-sm:text-sm">
                 Your airtime purchase was successful
               </p>
-              <p className="text-sm text-gray-500 mt-2">
+              <p className="text-sm text-gray-500 mt-2 max-sm:text-xs">
                 A receipt has been sent to your email
               </p>
             </div>
 
             <div className="bg-gray-50 rounded-lg p-4 mb-6">
-              <h3 className="text-lg font-semibold mb-4 text-gray-800">
-                Transaction Details
-              </h3>
+              <h3 className="text-lg font-semibold mb-4 text-gray-800 max-sm:text-base">Transaction Details</h3>
               <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Amount:</span>
-                  <span className="font-medium">
-                    ₦{paymentData?.transaction?.amount}
-                  </span>
+                {/* Responsive row with ellipsis for overflow */}
+                <div className="flex flex-wrap justify-between sm:items-center gap-1 sm:gap-0">
+                  <span className="text-gray-600 text-sm sm:text-base">Amount:</span>
+                  <span className="font-medium text-nowrap text-ellipsis overflow-hidden text-sm sm:text-base">₦{paymentData?.transaction?.amount}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Network:</span>
-                  <span className="font-medium">
-                    {paymentData?.transaction?.network}
-                  </span>
+                <div className="flex flex-wrap justify-between sm:items-center gap-1 sm:gap-0">
+                  <span className="text-gray-600 text-sm sm:text-base">Network:</span>
+                  <span className="font-medium text-nowrap text-ellipsis overflow-hidden text-sm sm:text-base">{paymentData?.transaction?.network}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Phone Number:</span>
-                  <span className="font-medium">
-                    {paymentData?.transaction?.phone_number}
-                  </span>
+                <div className="flex flex-wrap justify-between sm:items-center gap-1 sm:gap-0">
+                  <span className="text-gray-600 text-sm sm:text-base">Phone Number:</span>
+                  <span className="font-medium text-nowrap text-ellipsis overflow-hidden text-sm sm:text-base">{paymentData?.transaction?.phone_number}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Transaction ID:</span>
-                  <span className="font-medium">
-                    {paymentData?.transaction?.transaction_id}
-                  </span>
+                <div className="flex flex-wrap justify-between sm:items-center gap-1 sm:gap-0">
+                  <span className="text-gray-600 text-sm sm:text-base">Transaction ID:</span>
+                  <span className="font-medium text-nowrap text-ellipsis overflow-hidden text-sm sm:text-base">{paymentData?.transaction?.transaction_id}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Reference:</span>
-                  <span className="font-medium">
-                    {paymentData?.transaction?.reference}
-                  </span>
+                <div className="flex flex-wrap justify-between sm:items-center gap-1 sm:gap-0">
+                  <span className="text-gray-600 text-sm sm:text-base">Reference:</span>
+                  <span className="font-medium text-nowrap text-ellipsis overflow-hidden text-sm sm:text-base">{paymentData?.transaction?.reference}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Service:</span>
-                  <span className="font-medium">
-                    {paymentData?.transaction?.service_name}
-                  </span>
+                <div className="flex flex-wrap justify-between sm:items-center gap-1 sm:gap-0">
+                  <span className="text-gray-600 text-sm sm:text-base">Service:</span>
+                  <span className="font-medium text-nowrap text-ellipsis overflow-hidden text-sm sm:text-base">{paymentData?.transaction?.service_name}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Date:</span>
-                  <span className="font-medium">
-                    {formatDate(new Date(paymentData?.transaction?.created_at))}
-                  </span>
+                <div className="flex flex-wrap justify-between sm:items-center gap-1 sm:gap-0">
+                  <span className="text-gray-600 text-sm sm:text-base">Date:</span>
+                  <span className="font-medium text-nowrap text-ellipsis overflow-hidden text-sm sm:text-base">{formatDate(new Date(paymentData?.transaction?.created_at))}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Status:</span>
-                  <span className="font-medium capitalize">
-                    {paymentData?.transaction?.status}
-                  </span>
+                <div className="flex flex-wrap justify-between sm:items-center gap-1 sm:gap-0">
+                  <span className="text-gray-600 text-sm sm:text-base">Status:</span>
+                  <span className="font-medium text-nowrap text-ellipsis overflow-hidden capitalize text-sm sm:text-base">{paymentData?.transaction?.status}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Wallet Balance:</span>
-                  <span className="font-medium">
-                    ₦{paymentData?.transaction?.wallet_balance}
-                  </span>
+                <div className="flex flex-wrap justify-between sm:items-center gap-1 sm:gap-0">
+                  <span className="text-gray-600 text-sm sm:text-base">Wallet Balance:</span>
+                  <span className="font-medium text-nowrap text-ellipsis overflow-hidden text-sm sm:text-base">₦{paymentData?.transaction?.wallet_balance}</span>
                 </div>
               </div>
             </div>
 
-            <div className="flex space-x-4">
+            <div className="flex flex-wrap gap-3 sm:space-x-4">
               <button
                 onClick={handleDownloadReceipt}
-                className="flex-1 bg-gray-100 text-gray-800 py-3 px-4 rounded-md hover:bg-gray-200 transition-colors flex items-center justify-center"
+                className="w-full sm:flex-1 bg-gray-100 text-gray-800 py-3 px-4 rounded-md hover:bg-gray-200 transition-colors flex items-center justify-center text-sm sm:text-base"
               >
                 <svg
                   className="w-5 h-5 mr-2"
@@ -284,7 +282,7 @@ const Airtime = ({ onNext, setBillType }) => {
               </button>
               <button
                 onClick={handleSuccessClose}
-                className="flex-1 bg-black text-white py-3 px-4 rounded-md hover:bg-gray-800 transition-colors"
+                className="w-full sm:flex-1 bg-black text-white py-3 px-4 rounded-md hover:bg-gray-800 transition-colors text-sm sm:text-base"
               >
                 Done
               </button>

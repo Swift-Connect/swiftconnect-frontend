@@ -28,6 +28,19 @@ const Sidepane = () => {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [isOpen])
 
+  // Prevent background scroll when sidepane is open on mobile
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (isOpen && window.innerWidth <= 768) {
+      document.body.classList.add('overflow-hidden');
+    } else {
+      document.body.classList.remove('overflow-hidden');
+    }
+    return () => {
+      document.body.classList.remove('overflow-hidden');
+    };
+  }, [isOpen]);
+
   const menuItems = [
     { name: 'Dashboard', path: '/dashboard' },
     { name: 'Pay Bills', path: '/pay-bills' },
@@ -43,7 +56,7 @@ const Sidepane = () => {
   }
 
   return (
-    <div className='sidepane-modal w-64 bg-white backdrop-blur-md shadow-lg fixed flex flex-col justify-between z-40 transition-all duration-300 overflow-y-auto' style={{background: 'rgba(255,255,255,0.6)'}}>
+    <div className='sidepane-modal w-64 bg-white backdrop-blur-md shadow-lg fixed flex flex-col justify-between z-40 transition-all duration-300 overflow-y-auto h-screen top-0 left-0 bottom-0' style={{background: 'rgba(255,255,255,0.6)'}}>
       {/* Header */}
       <div>
         <h2 className='text-2xl font-bold text-[#0E1318] p-6'>Dashboard</h2>

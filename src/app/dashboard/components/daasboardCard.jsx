@@ -7,10 +7,10 @@ export default function DashboardCard({
 }) {
   return (
     <div
-      className={`flex gap-2 sm:gap-4 justify-between flex-col rounded-lg sm:rounded-xl p-2 sm:p-3 bg-[#ffffff] border border-[#efefef] cursor-pointer hover:bg-[#dfdfdf]`}
+      className={`flex  sm:gap-4 justify-between flex-col  rounded-lg sm:rounded-xl w-full p-2 sm:p-3 bg-[#ffffff] border border-[#efefef] cursor-pointer hover:bg-[#dfdfdf]`}
       onClick={() => setPayBillsType(title)}
     >
-      <div className="flex items-center gap-3 sm:gap-6 justify-between">
+      <div className="flex items-center gap-3 sm:gap-6 max-md-[400px]:p-4 justify-between">
         <h1 className="text-base sm:text-lg font-semibold">
           {title}
         </h1>

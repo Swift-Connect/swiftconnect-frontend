@@ -45,6 +45,8 @@ export default function Home () {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [kycStatus, setKycStatus] = useState(null)
+  const [kycLoading, setKycLoading] = useState(true)
 
   const { user, loading: userLoading, error: userError } = useUserContext()
   const router = useRouter()
@@ -60,22 +62,38 @@ export default function Home () {
     }
   }, [router])
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axiosInstance.get('/payments/wallet/')
-
-        console.log('dddddddd', response.data)
-
-        setData(response.data)
-      } catch (error) {
-        setError(error.response ? error.response.data.message : error.message)
-      } finally {
-        setLoading(false)
-      }
+  // Fetch wallet
+  const fetchWallet = async () => {
+    try {
+      const response = await axiosInstance.get('/payments/wallet/')
+      setData(response.data)
+    } catch (error) {
+      setError(error.response ? error.response.data.message : error.message)
+    } finally {
+      setLoading(false)
     }
+  }
+  useEffect(() => {
+    fetchWallet()
+  }, [])
 
-    fetchData()
+  // Expose a refreshWallet function
+  const refreshWallet = fetchWallet;
+
+  // Fetch KYC status
+  const fetchKycStatus = async () => {
+    setKycLoading(true)
+    try {
+      const response = await axiosInstance.get('/users/kyc-status/me/')
+      setKycStatus(response.data)
+    } catch (err) {
+      setKycStatus(null)
+    } finally {
+      setKycLoading(false)
+    }
+  }
+  useEffect(() => {
+    fetchKycStatus()
   }, [])
 
   // console.log(data);
@@ -94,6 +112,10 @@ export default function Home () {
             setActiveSidebar={handleSidebarChange}
             data={data}
             user={user}
+            kycStatus={kycStatus}
+            kycLoading={kycLoading}
+            refetchKycStatus={fetchKycStatus}
+            refreshWallet={refreshWallet}
           />
         )
       case 'Pay Bills':
@@ -111,7 +133,11 @@ export default function Home () {
     }
   }
   return (
+<<<<<<< HEAD
     <div className='flex bg-full h-screen bg-[red] overflow-y-hidden'>
+=======
+    <div className='flex  bg-[#F6FCF5] '>
+>>>>>>> 377ecc1e762f15bde97db4cc67a095bf386a55ca
       <Sidebar
         setActiveSidebar={handleSidebarChange}
         activeSidebar={activeSidebar}
@@ -121,14 +147,14 @@ export default function Home () {
         user={user}
         role='user'
       />
-      <main className='flex-1 '>
+      <main className='flex-1 ml-[20%] max-md:ml-0'>
         <Header
           setHideSideMenu={setHideSideMenu}
           user={user}
           setActiveSidebar={setActiveSidebar}
           searchItems={searchItems}
         />
-        <section className='py-6 px-10 max-md-[400px]:px-5 h-[80vh] max-md-[400px]:h-[90vh] max-md-[400px]:w-full w-full overflow-y-auto custom-scroll bg-[#F6FCF5]'
+        <section className=' px-2 w-full custom-scroll bg-[#F6FCF5]'
           key={activeSidebar + '-' + version}
         >
           {renderComponent()}

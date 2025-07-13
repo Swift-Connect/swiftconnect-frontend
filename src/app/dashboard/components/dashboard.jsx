@@ -10,7 +10,7 @@ import ElectricityPayment from './paybills/electricity'
 import CableTv from './paybills/cableTv'
 import { useRouter } from 'next/navigation'
 
-const Dashboard = ({ setActiveSidebar, data, user }) => {
+const Dashboard = ({ setActiveSidebar, data, user, refreshWallet }) => {
   const [payBillsType, setPayBillsType] = useState('dashboard')
 
   console.log(data)
@@ -57,11 +57,11 @@ const Dashboard = ({ setActiveSidebar, data, user }) => {
     case 'dashboard':
       return (
 
-        <div className="flex flex-col overflow-hidden items-center justify-center gap-y-12 py-8">
+        <div className="flex flex-col overflow-hidden items-center justify-center gap-y-12 py-8 max-md-[400px]:p-2">
 
-          <div className='flex gap-8 justify-between max-md-[400px]:flex-col max-md-[400px]:w-full w-[90%]'>
-            <WalletCard data={data} />
-            <div className='grid grid-cols-2 gap-8 max-md-[400px]:grid-cols-2'>
+          <div className='flex gap-8 justify-between max-md-[400px]:flex-col max-md-[400px]:w-full w-full'>
+            <WalletCard data={data} refreshWallet={refreshWallet} />
+            <div className='grid grid-cols-2 gap-8 max-md-[400px]:grid-cols-2 w-full'>
               <DashboardCard
                 title='Airtime'
                 icon='/airtime.svg'
@@ -90,7 +90,7 @@ const Dashboard = ({ setActiveSidebar, data, user }) => {
           </div>
           <AgentKycComponent setActiveSidebar={setActiveSidebar} />
           {/* <MobileTransaction /> */}
-          <TransactionsTable />
+          <TransactionsTable refreshTransactions={refreshWallet} />
         </div>
       )
     // }
