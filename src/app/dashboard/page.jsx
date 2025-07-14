@@ -133,7 +133,7 @@ export default function Home () {
     }
   }
   return (
-    <div className='flex  bg-[#F6FCF5] '>
+    <div className='flex bg-full h-screen overflow-y-hidden'>
       <Sidebar
         setActiveSidebar={handleSidebarChange}
         activeSidebar={activeSidebar}
