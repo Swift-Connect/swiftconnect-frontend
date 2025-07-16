@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Oval } from "react-loader-spinner";
 import api from "@/utils/api";
 import { toast } from "react-toastify";
+import PreventFromScrolling from "../../PreventFromScrolling";
 
 export default function SendToOtherBanksModal({
   onBack,
@@ -174,157 +175,177 @@ export default function SendToOtherBanksModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" onClick={onClose}>
-      <div className="bg-white max-w-lg w-full mx-auto rounded-2xl shadow-2xl p-6 max-md:p-4 flex flex-col gap-6" onClick={(e) => e.stopPropagation()}>
-        {error && (
-          <div className="w-full mb-4 bg-red-100 border border-red-400 text-red-800 px-4 py-2 rounded text-center text-xs flex items-center justify-between">
-            <span>{error}</span>
-            <button onClick={onDismissError} className="ml-2 text-red-600 font-bold">x</button>
-          </div>
-        )}
-        {/* Header */}
-        <div className="flex items-center gap-2 px-2 py-3 border-b">
-          <button
-            onClick={onBack}
-            className="text-gray-400 hover:text-gray-600 flex items-center gap-1 text-base sm:text-lg px-2 py-1 rounded-md focus:outline-none"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4 sm:h-5 sm:w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-            <span className="ml-1">Back</span>
-          </button>
-          <h2 className="text-base sm:text-lg font-bold text-gray-800">
-            Send to other banks
-          </h2>
-        </div>
-
-        {/* Content */}
-        <div className="px-6 py-4 space-y-4">
-          {/* Bank Selection Dropdown */}
-          <div className="relative" ref={dropdownRef}>
-            <label
-              htmlFor="bank-select"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Select Bank
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setIsDropdownOpen(true);
-                }}
-                onFocus={() => setIsDropdownOpen(true)}
-                placeholder="Search for a bank"
-                className={`w-full mt-1 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 outline-none p-4 ${isDropdownOpen ? 'cursor-text' : 'cursor-pointer'}`}
-              />
+    <>
+      <PreventFromScrolling isOpen={true} />
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+        onClick={onClose}
+      >
+        <div
+          className="bg-white max-w-lg w-full mx-auto rounded-2xl shadow-2xl p-6 max-md:p-4 flex flex-col gap-6"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {error && (
+            <div className="w-full mb-4 bg-red-100 border border-red-400 text-red-800 px-4 py-2 rounded text-center text-xs flex items-center justify-between">
+              <span>{error}</span>
               <button
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer"
+                onClick={onDismissError}
+                className="ml-2 text-red-600 font-bold"
               >
-                <svg
-                  className={`h-5 w-5 text-gray-400 transform transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                    clipRule="evenodd"
-                  />
-                </svg>
+                x
               </button>
             </div>
-            
-            {isDropdownOpen && (
-              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
-                {isFetchingBanks ? (
-                  <div className="p-2 text-center text-gray-500">Loading banks...</div>
-                ) : filteredBanks.length === 0 ? (
-                  <div className="p-2 text-center text-gray-500">No banks found</div>
-                ) : (
-                  filteredBanks.map((bank) => (
-                    <div
-                      key={bank.code}
-                      onClick={() => handleBankSelect(bank)}
-                      className="px-4 py-2 hover:bg-blue-50 cursor-pointer"
-                    >
-                      {bank.name}
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
+          )}
+          {/* Header */}
+          <div className="flex items-center gap-2 px-2 py-3 border-b">
+            <button
+              onClick={onBack}
+              className="text-gray-400 hover:text-gray-600 flex items-center gap-1 text-base sm:text-lg px-2 py-1 rounded-md focus:outline-none"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4 sm:h-5 sm:w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+              <span className="ml-1">Back</span>
+            </button>
+            <h2 className="text-base sm:text-lg font-bold text-gray-800">
+              Send to other banks
+            </h2>
           </div>
 
-          {/* Account Number Input */}
-          <div>
-            <label
-              htmlFor="account-number"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Account Number
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                id="account-number"
-                value={accountNum}
-                onChange={handleAccountNumberChange}
-                placeholder="Input the Account Number"
-                className={`w-full mt-1 border ${validationError ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-indigo-500 focus:border-indigo-500 outline-none p-4`}
-                maxLength={10}
-              />
-              {isValidatingAccount && (
-                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                  <Oval height={20} width={20} color="#4fa94d" />
+          {/* Content */}
+          <div className="px-6 py-4 space-y-4">
+            {/* Bank Selection Dropdown */}
+            <div className="relative" ref={dropdownRef}>
+              <label
+                htmlFor="bank-select"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Select Bank
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setIsDropdownOpen(true);
+                  }}
+                  onFocus={() => setIsDropdownOpen(true)}
+                  placeholder="Search for a bank"
+                  className={`w-full mt-1 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 outline-none p-4 ${
+                    isDropdownOpen ? "cursor-text" : "cursor-pointer"
+                  }`}
+                />
+                <button
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer"
+                >
+                  <svg
+                    className={`h-5 w-5 text-gray-400 transform transition-transform ${
+                      isDropdownOpen ? "rotate-180" : ""
+                    }`}
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+              </div>
+
+              {isDropdownOpen && (
+                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
+                  {isFetchingBanks ? (
+                    <div className="p-2 text-center text-gray-500">
+                      Loading banks...
+                    </div>
+                  ) : filteredBanks.length === 0 ? (
+                    <div className="p-2 text-center text-gray-500">
+                      No banks found
+                    </div>
+                  ) : (
+                    filteredBanks.map((bank) => (
+                      <div
+                        key={bank.code}
+                        onClick={() => handleBankSelect(bank)}
+                        className="px-4 py-2 hover:bg-blue-50 cursor-pointer"
+                      >
+                        {bank.name}
+                      </div>
+                    ))
+                  )}
                 </div>
               )}
             </div>
-            {validationError && (
-              <p className="mt-2 text-sm text-red-600">
-                {validationError}
-              </p>
-            )}
-            {accountHolderName && (
-              <p className="mt-2 text-sm text-green-600">
-                Account Holder: {accountHolderName}
-              </p>
-            )}
+
+            {/* Account Number Input */}
+            <div>
+              <label
+                htmlFor="account-number"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Account Number
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  id="account-number"
+                  value={accountNum}
+                  onChange={handleAccountNumberChange}
+                  placeholder="Input the Account Number"
+                  className={`w-full mt-1 border ${
+                    validationError ? "border-red-500" : "border-gray-300"
+                  } rounded-lg focus:ring-indigo-500 focus:border-indigo-500 outline-none p-4`}
+                  maxLength={10}
+                />
+                {isValidatingAccount && (
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    <Oval height={20} width={20} color="#4fa94d" />
+                  </div>
+                )}
+              </div>
+              {validationError && (
+                <p className="mt-2 text-sm text-red-600">{validationError}</p>
+              )}
+              {accountHolderName && (
+                <p className="mt-2 text-sm text-green-600">
+                  Account Holder: {accountHolderName}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="px-6 py-4">
+            <button
+              className={`w-full text-white py-4 rounded-lg shadow-sm ${
+                isButtonDisabled ? "bg-[#d2d2d2]" : "bg-black hover:bg-gray-800"
+              }`}
+              disabled={isButtonDisabled}
+              onClick={() => {
+                onNext();
+              }}
+            >
+              Continue
+            </button>
           </div>
         </div>
-
-        {/* Footer */}
-        <div className="px-6 py-4">
-          <button
-            className={`w-full text-white py-4 rounded-lg shadow-sm ${
-              isButtonDisabled
-                ? "bg-[#d2d2d2]"
-                : "bg-black hover:bg-gray-800"
-            }`}
-            disabled={isButtonDisabled}
-            onClick={() => {
-              onNext();
-            }}
-          >
-            Continue
-          </button>
-        </div>
       </div>
-    </div>
+    </>
   );
 }
