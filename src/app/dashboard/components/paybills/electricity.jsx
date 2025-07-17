@@ -137,7 +137,7 @@ export default function ElectricityPayment({ setBillType }) {
   };
 
   const handlePinConfirm = async () => {
-       const loadingToast = toast.loading("Processing payment...");
+    const loadingToast = toast.loading("Processing payment...");
     const pinString = pin.join("");
     try {
       const data = await handleBillsConfirm(
@@ -187,10 +187,7 @@ export default function ElectricityPayment({ setBillType }) {
       }
 
       toast.update(loadingToast, {
-        render:
-        
-          data?.error ||
-          "An error occurred while processing payment",
+        render: data?.error || "An error occurred while processing payment",
         type: "error",
         isLoading: false,
         autoClose: false,
@@ -201,10 +198,7 @@ export default function ElectricityPayment({ setBillType }) {
       setIsEnteringPin(false);
       setIsConfirming(false);
       toast.update(loadingToast, {
-        render:
-         
-          error.message ||
-          "An error occurred while processing payment",
+        render: error.message || "An error occurred while processing payment",
         type: "error",
         isLoading: false,
         autoClose: false,
