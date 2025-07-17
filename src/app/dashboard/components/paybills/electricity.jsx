@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import ConfirmPayment from "./confirmPayment";
@@ -7,7 +7,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { handleBillsConfirm } from "../../../../utils/handleBillsConfirm";
 import api from "@/utils/api";
-import html2canvas from 'html2canvas';
+import html2canvas from "html2canvas";
 
 export default function ElectricityPayment({ setBillType }) {
   const [providers, setProviders] = useState([]);
@@ -42,7 +42,9 @@ export default function ElectricityPayment({ setBillType }) {
     const fetchProviders = async () => {
       setIsLoadingProviders(true);
       try {
-        const response = await api.get("/services/electricity-transactions/providers/");
+        const response = await api.get(
+          "/services/electricity-transactions/providers/"
+        );
         if (response.data.status === "success") {
           setProviders(response.data.data);
         }
@@ -78,7 +80,13 @@ export default function ElectricityPayment({ setBillType }) {
 
   const handlePay = async (e) => {
     e.preventDefault();
-    if (!selectedProvider || !selectedMeterType || !metreNumber || !amount || !phoneNumber) {
+    if (
+      !selectedProvider ||
+      !selectedMeterType ||
+      !metreNumber ||
+      !amount ||
+      !phoneNumber
+    ) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -86,13 +94,16 @@ export default function ElectricityPayment({ setBillType }) {
     // Verify meter first
     setIsVerifying(true);
     try {
-      const response = await api.post("/services/electricity-transactions/verify_meter/", {
-        meter_number: metreNumber,
-        amount: amount,
-        provider: selectedProvider,
-        meter_type: selectedMeterType,
-        phone_number: phoneNumber
-      });
+      const response = await api.post(
+        "/services/electricity-transactions/verify_meter/",
+        {
+          meter_number: metreNumber,
+          amount: amount,
+          provider: selectedProvider,
+          meter_type: selectedMeterType,
+          phone_number: phoneNumber,
+        }
+      );
 
       if (response.data.status === "success") {
         setVerificationData(response.data.data);
@@ -100,7 +111,7 @@ export default function ElectricityPayment({ setBillType }) {
         toast.success("Meter verified successfully");
       } else {
         if (Array.isArray(response.data.message)) {
-          response.data.message.forEach(message => {
+          response.data.message.forEach((message) => {
             toast.error(message);
           });
         } else {
@@ -110,7 +121,7 @@ export default function ElectricityPayment({ setBillType }) {
     } catch (error) {
       console.error("Verification error:", error);
       if (Array.isArray(error.response?.data)) {
-        error.response.data.forEach(message => {
+        error.response.data.forEach((message) => {
           toast.error(message);
         });
       } else {
@@ -126,6 +137,7 @@ export default function ElectricityPayment({ setBillType }) {
   };
 
   const handlePinConfirm = async () => {
+       const loadingToast = toast.loading("Processing payment...");
     const pinString = pin.join("");
     try {
       const data = await handleBillsConfirm(
@@ -135,7 +147,7 @@ export default function ElectricityPayment({ setBillType }) {
           amount,
           provider: selectedProvider,
           meter_type: selectedMeterType,
-          phone_number: phoneNumber
+          phone_number: phoneNumber,
         },
         "electricity-transactions/",
         setIsLoading
@@ -143,7 +155,7 @@ export default function ElectricityPayment({ setBillType }) {
 
       console.log("Payment response:", data);
 
-      if (data) {
+      if (data.success) {
         setPaymentData({
           transaction: {
             amount: data.amount,
@@ -154,7 +166,7 @@ export default function ElectricityPayment({ setBillType }) {
             transaction_id: data.transaction_id,
             status: data.status,
             total_amount: data.total_amount,
-            commission: data.commission
+            commission: data.commission,
           },
           receipt: {
             token: data.token,
@@ -164,8 +176,8 @@ export default function ElectricityPayment({ setBillType }) {
             reference: data.reference,
             meter_category: data.meter_category,
             meter_type: data.meter_type,
-            product_name: data.product_name
-          }
+            product_name: data.product_name,
+          },
         });
 
         setPin(["", "", "", ""]);
@@ -173,11 +185,30 @@ export default function ElectricityPayment({ setBillType }) {
         setIsConfirming(false);
         setIsSuccess(true);
       }
+
+      toast.update(loadingToast, {
+        render:
+        
+          data?.error ||
+          "An error occurred while processing payment",
+        type: "error",
+        isLoading: false,
+        autoClose: false,
+      });
     } catch (error) {
       console.error("Payment error:", error);
       setPin(["", "", "", ""]);
       setIsEnteringPin(false);
       setIsConfirming(false);
+      toast.update(loadingToast, {
+        render:
+         
+          error.message ||
+          "An error occurred while processing payment",
+        type: "error",
+        isLoading: false,
+        autoClose: false,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -202,20 +233,20 @@ export default function ElectricityPayment({ setBillType }) {
   };
 
   const handleDownloadReceipt = async () => {
-    const receiptElement = document.getElementById('receipt-container');
+    const receiptElement = document.getElementById("receipt-container");
     if (receiptElement) {
       try {
         const canvas = await html2canvas(receiptElement);
-        const image = canvas.toDataURL('image/png');
-        const link = document.createElement('a');
+        const image = canvas.toDataURL("image/png");
+        const link = document.createElement("a");
         link.href = image;
         link.download = `electricity-receipt-${paymentData?.transaction?.id}.png`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
       } catch (error) {
-        console.error('Error downloading receipt:', error);
-        toast.error('Failed to download receipt');
+        console.error("Error downloading receipt:", error);
+        toast.error("Failed to download receipt");
       }
     }
   };
@@ -229,12 +260,22 @@ export default function ElectricityPayment({ setBillType }) {
             onClick={() => setShowVerificationModal(false)}
             className="text-gray-500 hover:text-gray-700"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
-        
+
         <div className="space-y-4">
           <div className="bg-gray-50 p-4 rounded-lg">
             <div className="grid grid-cols-2 gap-4">
@@ -257,7 +298,9 @@ export default function ElectricityPayment({ setBillType }) {
             </div>
             <div className="mt-4">
               <p className="text-sm text-gray-600">Address</p>
-              <p className="font-medium">{verificationData?.customer_address}</p>
+              <p className="font-medium">
+                {verificationData?.customer_address}
+              </p>
             </div>
           </div>
 
@@ -301,75 +344,124 @@ export default function ElectricityPayment({ setBillType }) {
       {showVerificationModal && <VerificationModal />}
       {isSuccess ? (
         <div className="flex justify-center items-center min-h-screen bg-gray-50 w-full">
-          <div id="receipt-container" className="w-full max-w-2xl p-6 bg-white rounded-lg shadow-lg">
+          <div
+            id="receipt-container"
+            className="w-full max-w-2xl p-6 bg-white rounded-lg shadow-lg"
+          >
             <div className="text-center mb-6">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                <svg
+                  className="w-8 h-8 text-green-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5 13l4 4L19 7"
+                  />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold text-gray-800 mb-2">Payment Successful!</h2>
-              <p className="text-gray-600">Your electricity purchase was successful</p>
-              <p className="text-sm text-gray-500 mt-2">A receipt has been sent to your email</p>
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                Payment Successful!
+              </h2>
+              <p className="text-gray-600">
+                Your electricity purchase was successful
+              </p>
+              <p className="text-sm text-gray-500 mt-2">
+                A receipt has been sent to your email
+              </p>
             </div>
 
             <div className="bg-gray-50 rounded-lg p-4 mb-6">
-              <h3 className="text-lg font-semibold mb-4 text-gray-800">Transaction Details</h3>
+              <h3 className="text-lg font-semibold mb-4 text-gray-800">
+                Transaction Details
+              </h3>
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Amount Paid:</span>
-                  <span className="font-medium">₦{paymentData?.transaction?.amount}</span>
+                  <span className="font-medium">
+                    ₦{paymentData?.transaction?.amount}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Meter Number:</span>
-                  <span className="font-medium">{paymentData?.transaction?.meter_number}</span>
+                  <span className="font-medium">
+                    {paymentData?.transaction?.meter_number}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Provider:</span>
-                  <span className="font-medium">{paymentData?.transaction?.provider}</span>
+                  <span className="font-medium">
+                    {paymentData?.transaction?.provider}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Transaction ID:</span>
-                  <span className="font-medium">{paymentData?.transaction?.id}</span>
+                  <span className="font-medium">
+                    {paymentData?.transaction?.id}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Date:</span>
-                  <span className="font-medium">{new Date(paymentData?.transaction?.created_at).toLocaleString()}</span>
+                  <span className="font-medium">
+                    {new Date(
+                      paymentData?.transaction?.created_at
+                    ).toLocaleString()}
+                  </span>
                 </div>
               </div>
             </div>
 
             <div className="bg-gray-50 rounded-lg p-4 mb-6">
-              <h3 className="text-lg font-semibold mb-4 text-gray-800">Receipt Details</h3>
+              <h3 className="text-lg font-semibold mb-4 text-gray-800">
+                Receipt Details
+              </h3>
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Token:</span>
-                  <span className="font-medium">{paymentData?.receipt?.token}</span>
+                  <span className="font-medium">
+                    {paymentData?.receipt?.token}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Units:</span>
-                  <span className="font-medium">{paymentData?.receipt?.units}</span>
+                  <span className="font-medium">
+                    {paymentData?.receipt?.units}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Customer Name:</span>
-                  <span className="font-medium">{paymentData?.receipt?.customer_name}</span>
+                  <span className="font-medium">
+                    {paymentData?.receipt?.customer_name}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Address:</span>
-                  <span className="font-medium">{paymentData?.receipt?.customer_address}</span>
+                  <span className="font-medium">
+                    {paymentData?.receipt?.customer_address}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Reference:</span>
-                  <span className="font-medium">{paymentData?.receipt?.reference}</span>
+                  <span className="font-medium">
+                    {paymentData?.receipt?.reference}
+                  </span>
                 </div>
               </div>
             </div>
 
             <div className="bg-gray-50 rounded-lg p-4 mb-6">
-              <h3 className="text-lg font-semibold mb-4 text-gray-800">Wallet Update</h3>
+              <h3 className="text-lg font-semibold mb-4 text-gray-800">
+                Wallet Update
+              </h3>
               <div className="flex justify-between">
                 <span className="text-gray-600">New Balance:</span>
-                <span className="font-medium">₦{paymentData?.wallet?.new_balance}</span>
+                <span className="font-medium">
+                  ₦{paymentData?.wallet?.new_balance}
+                </span>
               </div>
             </div>
 
@@ -378,8 +470,18 @@ export default function ElectricityPayment({ setBillType }) {
                 onClick={handleDownloadReceipt}
                 className="flex-1 bg-gray-100 text-gray-800 py-3 px-4 rounded-md hover:bg-gray-200 transition-colors flex items-center justify-center"
               >
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                  />
                 </svg>
                 Download Receipt
               </button>
@@ -430,7 +532,9 @@ export default function ElectricityPayment({ setBillType }) {
             />
             <span className="ml-2">Back</span>
           </button>
-          <h1 className="text-xl font-semibold mb-6 text-center">Electricity</h1>
+          <h1 className="text-xl font-semibold mb-6 text-center">
+            Electricity
+          </h1>
           <div className="space-y-4">
             {/* Provider Selection */}
             <div className="mb-4">
