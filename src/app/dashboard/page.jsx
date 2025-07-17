@@ -133,7 +133,7 @@ export default function Home () {
     }
   }
   return (
-    <div className='flex bg-full h-screen overflow-y-hidden'>
+    <div className='flex bg-full h-full overflow-y-hidden'>
       <Sidebar
         setActiveSidebar={handleSidebarChange}
         activeSidebar={activeSidebar}
@@ -150,7 +150,7 @@ export default function Home () {
           setActiveSidebar={setActiveSidebar}
           searchItems={searchItems}
         />
-        <section className=' px-2 w-full custom-scroll bg-[#F6FCF5]'
+        <section className=' px-2 w-full custom-scroll bg-[#F6FCF5] h-full overflow-y-auto'
           key={activeSidebar + '-' + version}
         >
           {renderComponent()}
