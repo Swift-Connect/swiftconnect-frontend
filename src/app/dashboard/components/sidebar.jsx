@@ -94,14 +94,14 @@ export default function Sidebar ({
           onClick={() => setHideSideMenu(true)}
         />
       )}
-      <aside
+      <aside  
         className={`
           bg-white shadow-md flex flex-col justify-between
           fixed top-0 left-0 bottom-0 h-screen w-[20%] z-20 overflow-y-auto
           ${
             hideSideMenu
               ? 'max-md:hidden'
-              : 'max-md:fixed max-md:top-0 max-md:left-0 max-md:bottom-0 max-md:h-screen max-md:w-[70%] max-md:z-20 max-md:overflow-y-auto'
+              : 'max-md:fixed max-md:top-0 max-md:left-0 max-md:bottom-0 max-md:h-full max-md:w-[70%] max-md:z-20 max-md: overflow-y-auto'
           }
         `}
         aria-label="Sidebar navigation"
