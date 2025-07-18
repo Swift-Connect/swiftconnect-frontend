@@ -26,8 +26,7 @@ export default function ViewTransactionModal({ isOpen, onClose, transaction }) {
   const summary = entries.filter(([key]) => summaryKeys.includes(key))
   const rest = entries.filter(([key]) => !summaryKeys.includes(key))
 
-  console.log("the summary: ", summary);
-  console.log("the rest: ", rest);
+
   
 
   return (
