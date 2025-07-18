@@ -26,6 +26,10 @@ export default function ViewTransactionModal({ isOpen, onClose, transaction }) {
   const summary = entries.filter(([key]) => summaryKeys.includes(key))
   const rest = entries.filter(([key]) => !summaryKeys.includes(key))
 
+  console.log("the summary: ", summary);
+  console.log("the rest: ", rest);
+  
+
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <div className='relative p-8'>
@@ -46,37 +50,37 @@ export default function ViewTransactionModal({ isOpen, onClose, transaction }) {
 
         <div className='space-y-3 text-sm text-gray-800 relative z-10 max-h-[60vh] overflow-y-auto'>
           {/* Summary fields first */}
-          {summary.map(([key, value]) => (
-            <div className='flex justify-between' key={key}>
-              <span className='font-medium'>{formatKey(key)}:</span>
-              <span
-                className={
-                  key === 'amount'
-                    ? 'font-semibold text-green-600'
-                    : key === 'status' && value === 'Completed'
-                    ? 'font-semibold text-green-600'
-                    : key === 'status'
-                    ? 'font-semibold text-red-600'
-                    : ''
-                }
-              >
-                {value === null || value === undefined || value === ''
-                  ? '-'
-                  : String(value)}
-              </span>
-            </div>
-          ))}
+          {summary
+            .filter(([key, value]) => value !== null && value !== undefined && value !== '')
+            .map(([key, value]) => (
+              <div className='flex justify-between' key={key}>
+                <span className='font-medium'>{formatKey(key)}:</span>
+                <span
+                  className={
+                    key === 'amount'
+                      ? 'font-semibold text-green-600'
+                      : key === 'status' && value === 'Completed'
+                      ? 'font-semibold text-green-600'
+                      : key === 'status'
+                      ? 'font-semibold text-red-600'
+                      : ''
+                  }
+                >
+                  {String(value)}
+                </span>
+              </div>
+            ))}
           {/* The rest of the fields */}
-          {rest.map(([key, value]) => (
-            <div className='flex justify-between' key={key}>
-              <span className='font-medium'>{formatKey(key)}:</span>
-              <span>
-                {value === null || value === undefined || value === ''
-                  ? '-'
-                  : String(value)}
-              </span>
-            </div>
-          ))}
+          {rest
+            .filter(([key, value]) => value !== null && value !== undefined && value !== '')
+            .map(([key, value]) => (
+              <div className='flex justify-between' key={key}>
+                <span className='font-medium'>{formatKey(key)}:</span>
+                <span>
+                  {String(value)}
+                </span>
+              </div>
+            ))}
         </div>
 
         <div className='mt-6 text-right relative z-10'>
