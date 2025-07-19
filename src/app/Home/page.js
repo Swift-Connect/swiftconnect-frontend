@@ -3,6 +3,7 @@ import { Smartphone, Play, Apple } from "lucide-react";
 import Image from "next/image";
 import SwiftConnectFeatures from "./components/swiftconnectfeatures";
 import SwiftConnectUtilities from "./components/SwiftConnectUtilities";
+import EarnMore from "./components/earrnmore";
 
 export default function SwiftConnectLanding() {
   return (
@@ -108,7 +109,8 @@ export default function SwiftConnectLanding() {
       </main>
 
       <SwiftConnectFeatures />
-      <SwiftConnectUtilities />
+          <SwiftConnectUtilities />
+          <EarnMore/>
 
       {/* Footer Spacer */}
       <div className="h-16"></div>
