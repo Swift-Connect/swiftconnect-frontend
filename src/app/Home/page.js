@@ -109,8 +109,17 @@ export default function SwiftConnectLanding() {
       </main>
 
       <SwiftConnectFeatures />
-          <SwiftConnectUtilities />
-          <EarnMore/>
+      <SwiftConnectUtilities />
+      {/* Content */}
+      <div className="flex-1 text-center w-full">
+        <h2 className="text-4xl text-center font-bold text-gray-900 mb-4">
+          Earn More as an Agent
+        </h2>
+        <p className="text-gray-600 text-center text-lg leading-relaxed">
+          Unlock financial freedom with our rewarding referral program.
+        </p>
+      </div>
+      <EarnMore />
 
       {/* Footer Spacer */}
       <div className="h-16"></div>

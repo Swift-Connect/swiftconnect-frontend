@@ -4,7 +4,8 @@ import Image from "next/image";
 
 export default function EarnMore() {
   return (
-    <div className="bg-white py-16 px-6">
+      <div className="bg-white py-16 px-6">
+          
       <div className="max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-1 gap-12 lg:gap-16">
           {/* Entertainment Section */}
