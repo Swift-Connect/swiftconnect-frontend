@@ -35,7 +35,7 @@ export default function ViewTransactionModal({ isOpen, onClose, transaction }) {
         {/* Watermark */}
         <div className='absolute inset-0 flex justify-center items-center opacity-10 pointer-events-none'>
           <Image
-            src={'logo.svg'}
+            src={'./logo.svg'}
             alt='Watermark Logo'
             className='w-32 h-32 object-contain'
             width={0}
