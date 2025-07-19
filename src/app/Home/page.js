@@ -4,6 +4,7 @@ import Image from "next/image";
 import SwiftConnectFeatures from "./components/swiftconnectfeatures";
 import SwiftConnectUtilities from "./components/SwiftConnectUtilities";
 import EarnMore from "./components/earrnmore";
+import TestimonialsCarousel from "./components/caroussel";
 
 export default function SwiftConnectLanding() {
   return (
@@ -119,7 +120,8 @@ export default function SwiftConnectLanding() {
           Unlock financial freedom with our rewarding referral program.
         </p>
       </div>
-      <EarnMore />
+          <EarnMore />
+          <TestimonialsCarousel/>
 
       {/* Footer Spacer */}
       <div className="h-16"></div>
