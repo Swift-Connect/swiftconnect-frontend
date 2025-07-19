@@ -2,6 +2,7 @@ import React from "react";
 import { Smartphone, Play, Apple } from "lucide-react";
 import Image from "next/image";
 import SwiftConnectFeatures from "./components/swiftconnectfeatures";
+import SwiftConnectUtilities from "./components/SwiftConnectUtilities";
 
 export default function SwiftConnectLanding() {
   return (
@@ -18,7 +19,6 @@ export default function SwiftConnectLanding() {
               width={0}
               height={0}
             />
-            
           </div>
 
           <nav className="hidden md:flex items-center space-x-8">
@@ -105,9 +105,10 @@ export default function SwiftConnectLanding() {
             </p>
           </div>
         </div>
-          </main>
-          
-          <SwiftConnectFeatures/>
+      </main>
+
+      <SwiftConnectFeatures />
+      <SwiftConnectUtilities />
 
       {/* Footer Spacer */}
       <div className="h-16"></div>
