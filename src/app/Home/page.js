@@ -5,6 +5,7 @@ import SwiftConnectFeatures from "./components/swiftconnectfeatures";
 import SwiftConnectUtilities from "./components/SwiftConnectUtilities";
 import EarnMore from "./components/earrnmore";
 import TestimonialsCarousel from "./components/caroussel";
+import WhyChooseUs from "./components/whychooseus";
 
 export default function SwiftConnectLanding() {
   return (
@@ -121,7 +122,8 @@ export default function SwiftConnectLanding() {
         </p>
       </div>
           <EarnMore />
-          <TestimonialsCarousel/>
+          <TestimonialsCarousel />
+          <WhyChooseUs/>
 
       {/* Footer Spacer */}
       <div className="h-16"></div>
