@@ -5,7 +5,7 @@ export default function WhyChooseUs() {
   return (
     <div className="px-6">
       <div className="text-center mb-12">
-        <h2 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
+        <h2 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight mb-4">
           Why Choose Us
           <br />
         </h2>
