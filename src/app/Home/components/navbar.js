@@ -7,7 +7,7 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="bg-gray-900 rounded-none md:rounded-full m-0 text-white px-4 md:px-6 py-4">
+    <header className="bg-gray-900 rounded-none md:rounded-full md:m-4 text-white px-4 md:px-6 py-4">
       <div className="max-w-6xl mx-auto flex items-center justify-between">
         <div className="flex items-center space-x-2">
           {/* SWIFT_LOGO_White */}
@@ -23,13 +23,13 @@ export default function Navbar() {
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center space-x-8">
           <a
-            href="#"
+            href="/Personal"
             className="text-gray-300 hover:text-white transition-colors"
           >
             Personal
           </a>
           <a
-            href="#"
+            href="/Agent"
             className="text-gray-300 hover:text-white transition-colors"
           >
             Agent

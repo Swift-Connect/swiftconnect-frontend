@@ -1,15 +1,15 @@
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 
-export default function WhyChooseUs() {
+export default function WhyChooseUs({ header, subHeading }) {
   return (
     <div className="px-4 md:px-6">
       <div className="text-center mb-12">
         <h2 className="text-3xl md:text-5xl font-bold text-gray-900 leading-tight mb-4">
-          Why Choose Us
+          {header}
           <br />
         </h2>
-        <p>Why Thousands Trusts Us</p>
+        <p>{subHeading}</p>
       </div>
 
       <div className="flex flex-col md:flex-row justify-between gap-6">
