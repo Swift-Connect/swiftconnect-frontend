@@ -7,6 +7,7 @@ import EarnMore from "./components/earrnmore";
 import TestimonialsCarousel from "./components/caroussel";
 import WhyChooseUs from "./components/whychooseus";
 import JoinThousands from "./components/joinThouands";
+import Footer from "./components/footer";
 
 export default function SwiftConnectLanding() {
   return (
@@ -122,13 +123,13 @@ export default function SwiftConnectLanding() {
           Unlock financial freedom with our rewarding referral program.
         </p>
       </div>
-          <EarnMore />
-          <TestimonialsCarousel />
-          <WhyChooseUs />
-          <JoinThousands/>
+      <EarnMore />
+      <TestimonialsCarousel />
+      <WhyChooseUs />
+      <JoinThousands />
 
       {/* Footer Spacer */}
-      <div className="h-16"></div>
+      <Footer />
     </div>
   );
 }
