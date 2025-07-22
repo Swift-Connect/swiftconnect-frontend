@@ -4,6 +4,17 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function TestimonialsCarousel() {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [screenWidth, setScreenWidth] = useState(0);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const handleResize = () => setScreenWidth(window.innerWidth);
+      handleResize(); // set initial value
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }
+  }, []);
+
 
   const testimonials = [
     {
@@ -68,11 +79,7 @@ export default function TestimonialsCarousel() {
                 {/* Responsive grid: 1 card on mobile, 3 cards on md+ */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-6">
                   {/* Mobile: show only one card, Desktop: show three */}
-                  {(
-                    window.innerWidth < 768
-                      ? [0]
-                      : [0, 1, 2]
-                  ).map((cardIndex) => (
+                  {(screenWidth < 768 ? [0] : [0, 1, 2]).map((cardIndex) => (
                     <div
                       key={cardIndex}
                       className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100"
