@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: 'https://swiftconnect-backend.onrender.com/',
+  baseURL: 'https://aesthetic-mandi-swiftconnect-a9332357.koyeb.app/',
   headers: {
     'Content-Type': 'application/json',
     Authorization: `Bearer ${

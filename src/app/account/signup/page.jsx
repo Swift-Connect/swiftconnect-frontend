@@ -98,7 +98,7 @@ const SignupPage = () => {
         `${
           BASE_URL
             ? `${BASE_URL}/users/get-otp/`
-            : 'https://swiftconnect-backend.onrender.com/users/get-otp/'
+            : 'https://aesthetic-mandi-swiftconnect-a9332357.koyeb.app/users/get-otp/'
         }`,
         {
           method: 'POST',
@@ -166,7 +166,7 @@ const SignupPage = () => {
       const response = await fetch(
         BASE_URL
           ? `${BASE_URL}/users/verify-otp/`
-          : 'https://swiftconnect-backend.onrender.com/users/verify-otp/',
+          : 'https://aesthetic-mandi-swiftconnect-a9332357.koyeb.app/users/verify-otp/',
         {
           method: 'POST',
           headers: {
@@ -222,7 +222,7 @@ const SignupPage = () => {
         `${
           BASE_URL
             ? `${BASE_URL}/users/get-otp/`
-            : ' https://swiftconnect-backend.onrender.com/users/get-otp/'
+            : ' https://aesthetic-mandi-swiftconnect-a9332357.koyeb.app/users/get-otp/'
         }`,
         {
           method: 'POST',
@@ -286,7 +286,7 @@ const SignupPage = () => {
 
     try {
       const response = await fetch(
-        `https://swiftconnect-backend.onrender.com/users/complete-profile/${user_id}/`,
+        `https://aesthetic-mandi-swiftconnect-a9332357.koyeb.app/users/complete-profile/${user_id}/`,
         {
           method: 'PATCH',
           headers: {
@@ -419,7 +419,7 @@ const SignupPage = () => {
         `${
           BASE_URL
             ? `${BASE_URL}/users/create-transaction-pin/`
-            : 'https://swiftconnect-backend.onrender.com/users/create-transaction-pin/'
+            : 'https://aesthetic-mandi-swiftconnect-a9332357.koyeb.app/users/create-transaction-pin/'
         }`,
         {
           method: 'POST',
