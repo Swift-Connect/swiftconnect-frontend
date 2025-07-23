@@ -1,3 +1,4 @@
+import Image from "next/image";
 import TestimonialsCarousel from "../Home/components/caroussel";
 import EarnMore from "../Home/components/earrnmore";
 import Footer from "../Home/components/footer";
@@ -35,6 +36,73 @@ export default function Agent() {
           </button> */}
         </div>
       </div>
+      <Image
+        src={"./large_screen.svg"}
+        alt="Watermark Logo"
+        className="w-[70%] object-contain m-auto"
+        width={0}
+        height={0}
+      />
+      <div className="py-10 px-4 md:py-16 md:px-6 ">
+        <div className="bg-black flex justify-between p-32 rounded-3xl text-white">
+          <div>
+            <h1 className="font-bold text-[36px]">Why Become an Agent</h1>
+            <p className="text-[#878787] mt-2">
+              Unlock a world of earning potential with our agent program.
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between gap-4">
+              <Image
+                src={"./money_sack.svg"}
+                alt="Watermark Logo"
+                className="w-12 object-contain"
+                width={0}
+                height={0}
+              />
+              <div>
+                <h1 className="font-bold text-[24px]">Earn Big</h1>
+                <p className="text-[#878787] mt-1">
+                  Competitive commission rates on every transaction.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between gap-4">
+              <Image
+                src={"./money_sack.svg"}
+                alt="Watermark Logo"
+                className="w-12 object-contain"
+                width={0}
+                height={0}
+              />
+              <div>
+                <h1 className="font-bold text-[24px]">Earn Big</h1>
+                <p className="text-[#878787] mt-1">
+                  Competitive commission rates on every transaction.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center justify-between gap-4">
+              <Image
+                src={"./money_sack.svg"}
+                alt="Watermark Logo"
+                className="w-12 object-contain"
+                width={0}
+                height={0}
+              />
+              <div>
+                <h1 className="font-bold text-[24px]">Earn Big</h1>
+                <p className="text-[#878787] mt-1">
+                  Competitive commission rates on every transaction.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <EarnMore />
       <TestimonialsCarousel />
       <WhyChooseUs />
