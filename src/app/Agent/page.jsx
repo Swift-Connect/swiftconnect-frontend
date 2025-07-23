@@ -44,15 +44,15 @@ export default function Agent() {
         height={0}
       />
       <div className="py-10 px-4 md:py-16 md:px-6 ">
-        <div className="bg-black flex justify-between p-32 rounded-3xl text-white">
+        <div className="bg-black flex flex-col md:flex-row justify-between p-6 md:p-32 rounded-3xl text-white gap-8 md:gap-0">
           <div>
-            <h1 className="font-bold text-[36px]">Why Become an Agent</h1>
-            <p className="text-[#878787] mt-2">
+            <h1 className="font-bold text-2xl md:text-[36px]">Why Become an Agent</h1>
+            <p className="text-[#878787] mt-2 text-base md:text-lg">
               Unlock a world of earning potential with our agent program.
             </p>
           </div>
 
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 w-full md:w-auto">
             <div className="flex items-center gap-4">
               <Image
                 src={"./money_sack.svg"}
@@ -62,14 +62,14 @@ export default function Agent() {
                 height={0}
               />
               <div>
-                <h1 className="font-bold text-[24px]">Earn Big</h1>
-                <p className="text-[#878787] mt-1">
+                <h1 className="font-bold text-lg md:text-[24px]">Earn Big</h1>
+                <p className="text-[#878787] mt-1 text-sm md:text-base">
                   Competitive commission rates on every transaction.
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
               <Image
                 src={"./user_group.svg"}
                 alt="Watermark Logo"
@@ -78,13 +78,13 @@ export default function Agent() {
                 height={0}
               />
               <div>
-                <h1 className="font-bold text-[24px]">Empower Your Growth</h1>
-                <p className="text-[#878787] mt-1">
+                <h1 className="font-bold text-lg md:text-[24px]">Empower Your Growth</h1>
+                <p className="text-[#878787] mt-1 text-sm md:text-base">
                   Tools and resources to build a successful referral network.
                 </p>
               </div>
             </div>
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
               <Image
                 src={"./user_group.svg"}
                 alt="Watermark Logo"
@@ -93,8 +93,8 @@ export default function Agent() {
                 height={0}
               />
               <div>
-                <h1 className="font-bold text-[24px]">Empower Your Growth</h1>
-                <p className="text-[#878787] mt-1">
+                <h1 className="font-bold text-lg md:text-[24px]">Empower Your Growth</h1>
+                <p className="text-[#878787] mt-1 text-sm md:text-base">
                   Tools and resources to build a successful referral network.
                 </p>
               </div>

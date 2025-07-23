@@ -30,13 +30,13 @@ export default function AboutUs() {
         </div>
       </div>
       <div className="px-4 md:px-6 py-12 md:py-16">
-        <div className="bg-[#FAFAFA] rounded-2xl flex flex-col gap-36 p-16">
-          {" "}
-          <div className="flex justify-between gap-10">
-            <h1 className="font-bold text-[36px]">
+        <div className="bg-[#FAFAFA] rounded-2xl flex flex-col gap-16 md:gap-36 p-4 md:p-16">
+          {/* Journey Section */}
+          <div className="flex flex-col md:flex-row justify-between gap-6 md:gap-10">
+            <h1 className="font-bold text-2xl md:text-[36px] mb-4 md:mb-0">
               The Journey That Brought Us Here
             </h1>
-            <div>
+            <div className="text-base md:text-lg">
               <p>
                 It all started with the vision to solve everyday payment
                 challenges and empower communities.
@@ -49,18 +49,19 @@ export default function AboutUs() {
             </div>
           </div>
 
-          <div className="flex justify-between gap-14">
+          {/* Mission & Values Section */}
+          <div className="flex flex-col md:flex-row justify-between gap-8 md:gap-14">
             <Image
               src={"./mission.svg"}
               alt="Watermark Logo"
-              className="w-full object-contain"
+              className="w-full md:w-1/2 object-contain mb-6 md:mb-0"
               width={0}
               height={0}
             />
             <Image
               src={"./values.svg"}
               alt="Watermark Logo"
-              className="w-full object-contain"
+              className="w-full md:w-1/2 object-contain"
               width={0}
               height={0}
             />
@@ -68,7 +69,7 @@ export default function AboutUs() {
         </div>
       </div>
 
-      <OurTeam/>
+      <OurTeam />
       <JoinThousands />
       <Footer />
     </>
