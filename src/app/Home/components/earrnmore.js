@@ -2,18 +2,20 @@ import React from "react";
 import { ArrowRight, Tv, Zap } from "lucide-react";
 import Image from "next/image";
 
-export default function EarnMore() {
+export default function EarnMore({ hideHeader }) {
   return (
     <>
       {/* Content */}
-      <div className="flex-1 text-center w-full">
-        <h2 className="text-4xl text-center font-bold text-gray-900 mb-4">
-          Earn More as an Agent
-        </h2>
-        <p className="text-gray-600 text-center text-lg leading-relaxed">
-          Unlock financial freedom with our rewarding referral program.
-        </p>
-      </div>
+      {hideHeader ? null : (
+        <div className="flex-1 text-center w-full">
+          <h2 className="text-4xl text-center font-bold text-gray-900 mb-4">
+            Earn More as an Agent
+          </h2>
+          <p className="text-gray-600 text-center text-lg leading-relaxed">
+            Unlock financial freedom with our rewarding referral program.
+          </p>
+        </div>
+      )}
       <div className="bg-white py-10 px-4 md:py-16 md:px-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col gap-8 md:gap-16">

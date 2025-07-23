@@ -35,7 +35,7 @@ export default function Navbar() {
             Agent
           </a>
           <a
-            href="#"
+            href="AboutUs"
             className="text-gray-300 hover:text-white transition-colors"
           >
             About Us

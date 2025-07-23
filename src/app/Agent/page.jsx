@@ -11,7 +11,7 @@ export default function Agent() {
     <>
       <Navbar />
       <div className="text-center mb-16">
-        <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-4">
+        <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-4 py-12">
           <span className="text-[#1c451c]">
             Maximize your Earnings as an agent
           </span>
@@ -53,7 +53,7 @@ export default function Agent() {
           </div>
 
           <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
               <Image
                 src={"./money_sack.svg"}
                 alt="Watermark Logo"
@@ -71,31 +71,31 @@ export default function Agent() {
 
             <div className="flex items-center justify-between gap-4">
               <Image
-                src={"./money_sack.svg"}
+                src={"./user_group.svg"}
                 alt="Watermark Logo"
                 className="w-12 object-contain"
                 width={0}
                 height={0}
               />
               <div>
-                <h1 className="font-bold text-[24px]">Earn Big</h1>
+                <h1 className="font-bold text-[24px]">Empower Your Growth</h1>
                 <p className="text-[#878787] mt-1">
-                  Competitive commission rates on every transaction.
+                  Tools and resources to build a successful referral network.
                 </p>
               </div>
             </div>
             <div className="flex items-center justify-between gap-4">
               <Image
-                src={"./money_sack.svg"}
+                src={"./user_group.svg"}
                 alt="Watermark Logo"
                 className="w-12 object-contain"
                 width={0}
                 height={0}
               />
               <div>
-                <h1 className="font-bold text-[24px]">Earn Big</h1>
+                <h1 className="font-bold text-[24px]">Empower Your Growth</h1>
                 <p className="text-[#878787] mt-1">
-                  Competitive commission rates on every transaction.
+                  Tools and resources to build a successful referral network.
                 </p>
               </div>
             </div>
@@ -103,9 +103,12 @@ export default function Agent() {
         </div>
       </div>
 
-      <EarnMore />
+      <EarnMore hideHeader={true} />
       <TestimonialsCarousel />
-      <WhyChooseUs />
+      <WhyChooseUs
+        header="Why Choose Us"
+        subHeading="Why Thousands Trusts Us."
+      />
       <JoinThousands />
       <Footer />
     </>
