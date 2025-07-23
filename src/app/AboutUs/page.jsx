@@ -2,6 +2,7 @@ import Image from "next/image";
 import Footer from "../Home/components/footer";
 import JoinThousands from "../Home/components/joinThouands";
 import Navbar from "../Home/components/navbar";
+import OurTeam from "./components/OurTeams";
 
 export default function AboutUs() {
   return (
@@ -66,6 +67,8 @@ export default function AboutUs() {
           </div>
         </div>
       </div>
+
+      <OurTeam/>
       <JoinThousands />
       <Footer />
     </>

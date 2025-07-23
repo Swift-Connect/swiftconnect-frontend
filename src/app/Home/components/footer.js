@@ -30,18 +30,18 @@ export default function Footer() {
             </p>
             <ul className="flex flex-col gap-2 md:gap-4">
               <li className="list-none">
-                <a className="no-underline text-white" href="#">
+                <a href="/" className="no-underline text-white">
                   Home
                 </a>
               </li>
               <li>
-                <a href="#">Personal</a>
+                <a href="Personal">Personal</a>
               </li>
               <li>
-                <a href="#">Agent</a>
+                <a href="Agent">Agent</a>
               </li>
               <li>
-                <a href="#">About Us</a>
+                <a href="AboutUs">About Us</a>
               </li>
             </ul>
           </div>
@@ -64,10 +64,10 @@ export default function Footer() {
           © 2024 Swift Connect. All Rights Reserved.
         </p>
         <div className="flex gap-4 items-center justify-center">
-          <FaYoutube />
-          <FaInstagram />
-          <FaTwitter />
-          <FaFacebook />
+          <FaYoutube className="cursor-pointer hover:text-[#69e169]" />
+          <FaInstagram className="cursor-pointer hover:text-[#69e169]" />
+          <FaTwitter className="cursor-pointer hover:text-[#69e169]" />
+          <FaFacebook className="cursor-pointer hover:text-[#69e169]" />
         </div>
       </div>
     </footer>

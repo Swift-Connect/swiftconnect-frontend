@@ -2,9 +2,12 @@
 import Image from "next/image";
 import { useState } from "react";
 import { FiMenu, FiX } from "react-icons/fi";
+import { usePathname } from "next/navigation";
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname =
+    typeof window !== "undefined" ? window.location.pathname : "";
 
   return (
     <header className="bg-gray-900 rounded-none md:rounded-full md:m-4 text-white px-4 md:px-6 py-4">
@@ -35,7 +38,7 @@ export default function Navbar() {
             Agent
           </a>
           <a
-            href="AboutUs"
+            href="/AboutUs"
             className="text-gray-300 hover:text-white transition-colors"
           >
             About Us
@@ -45,14 +48,17 @@ export default function Navbar() {
         {/* Desktop Login & Sign Up */}
         <div className="hidden md:flex items-center space-x-3">
           <a
-            href="#"
+            href={`/account/login `}
             className="text-gray-300 hover:text-white transition-colors font-semibold"
           >
             Login
           </a>
-          <button className="bg-white text-gray-900 px-6 py-2 rounded-full font-semibold hover:bg-gray-100 transition-colors">
+          <a
+            href={`/account/signup `}
+            className="bg-white text-gray-900 px-6 py-2 rounded-full font-semibold hover:bg-gray-100 transition-colors"
+          >
             Sign Up
-          </button>
+          </a>
         </div>
 
         {/* Hamburger Icon */}
@@ -77,21 +83,21 @@ export default function Navbar() {
       >
         <nav className="flex flex-col space-y-4">
           <a
-            href="#"
+            href="Personal"
             className="text-gray-300 hover:text-white transition-colors"
             onClick={() => setMobileOpen(false)}
           >
             Personal
           </a>
           <a
-            href="#"
+            href="Agent"
             className="text-gray-300 hover:text-white transition-colors"
             onClick={() => setMobileOpen(false)}
           >
             Agent
           </a>
           <a
-            href="#"
+            href="AboutUs"
             className="text-gray-300 hover:text-white transition-colors"
             onClick={() => setMobileOpen(false)}
           >
@@ -99,15 +105,19 @@ export default function Navbar() {
           </a>
           <div className="flex flex-col gap-2 mt-2">
             <a
-              href="#"
+              href={`/account/login?next=${encodeURIComponent(pathname)}`}
               className="text-gray-300 hover:text-white transition-colors font-semibold"
               onClick={() => setMobileOpen(false)}
             >
               Login
             </a>
-            <button className="bg-white text-gray-900 px-6 py-2 rounded-full font-semibold hover:bg-gray-100 transition-colors">
+            <a
+              href={`/account/signup?next=${encodeURIComponent(pathname)}`}
+              className="bg-white text-gray-900 px-6 py-2 rounded-full font-semibold hover:bg-gray-100 transition-colors"
+              onClick={() => setMobileOpen(false)}
+            >
               Sign Up
-            </button>
+            </a>
           </div>
         </nav>
       </div>
