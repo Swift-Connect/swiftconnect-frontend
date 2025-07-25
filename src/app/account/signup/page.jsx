@@ -581,6 +581,11 @@ const SignupPage = () => {
                     type='text'
                     value={otp}
                     onChange={e => setOtp(e.target.value)}
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    autoComplete="one-time-code"
+                    // Prevent iOS zoom on focus by setting font-size >= 16px
+                    style={{ fontSize: '16px' }}
                     className={`w-full border border-gray-300 rounded-lg p-3 focus:border-green-600 focus:ring-1 focus:ring-green-600 focus:outline-none ${
                       errors.otp ? 'border-red-500' : ''
                     }`}

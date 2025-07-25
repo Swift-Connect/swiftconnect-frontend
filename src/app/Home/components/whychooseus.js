@@ -28,10 +28,10 @@ export default function WhyChooseUs({ header, subHeading }) {
             </p>
           </div>
 
-          <div className="flex items-center gap-4">
+          {/* <div className="flex items-center gap-4">
             <p className="font-bold">CTA Button</p>
             <ArrowRight />
-          </div>
+          </div> */}
         </div>{" "}
         <div className="border-[2px] p-6 flex flex-col gap-6 rounded-2xl bg-[#FAFAFA] w-full md:w-fit">
           <Image
@@ -48,10 +48,10 @@ export default function WhyChooseUs({ header, subHeading }) {
             </p>
           </div>
 
-          <div className="flex items-center gap-4">
+          {/* <div className="flex items-center gap-4">
             <p className="font-bold">CTA Button</p>
             <ArrowRight />
-          </div>
+          </div> */}
         </div>{" "}
         <div className="border-[2px] p-6 flex flex-col gap-6 rounded-2xl bg-[#FAFAFA] w-full md:w-fit">
           <Image
@@ -68,10 +68,10 @@ export default function WhyChooseUs({ header, subHeading }) {
             </p>
           </div>
 
-          <div className="flex items-center gap-4">
+          {/* <div className="flex items-center gap-4">
             <p className="font-bold">CTA Button</p>
             <ArrowRight />
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

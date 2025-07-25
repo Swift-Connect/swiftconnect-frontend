@@ -37,7 +37,7 @@ export default function SwiftConnectUtilities() {
               <Image
                 src={"./mobile_mockup3.svg"}
                 alt="Watermark Logo"
-                className="w-40 md:w-60 object-contain"
+                className="w-80 md:w-60 object-contain" // increased from w-64 to w-80 for mobile
                 width={0}
                 height={0}
               />
@@ -75,14 +75,14 @@ export default function SwiftConnectUtilities() {
               <Image
                 src={"/electricity_mockup1.svg"}
                 alt="Watermark Logo"
-                className="w-32 md:w-[30em] object-contain"
+                className="w-72 md:w-[30em] object-contain" // increased from w-52 to w-72 for mobile
                 width={0}
                 height={0}
               />
               <Image
                 src={"/ibedc.svg"}
                 alt="Watermark Logo"
-                className="w-24 md:w-60 object-contain"
+                className="w-48 md:w-60 object-contain" // increased from w-36 to w-48 for mobile
                 width={0}
                 height={0}
               />
@@ -93,4 +93,3 @@ export default function SwiftConnectUtilities() {
     </div>
   );
 }
- 
