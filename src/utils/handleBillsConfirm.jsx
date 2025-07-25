@@ -11,8 +11,8 @@ export const handleBillsConfirm = async (pin, dataa, url, setIsLoading) => {
   try {
     console.log('my data', dataa)
     const response = await fetch(
-      `https://aesthetic-mandi-swiftconnect-a9332357.koyeb.app/services/${url}`,
-      // "https://aesthetic-mandi-swiftconnect-a9332357.koyeb.app/services/airtime-topups-transactions/",
+      `https://swiftconnect-backend.onrender.com/services/${url}`,
+      // "https://swiftconnect-backend.onrender.com/services/airtime-topups-transactions/",
       {
         method: 'POST',
         headers: {

@@ -160,7 +160,7 @@ const ReceiveMoneyModal = ({ isOpen, onClose }) => {
     setIsSubmitting(true)
     try {
       const response = await fetch(
-        'https://aesthetic-mandi-swiftconnect-a9332357.koyeb.app/payments/credit-wallet/',
+        'https://swiftconnect-backend.onrender.com/payments/credit-wallet/',
         {
           method: 'POST',
           headers: {
