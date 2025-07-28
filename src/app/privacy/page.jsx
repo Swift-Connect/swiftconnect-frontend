@@ -40,7 +40,7 @@ const PrivacyPolicyPage = () => {
         <div className="bg-white rounded-lg shadow-sm p-4 lg:p-6 mb-4 lg:mb-6">
           <div className="flex items-center space-x-2 text-sm text-gray-600">
             <Calendar size={14} />
-            <span className="text-xs lg:text-sm">Last updated: January 15, 2025</span>
+            <span className="text-xs lg:text-sm">Last updated: July 28, 2025</span>
           </div>
         </div>
 
@@ -61,7 +61,7 @@ const PrivacyPolicyPage = () => {
             {/* Introduction */}
             <div className="prose max-w-none mb-6 lg:mb-8">
               <p className="text-gray-700 leading-relaxed text-sm lg:text-base">
-                SwiftConnect is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your personal information when you use our website ( <a href="https://swiftconnect.com.ng">https://swiftconnect.com.ng</a> ), mobile application, or services related to telecommunications and financial technology (fintech) in Nigeria, including mobile payments, data services, and other value-added services.
+                SwiftConnect is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your personal information when you use our website (<a href="https://swiftconnect.com.ng">https://swiftconnect.com.ng</a>), mobile application, or services related to telecommunications and financial technology (fintech) in Nigeria, including mobile payments, data services, and other value-added services.
               </p>
               <p className="text-gray-700 leading-relaxed mt-4 text-sm lg:text-base">
                 This Privacy Policy complies with the Nigerian Data Protection Act (NDPA) 2023, regulations from the Nigerian Communications Commission (NCC), the National Information Technology Development Agency (NITDA), and Google Play Store's Developer Program Policies.
