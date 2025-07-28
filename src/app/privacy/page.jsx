@@ -61,7 +61,7 @@ const PrivacyPolicyPage = () => {
             {/* Introduction */}
             <div className="prose max-w-none mb-6 lg:mb-8">
               <p className="text-gray-700 leading-relaxed text-sm lg:text-base">
-                SwiftConnect is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your personal information when you use our website (https://swiftconnect.com.ng/), mobile application, or services related to telecommunications and financial technology (fintech) in Nigeria, including mobile payments, data services, and other value-added services.
+                SwiftConnect is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your personal information when you use our website ( <a href="https://swiftconnect.com.ng">https://swiftconnect.com.ng</a> ), mobile application, or services related to telecommunications and financial technology (fintech) in Nigeria, including mobile payments, data services, and other value-added services.
               </p>
               <p className="text-gray-700 leading-relaxed mt-4 text-sm lg:text-base">
                 This Privacy Policy complies with the Nigerian Data Protection Act (NDPA) 2023, regulations from the Nigerian Communications Commission (NCC), the National Information Technology Development Agency (NITDA), and Google Play Store's Developer Program Policies.
