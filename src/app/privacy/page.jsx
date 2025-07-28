@@ -40,7 +40,7 @@ const PrivacyPolicyPage = () => {
         <div className="bg-white rounded-lg shadow-sm p-4 lg:p-6 mb-4 lg:mb-6">
           <div className="flex items-center space-x-2 text-sm text-gray-600">
             <Calendar size={14} />
-            <span className="text-xs lg:text-sm">Last updated: January 15, 2025</span>
+            <span className="text-xs lg:text-sm">Last updated: July 28, 2025</span>
           </div>
         </div>
 
