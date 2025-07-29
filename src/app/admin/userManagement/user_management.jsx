@@ -151,7 +151,7 @@ const UserManagement = () => {
     setEditUserLoading(true);
     setEditUserError("");
     try {
-      await api.patch(`/users/role-admin/${editData.id}/`, editUserForm);
+      await api.put(`/users/role-admin/${editData.id}/`, editUserForm); // changed to PUT
       toast.success("User updated successfully.");
       setShowEdit(false);
       setEditData(null);
@@ -160,7 +160,9 @@ const UserManagement = () => {
       const validUsers = usersData.filter((user) => user?.id);
       setUserData(validUsers);
     } catch (error) {
-      setEditUserError(error?.response?.data?.detail || "Failed to update user.");
+      setEditUserError(
+        error?.response?.data?.detail || "Failed to update user."
+      );
     } finally {
       setEditUserLoading(false);
     }
@@ -347,7 +349,10 @@ const UserManagement = () => {
                   id="edit_is_active"
                   checked={editUserForm.is_active}
                   onChange={(e) =>
-                    setEditUserForm((f) => ({ ...f, is_active: e.target.checked }))
+                    setEditUserForm((f) => ({
+                      ...f,
+                      is_active: e.target.checked,
+                    }))
                   }
                 />
                 <label htmlFor="edit_is_active" className="ml-2">
