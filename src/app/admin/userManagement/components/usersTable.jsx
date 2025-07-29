@@ -139,7 +139,8 @@ const UsersTable = ({
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
                   {user?.date_joined}
                 </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#fff] relative">
+                <td className="py-[1.3em] px-[1.8em] text-[#fff] relative flex items-center gap-2">
+                  {/*
                   <span
                     className="bg-[#00613A] rounded-xl flex w-fit items-center justify-center gap-2 py-1 px-2 cursor-pointer"
                     onClick={() => handleActionClick(idx)}
@@ -147,6 +148,14 @@ const UsersTable = ({
                     Approved <FaChevronDown />
                   </span>
                   {activeRow === idx && <ActionPopUp />}
+                  */}
+                  <button
+                    type="button"
+                    className="bg-blue-600 hover:bg-blue-700 transition-colors text-white px-4 py-1.5 rounded-md text-xs font-semibold shadow"
+                    onClick={() => setShowEdit(user)}
+                  >
+                    Edit
+                  </button>
                 </td>
               </tr>
             ))}

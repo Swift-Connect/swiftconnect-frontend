@@ -27,6 +27,14 @@ const UserManagement = () => {
     role: "user",
     is_active: true,
   });
+  const [editUserLoading, setEditUserLoading] = useState(false);
+  const [editUserError, setEditUserError] = useState("");
+  const [editUserForm, setEditUserForm] = useState({
+    username: "",
+    email: "",
+    role: "user",
+    is_active: true,
+  });
 
   useEffect(() => {
     if (!token) {
@@ -97,8 +105,13 @@ const UserManagement = () => {
 
   const handleEditClick = (rowData) => {
     setEditData(rowData);
+    setEditUserForm({
+      username: rowData.username || "",
+      email: rowData.email || "",
+      role: rowData.role || "user",
+      is_active: rowData.is_active !== undefined ? rowData.is_active : true,
+    });
     setShowEdit(true);
-    console.log("shit");
   };
 
   const handleSelectedUsersChange = (selectedIds) => {
@@ -128,6 +141,28 @@ const UserManagement = () => {
       setAddUserError(error?.response?.data?.detail || "Failed to add user.");
     } finally {
       setAddUserLoading(false);
+    }
+  };
+
+  // Update user handler
+  const handleUpdateUser = async (e) => {
+    e.preventDefault();
+    if (!editData?.id) return;
+    setEditUserLoading(true);
+    setEditUserError("");
+    try {
+      await api.patch(`/users/role-admin/${editData.id}/`, editUserForm);
+      toast.success("User updated successfully.");
+      setShowEdit(false);
+      setEditData(null);
+      // Refresh user list
+      const usersData = await fetchAllPages("/users/list-users/");
+      const validUsers = usersData.filter((user) => user?.id);
+      setUserData(validUsers);
+    } catch (error) {
+      setEditUserError(error?.response?.data?.detail || "Failed to update user.");
+    } finally {
+      setEditUserLoading(false);
     }
   };
 
@@ -257,7 +292,89 @@ const UserManagement = () => {
                 User Management <FaChevronRight /> Edit User
               </h1>
             </div>
-            <UserForm fields={Object.keys(editData || {})} data={editData} />
+            {/* Edit User Form */}
+            <form
+              className="bg-white rounded-lg p-6 w-full max-w-md"
+              onSubmit={handleUpdateUser}
+            >
+              <h2 className="text-lg font-bold mb-4">Edit User</h2>
+              <div className="mb-3">
+                <label className="block mb-1">Username*</label>
+                <input
+                  type="text"
+                  required
+                  minLength={1}
+                  maxLength={255}
+                  className="border rounded px-2 py-1 w-full"
+                  value={editUserForm.username}
+                  onChange={(e) =>
+                    setEditUserForm((f) => ({ ...f, username: e.target.value }))
+                  }
+                />
+              </div>
+              <div className="mb-3">
+                <label className="block mb-1">Email*</label>
+                <input
+                  type="email"
+                  required
+                  minLength={1}
+                  maxLength={254}
+                  className="border rounded px-2 py-1 w-full"
+                  value={editUserForm.email}
+                  onChange={(e) =>
+                    setEditUserForm((f) => ({ ...f, email: e.target.value }))
+                  }
+                />
+              </div>
+              <div className="mb-3">
+                <label className="block mb-1">Role</label>
+                <select
+                  className="border rounded px-2 py-1 w-full"
+                  value={editUserForm.role}
+                  onChange={(e) =>
+                    setEditUserForm((f) => ({ ...f, role: e.target.value }))
+                  }
+                >
+                  <option value="user">User</option>
+                  <option value="admin">Admin</option>
+                  <option value="manager">Manager</option>
+                  <option value="superadmin">Superadmin</option>
+                </select>
+              </div>
+              <div className="mb-3 flex items-center">
+                <input
+                  type="checkbox"
+                  id="edit_is_active"
+                  checked={editUserForm.is_active}
+                  onChange={(e) =>
+                    setEditUserForm((f) => ({ ...f, is_active: e.target.checked }))
+                  }
+                />
+                <label htmlFor="edit_is_active" className="ml-2">
+                  Active
+                </label>
+              </div>
+              {editUserError && (
+                <div className="text-red-500 mb-2">{editUserError}</div>
+              )}
+              <div className="flex gap-2">
+                <button
+                  type="submit"
+                  className="bg-[#00613A] text-white px-4 py-2 rounded"
+                  disabled={editUserLoading}
+                >
+                  {editUserLoading ? "Updating..." : "Update User"}
+                </button>
+                <button
+                  type="button"
+                  className="bg-gray-300 px-4 py-2 rounded"
+                  onClick={() => setShowEdit(false)}
+                  disabled={editUserLoading}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
           </>
         ) : (
           <>
@@ -272,6 +389,9 @@ const UserManagement = () => {
               from={"userManagement"}
               onDelete={handleDeleteSelected}
             />
+            <p className="mb-2 text-gray-500 text-sm">
+              Double-click a user row to edit their details.
+            </p>
             <div className="rounded-t-[1em] overflow-x-scroll    border border-gray-200 min-h-[50vh]">
               <UsersTable
                 data={usersData}
