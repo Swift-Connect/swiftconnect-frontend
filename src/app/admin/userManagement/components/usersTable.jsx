@@ -70,7 +70,7 @@ const UsersTable = ({
       ) : selectedData.length === 0 ? (
         <div className="text-center py-8 text-gray-500">No Users yet</div>
       ) : (
-        <table className="w-full text-sm border-collapse">
+        <table className="text-sm border-collapse">
           <thead>
             <tr className="bg-[#F9F8FA] text-left text-[#525252]">
               <th className="py-[1.3em] px-[1.8em] font-semibold text-[#232323]">

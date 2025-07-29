@@ -18,6 +18,15 @@ const UserManagement = () => {
   const [usersData, setUserData] = useState([]);
   const [isLoading, setIsLoading] = useState();
   const [selectedUserIds, setSelectedUserIds] = useState([]); // Track selected rows
+  const [showAddUser, setShowAddUser] = useState(false);
+  const [addUserLoading, setAddUserLoading] = useState(false);
+  const [addUserError, setAddUserError] = useState("");
+  const [addUserForm, setAddUserForm] = useState({
+    username: "",
+    email: "",
+    role: "user",
+    is_active: true,
+  });
 
   useEffect(() => {
     if (!token) {
@@ -96,8 +105,150 @@ const UserManagement = () => {
     setSelectedUserIds(selectedIds);
   };
 
+  // Add user handler
+  const handleAddUser = async (e) => {
+    e.preventDefault();
+    setAddUserLoading(true);
+    setAddUserError("");
+    try {
+      await api.post("/users/role-admin/", addUserForm);
+      toast.success("User added successfully.");
+      setShowAddUser(false);
+      setAddUserForm({
+        username: "",
+        email: "",
+        role: "user",
+        is_active: true,
+      });
+      // Refresh user list
+      const usersData = await fetchAllPages("/users/list-users/");
+      const validUsers = usersData.filter((user) => user?.id);
+      setUserData(validUsers);
+    } catch (error) {
+      setAddUserError(error?.response?.data?.detail || "Failed to add user.");
+    } finally {
+      setAddUserLoading(false);
+    }
+  };
+
+  // Add delete handler
+  const handleDeleteSelected = async () => {
+    if (selectedUserIds.length === 0) return;
+    if (!window.confirm("Are you sure you want to delete the selected users?"))
+      return;
+    setIsLoading(true);
+    try {
+      for (const id of selectedUserIds) {
+        console.log("in the delete function", id);
+
+        await api.delete(`/users/role-admin/${id}/`);
+      }
+      toast.success("Selected users deleted successfully.");
+      // Refresh user list
+      const usersData = await fetchAllPages("/users/list-users/");
+      const validUsers = usersData.filter((user) => user?.id);
+      setUserData(validUsers);
+      setSelectedUserIds([]);
+    } catch (error) {
+      toast.error(error?.response?.data.detail);
+      console.error(
+        "Delete users error:",
+        error?.response?.data.detail || error
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="overflow-hidden ">
+      {/* Add User Modal */}
+      {showAddUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <form
+            className="bg-white rounded-lg p-6 w-full max-w-md"
+            onSubmit={handleAddUser}
+          >
+            <h2 className="text-lg font-bold mb-4">Add User</h2>
+            <div className="mb-3">
+              <label className="block mb-1">Username*</label>
+              <input
+                type="text"
+                required
+                minLength={1}
+                maxLength={255}
+                className="border rounded px-2 py-1 w-full"
+                value={addUserForm.username}
+                onChange={(e) =>
+                  setAddUserForm((f) => ({ ...f, username: e.target.value }))
+                }
+              />
+            </div>
+            <div className="mb-3">
+              <label className="block mb-1">Email*</label>
+              <input
+                type="email"
+                required
+                minLength={1}
+                maxLength={254}
+                className="border rounded px-2 py-1 w-full"
+                value={addUserForm.email}
+                onChange={(e) =>
+                  setAddUserForm((f) => ({ ...f, email: e.target.value }))
+                }
+              />
+            </div>
+            <div className="mb-3">
+              <label className="block mb-1">Role</label>
+              <select
+                className="border rounded px-2 py-1 w-full"
+                value={addUserForm.role}
+                onChange={(e) =>
+                  setAddUserForm((f) => ({ ...f, role: e.target.value }))
+                }
+              >
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+                <option value="manager">Manager</option>
+                <option value="superadmin">Superadmin</option>
+              </select>
+            </div>
+            <div className="mb-3 flex items-center">
+              <input
+                type="checkbox"
+                id="is_active"
+                checked={addUserForm.is_active}
+                onChange={(e) =>
+                  setAddUserForm((f) => ({ ...f, is_active: e.target.checked }))
+                }
+              />
+              <label htmlFor="is_active" className="ml-2">
+                Active
+              </label>
+            </div>
+            {addUserError && (
+              <div className="text-red-500 mb-2">{addUserError}</div>
+            )}
+            <div className="flex gap-2">
+              <button
+                type="submit"
+                className="bg-[#00613A]  text-white px-4 py-2 rounded"
+                disabled={addUserLoading}
+              >
+                {addUserLoading ? "Adding..." : "Add User"}
+              </button>
+              <button
+                type="button"
+                className="bg-gray-300 px-4 py-2 rounded"
+                onClick={() => setShowAddUser(false)}
+                disabled={addUserLoading}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
       <div className="max-md-[400px]:hidden">
         {showEdit ? (
           <>
@@ -111,16 +262,17 @@ const UserManagement = () => {
         ) : (
           <>
             <h1 className="text-[16px] font-semibold mb-8">User Management</h1>
-
             <TableTabs
               header={""}
               setActiveTab={setActiveTabPending}
               activeTab={activeTabPending}
               tabs={["Active", "Inactive", "Recently Added"]}
-              onPress={() => {}}
-              selectedRows={selectedUserIds} // Pass selected row IDs
+              onPress={() => setShowAddUser(true)} // Open modal on add
+              selectedRows={selectedUserIds}
+              from={"userManagement"}
+              onDelete={handleDeleteSelected}
             />
-            <div className="rounded-t-[1em] overflow-auto border border-gray-200 min-h-[50vh]">
+            <div className="rounded-t-[1em] overflow-x-scroll    border border-gray-200 min-h-[50vh]">
               <UsersTable
                 data={usersData}
                 currentPage={currentPage}

@@ -14,10 +14,13 @@ const TableTabs = ({
   onPress,
   onFilterChange,
   selectedRows = [], // Pass the selected rows as a prop
+  onDelete, // Add onDelete prop
 }) => {
   const [showFilterOptions, setShowFilterOptions] = useState(false);
 
   console.log("selectedRows", selectedRows); // This will now log the IDs of selected rows
+
+  console.log("fomm", from);
 
   return (
     <div>
@@ -74,6 +77,7 @@ const TableTabs = ({
                 <button
                   className="bg-[#8C1823] font-medium text-white px-4 py-2 rounded-lg flex items-center gap-2 disabled:opacity-50"
                   disabled={selectedRows.length === 0} // Disable if no rows are selected
+                  onClick={onDelete} // Call onDelete when clicked
                 >
                   {from === "RBAC" ? "Block" : "Delete"} <FaTrashAlt />
                 </button>
