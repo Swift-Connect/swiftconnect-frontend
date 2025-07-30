@@ -49,7 +49,7 @@ export default function EarnMore({ hideHeader }) {
                 <Image
                   src={"./referals_mockup.svg"}
                   alt="Watermark Logo"
-                  className="w-40 md:w-[40em] object-contain"
+                  className="w-80 md:w-[40em] object-contain" // increased from w-64 to w-80 for mobile
                   width={0}
                   height={0}
                 />
@@ -86,7 +86,7 @@ export default function EarnMore({ hideHeader }) {
                 <Image
                   src={"/earn_more_mockup.svg"}
                   alt="Watermark Logo"
-                  className="w-40 md:w-[30em] object-contain"
+                  className="w-72 md:w-[30em] object-contain" // increased from w-52 to w-72 for mobile
                   width={0}
                   height={0}
                 />
