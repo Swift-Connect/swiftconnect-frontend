@@ -90,13 +90,17 @@ const Dashboard = () => {
   });
 
   const filteredKYCData = usersKYCPendingData.filter((user) => {
-    const matchesSearch = !searchTerm ||
+    const matchesSearch =
+      !searchTerm ||
       user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.account_id.toString().includes(searchTerm);
-    
+
     // Show only pending KYC by default for the dashboard
-    const isPending = user.status === "Pending" || !user.status || user.status === "Not Approved";
-    
+    const isPending =
+      user.status === "Pending" ||
+      !user.status ||
+      user.status === "Not Approved";
+
     return matchesSearch && isPending;
   });
 
@@ -172,9 +176,10 @@ const Dashboard = () => {
     setIsLoadingKYC(true);
     try {
       // Fetch all KYC records at once
-      const kycResponse = await fetchWithAuth("kyc/submissions/");
-      const allKycData = kycResponse?.data || kycResponse?.results || kycResponse || [];
-      
+      const kycResponse = await fetchWithAuth("users/all-kyc/");
+      const allKycData =
+        kycResponse?.data || kycResponse?.results || kycResponse || [];
+
       return allKycData;
     } catch (error) {
       console.error("Error fetching KYC data:", error);
@@ -190,7 +195,7 @@ const Dashboard = () => {
       // Fetch all transaction types at once
       const endpoints = [
         "services/airtime-topups-transactions/",
-        "services/data-plan-transactions/", 
+        "services/data-plan-transactions/",
         "services/cable-recharges-transactions/",
         "services/electricity-transactions/",
         "services/education-transactions/",
@@ -206,7 +211,7 @@ const Dashboard = () => {
             console.error(`Error fetching ${endpoint}:`, error);
             return [];
           }
-        })
+        }),
       );
 
       return allData.flat();
