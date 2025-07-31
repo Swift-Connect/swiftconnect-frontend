@@ -1,12 +1,8 @@
+
 "use client";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import {
-  fetchWithAuth,
-  postWithAuth,
-  patchWithAuth,
-  handleApiError,
-} from "@/utils/api";
+import { fetchWithAuth, postWithAuth, patchWithAuth, handleApiError } from "@/utils/api";
 import TableTabs from "../components/tableTabs";
 import Pagination from "../components/pagination";
 import {
@@ -22,7 +18,7 @@ import {
   FaUsers,
   FaExchangeAlt,
   FaTrash,
-  FaTimes,
+  FaTimes
 } from "react-icons/fa";
 
 const WalletManagement = () => {
@@ -47,87 +43,29 @@ const WalletManagement = () => {
     totalUsers: 0,
     totalWalletBalance: 0,
     totalTransactions: 0,
-    pendingTransactions: 0,
+    pendingTransactions: 0
   });
-  const [token, setToken] = useState(null);
-  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
-  const [isLoadingTransactions, setIsLoadingTransactions] = useState(false);
 
   const itemsPerPage = 10;
 
   useEffect(() => {
-    // Retrieve token from localStorage
-    const storedToken = localStorage.getItem("authToken");
-    if (storedToken) {
-      setToken(storedToken);
-    }
+    fetchData();
   }, []);
 
-  useEffect(() => {
-    if (token) {
-      fetchData();
-    }
-  }, [token, fetchData]);
-
-  const fetchData = useCallback(async () => {
-    if (!token) return;
-
-    setIsLoadingUsers(true);
-    setIsLoadingTransactions(true);
-
+  const fetchData = async () => {
+    setLoading(true);
     try {
-      // Define all endpoints
-      const transactionEndpoints = [
-        "services/airtime-topups-transactions/",
-        "services/data-plan-transactions/",
-        "services/cable-recharges-transactions/",
-        "services/electricity-transactions/",
-        "services/education-transactions/",
-        "services/bulk-sms-transactions/",
-        "payments/transactions/",
-      ];
-
-      // Fetch all pages for each transaction endpoint
-      const fetchAllTransactions = async () => {
-        const allTransactions = [];
-        for (const endpoint of transactionEndpoints) {
-          try {
-            let nextPage = endpoint;
-            while (nextPage) {
-              const response = await fetchWithAuth(nextPage);
-              const responseData = response?.data || response?.results || response || [];
-
-              if (Array.isArray(responseData)) {
-                allTransactions.push(...responseData);
-              } else if (responseData.results) {
-                allTransactions.push(...responseData.results);
-                nextPage = responseData.next;
-              } else {
-                allTransactions.push(responseData);
-                break;
-              }
-
-              if (!responseData.next) break;
-            }
-          } catch (error) {
-            console.error(`Error fetching ${endpoint}:`, error);
-          }
-        }
-        return allTransactions;
-      };
-
-      // Fetch all data concurrently
-      const [walletsResponse, usersResponse, allTransactions] = 
-        await Promise.allSettled([
-          fetchWithAuth("payments/admin/manage-user-wallet/"),
-          fetchWithAuth("users/"),
-          fetchAllTransactions()
-        ]);
+      const [walletsResponse, usersResponse, transactionsResponse] = await Promise.allSettled([
+        fetchWithAuth("payments/admin/manage-user-wallet/"),
+        fetchWithAuth("users/list-users/"),
+        fetchWithAuth("payments/transactions/")
+      ]);
 
       // Handle wallets response
       let walletsData = [];
       if (walletsResponse.status === "fulfilled") {
         const responseData = walletsResponse.value;
+        // Handle the nested response structure
         walletsData = responseData?.data || responseData?.results || responseData || [];
       } else {
         console.error("Failed to fetch wallets:", walletsResponse.reason);
@@ -138,6 +76,7 @@ const WalletManagement = () => {
       let usersData = [];
       if (usersResponse.status === "fulfilled") {
         const responseData = usersResponse.value;
+        // Handle the nested response structure
         usersData = responseData?.data || responseData?.results || responseData || [];
       } else {
         console.error("Failed to fetch users:", usersResponse.reason);
@@ -146,25 +85,39 @@ const WalletManagement = () => {
 
       // Handle transactions response
       let transactionsData = [];
-      if (allTransactions.status === "fulfilled") {
-        transactionsData = allTransactions.value || [];
+      if (transactionsResponse.status === "fulfilled") {
+        const responseData = transactionsResponse.value;
+        // Handle the nested response structure
+        transactionsData = responseData?.data || responseData?.results || responseData || [];
       } else {
-        console.error("Failed to fetch transactions:", allTransactions.reason);
+        console.error("Failed to fetch transactions:", transactionsResponse.reason);
+        // Don't show error toast for transactions as it's not critical
       }
 
-      // Set the data with defensive programming
-      setWallets(Array.isArray(walletsData) ? walletsData : []);
-      setUsers(Array.isArray(usersData) ? usersData : []);
-      setTransactions(Array.isArray(transactionsData) ? transactionsData : []);
+      setWallets(walletsData);
+      setUsers(usersData);
+      setTransactions(transactionsData);
+
+      // Calculate stats
+      const totalUsers = usersData.length;
+      const totalWalletBalance = walletsData.reduce((sum, wallet) => sum + parseFloat(wallet.balance || 0), 0);
+      const totalTransactions = transactionsData.length;
+      const pendingTransactions = transactionsData.filter(t => t.status === 'pending').length;
+
+      setStats({
+        totalUsers,
+        totalWalletBalance,
+        totalTransactions,
+        pendingTransactions
+      });
 
     } catch (error) {
       console.error("Error fetching data:", error);
-      toast.error("Failed to fetch data");
+      handleApiError(error, "Failed to fetch wallet management data");
     } finally {
-      setIsLoadingUsers(false);
-      setIsLoadingTransactions(false);
+      setLoading(false);
     }
-  }, [token]);
+  };
 
   const handleWalletOperation = async () => {
     if (!selectedWallet || !amount || !reason) {
@@ -178,22 +131,17 @@ const WalletManagement = () => {
     }
 
     setProcessing(true);
-    const loadingToast = toast.loading(
-      `Processing ${walletAction} operation...`,
-    );
+    const loadingToast = toast.loading(`Processing ${walletAction} operation...`);
 
     try {
       if (walletAction === "credit") {
         // Use the fund_wallet endpoint for crediting
         const payload = {
-          amount: parseFloat(amount),
+          balance: parseFloat(amount)
         };
 
-        await postWithAuth(
-          `payments/admin/manage-user-wallet/${selectedWallet.id}/fund_wallet/`,
-          payload,
-        );
-
+        await postWithAuth(`payments/admin/manage-user-wallet/${selectedWallet.id}/fund_wallet/`, payload);
+        
         toast.update(loadingToast, {
           render: `Successfully credited ₦${parseFloat(amount).toLocaleString()} to wallet`,
           type: "success",
@@ -202,9 +150,8 @@ const WalletManagement = () => {
         });
       } else {
         // For debit, we'll update the wallet balance directly
-        const newBalance =
-          parseFloat(selectedWallet.balance) - parseFloat(amount);
-
+        const newBalance = parseFloat(selectedWallet.balance) - parseFloat(amount);
+        
         if (newBalance < 0) {
           toast.update(loadingToast, {
             render: "Insufficient balance for debit operation",
@@ -216,14 +163,11 @@ const WalletManagement = () => {
         }
 
         const payload = {
-          balance: newBalance.toString(),
+          balance: newBalance.toString()
         };
 
-        await patchWithAuth(
-          `payments/admin/manage-user-wallet/${selectedWallet.id}/`,
-          payload,
-        );
-
+        await patchWithAuth(`payments/admin/manage-user-wallet/${selectedWallet.id}/`, payload);
+        
         toast.update(loadingToast, {
           render: `Successfully debited ₦${parseFloat(amount).toLocaleString()} from wallet`,
           type: "success",
@@ -240,18 +184,14 @@ const WalletManagement = () => {
       fetchData(); // Refresh data
     } catch (error) {
       console.error("Wallet operation error:", error);
-
+      
       let errorMessage = "Unknown error occurred";
-      if (
-        error.status === 403 &&
-        error.message === "Transaction PIN is required."
-      ) {
-        errorMessage =
-          "Admin wallet operations require transaction PIN. Please contact system administrator.";
+      if (error.status === 403 && error.message === "Transaction PIN is required.") {
+        errorMessage = "Admin wallet operations require transaction PIN. Please contact system administrator.";
       } else if (error.message) {
         errorMessage = error.message;
       }
-
+      
       toast.update(loadingToast, {
         render: `Failed to ${walletAction} wallet: ${errorMessage}`,
         type: "error",
@@ -275,33 +215,25 @@ const WalletManagement = () => {
     }
 
     setProcessing(true);
-    const loadingToast = toast.loading(
-      `Processing bulk credit for ${selectedWallets.length} wallets...`,
-    );
+    const loadingToast = toast.loading(`Processing bulk credit for ${selectedWallets.length} wallets...`);
 
     try {
       const results = await Promise.allSettled(
-        selectedWallets.map((walletId) =>
-          postWithAuth(
-            `payments/admin/manage-user-wallet/${walletId}/fund_wallet/`,
-            {
-              amount: parseFloat(amount),
-            },
-          ),
-        ),
+        selectedWallets.map(walletId => 
+          postWithAuth(`payments/admin/manage-user-wallet/${walletId}/fund_wallet/`, {
+            balance: parseFloat(amount)
+          })
+        )
       );
 
-      const successful = results.filter((r) => r.status === "fulfilled").length;
-      const failed = results.filter((r) => r.status === "rejected").length;
+      const successful = results.filter(r => r.status === "fulfilled").length;
+      const failed = results.filter(r => r.status === "rejected").length;
       const failedReasons = results
-        .filter((r) => r.status === "rejected")
-        .map((r) => r.reason?.message || "Unknown error");
+        .filter(r => r.status === "rejected")
+        .map(r => r.reason?.message || "Unknown error");
 
       let message = `Bulk credit completed: ${successful} successful, ${failed} failed`;
-      if (
-        failed > 0 &&
-        failedReasons.some((r) => r.includes("Transaction PIN"))
-      ) {
+      if (failed > 0 && failedReasons.some(r => r.includes("Transaction PIN"))) {
         message += " (Transaction PIN required for admin operations)";
       }
 
@@ -331,28 +263,25 @@ const WalletManagement = () => {
 
   const handleExportData = () => {
     try {
-      const csvData = wallets.map((wallet) => ({
+      const csvData = wallets.map(wallet => ({
         ID: wallet.id,
         User: wallet.user_email,
         Balance: wallet.balance,
         LastUpdated: wallet.last_updated,
-        TransactionCount: wallet.transactions?.length || 0,
+        TransactionCount: wallet.transactions?.length || 0
       }));
 
       const csvContent = [
         Object.keys(csvData[0]).join(","),
-        ...csvData.map((row) => Object.values(row).join(",")),
+        ...csvData.map(row => Object.values(row).join(","))
       ].join("\n");
 
-      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement("a");
       const url = URL.createObjectURL(blob);
       link.setAttribute("href", url);
-      link.setAttribute(
-        "download",
-        `wallet_data_${new Date().toISOString().split("T")[0]}.csv`,
-      );
-      link.style.visibility = "hidden";
+      link.setAttribute("download", `wallet_data_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -364,35 +293,29 @@ const WalletManagement = () => {
     }
   };
 
-  const filteredWallets = (Array.isArray(wallets) ? wallets : []).filter(
-    (wallet) =>
-      wallet.user_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      wallet.id?.toString().includes(searchTerm),
+  const filteredWallets = (Array.isArray(wallets) ? wallets : []).filter(wallet =>
+    wallet.user_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    wallet.id?.toString().includes(searchTerm)
   );
 
-  const filteredTransactions = (
-    Array.isArray(transactions) ? transactions : []
-  ).filter(
-    (tx) =>
-      tx.reason?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tx.user_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tx.id?.toString().includes(searchTerm),
+  const filteredTransactions = (Array.isArray(transactions) ? transactions : []).filter(tx =>
+    tx.reason?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    tx.user_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    tx.id?.toString().includes(searchTerm)
   );
 
   const paginatedWallets = filteredWallets.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage,
+    currentPage * itemsPerPage
   );
 
   const paginatedTransactions = filteredTransactions.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage,
+    currentPage * itemsPerPage
   );
 
   const totalPages = Math.ceil(
-    (activeTab === "User Wallets"
-      ? filteredWallets.length
-      : filteredTransactions.length) / itemsPerPage,
+    (activeTab === "User Wallets" ? filteredWallets.length : filteredTransactions.length) / itemsPerPage
   );
 
   const StatsCard = ({ title, value, icon, bgColor }) => (
@@ -497,35 +420,19 @@ const WalletManagement = () => {
                           type="checkbox"
                           onChange={(e) => {
                             if (e.target.checked) {
-                              setSelectedWallets(
-                                paginatedWallets.map((w) => w.id),
-                              );
+                              setSelectedWallets(paginatedWallets.map(w => w.id));
                             } else {
                               setSelectedWallets([]);
                             }
                           }}
-                          checked={
-                            selectedWallets.length ===
-                              paginatedWallets.length &&
-                            paginatedWallets.length > 0
-                          }
+                          checked={selectedWallets.length === paginatedWallets.length && paginatedWallets.length > 0}
                         />
                       </th>
-                      <th className="text-left p-4 font-medium text-gray-900">
-                        Wallet ID
-                      </th>
-                      <th className="text-left p-4 font-medium text-gray-900">
-                        User Email
-                      </th>
-                      <th className="text-left p-4 font-medium text-gray-900">
-                        Balance
-                      </th>
-                      <th className="text-left p-4 font-medium text-gray-900">
-                        Last Updated
-                      </th>
-                      <th className="text-left p-4 font-medium text-gray-900">
-                        Actions
-                      </th>
+                      <th className="text-left p-4 font-medium text-gray-900">Wallet ID</th>
+                      <th className="text-left p-4 font-medium text-gray-900">User Email</th>
+                      <th className="text-left p-4 font-medium text-gray-900">Balance</th>
+                      <th className="text-left p-4 font-medium text-gray-900">Last Updated</th>
+                      <th className="text-left p-4 font-medium text-gray-900">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -537,31 +444,20 @@ const WalletManagement = () => {
                             checked={selectedWallets.includes(wallet.id)}
                             onChange={(e) => {
                               if (e.target.checked) {
-                                setSelectedWallets([
-                                  ...selectedWallets,
-                                  wallet.id,
-                                ]);
+                                setSelectedWallets([...selectedWallets, wallet.id]);
                               } else {
-                                setSelectedWallets(
-                                  selectedWallets.filter(
-                                    (id) => id !== wallet.id,
-                                  ),
-                                );
+                                setSelectedWallets(selectedWallets.filter(id => id !== wallet.id));
                               }
                             }}
                           />
                         </td>
                         <td className="p-4 font-mono text-sm">#{wallet.id}</td>
-                        <td className="p-4 text-gray-900">
-                          {wallet.user_email}
-                        </td>
+                        <td className="p-4 text-gray-900">{wallet.user_email}</td>
                         <td className="p-4 font-medium text-green-600">
                           ₦{parseFloat(wallet.balance || 0).toLocaleString()}
                         </td>
                         <td className="p-4 text-sm text-gray-600">
-                          {wallet.last_updated
-                            ? new Date(wallet.last_updated).toLocaleDateString()
-                            : "N/A"}
+                          {wallet.last_updated ? new Date(wallet.last_updated).toLocaleDateString() : 'N/A'}
                         </td>
                         <td className="p-4">
                           <div className="flex space-x-2">
@@ -610,79 +506,48 @@ const WalletManagement = () => {
               <table className="w-full">
                 <thead>
                   <tr className="bg-gray-50 border-b">
-                    <th className="text-left p-4 font-medium text-gray-900">
-                      Transaction ID
-                    </th>
-                    <th className="text-left p-4 font-medium text-gray-900">
-                      User
-                    </th>
-                    <th className="text-left p-4 font-medium text-gray-900">
-                      Type
-                    </th>
-                    <th className="text-left p-4 font-medium text-gray-900">
-                      Amount
-                    </th>
-                    <th className="text-left p-4 font-medium text-gray-900">
-                      Status
-                    </th>
-                    <th className="text-left p-4 font-medium text-gray-900">
-                      Date
-                    </th>
-                    <th className="text-left p-4 font-medium text-gray-900">
-                      Reason
-                    </th>
+                    <th className="text-left p-4 font-medium text-gray-900">Transaction ID</th>
+                    <th className="text-left p-4 font-medium text-gray-900">User</th>
+                    <th className="text-left p-4 font-medium text-gray-900">Type</th>
+                    <th className="text-left p-4 font-medium text-gray-900">Amount</th>
+                    <th className="text-left p-4 font-medium text-gray-900">Status</th>
+                    <th className="text-left p-4 font-medium text-gray-900">Date</th>
+                    <th className="text-left p-4 font-medium text-gray-900">Reason</th>
                   </tr>
                 </thead>
                 <tbody>
                   {paginatedTransactions.map((transaction) => (
-                    <tr
-                      key={transaction.id}
-                      className="border-b hover:bg-gray-50"
-                    >
-                      <td className="p-4 font-mono text-sm">
-                        #{transaction.id}
-                      </td>
+                    <tr key={transaction.id} className="border-b hover:bg-gray-50">
+                      <td className="p-4 font-mono text-sm">#{transaction.id}</td>
+                      <td className="p-4">{transaction.user_email || `User ${transaction.user}`}</td>
                       <td className="p-4">
-                        {transaction.user_email || `User ${transaction.user}`}
-                      </td>
-                      <td className="p-4">
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            transaction.transaction_type === "credit"
-                              ? "bg-green-100 text-green-800"
-                              : "bg-red-100 text-red-800"
-                          }`}
-                        >
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          transaction.transaction_type === 'credit' 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-red-100 text-red-800'
+                        }`}>
                           {transaction.transaction_type}
                         </span>
                       </td>
                       <td className="p-4 font-medium">
-                        {transaction.transaction_type === "credit" ? "+" : "-"}₦
-                        {parseFloat(transaction.amount).toLocaleString()}
+                        {transaction.transaction_type === 'credit' ? '+' : '-'}
+                        ₦{parseFloat(transaction.amount).toLocaleString()}
                       </td>
                       <td className="p-4">
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            transaction.status === "completed"
-                              ? "bg-green-100 text-green-800"
-                              : transaction.status === "pending"
-                                ? "bg-yellow-100 text-yellow-800"
-                                : "bg-red-100 text-red-800"
-                          }`}
-                        >
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          transaction.status === 'completed' 
+                            ? 'bg-green-100 text-green-800' 
+                            : transaction.status === 'pending'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-red-100 text-red-800'
+                        }`}>
                           {transaction.status}
                         </span>
                       </td>
                       <td className="p-4 text-sm text-gray-600">
-                        {transaction.created_at
-                          ? new Date(
-                              transaction.created_at,
-                            ).toLocaleDateString()
-                          : "N/A"}
+                        {transaction.created_at ? new Date(transaction.created_at).toLocaleDateString() : 'N/A'}
                       </td>
-                      <td className="p-4 text-sm">
-                        {transaction.reason || "N/A"}
-                      </td>
+                      <td className="p-4 text-sm">{transaction.reason || 'N/A'}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -694,20 +559,14 @@ const WalletManagement = () => {
           {activeTab === "Wallet Operations" && (
             <div className="py-8">
               <div className="text-center">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">
-                  Wallet Operations
-                </h3>
-                <p className="text-gray-600 mb-8">
-                  Perform bulk operations and manage wallet data
-                </p>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Wallet Operations</h3>
+                <p className="text-gray-600 mb-8">Perform bulk operations and manage wallet data</p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="p-6 border rounded-lg">
                     <FaDownload className="mx-auto mb-4 text-2xl text-blue-600" />
                     <h4 className="font-medium mb-2">Export Data</h4>
-                    <p className="text-sm text-gray-600 mb-4">
-                      Download wallet and transaction data
-                    </p>
-                    <button
+                    <p className="text-sm text-gray-600 mb-4">Download wallet and transaction data</p>
+                    <button 
                       onClick={handleExportData}
                       className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                     >
@@ -717,15 +576,11 @@ const WalletManagement = () => {
                   <div className="p-6 border rounded-lg">
                     <FaPlus className="mx-auto mb-4 text-2xl text-green-600" />
                     <h4 className="font-medium mb-2">Bulk Credit</h4>
-                    <p className="text-sm text-gray-600 mb-4">
-                      Credit multiple wallets at once
-                    </p>
-                    <button
+                    <p className="text-sm text-gray-600 mb-4">Credit multiple wallets at once</p>
+                    <button 
                       onClick={() => {
                         if (selectedWallets.length === 0) {
-                          toast.error(
-                            "Please select wallets from the User Wallets tab first",
-                          );
+                          toast.error("Please select wallets from the User Wallets tab first");
                           return;
                         }
                         setBulkAction("credit");
@@ -739,10 +594,8 @@ const WalletManagement = () => {
                   <div className="p-6 border rounded-lg">
                     <FaEdit className="mx-auto mb-4 text-2xl text-purple-600" />
                     <h4 className="font-medium mb-2">Audit Trail</h4>
-                    <p className="text-sm text-gray-600 mb-4">
-                      View all wallet operations
-                    </p>
-                    <button
+                    <p className="text-sm text-gray-600 mb-4">View all wallet operations</p>
+                    <button 
                       onClick={() => setActiveTab("Transaction History")}
                       className="w-full px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
                     >
@@ -759,11 +612,7 @@ const WalletManagement = () => {
             totalPages={totalPages}
             onPageChange={setCurrentPage}
             itemsPerPage={itemsPerPage}
-            totalItems={
-              activeTab === "User Wallets"
-                ? filteredWallets.length
-                : filteredTransactions.length
-            }
+            totalItems={activeTab === "User Wallets" ? filteredWallets.length : filteredTransactions.length}
           />
         </div>
       </div>
@@ -788,13 +637,8 @@ const WalletManagement = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Wallet: #{selectedWallet?.id}
                 </label>
-                <p className="text-sm text-gray-600">
-                  {selectedWallet?.user_email}
-                </p>
-                <p className="text-sm text-gray-600">
-                  Current Balance: ₦
-                  {parseFloat(selectedWallet?.balance || 0).toLocaleString()}
-                </p>
+                <p className="text-sm text-gray-600">{selectedWallet?.user_email}</p>
+                <p className="text-sm text-gray-600">Current Balance: ₦{parseFloat(selectedWallet?.balance || 0).toLocaleString()}</p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -834,15 +678,13 @@ const WalletManagement = () => {
               <button
                 onClick={handleWalletOperation}
                 className={`flex-1 px-4 py-2 text-white rounded-lg ${
-                  walletAction === "credit"
-                    ? "bg-green-600 hover:bg-green-700"
+                  walletAction === "credit" 
+                    ? "bg-green-600 hover:bg-green-700" 
                     : "bg-red-600 hover:bg-red-700"
                 }`}
                 disabled={processing}
               >
-                {processing
-                  ? "Processing..."
-                  : `${walletAction === "credit" ? "Credit" : "Debit"} Wallet`}
+                {processing ? "Processing..." : `${walletAction === "credit" ? "Credit" : "Debit"} Wallet`}
               </button>
             </div>
           </div>
