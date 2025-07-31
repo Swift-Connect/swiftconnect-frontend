@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { toast } from "react-toastify";
 import {
   fetchWithAuth,
@@ -49,30 +49,86 @@ const WalletManagement = () => {
     totalTransactions: 0,
     pendingTransactions: 0,
   });
+  const [token, setToken] = useState(null);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
+  const [isLoadingTransactions, setIsLoadingTransactions] = useState(false);
 
   const itemsPerPage = 10;
 
   useEffect(() => {
-    fetchData();
+    // Retrieve token from localStorage
+    const storedToken = localStorage.getItem("authToken");
+    if (storedToken) {
+      setToken(storedToken);
+    }
   }, []);
 
-  const fetchData = async () => {
-    setLoading(true);
+  useEffect(() => {
+    if (token) {
+      fetchData();
+    }
+  }, [token, fetchData]);
+
+  const fetchData = useCallback(async () => {
+    if (!token) return;
+
+    setIsLoadingUsers(true);
+    setIsLoadingTransactions(true);
+
     try {
-      const [walletsResponse, usersResponse, transactionsResponse] =
+      // Define all endpoints
+      const transactionEndpoints = [
+        "services/airtime-topups-transactions/",
+        "services/data-plan-transactions/",
+        "services/cable-recharges-transactions/",
+        "services/electricity-transactions/",
+        "services/education-transactions/",
+        "services/bulk-sms-transactions/",
+        "payments/transactions/",
+      ];
+
+      // Fetch all pages for each transaction endpoint
+      const fetchAllTransactions = async () => {
+        const allTransactions = [];
+        for (const endpoint of transactionEndpoints) {
+          try {
+            let nextPage = endpoint;
+            while (nextPage) {
+              const response = await fetchWithAuth(nextPage);
+              const responseData = response?.data || response?.results || response || [];
+
+              if (Array.isArray(responseData)) {
+                allTransactions.push(...responseData);
+              } else if (responseData.results) {
+                allTransactions.push(...responseData.results);
+                nextPage = responseData.next;
+              } else {
+                allTransactions.push(responseData);
+                break;
+              }
+
+              if (!responseData.next) break;
+            }
+          } catch (error) {
+            console.error(`Error fetching ${endpoint}:`, error);
+          }
+        }
+        return allTransactions;
+      };
+
+      // Fetch all data concurrently
+      const [walletsResponse, usersResponse, allTransactions] = 
         await Promise.allSettled([
           fetchWithAuth("payments/admin/manage-user-wallet/"),
-          fetchWithAuth("users/list-users/"),
-          fetchWithAuth("payments/transactions/"),
+          fetchWithAuth("users/"),
+          fetchAllTransactions()
         ]);
 
       // Handle wallets response
       let walletsData = [];
       if (walletsResponse.status === "fulfilled") {
         const responseData = walletsResponse.value;
-        // Handle the nested response structure
-        walletsData =
-          responseData?.data || responseData?.results || responseData || [];
+        walletsData = responseData?.data || responseData?.results || responseData || [];
       } else {
         console.error("Failed to fetch wallets:", walletsResponse.reason);
         toast.error("Failed to fetch wallet data");
@@ -82,9 +138,7 @@ const WalletManagement = () => {
       let usersData = [];
       if (usersResponse.status === "fulfilled") {
         const responseData = usersResponse.value;
-        // Handle the nested response structure
-        usersData =
-          responseData?.data || responseData?.results || responseData || [];
+        usersData = responseData?.data || responseData?.results || responseData || [];
       } else {
         console.error("Failed to fetch users:", usersResponse.reason);
         toast.error("Failed to fetch users data");
@@ -92,47 +146,25 @@ const WalletManagement = () => {
 
       // Handle transactions response
       let transactionsData = [];
-      if (transactionsResponse.status === "fulfilled") {
-        const responseData = transactionsResponse.value;
-        // Handle the nested response structure
-        transactionsData =
-          responseData?.data || responseData?.results || responseData || [];
+      if (allTransactions.status === "fulfilled") {
+        transactionsData = allTransactions.value || [];
       } else {
-        console.error(
-          "Failed to fetch transactions:",
-          transactionsResponse.reason,
-        );
-        // Don't show error toast for transactions as it's not critical
+        console.error("Failed to fetch transactions:", allTransactions.reason);
       }
 
-      setWallets(walletsData);
-      setUsers(usersData);
-      setTransactions(transactionsData);
+      // Set the data with defensive programming
+      setWallets(Array.isArray(walletsData) ? walletsData : []);
+      setUsers(Array.isArray(usersData) ? usersData : []);
+      setTransactions(Array.isArray(transactionsData) ? transactionsData : []);
 
-      // Calculate stats
-      const totalUsers = usersData.length;
-      const totalWalletBalance = walletsData.reduce(
-        (sum, wallet) => sum + parseFloat(wallet.balance || 0),
-        0,
-      );
-      const totalTransactions = transactionsData.length;
-      const pendingTransactions = transactionsData.filter(
-        (t) => t.status === "pending",
-      ).length;
-
-      setStats({
-        totalUsers,
-        totalWalletBalance,
-        totalTransactions,
-        pendingTransactions,
-      });
     } catch (error) {
       console.error("Error fetching data:", error);
-      handleApiError(error, "Failed to fetch wallet management data");
+      toast.error("Failed to fetch data");
     } finally {
-      setLoading(false);
+      setIsLoadingUsers(false);
+      setIsLoadingTransactions(false);
     }
-  };
+  }, [token]);
 
   const handleWalletOperation = async () => {
     if (!selectedWallet || !amount || !reason) {
