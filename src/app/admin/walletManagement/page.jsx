@@ -30,7 +30,7 @@ const WalletManagement = () => {
   const [users, setUsers] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [activeTab, setActiveTab] = useState("User Wallets");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedWallet, setSelectedWallet] = useState(null);
@@ -63,11 +63,7 @@ const WalletManagement = () => {
     }
   }, []);
 
-  useEffect(() => {
-    if (token) {
-      fetchData();
-    }
-  }, [token, fetchData]);
+
 
   const fetchData = useCallback(async () => {
     if (!token) return;
@@ -165,6 +161,14 @@ const WalletManagement = () => {
       setIsLoadingTransactions(false);
     }
   }, [token]);
+
+
+    useEffect(() => {
+    if (token) {
+      fetchData();
+    }
+  }, [token, fetchData]);
+
 
   const handleWalletOperation = async () => {
     if (!selectedWallet || !amount || !reason) {
