@@ -423,7 +423,7 @@ const Dashboard = () => {
           <div className="animate-pulse">Loading dashboard data...</div>
         </div>
       ) : (
-        <>
+        <div>
           {/* Stats Cards */}
           <div className='mb-8'>
             {isLoadingStats ? (
@@ -642,8 +642,7 @@ const Dashboard = () => {
               />
             </div>
           </div>
-        </>
-      )}
+        </div>
     </div>
   )
 }
