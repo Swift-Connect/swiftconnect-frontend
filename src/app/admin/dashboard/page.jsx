@@ -155,7 +155,7 @@ const Dashboard = () => {
     setIsLoadingUsers(true);
     try {
       // Using correct endpoint from swagger
-      const response = await fetchWithAuth("/users/");
+      const response = await fetchWithAuth("users/");
       return response?.results || response || [];
     } catch (error) {
       console.error("Error fetching user data:", error);
@@ -170,8 +170,8 @@ const Dashboard = () => {
     try {
       // Using correct KYC endpoints
       const [allKycResponse, pendingKycResponse] = await Promise.allSettled([
-        fetchWithAuth("/kyc/submissions/"),
-        fetchWithAuth("/kyc/pending/"),
+        fetchWithAuth("kyc/submissions/"),
+        fetchWithAuth("kyc/pending/"),
       ]);
 
       let allKycData = [];
@@ -201,13 +201,13 @@ const Dashboard = () => {
     try {
       // Using correct transaction endpoints
       const endpoints = [
-        "/transactions/",
-        "/transactions/airtime/",
-        "/transactions/data/",
-        "/transactions/cable/",
-        "/transactions/electricity/",
-        "/transactions/education/",
-        "/transactions/sms/",
+        "transactions/",
+        "transactions/airtime/",
+        "transactions/data/",
+        "transactions/cable/",
+        "transactions/electricity/",
+        "transactions/education/",
+        "transactions/sms/",
       ];
 
       const responses = await Promise.allSettled(
