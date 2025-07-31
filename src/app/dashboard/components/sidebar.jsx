@@ -22,9 +22,9 @@ const MenuItems = {
       path: '/admin/user-management'
     },
     {
-      label: 'Role-Based Access Control',
-      icon: 'home.svg',
-      path: '/admin/role-based-access-control'
+      label: 'Wallet Management',
+      icon: 'Pay.svg',
+      path: '/admin/wallet-management'
     },
     {
       label: 'Transaction Management',
@@ -32,9 +32,55 @@ const MenuItems = {
       path: '/admin/transaction-management'
     },
     {
+      label: 'Referral System',
+      icon: 'Gift.svg',
+      path: '/admin/referral-system'
+    },
+    {
+      label: 'Service Management API',
+      icon: 'code-tags.svg',
+      path: '/admin/service-management-api'
+    },
+    {
       label: 'Payment Gateway Integration',
-      icon: 'home.svg',
+      icon: 'Card.svg',
       path: '/admin/payment-gateway-integration'
+    },
+    {
+      label: 'Banking Services',
+      icon: 'Pay.svg',
+      path: '/admin/banking-services'
+    },
+    {
+      label: 'KYC Management',
+      icon: 'home.svg',
+      path: '/admin/kyc-management'
+    },
+    {
+      label: 'Notification System',
+      icon: 'home.svg',
+      path: '/admin/notification-system'
+    },
+    {
+      label: 'Virtual Card Management',
+      icon: 'Card.svg',
+      path: '/admin/virtual-card-management'
+    },
+    {
+      label: 'Audit Logs',
+      icon: 'home.svg',
+      path: '/admin/audit-logs'
+    },
+    {
+      label: 'Reports and Analytics',
+      icon: 'home.svg',
+      path: '/admin/reports-and-analytics'
+    },
+    { label: 'Settings', icon: 'home.svg', path: '/admin/settings' },
+    {
+      label: 'Role-Based Access Control',
+      icon: 'home.svg',
+      path: '/admin/role-based-access-control'
     },
     {
       label: 'Reseller Management',
@@ -42,21 +88,25 @@ const MenuItems = {
       path: '/admin/reseller-management'
     },
     {
-      label: 'Service Management API',
-      icon: 'home.svg',
-      path: '/admin/service-management-api'
+      label: 'API Management',
+      icon: 'code-tags.svg',
+      path: '/admin/api-management'
     },
     {
-      label: 'Referral System',
+      label: 'System Monitoring',
       icon: 'home.svg',
-      path: '/admin/referral-system'
+      path: '/admin/system-monitoring'
     },
     {
-      label: 'Reports and Analytics',
+      label: 'Customer Support',
       icon: 'home.svg',
-      path: '/admin/reports-and-analytics'
+      path: '/admin/customer-support'
     },
-    { label: 'Settings', icon: 'home.svg', path: '/admin/settings' }
+    {
+      label: 'Marketing Tools',
+      icon: 'home.svg',
+      path: '/admin/marketing-tools'
+    }
   ]
 }
 
