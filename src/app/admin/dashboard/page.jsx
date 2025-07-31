@@ -201,13 +201,13 @@ const Dashboard = () => {
     try {
       // Using correct transaction endpoints
       const endpoints = [
-        "transactions/",
-        "transactions/airtime/",
-        "transactions/data/",
-        "transactions/cable/",
-        "transactions/electricity/",
-        "transactions/education/",
-        "transactions/sms/",
+        "services/transactions/",
+        "services/transactions/airtime/",
+        "services/transactions/data/",
+        "services/transactions/cable/",
+        "services/transactions/electricity/",
+        "services/transactions/education/",
+        "services/transactions/sms/",
       ];
 
       const responses = await Promise.allSettled(
@@ -504,10 +504,7 @@ const Dashboard = () => {
             <div className="mb-4">
               <h2 className="text-3xl font-bold text-gray-900">
                 {formatCurrency(
-                  incomeData.reduce(
-                    (sum, item) => sum + item.transactions,
-                    0,
-                  ),
+                  incomeData.reduce((sum, item) => sum + item.transactions, 0),
                 )}
               </h2>
               <p className="text-green-600 text-sm font-medium">
@@ -575,11 +572,7 @@ const Dashboard = () => {
                     borderRadius: "8px",
                   }}
                 />
-                <Bar
-                  dataKey="visitors"
-                  fill="#10b981"
-                  radius={[4, 4, 0, 0]}
-                />
+                <Bar dataKey="visitors" fill="#10b981" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -616,10 +609,7 @@ const Dashboard = () => {
 
             <div className="space-y-2 mt-4 pt-4 border-t">
               {userData.map((item, index) => (
-                <div
-                  key={item.name}
-                  className="flex justify-between text-sm"
-                >
+                <div key={item.name} className="flex justify-between text-sm">
                   <div className="flex items-center">
                     <span
                       className={`w-3 h-3 rounded-full mr-2`}

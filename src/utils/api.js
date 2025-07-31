@@ -1,22 +1,24 @@
+import axios from "axios";
+import { toast } from "react-toastify";
 
-import axios from 'axios';
-import { toast } from 'react-toastify';
-
-const BASE_URL = 'https://aesthetic-mandi-swiftconnect-a9332357.koyeb.app/api';
+const BASE_URL = "https://aesthetic-mandi-swiftconnect-a9332357.koyeb.app";
 
 // Create axios instance
 const api = axios.create({
   baseURL: BASE_URL,
   timeout: 30000,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
 // Request interceptor
 api.interceptors.request.use(
   (config) => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+    const token =
+      typeof window !== "undefined"
+        ? localStorage.getItem("access_token")
+        : null;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -24,7 +26,7 @@ api.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // Response interceptor
@@ -35,62 +37,82 @@ api.interceptors.response.use(
   },
   (error) => {
     const { response, request, message } = error;
-    
+
     // Handle different error scenarios
     if (response) {
       // Server responded with error status
       const { status, data } = response;
-      
+
       switch (status) {
         case 401:
           // Unauthorized - redirect to login
-          if (typeof window !== 'undefined') {
-            localStorage.removeItem('access_token');
-            localStorage.removeItem('user');
-            window.location.href = '/account/login';
+          if (typeof window !== "undefined") {
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("user");
+            window.location.href = "/account/login";
           }
           break;
         case 403:
-          console.error('Access forbidden:', data?.message || 'You do not have permission to access this resource');
+          console.error(
+            "Access forbidden:",
+            data?.message ||
+              "You do not have permission to access this resource",
+          );
           break;
         case 404:
-          console.error('Resource not found:', data?.message || 'The requested resource was not found');
+          console.error(
+            "Resource not found:",
+            data?.message || "The requested resource was not found",
+          );
           break;
         case 422:
-          console.error('Validation error:', data?.message || data?.detail || 'Invalid data provided');
+          console.error(
+            "Validation error:",
+            data?.message || data?.detail || "Invalid data provided",
+          );
           break;
         case 500:
-          console.error('Server error:', data?.message || 'Internal server error occurred');
+          console.error(
+            "Server error:",
+            data?.message || "Internal server error occurred",
+          );
           break;
         default:
-          console.error(`HTTP ${status}:`, data?.message || data?.detail || 'An error occurred');
+          console.error(
+            `HTTP ${status}:`,
+            data?.message || data?.detail || "An error occurred",
+          );
       }
-      
+
       // Return structured error
       return Promise.reject({
         status,
-        message: data?.message || data?.detail || data?.error || `HTTP ${status} Error`,
+        message:
+          data?.message ||
+          data?.detail ||
+          data?.error ||
+          `HTTP ${status} Error`,
         data: data,
-        isApiError: true
+        isApiError: true,
       });
     } else if (request) {
       // Network error
-      console.error('Network error:', message);
+      console.error("Network error:", message);
       return Promise.reject({
         status: 0,
-        message: 'Network error. Please check your connection and try again.',
-        isNetworkError: true
+        message: "Network error. Please check your connection and try again.",
+        isNetworkError: true,
       });
     } else {
       // Request setup error
-      console.error('Request error:', message);
+      console.error("Request error:", message);
       return Promise.reject({
         status: 0,
-        message: message || 'An unexpected error occurred',
-        isRequestError: true
+        message: message || "An unexpected error occurred",
+        isRequestError: true,
       });
     }
-  }
+  },
 );
 
 // Helper functions for common API operations
@@ -149,7 +171,7 @@ export const fetchAllPages = async (endpoint, maxPages = 50) => {
     while (nextPage && pageCount < maxPages) {
       const response = await api.get(nextPage);
       const data = response.data;
-      
+
       if (data.results) {
         allData = allData.concat(data.results);
         nextPage = data.next;
@@ -160,7 +182,7 @@ export const fetchAllPages = async (endpoint, maxPages = 50) => {
         allData.push(data);
         nextPage = null;
       }
-      
+
       pageCount++;
     }
 
@@ -188,19 +210,21 @@ export const handleApiResponse = (response, successMessage = null) => {
 
 // Helper for handling API errors with toast notifications
 export const handleApiError = (error, customMessage = null) => {
-  const message = customMessage || error?.message || 'An error occurred';
-  
+  const message = customMessage || error?.message || "An error occurred";
+
   if (error?.isNetworkError) {
-    toast.error('Network connection error. Please check your internet connection.');
+    toast.error(
+      "Network connection error. Please check your internet connection.",
+    );
   } else if (error?.status === 422) {
     toast.error(message);
   } else if (error?.status >= 500) {
-    toast.error('Server error. Please try again later.');
+    toast.error("Server error. Please try again later.");
   } else {
     toast.error(message);
   }
-  
-  console.error('API Error:', error);
+
+  console.error("API Error:", error);
   return error;
 };
 
