@@ -151,14 +151,15 @@ const KYCForm = ({ setActiveSidebar }) => {
                 <p className="text-red-500 text-sm">{errors.fullname}</p>
               )} */}
 
-              <input
-                type='date'
-                name='date_of_birth'
-                value={formData.date_of_birth}
-                onChange={handleChange}
-                placeholder='Date of Birth'
-                className='w-full px-2 py-4 border rounded-lg bg-none  text-black'
-              />
+     <label className="block text-sm text-gray-600 mb-1">Date of Birth</label>
+<input
+  type="date"
+  name="date_of_birth"
+  value={formData.date_of_birth}
+  onChange={handleChange}
+  className="w-full px-2 py-4 border rounded-lg text-black"
+/>
+
               {/* {errors.date_of_birth && (
                 <p className="text-red-500 text-sm">{errors.date_of_birth}</p>
               )} */}
