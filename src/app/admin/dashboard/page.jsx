@@ -201,13 +201,13 @@ const Dashboard = () => {
     try {
       // Using correct transaction endpoints
       const endpoints = [
-        "services/transactions/",
-        "services/transactions/airtime/",
-        "services/transactions/data/",
-        "services/transactions/cable/",
-        "services/transactions/electricity/",
-        "services/transactions/education/",
-        "services/transactions/sms/",
+        "services/airtime-topups-transactions/",
+        "services/data-plan-transactions/",
+        "services/cable-recharges-transactions/",
+        "services/electricity-transactions/",
+        "services/education-transactions/",
+        "services/bulk-sms-transactions/",
+        "payments/transactions/", // Include wallet transactions
       ];
 
       const responses = await Promise.allSettled(
@@ -217,13 +217,9 @@ const Dashboard = () => {
       let allTransactions = [];
       for (const response of responses) {
         if (response.status === "fulfilled") {
-          try {
-            const data = await response.value.json();
-            const results = data?.results || data || [];
-            allTransactions = allTransactions.concat(results);
-          } catch (parseError) {
-            console.error("Error parsing JSON:", parseError);
-          }
+          const data = response.value;
+          const results = data?.results || data || [];
+          allTransactions = allTransactions.concat(results);
         } else {
           console.error("Request failed:", response.reason);
         }

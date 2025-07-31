@@ -178,8 +178,16 @@ const WalletManagement = () => {
       fetchData(); // Refresh data
     } catch (error) {
       console.error("Wallet operation error:", error);
+      
+      let errorMessage = "Unknown error occurred";
+      if (error.status === 403 && error.message === "Transaction PIN is required.") {
+        errorMessage = "Admin wallet operations require transaction PIN. Please contact system administrator.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast.update(loadingToast, {
-        render: `Failed to ${walletAction} wallet: ${error.message || "Unknown error occurred"}`,
+        render: `Failed to ${walletAction} wallet: ${errorMessage}`,
         type: "error",
         isLoading: false,
         autoClose: 5000,
@@ -214,9 +222,17 @@ const WalletManagement = () => {
 
       const successful = results.filter(r => r.status === "fulfilled").length;
       const failed = results.filter(r => r.status === "rejected").length;
+      const failedReasons = results
+        .filter(r => r.status === "rejected")
+        .map(r => r.reason?.message || "Unknown error");
+
+      let message = `Bulk credit completed: ${successful} successful, ${failed} failed`;
+      if (failed > 0 && failedReasons.some(r => r.includes("Transaction PIN"))) {
+        message += " (Transaction PIN required for admin operations)";
+      }
 
       toast.update(loadingToast, {
-        render: `Bulk credit completed: ${successful} successful, ${failed} failed`,
+        render: message,
         type: successful > 0 ? "success" : "error",
         isLoading: false,
         autoClose: 5000,
