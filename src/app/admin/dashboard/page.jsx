@@ -152,6 +152,7 @@ const Dashboard = () => {
 
   // API functions with correct endpoints based on swagger docs
   const fetchUsers = useCallback(async () => {
+    setIsLoadingUsers(true);
     try {
       // Using correct endpoint from swagger
       const response = await fetchWithAuth("/users/");
@@ -159,10 +160,13 @@ const Dashboard = () => {
     } catch (error) {
       console.error("Error fetching user data:", error);
       return [];
+    } finally {
+      setIsLoadingUsers(false);
     }
   }, []);
 
   const fetchKYC = useCallback(async () => {
+    setIsLoadingKYC(true);
     try {
       // Using correct KYC endpoints
       const [allKycResponse, pendingKycResponse] = await Promise.allSettled([
@@ -187,10 +191,13 @@ const Dashboard = () => {
     } catch (error) {
       console.error("Error fetching KYC data:", error);
       return { allKycData: [], pendingKycData: [] };
+    } finally {
+      setIsLoadingKYC(false);
     }
   }, []);
 
   const fetchTransactions = useCallback(async () => {
+    setIsLoadingTransactions(true);
     try {
       // Using correct transaction endpoints
       const endpoints = [
@@ -226,6 +233,8 @@ const Dashboard = () => {
     } catch (error) {
       console.error("Error fetching transactions:", error);
       return [];
+    } finally {
+      setIsLoadingTransactions(false);
     }
   }, []);
 
@@ -375,10 +384,14 @@ const Dashboard = () => {
     const fetchData = async () => {
       setIsLoadingDashboard(true);
       try {
+        const usersPromise = fetchUsers();
+        const kycDataPromise = fetchKYC();
+        const transactionsPromise = fetchTransactions();
+
         const [users, kycData, transactions] = await Promise.all([
-          fetchUsers(),
-          fetchKYC(),
-          fetchTransactions(),
+          usersPromise,
+          kycDataPromise,
+          transactionsPromise,
         ]);
 
         const processedUsers = processUsers(users);
@@ -454,263 +467,255 @@ const Dashboard = () => {
 
   return (
     <div className="overflow-hidden bg-gray-50 min-h-screen">
-      {isLoadingDashboard ? (
-        <div className="text-center py-8">
-          <div className="animate-pulse">Loading dashboard data...</div>
-        </div>
-      ) : (
-        <div>
-          {/* Stats Cards */}
-          <div className="mb-8">
-            {isLoadingStats ? (
-              <div className="text-center py-8">
-                <div className="animate-pulse">Loading dashboard stats...</div>
+      {/* Stats Cards */}
+      <div className="mb-8">
+        {isLoadingStats ? (
+          <div className="text-center py-8">
+            <div className="animate-pulse">Loading dashboard stats...</div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {stats.map((stat, index) => (
+              <Card
+                key={index}
+                title={stat.title}
+                value={stat.value}
+                icon={stat.icon}
+                bgColor={stat.bgColor}
+                textColor={stat.textColor}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Charts Section */}
+      {!isLoadingStats && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          {/* Income Chart */}
+          <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-gray-800">
+                Income Overview
+              </h3>
+              <span className="text-sm text-gray-500">This Week</span>
+            </div>
+
+            <div className="mb-4">
+              <h2 className="text-3xl font-bold text-gray-900">
+                {formatCurrency(
+                  incomeData.reduce(
+                    (sum, item) => sum + item.transactions,
+                    0,
+                  ),
+                )}
+              </h2>
+              <p className="text-green-600 text-sm font-medium">
+                Total Income +2.45%
+              </p>
+            </div>
+
+            <ResponsiveContainer width="100%" height={200}>
+              <LineChart data={incomeData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="name" stroke="#6b7280" fontSize={12} />
+                <YAxis stroke="#6b7280" fontSize={12} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "white",
+                    border: "1px solid #e5e7eb",
+                    borderRadius: "8px",
+                  }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="transactions"
+                  stroke="#1D4ED8"
+                  strokeWidth={3}
+                  dot={{ fill: "#1D4ED8" }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+
+            <div className="flex justify-between text-sm mt-4 pt-4 border-t">
+              <div className="flex items-center">
+                <div className="w-3 h-3 bg-blue-700 rounded-full mr-2"></div>
+                <span className="text-gray-600">Transactions</span>
               </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {stats.map((stat, index) => (
-                  <Card
-                    key={index}
-                    title={stat.title}
-                    value={stat.value}
-                    icon={stat.icon}
-                    bgColor={stat.bgColor}
-                    textColor={stat.textColor}
-                  />
-                ))}
-              </div>
-            )}
+            </div>
           </div>
 
-          {/* Charts Section */}
-          {!isLoadingStats && (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-              {/* Income Chart */}
-              <div className="bg-white p-6 rounded-lg shadow-sm border">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-semibold text-gray-800">
-                    Income Overview
-                  </h3>
-                  <span className="text-sm text-gray-500">This Week</span>
-                </div>
+          {/* Traffic Chart */}
+          <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-gray-800">
+                Daily Traffic
+              </h3>
+            </div>
 
-                <div className="mb-4">
-                  <h2 className="text-3xl font-bold text-gray-900">
-                    {formatCurrency(
-                      incomeData.reduce(
-                        (sum, item) => sum + item.transactions,
-                        0,
-                      ),
-                    )}
-                  </h2>
-                  <p className="text-green-600 text-sm font-medium">
-                    Total Income +2.45%
-                  </p>
-                </div>
+            <div className="mb-4">
+              <h2 className="text-3xl font-bold text-gray-900">
+                {trafficData
+                  .reduce((sum, item) => sum + item.visitors, 0)
+                  .toLocaleString()}
+              </h2>
+              <p className="text-green-600 text-sm font-medium">
+                Visitors +2.45%
+              </p>
+            </div>
 
-                <ResponsiveContainer width="100%" height={200}>
-                  <LineChart data={incomeData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                    <XAxis dataKey="name" stroke="#6b7280" fontSize={12} />
-                    <YAxis stroke="#6b7280" fontSize={12} />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: "white",
-                        border: "1px solid #e5e7eb",
-                        borderRadius: "8px",
-                      }}
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={trafficData}>
+                <XAxis dataKey="name" stroke="#6b7280" fontSize={12} />
+                <YAxis stroke="#6b7280" fontSize={12} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "white",
+                    border: "1px solid #e5e7eb",
+                    borderRadius: "8px",
+                  }}
+                />
+                <Bar
+                  dataKey="visitors"
+                  fill="#10b981"
+                  radius={[4, 4, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* User Breakdown */}
+          <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+              Users Breakdown
+            </h3>
+
+            <ResponsiveContainer width="100%" height={200}>
+              <PieChart>
+                <Pie
+                  data={userData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                  label={({ name, percent }) =>
+                    `${name}: ${(percent * 100).toFixed(0)}%`
+                  }
+                >
+                  {userData.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
                     />
-                    <Line
-                      type="monotone"
-                      dataKey="transactions"
-                      stroke="#1D4ED8"
-                      strokeWidth={3}
-                      dot={{ fill: "#1D4ED8" }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-
-                <div className="flex justify-between text-sm mt-4 pt-4 border-t">
-                  <div className="flex items-center">
-                    <div className="w-3 h-3 bg-blue-700 rounded-full mr-2"></div>
-                    <span className="text-gray-600">Transactions</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Traffic Chart */}
-              <div className="bg-white p-6 rounded-lg shadow-sm border">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-semibold text-gray-800">
-                    Daily Traffic
-                  </h3>
-                </div>
-
-                <div className="mb-4">
-                  <h2 className="text-3xl font-bold text-gray-900">
-                    {trafficData
-                      .reduce((sum, item) => sum + item.visitors, 0)
-                      .toLocaleString()}
-                  </h2>
-                  <p className="text-green-600 text-sm font-medium">
-                    Visitors +2.45%
-                  </p>
-                </div>
-
-                <ResponsiveContainer width="100%" height={200}>
-                  <BarChart data={trafficData}>
-                    <XAxis dataKey="name" stroke="#6b7280" fontSize={12} />
-                    <YAxis stroke="#6b7280" fontSize={12} />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: "white",
-                        border: "1px solid #e5e7eb",
-                        borderRadius: "8px",
-                      }}
-                    />
-                    <Bar
-                      dataKey="visitors"
-                      fill="#10b981"
-                      radius={[4, 4, 0, 0]}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-
-              {/* User Breakdown */}
-              <div className="bg-white p-6 rounded-lg shadow-sm border">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                  Users Breakdown
-                </h3>
-
-                <ResponsiveContainer width="100%" height={200}>
-                  <PieChart>
-                    <Pie
-                      data={userData}
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                      label={({ name, percent }) =>
-                        `${name}: ${(percent * 100).toFixed(0)}%`
-                      }
-                    >
-                      {userData.map((entry, index) => (
-                        <Cell
-                          key={`cell-${index}`}
-                          fill={COLORS[index % COLORS.length]}
-                        />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-
-                <div className="space-y-2 mt-4 pt-4 border-t">
-                  {userData.map((item, index) => (
-                    <div
-                      key={item.name}
-                      className="flex justify-between text-sm"
-                    >
-                      <div className="flex items-center">
-                        <span
-                          className={`w-3 h-3 rounded-full mr-2`}
-                          style={{
-                            backgroundColor: COLORS[index % COLORS.length],
-                          }}
-                        ></span>
-                        <span className="text-gray-600">{item.name}</span>
-                      </div>
-                      <span className="font-medium">
-                        {item.value.toLocaleString()}
-                      </span>
-                    </div>
                   ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+
+            <div className="space-y-2 mt-4 pt-4 border-t">
+              {userData.map((item, index) => (
+                <div
+                  key={item.name}
+                  className="flex justify-between text-sm"
+                >
+                  <div className="flex items-center">
+                    <span
+                      className={`w-3 h-3 rounded-full mr-2`}
+                      style={{
+                        backgroundColor: COLORS[index % COLORS.length],
+                      }}
+                    ></span>
+                    <span className="text-gray-600">{item.name}</span>
+                  </div>
+                  <span className="font-medium">
+                    {item.value.toLocaleString()}
+                  </span>
                 </div>
-              </div>
-            </div>
-          )}
-
-          {/* Pending KYC Table */}
-          <div className="bg-white rounded-lg shadow-sm border mb-8">
-            <div className="p-6">
-              <TableTabs
-                header={"Pending Tasks"}
-                setActiveTab={setActiveTabPending}
-                activeTab={activeTabPending}
-                tabs={["Approve KYC"]}
-                from="dashboard"
-                onSearchChange={setSearchTerm}
-                searchValue={searchTerm}
-              />
-
-              <UsersTable
-                userssData={filteredKYCData.slice(
-                  (currentPage - 1) * itemsPerPage,
-                  currentPage * itemsPerPage,
-                )}
-                currentPage={currentPage}
-                itemsPerPage={itemsPerPage}
-                isLoading={isLoadingKYC}
-                actionItem={actionItem}
-                setActionItem={setActionItem}
-              />
-
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={setCurrentPage}
-                itemsPerPage={itemsPerPage}
-                totalItems={filteredKYCData.length}
-              />
-            </div>
-          </div>
-
-          {/* Recent Transactions Table */}
-          <div className="bg-white rounded-lg shadow-sm border">
-            <div className="p-6">
-              <TableTabs
-                header={"Recent Transactions"}
-                setActiveTab={setActiveTabTransactions}
-                activeTab={activeTabTransactions}
-                tabs={["All Transactions", "Credit", "Debit"]}
-                from="dashboard"
-                filterOptions={[
-                  { label: "Success", value: "Success" },
-                  { label: "Failed", value: "Failed" },
-                  { label: "Refunded", value: "Refunded" },
-                  { label: "Pending", value: "Pending" },
-                ]}
-                onFilterChange={setTransactionFilter}
-                onSearchChange={setSearchTerm}
-                onDateRangeChange={setDateRange}
-                searchValue={searchTerm}
-                dateRange={dateRange}
-              />
-
-              <TransactionsTable
-                data={filteredTransactionData.slice(
-                  (currentPageTrx - 1) * itemsPerPage,
-                  currentPageTrx * itemsPerPage,
-                )}
-                currentPage={currentPageTrx}
-                itemsPerPage={itemsPerPage}
-                isLoading={isLoadingTransactions}
-                activeTabTransactions={activeTabTransactions}
-              />
-
-              <Pagination
-                currentPage={currentPageTrx}
-                totalPages={totalPagesTrx}
-                onPageChange={setCurrentPageTrx}
-                itemsPerPage={itemsPerPage}
-                totalItems={filteredTransactionData.length}
-              />
+              ))}
             </div>
           </div>
         </div>
       )}
+
+      {/* Pending KYC Table */}
+      <div className="bg-white rounded-lg shadow-sm border mb-8">
+        <div className="p-6">
+          <TableTabs
+            header={"Pending Tasks"}
+            setActiveTab={setActiveTabPending}
+            activeTab={activeTabPending}
+            tabs={["Approve KYC"]}
+            from="dashboard"
+            onSearchChange={setSearchTerm}
+            searchValue={searchTerm}
+          />
+
+          <UsersTable
+            userssData={filteredKYCData.slice(
+              (currentPage - 1) * itemsPerPage,
+              currentPage * itemsPerPage,
+            )}
+            currentPage={currentPage}
+            itemsPerPage={itemsPerPage}
+            isLoading={isLoadingKYC}
+            actionItem={actionItem}
+            setActionItem={setActionItem}
+          />
+
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            itemsPerPage={itemsPerPage}
+            totalItems={filteredKYCData.length}
+          />
+        </div>
+      </div>
+
+      {/* Recent Transactions Table */}
+      <div className="bg-white rounded-lg shadow-sm border">
+        <div className="p-6">
+          <TableTabs
+            header={"Recent Transactions"}
+            setActiveTab={setActiveTabTransactions}
+            activeTab={activeTabTransactions}
+            tabs={["All Transactions", "Credit", "Debit"]}
+            from="dashboard"
+            filterOptions={[
+              { label: "Success", value: "Success" },
+              { label: "Failed", value: "Failed" },
+              { label: "Refunded", value: "Refunded" },
+              { label: "Pending", value: "Pending" },
+            ]}
+            onFilterChange={setTransactionFilter}
+            onSearchChange={setSearchTerm}
+            onDateRangeChange={setDateRange}
+            searchValue={searchTerm}
+            dateRange={dateRange}
+          />
+
+          <TransactionsTable
+            data={filteredTransactionData.slice(
+              (currentPageTrx - 1) * itemsPerPage,
+              currentPageTrx * itemsPerPage,
+            )}
+            currentPage={currentPageTrx}
+            itemsPerPage={itemsPerPage}
+            isLoading={isLoadingTransactions}
+            activeTabTransactions={activeTabTransactions}
+          />
+
+          <Pagination
+            currentPage={currentPageTrx}
+            totalPages={totalPagesTrx}
+            onPageChange={setCurrentPageTrx}
+            itemsPerPage={itemsPerPage}
+            totalItems={filteredTransactionData.length}
+          />
+        </div>
+      </div>
     </div>
   );
 };
