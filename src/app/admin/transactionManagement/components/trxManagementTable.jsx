@@ -109,7 +109,7 @@ const TrxManagementTable = ({
                   {transaction.product}
                 </td>
                 <td className='py-[1.3em] px-[1.8em] text-[#9CA3AF]'>
-                  #{transaction.id}
+                  #{transaction.transaction_id}
                 </td>
                 <td className='py-[1.3em] px-[1.8em] text-[#9CA3AF]'>
                   {new Date(transaction.date).toLocaleDateString('en-GB')}
