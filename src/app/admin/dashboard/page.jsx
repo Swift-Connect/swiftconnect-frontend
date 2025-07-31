@@ -90,11 +90,18 @@ const Dashboard = () => {
   });
 
   const filteredKYCData = usersKYCPendingData.filter((user) => {
-    return (
+    const matchesSearch =
       !searchTerm ||
       user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.account_id.toString().includes(searchTerm)
-    );
+      user.account_id.toString().includes(searchTerm);
+
+    // Show only pending KYC by default for the dashboard
+    const isPending =
+      user.status === "Pending" ||
+      !user.status ||
+      user.status === "Not Approved";
+
+    return matchesSearch && isPending;
   });
 
   const totalPages = Math.ceil(filteredKYCData.length / itemsPerPage);
@@ -168,29 +175,15 @@ const Dashboard = () => {
   const fetchKYC = useCallback(async () => {
     setIsLoadingKYC(true);
     try {
-      // Using correct KYC endpoints
-      const [allKycResponse, pendingKycResponse] = await Promise.allSettled([
-        fetchWithAuth("kyc/submissions/"),
-        fetchWithAuth("kyc/pending/"),
-      ]);
+      // Fetch all KYC records at once
+      const kycResponse = await fetchWithAuth("users/all-kyc/");
+      const allKycData =
+        kycResponse?.data || kycResponse?.results || kycResponse || [];
 
-      let allKycData = [];
-      let pendingKycData = [];
-
-      if (allKycResponse.status === "fulfilled") {
-        const data = await allKycResponse.value.json();
-        allKycData = data?.results || data || [];
-      }
-
-      if (pendingKycResponse.status === "fulfilled") {
-        const data = await pendingKycResponse.value.json();
-        pendingKycData = data?.results || data || [];
-      }
-
-      return { allKycData, pendingKycData };
+      return allKycData;
     } catch (error) {
       console.error("Error fetching KYC data:", error);
-      return { allKycData: [], pendingKycData: [] };
+      return [];
     } finally {
       setIsLoadingKYC(false);
     }
@@ -199,7 +192,7 @@ const Dashboard = () => {
   const fetchTransactions = useCallback(async () => {
     setIsLoadingTransactions(true);
     try {
-      // Using correct transaction endpoints
+      // Fetch all transaction types at once
       const endpoints = [
         "services/airtime-topups-transactions/",
         "services/data-plan-transactions/",
@@ -207,32 +200,28 @@ const Dashboard = () => {
         "services/electricity-transactions/",
         "services/education-transactions/",
         "services/bulk-sms-transactions/",
-        "payments/transactions/", // Include wallet transactions
+        "payments/transactions/",
       ];
 
-      const responses = await Promise.allSettled(
-        endpoints.map((endpoint) => fetchWithAuth(endpoint)),
+      const allData = await Promise.all(
+        endpoints.map(async (endpoint) => {
+          try {
+            return await fetchAllPages(endpoint);
+          } catch (error) {
+            console.error(`Error fetching ${endpoint}:`, error);
+            return [];
+          }
+        }),
       );
 
-      let allTransactions = [];
-      for (const response of responses) {
-        if (response.status === "fulfilled") {
-          const data = response.value;
-          const results = data?.results || data || [];
-          allTransactions = allTransactions.concat(results);
-        } else {
-          console.error("Request failed:", response.reason);
-        }
-      }
-
-      return allTransactions;
+      return allData.flat();
     } catch (error) {
       console.error("Error fetching transactions:", error);
       return [];
     } finally {
       setIsLoadingTransactions(false);
     }
-  }, []);
+  }, [fetchAllPages]);
 
   const processUsers = useCallback((usersData) => {
     const validUsers = usersData.filter((user) => user?.id);
@@ -384,7 +373,7 @@ const Dashboard = () => {
         const kycDataPromise = fetchKYC();
         const transactionsPromise = fetchTransactions();
 
-        const [users, kycData, transactions] = await Promise.all([
+        const [users, allKycData, transactions] = await Promise.all([
           usersPromise,
           kycDataPromise,
           transactionsPromise,
@@ -393,8 +382,7 @@ const Dashboard = () => {
         const processedUsers = processUsers(users);
         setUserssData(processedUsers);
 
-        const { allKycData, pendingKycData } = kycData;
-        const processedKYC = processKYC(pendingKycData);
+        const processedKYC = processKYC(allKycData);
         setUsersKYCPendingData(processedKYC);
 
         const processedTransactions = processTransactions(transactions);
