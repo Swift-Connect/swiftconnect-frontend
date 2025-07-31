@@ -15,14 +15,9 @@ const UsersTable = ({
     "Account Id",
     "Fullname",
     "Email",
+    "verified",
+    "gender",
     "Phone Number",
-    "Wallet number",
-    "Previous Balance",
-    "Referrals",
-    "Referral Bonus",
-    "Last Login",
-    "Date Joined",
-    "Status",
   ];
 
   const [checkedItems, setCheckedItems] = useState(
@@ -118,27 +113,17 @@ const UsersTable = ({
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
                   {user?.email}
                 </td>
+                <td className={`py-[1.3em] px-[1.8em]  ${user?.email_verified == true ? "text-green-600 " : "text-red-600"}`}>
+                  {user?.email_verified ? "Verified" : "Not Verified"}
+                </td>
+                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
+                  {user?.gender || "Not Specified"}
+                </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
                   {user?.phone_number}
                 </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user?.wallet_number}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user?.previous_balance}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user?.referrals}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user?.referral_bonus}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user?.last_login}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user?.date_joined}
-                </td>
+                
+           
                 <td className="py-[1.3em] px-[1.8em] text-[#fff] relative flex items-center gap-2">
                   {/*
                   <span

@@ -21,11 +21,11 @@ const MenuItems = {
       icon: 'home.svg',
       path: '/admin/user-management'
     },
-    {
-      label: 'Role-Based Access Control',
-      icon: 'home.svg',
-      path: '/admin/role-based-access-control'
-    },
+    // {
+    //   label: 'Role-Based Access Control',
+    //   icon: 'home.svg',
+    //   path: '/admin/role-based-access-control'
+    // },
     {
       label: 'Transaction Management',
       icon: 'home.svg',
