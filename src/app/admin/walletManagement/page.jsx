@@ -64,7 +64,9 @@ const WalletManagement = () => {
       // Handle wallets response
       let walletsData = [];
       if (walletsResponse.status === "fulfilled") {
-        walletsData = walletsResponse.value?.results || walletsResponse.value || [];
+        const responseData = walletsResponse.value;
+        // Handle the nested response structure
+        walletsData = responseData?.data || responseData?.results || responseData || [];
       } else {
         console.error("Failed to fetch wallets:", walletsResponse.reason);
         toast.error("Failed to fetch wallet data");
@@ -73,7 +75,9 @@ const WalletManagement = () => {
       // Handle users response
       let usersData = [];
       if (usersResponse.status === "fulfilled") {
-        usersData = usersResponse.value?.results || usersResponse.value || [];
+        const responseData = usersResponse.value;
+        // Handle the nested response structure
+        usersData = responseData?.data || responseData?.results || responseData || [];
       } else {
         console.error("Failed to fetch users:", usersResponse.reason);
         toast.error("Failed to fetch users data");
@@ -82,7 +86,9 @@ const WalletManagement = () => {
       // Handle transactions response
       let transactionsData = [];
       if (transactionsResponse.status === "fulfilled") {
-        transactionsData = transactionsResponse.value?.results || transactionsResponse.value || [];
+        const responseData = transactionsResponse.value;
+        // Handle the nested response structure
+        transactionsData = responseData?.data || responseData?.results || responseData || [];
       } else {
         console.error("Failed to fetch transactions:", transactionsResponse.reason);
         // Don't show error toast for transactions as it's not critical
@@ -287,12 +293,12 @@ const WalletManagement = () => {
     }
   };
 
-  const filteredWallets = wallets.filter(wallet =>
+  const filteredWallets = (Array.isArray(wallets) ? wallets : []).filter(wallet =>
     wallet.user_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     wallet.id?.toString().includes(searchTerm)
   );
 
-  const filteredTransactions = transactions.filter(tx =>
+  const filteredTransactions = (Array.isArray(transactions) ? transactions : []).filter(tx =>
     tx.reason?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     tx.user_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     tx.id?.toString().includes(searchTerm)
