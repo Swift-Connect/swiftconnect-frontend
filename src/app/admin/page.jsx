@@ -5,6 +5,7 @@ import Sidebar from "../dashboard/components/sidebar";
 import UserManagement from "./userManagement/user_management";
 import Dashboard from "./dashboard/page";
 import TransactionManagement from "./transactionManagement/transactionManagement";
+import WalletManagement from "./walletManagement/page";
 import ReferralSystem from "./referralSystem/page";
 import SMA from "./serviceApiManagement/page";
 import BankingServices from "./bankingServices/page";
@@ -15,6 +16,7 @@ import AuditLog from "./auditLog/page";
 import ReporstAndAnalytics from "./reportsAndAnalytics/page";
 import ProfileSettings from "./settings/page";
 import RoleBasedAccessControl from "./roleBaseAccessControl/page";
+import KYCManagement from "./kycManagement/page";
 import "../globals.css";
 import ResellerManagement from "./resellerManagement/page";
 import APIManagement from "./APIManagement/page";
@@ -58,6 +60,22 @@ const AdminPage = () => {
       case "Transaction Management":
         return (
           <TransactionManagement
+            setActiveSidebar={setActiveSidebar}
+            data={data}
+            user={user}
+          />
+        );
+      case "Wallet Management":
+        return (
+          <WalletManagement
+            setActiveSidebar={setActiveSidebar}
+            data={data}
+            user={user}
+          />
+        );
+      case "KYC Management":
+        return (
+          <KYCManagement
             setActiveSidebar={setActiveSidebar}
             data={data}
             user={user}

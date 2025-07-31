@@ -1,21 +1,25 @@
-import api from '@/utils/api'
+
 import React, { useState } from 'react'
-import { toast, ToastContainer } from 'react-toastify'
-import { fetchAndUpdateUserData } from '../../../utils/userUtils'
+import { toast } from 'react-toastify'
+import { handleApiError, handleApiResponse } from '@/utils/api'
 import {
   approveKyc,
   rejectKyc,
-  revokeKyc,
-  getKycById
+  revokeKyc
 } from '../../../utils/adminKycUtils'
 
-const ActionPopUp = ({ optionList, setActionItem, onClose, userId, kycId }) => {
+const ActionPopUp = ({ 
+  optionList, 
+  setActionItem, 
+  onClose, 
+  userId, 
+  kycId, 
+  onSuccess 
+}) => {
   const [showReasonModal, setShowReasonModal] = useState(false)
   const [selectedAction, setSelectedAction] = useState(null)
   const [reason, setReason] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
-
-  console.log('the user Id', userId, 'kycId', kycId)
 
   const handleActionClick = action => {
     setSelectedAction(action)
@@ -56,33 +60,26 @@ const ActionPopUp = ({ optionList, setActionItem, onClose, userId, kycId }) => {
           throw new Error('Invalid action')
       }
 
-      // Refresh user data after KYC action
-      try {
-        await fetchAndUpdateUserData()
-        console.log('User data refreshed after KYC action')
-      } catch (userError) {
-        console.error('Error refreshing user data:', userError)
-      }
-
+      handleApiResponse(result)
+      
       toast.update(loadingToast, {
-        render: result.message || `KYC ${action} Successfully`,
+        render: result?.message || `KYC ${action} Successfully`,
         type: 'success',
         isLoading: false,
         autoClose: 3000
       })
 
-      setActionItem(action)
+      if (setActionItem) setActionItem(action)
+      if (onSuccess) onSuccess()
       onClose()
-    } catch (err) {
-      console.log('the error', err)
+    } catch (error) {
+      handleApiError(error)
+      
       toast.update(loadingToast, {
-        render:
-          err.response?.data?.message ||
-          err.response?.data?.details ||
-          `Failed to ${action.toLowerCase()} KYC`,
+        render: error?.message || `Failed to ${action.toLowerCase()} KYC`,
         type: 'error',
         isLoading: false,
-        autoClose: 3000
+        autoClose: 5000
       })
     } finally {
       setIsProcessing(false)
@@ -99,52 +96,82 @@ const ActionPopUp = ({ optionList, setActionItem, onClose, userId, kycId }) => {
     handleKycAction(selectedAction, reason)
   }
 
+  const handleCancel = () => {
+    setShowReasonModal(false)
+    setReason('')
+    setSelectedAction(null)
+  }
+
   return (
     <>
-      <div className='bg-white z-30 text-black shadow-md rounded-2xl absolute top-[80%] right-[-10%]'>
-        <ul className='flex flex-col items-center'>
-          {optionList?.map(item => (
-            <li
+      <div className='bg-white z-30 text-black shadow-lg rounded-xl absolute top-[80%] right-[-10%] border border-gray-200 min-w-[200px]'>
+        <div className="py-2">
+          {optionList?.map((item, index) => (
+            <button
               key={item}
-              className='border-b w-full text-center px-[4em] py-4 hover:bg-gray-200 cursor-pointer'
-              onClick={() => handleActionClick(item)}
+              className={`w-full text-left px-6 py-3 hover:bg-gray-50 cursor-pointer transition-colors flex items-center justify-between ${
+                index !== optionList.length - 1 ? 'border-b border-gray-100' : ''
+              } ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}
+              onClick={() => !isProcessing && handleActionClick(item)}
+              disabled={isProcessing}
             >
-              {item}
-            </li>
+              <span className="font-medium">{item}</span>
+              {item === 'Approved' && <span className="text-green-600 text-sm">✓</span>}
+              {item === 'Not Approved' && <span className="text-red-600 text-sm">✗</span>}
+              {item === 'Revoke' && <span className="text-orange-600 text-sm">⚠</span>}
+            </button>
           ))}
-        </ul>
+        </div>
       </div>
 
       {/* Reason Modal */}
       {showReasonModal && (
-        <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
-          <div className='bg-white rounded-xl p-6 max-w-md w-full mx-4'>
-            <h3 className='text-lg font-bold mb-4'>
-              Provide Reason for {selectedAction}
-            </h3>
+        <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4'>
+          <div className='bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl'>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className='text-lg font-bold text-gray-900'>
+                Provide Reason for {selectedAction}
+              </h3>
+              <button
+                onClick={handleCancel}
+                className="text-gray-400 hover:text-gray-600 text-xl"
+                disabled={isProcessing}
+              >
+                ×
+              </button>
+            </div>
+            
             <textarea
               value={reason}
               onChange={e => setReason(e.target.value)}
-              placeholder={`Enter reason for ${selectedAction.toLowerCase()}...`}
-              className='w-full p-3 border rounded-lg mb-4 h-24 resize-none'
+              placeholder={`Enter reason for ${selectedAction?.toLowerCase()}...`}
+              className='w-full p-3 border border-gray-300 rounded-lg mb-4 h-24 resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
               disabled={isProcessing}
+              maxLength={500}
             />
+            
+            <div className="text-sm text-gray-500 mb-4">
+              {reason.length}/500 characters
+            </div>
+            
             <div className='flex gap-3 justify-end'>
               <button
-                onClick={() => {
-                  setShowReasonModal(false)
-                  setReason('')
-                  setSelectedAction(null)
-                }}
-                className='px-4 py-2 text-gray-600 hover:text-gray-800'
+                onClick={handleCancel}
+                className='px-4 py-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors'
                 disabled={isProcessing}
               >
                 Cancel
               </button>
               <button
                 onClick={handleReasonSubmit}
-                className='px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50'
-                disabled={isProcessing}
+                className={`px-6 py-2 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                  selectedAction === 'Approved' 
+                    ? 'bg-green-600 hover:bg-green-700' 
+                    : selectedAction === 'Not Approved'
+                    ? 'bg-red-600 hover:bg-red-700'
+                    : 'bg-orange-600 hover:bg-orange-700'
+                }`}
+                disabled={isProcessing || (!reason.trim() && selectedAction !== 'Approved')}
               >
                 {isProcessing ? 'Processing...' : 'Submit'}
               </button>
