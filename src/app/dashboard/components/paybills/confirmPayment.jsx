@@ -19,6 +19,7 @@ const ConfirmPayment = ({
 }) => {
   return (
     <div className="min-h-screen w-full flex justify-center items-center">
+      {/* <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6 mx-2 sm:mx-0 mt-8 sm:mt-0"> */}
       <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
         <button
           className="text-sm text-gray-600 mb-4 flex items-center"
