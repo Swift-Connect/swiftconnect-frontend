@@ -145,7 +145,7 @@ const KYCForm = ({ setActiveSidebar }) => {
                 placeholder='Full Name'
                 value={formData.fullname}
                 onChange={handleChange}
-                className='w-full px-2 py-4 border rounded-lg'
+                className='w-full px-2 py-4 border rounded-lg '
               />
               {/* {errors.fullname && (
                 <p className="text-red-500 text-sm">{errors.fullname}</p>
@@ -156,7 +156,8 @@ const KYCForm = ({ setActiveSidebar }) => {
                 name='date_of_birth'
                 value={formData.date_of_birth}
                 onChange={handleChange}
-                className='w-full px-2 py-4 border rounded-lg'
+                placeholder='Date of Birth'
+                className='w-full px-2 py-4 border rounded-lg bg-none  text-black'
               />
               {/* {errors.date_of_birth && (
                 <p className="text-red-500 text-sm">{errors.date_of_birth}</p>
