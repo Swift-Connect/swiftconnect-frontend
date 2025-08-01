@@ -43,6 +43,9 @@ export default function Footer() {
               <li>
                 <a href="AboutUs">About Us</a>
               </li>
+              <li>
+                <a href="delete">Account Deletion Instructions</a>
+              </li>
             </ul>
           </div>
           <div className="flex flex-col gap-4">
