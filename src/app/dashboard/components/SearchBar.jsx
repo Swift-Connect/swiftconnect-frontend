@@ -51,6 +51,8 @@ export default function SearchBar({ setActiveSidebar, searchItems }) {
           className="border-none outline-none rounded-md py-1 text-sm bg-transparent"
           value={query}
           onChange={(e) => handleSearch(e.target.value)}
+          autoComplete="off"
+          aria-autocomplete="off"
         />
       </div>
 
