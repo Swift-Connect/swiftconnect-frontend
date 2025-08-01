@@ -16,7 +16,7 @@ export default function RootLayout({ children }) {
       }
 
       try {
-        const res = await fetch(`aesthetic-mandi-swiftconnect-a9332357.koyeb.app//users/admin-access-check/`, {
+        const res = await fetch(`https://aesthetic-mandi-swiftconnect-a9332357.koyeb.app/users/admin-access-check/`, {
           method: 'GET',
           headers: {
             Authorization: `Bearer ${accessToken}`,
