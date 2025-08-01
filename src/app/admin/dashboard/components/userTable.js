@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react'
 import {
   FaChevronDown,
@@ -5,7 +6,12 @@ import {
   FaDownload,
   FaSearch,
   FaFilter,
-  FaEllipsisV
+  FaEllipsisV,
+  FaCheck,
+  FaTimes,
+  FaUser,
+  FaEnvelope,
+  FaPhone
 } from 'react-icons/fa'
 import { toast, ToastContainer } from 'react-toastify'
 import api from '@/utils/api'
@@ -49,15 +55,6 @@ const UsersTable = ({
   const [isProcessing, setIsProcessing] = useState(false)
   const [currentKycId, setCurrentKycId] = useState(null)
   const actionMenuRef = useRef(null)
-
-  const columns = [
-    'User Details',
-    'Contact Info',
-    'Address',
-    'ID Document',
-    'Status',
-    'Action'
-  ]
 
   // Fetch KYC data on component mount
   useEffect(() => {
@@ -165,7 +162,6 @@ const UsersTable = ({
 
     if (!confirmed) return
 
-    // This would need to be implemented based on your backend
     toast.info(`Bulk ${action} functionality would be implemented here`)
   }
 
@@ -232,12 +228,12 @@ const UsersTable = ({
   const selectedData = kycData.slice(startIndex, startIndex + itemsPerPage)
 
   const getStatusBadgeClass = kyc => {
-    if (kyc.approved) return 'bg-[#00613A] text-white'
+    if (kyc.approved) return 'bg-green-100 text-green-800 border-green-200'
     if (kyc.status === 'rejected')
       return 'bg-red-100 text-red-800 border-red-200'
     if (kyc.status === 'revoked')
       return 'bg-gray-100 text-gray-800 border-gray-200'
-    return 'bg-[#FDF4EE] text-[#ED7F31] border-[#ED7F3133]'
+    return 'bg-yellow-100 text-yellow-800 border-yellow-200'
   }
 
   const getStatusText = kyc => {
@@ -259,36 +255,67 @@ const UsersTable = ({
     }
   }
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <span className="ml-2 text-gray-600">Loading KYC data...</span>
+      </div>
+    );
+  }
+
   return (
     <>
       {/* KYC Statistics */}
-      <div className='mb-6 grid grid-cols-2 md:grid-cols-5 gap-4'>
-        <div className='bg-white p-4 rounded-lg shadow'>
-          <h3 className='text-sm text-gray-500'>Total KYC</h3>
-          <p className='text-2xl font-bold'>{kycStats.total || 0}</p>
+      <div className='mb-6 grid grid-cols-2 md:grid-cols-4 gap-4'>
+        <div className='bg-white p-4 rounded-lg shadow border'>
+          <div className="flex items-center">
+            <div className="p-2 bg-blue-100 rounded-lg">
+              <FaUser className="text-blue-600" />
+            </div>
+            <div className="ml-3">
+              <p className='text-sm text-gray-500'>Total KYC</p>
+              <p className='text-xl font-bold text-gray-900'>{kycStats.total || 0}</p>
+            </div>
+          </div>
         </div>
-        <div className='bg-white p-4 rounded-lg shadow'>
-          <h3 className='text-sm text-gray-500'>Pending</h3>
-          <p className='text-2xl font-bold text-orange-600'>
-            {kycStats.pending || 0}
-          </p>
+        <div className='bg-white p-4 rounded-lg shadow border'>
+          <div className="flex items-center">
+            <div className="p-2 bg-yellow-100 rounded-lg">
+              <FaEye className="text-yellow-600" />
+            </div>
+            <div className="ml-3">
+              <p className='text-sm text-gray-500'>Pending</p>
+              <p className='text-xl font-bold text-yellow-600'>{kycStats.pending || 0}</p>
+            </div>
+          </div>
         </div>
-        <div className='bg-white p-4 rounded-lg shadow'>
-          <h3 className='text-sm text-gray-500'>Approved</h3>
-          <p className='text-2xl font-bold text-green-600'>
-            {kycStats.approved || 0}
-          </p>
+        <div className='bg-white p-4 rounded-lg shadow border'>
+          <div className="flex items-center">
+            <div className="p-2 bg-green-100 rounded-lg">
+              <FaCheck className="text-green-600" />
+            </div>
+            <div className="ml-3">
+              <p className='text-sm text-gray-500'>Approved</p>
+              <p className='text-xl font-bold text-green-600'>{kycStats.approved || 0}</p>
+            </div>
+          </div>
         </div>
-        <div className='bg-white p-4 rounded-lg shadow'>
-          <h3 className='text-sm text-gray-500'>Rejected</h3>
-          <p className='text-2xl font-bold text-red-600'>
-            {kycStats.rejected || 0}
-          </p>
+        <div className='bg-white p-4 rounded-lg shadow border'>
+          <div className="flex items-center">
+            <div className="p-2 bg-red-100 rounded-lg">
+              <FaTimes className="text-red-600" />
+            </div>
+            <div className="ml-3">
+              <p className='text-sm text-gray-500'>Rejected</p>
+              <p className='text-xl font-bold text-red-600'>{kycStats.rejected || 0}</p>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Search and Filter Controls */}
-      <div className='mb-4 flex flex-wrap gap-4 items-center'>
+      <div className='mb-6 flex flex-wrap gap-4 items-center'>
         <div className='flex-1 min-w-[300px]'>
           <div className='relative'>
             <input
@@ -296,22 +323,22 @@ const UsersTable = ({
               placeholder='Search by name, email, or ID...'
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              className='w-full pl-10 pr-4 py-2 border rounded-lg'
+              className='w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
             />
-            <FaSearch className='absolute left-3 top-3 text-gray-400' />
+            <FaSearch className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400' />
           </div>
         </div>
 
         <button
           onClick={handleSearch}
-          className='px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700'
+          className='px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 transition-colors'
         >
           Search
         </button>
 
         <button
           onClick={() => setShowFilters(!showFilters)}
-          className='px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 flex items-center gap-2'
+          className='px-4 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 flex items-center gap-2 transition-colors'
         >
           <FaFilter />
           Filter
@@ -319,23 +346,23 @@ const UsersTable = ({
 
         <button
           onClick={handleExportCsv}
-          className='px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2'
+          className='px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 flex items-center gap-2 transition-colors'
         >
           <FaDownload />
-          Export CSV
+          Export
         </button>
       </div>
 
       {/* Filter Options */}
       {showFilters && (
-        <div className='mb-4 p-4 bg-gray-50 rounded-lg'>
+        <div className='mb-6 p-4 bg-gray-50 rounded-lg border'>
           <div className='flex flex-wrap gap-4 items-center'>
             <label className='flex items-center gap-2'>
-              <span>Status:</span>
+              <span className="text-sm font-medium text-gray-700">Status:</span>
               <select
                 value={statusFilter}
                 onChange={e => handleStatusFilter(e.target.value)}
-                className='px-3 py-1 border rounded'
+                className='px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
               >
                 <option value='all'>All</option>
                 <option value='pending'>Pending</option>
@@ -351,7 +378,7 @@ const UsersTable = ({
                 setSearchTerm('')
                 fetchKycData()
               }}
-              className='px-3 py-1 text-sm text-gray-600 hover:text-gray-800'
+              className='px-3 py-2 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-md hover:bg-gray-50'
             >
               Clear Filters
             </button>
@@ -361,20 +388,20 @@ const UsersTable = ({
 
       {/* Bulk Actions */}
       {selectedItems.length > 0 && (
-        <div className='mb-4 p-4 bg-blue-50 rounded-lg'>
+        <div className='mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200'>
           <div className='flex items-center gap-4'>
-            <span className='text-sm text-gray-600'>
+            <span className='text-sm text-blue-800 font-medium'>
               {selectedItems.length} item(s) selected
             </span>
             <button
               onClick={() => handleBulkAction('Approve')}
-              className='px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700'
+              className='px-3 py-2 bg-green-600 text-white rounded text-sm hover:bg-green-700 focus:ring-2 focus:ring-green-500'
             >
               Bulk Approve
             </button>
             <button
               onClick={() => handleBulkAction('Reject')}
-              className='px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700'
+              className='px-3 py-2 bg-red-600 text-white rounded text-sm hover:bg-red-700 focus:ring-2 focus:ring-red-500'
             >
               Bulk Reject
             </button>
@@ -382,14 +409,14 @@ const UsersTable = ({
         </div>
       )}
 
-      {isLoading ? (
-        <div className='text-center py-8'>Loading...</div>
-      ) : (
-        <div className='w-full rounded-lg'>
+      {/* Table */}
+      <div className='bg-white rounded-lg shadow border overflow-hidden'>
+        {/* Desktop view */}
+        <div className="hidden lg:block overflow-x-auto">
           <table className='w-full'>
             <thead>
-              <tr className='bg-[#F9FAFB]'>
-                <th className='py-[1.3em] px-[1.8em] text-left text-[#6B7280] font-medium'>
+              <tr className='bg-gray-50 border-b border-gray-200'>
+                <th className='py-3 px-4 text-left'>
                   <input
                     type='checkbox'
                     checked={
@@ -397,109 +424,108 @@ const UsersTable = ({
                       selectedItems.length === data.length
                     }
                     onChange={handleHeaderCheckboxChange}
-                    className='w-4 h-4'
+                    className='w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500'
                   />
                 </th>
-                {/* User Details always visible */}
-                <th className='py-[1.3em] px-[1.8em] text-left text-[#6B7280] font-medium'>
+                <th className='py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
                   User Details
                 </th>
-                {/* Contact Info hidden on mobile */}
-                <th className='py-[1.3em] px-[1.8em] text-left text-[#6B7280] font-medium hidden md:table-cell'>
-                  Contact Info
+                <th className='py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                  Contact
                 </th>
-                {/* ID Document always visible */}
-                <th className='py-[1.3em] px-[1.8em] text-left text-[#6B7280] font-medium'>
-                  Details
+                <th className='py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                  Document
                 </th>
-                {/* Status always visible */}
-                <th className='py-[1.3em] px-[1.8em] text-left text-[#6B7280] font-medium'>
+                <th className='py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
                   Status
                 </th>
-                {/* Action always visible */}
-                <th className='py-[1.3em] px-[1.8em] text-left text-[#6B7280] font-medium'>
+                <th className='py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
                   Action
                 </th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-gray-200">
               {selectedData.map((kyc, idx) => (
-                <tr key={idx} className='border-b'>
-                  <td className='py-[1.3em] px-[1.8em]'>
+                <tr key={kyc.id} className='hover:bg-gray-50'>
+                  <td className='py-4 px-4'>
                     <input
                       type='checkbox'
                       checked={selectedItems.includes(kyc.id)}
                       onChange={() => handleCheckboxChange(kyc)}
-                      className='w-4 h-4'
+                      className='w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500'
                     />
                   </td>
-                  <td className='py-[1.3em] px-[1.8em]'>
-                    <div className='flex items-center gap-3'>
-                      <div>
-                        <p className='font-medium text-gray-900'>
-                          {kyc?.user_fullname}
+                  <td className='py-4 px-4'>
+                    <div className='flex items-center'>
+                      <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                        <FaUser className="text-gray-600" />
+                      </div>
+                      <div className="ml-3">
+                        <p className='text-sm font-medium text-gray-900'>
+                          {kyc?.user_fullname || 'N/A'}
+                        </p>
+                        <p className='text-sm text-gray-500'>
+                          @{kyc?.user_username || 'N/A'}
                         </p>
                       </div>
                     </div>
                   </td>
-                  {/* Contact Info hidden on mobile */}
-                  <td className='py-[1.3em] px-[1.8em] hidden md:table-cell'>
+                  <td className='py-4 px-4'>
                     <div className='space-y-1'>
-                      <p className='text-sm text-gray-900'>{kyc?.user_email}</p>
-                      <p className='text-sm text-gray-500'>
+                      <div className="flex items-center text-sm text-gray-900">
+                        <FaEnvelope className="mr-2 text-gray-400" />
+                        {kyc?.user_email || 'N/A'}
+                      </div>
+                      <div className="flex items-center text-sm text-gray-500">
+                        <FaPhone className="mr-2 text-gray-400" />
                         {kyc?.user_phone_number || 'Not provided'}
-                      </p>
+                      </div>
                     </div>
                   </td>
-
-                  <td className='py-[1.3em] px-[1.8em]'>
+                  <td className='py-4 px-4'>
                     <button
                       onClick={() => handleViewKyc(kyc)}
-                      className='flex items-center gap-2 text-blue-600 hover:text-blue-800'
+                      className='flex items-center gap-2 text-blue-600 hover:text-blue-800 text-sm font-medium'
                     >
                       <FaEye className='w-4 h-4' />
-                      <span>View Document</span>
+                      View Document
                     </button>
                   </td>
-                  <td className='py-[1.3em] px-[1.8em]'>
+                  <td className='py-4 px-4'>
                     <span
-                      className={`${getStatusBadgeClass(
-                        kyc
-                      )} border-[0.1px] rounded-3xl flex w-fit items-center justify-center gap-2 py-1 px-4`}
+                      className={`inline-flex px-3 py-1 text-xs font-medium rounded-full border ${getStatusBadgeClass(kyc)}`}
                     >
                       {getStatusText(kyc)}
                     </span>
                   </td>
-                  <td className='py-[1.3em] px-[1.8em] text-[#fff] relative'>
+                  <td className='py-4 px-4 relative'>
                     <button
-                      className='flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500'
+                      className='flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500'
                       onClick={() =>
                         setActiveRow(activeRow === idx ? null : idx)
                       }
-                      aria-label='Actions'
                     >
-                      <FaEllipsisV className='w-5 h-5' />
-                      <span className='hidden sm:inline'>Actions</span>
+                      <FaEllipsisV className='w-4 h-4' />
+                      Actions
                     </button>
                     {activeRow === idx && (
                       <div
                         ref={actionMenuRef}
                         className='absolute right-0 mt-2 z-40 bg-white border border-gray-200 rounded-lg shadow-lg min-w-[160px]'
                       >
-                        <ul className='py-1'>
+                        <div className='py-1'>
                           {getActionOptions(kyc).map(option => (
-                            <li key={option}>
-                              <button
-                                className='w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-800'
-                                onClick={() =>
-                                  handleActionMenuClick(option, kyc)
-                                }
-                              >
-                                {option}
-                              </button>
-                            </li>
+                            <button
+                              key={option}
+                              className='w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100'
+                              onClick={() =>
+                                handleActionMenuClick(option, kyc)
+                              }
+                            >
+                              {option}
+                            </button>
                           ))}
-                        </ul>
+                        </div>
                       </div>
                     )}
                   </td>
@@ -508,22 +534,110 @@ const UsersTable = ({
             </tbody>
           </table>
         </div>
-      )}
+
+        {/* Mobile view */}
+        <div className="lg:hidden">
+          {selectedData.map((kyc, idx) => (
+            <div key={kyc.id} className="border-b border-gray-200 p-4">
+              <div className="flex items-start space-x-3">
+                <input
+                  type='checkbox'
+                  checked={selectedItems.includes(kyc.id)}
+                  onChange={() => handleCheckboxChange(kyc)}
+                  className='w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 mt-1'
+                />
+                <div className="flex-1">
+                  <div className="flex items-center mb-2">
+                    <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                      <FaUser className="text-gray-600 text-sm" />
+                    </div>
+                    <div className="ml-2">
+                      <h4 className="text-sm font-medium text-gray-900">
+                        {kyc?.user_fullname || 'N/A'}
+                      </h4>
+                      <p className="text-xs text-gray-500">@{kyc?.user_username || 'N/A'}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-1 text-xs text-gray-600 mb-3">
+                    <div className="flex items-center">
+                      <FaEnvelope className="mr-2" />
+                      {kyc?.user_email || 'N/A'}
+                    </div>
+                    <div className="flex items-center">
+                      <FaPhone className="mr-2" />
+                      {kyc?.user_phone_number || 'Not provided'}
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full border ${getStatusBadgeClass(kyc)}`}>
+                      {getStatusText(kyc)}
+                    </span>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => handleViewKyc(kyc)}
+                        className="text-blue-600 text-sm hover:text-blue-800"
+                      >
+                        <FaEye />
+                      </button>
+                      <button
+                        className='text-gray-600 text-sm hover:text-gray-800'
+                        onClick={() =>
+                          setActiveRow(activeRow === idx ? null : idx)
+                        }
+                      >
+                        <FaEllipsisV />
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {activeRow === idx && (
+                    <div className="mt-2 border-t pt-2">
+                      <div className="flex flex-wrap gap-2">
+                        {getActionOptions(kyc).map(option => (
+                          <button
+                            key={option}
+                            className='px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200'
+                            onClick={() =>
+                              handleActionMenuClick(option, kyc)
+                            }
+                          >
+                            {option}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {selectedData.length === 0 && (
+          <div className="text-center py-12">
+            <div className="text-gray-400 text-5xl mb-4">👤</div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No KYC records found</h3>
+            <p className="text-gray-500">There are no KYC records to display at the moment.</p>
+          </div>
+        )}
+      </div>
 
       {/* KYC Document Modal */}
       {showKycModal && selectedKyc && (
         <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
-          <div className='bg-white rounded-xl p-4 sm:p-6 max-w-2xl w-full mx-2 sm:mx-4 max-h-[90vh] overflow-y-auto'>
-            <div className='flex justify-between items-center mb-4'>
-              <h2 className='text-xl font-bold'>KYC Document Details</h2>
+          <div className='bg-white rounded-xl p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto'>
+            <div className='flex justify-between items-center mb-6'>
+              <h2 className='text-xl font-bold text-gray-900'>KYC Document Details</h2>
               <button
                 onClick={() => setShowKycModal(false)}
-                className='text-gray-500 hover:text-gray-700'
+                className='text-gray-400 hover:text-gray-600 transition-colors'
               >
-                <FaChevronDown className='w-6 h-6 transform rotate-180' />
+                <FaTimes className='w-6 h-6' />
               </button>
             </div>
-            <div className='space-y-4'>
+            <div className='space-y-6'>
               <div className='aspect-video relative bg-gray-100 rounded-lg overflow-hidden'>
                 <Image
                   src={selectedKyc.id_document}
@@ -532,33 +646,35 @@ const UsersTable = ({
                   className='object-contain'
                 />
               </div>
-              <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-                <div>
-                  <p className='text-sm text-gray-500'>Full Name</p>
-                  <p className='font-medium'>{selectedKyc.user_fullname}</p>
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                <div className="space-y-1">
+                  <p className='text-sm font-medium text-gray-900'>Full Name</p>
+                  <p className='text-sm text-gray-600'>{selectedKyc.user_fullname}</p>
                 </div>
-                <div>
-                  <p className='text-sm text-gray-500'>Email</p>
-                  <p className='font-medium'>{selectedKyc.user_email}</p>
+                <div className="space-y-1">
+                  <p className='text-sm font-medium text-gray-900'>Email</p>
+                  <p className='text-sm text-gray-600'>{selectedKyc.user_email}</p>
                 </div>
-                <div>
-                  <p className='text-sm text-gray-500'>Username</p>
-                  <p className='font-medium'>{selectedKyc.user_username}</p>
+                <div className="space-y-1">
+                  <p className='text-sm font-medium text-gray-900'>Username</p>
+                  <p className='text-sm text-gray-600'>{selectedKyc.user_username}</p>
                 </div>
-                <div>
-                  <p className='text-sm text-gray-500'>Document Type</p>
-                  <p className='font-medium'>{selectedKyc.document_type}</p>
+                <div className="space-y-1">
+                  <p className='text-sm font-medium text-gray-900'>Document Type</p>
+                  <p className='text-sm text-gray-600'>{selectedKyc.document_type}</p>
                 </div>
-                <div>
-                  <p className='text-sm text-gray-500'>Status</p>
-                  <p className='font-medium'>{getStatusText(selectedKyc)}</p>
+                <div className="space-y-1">
+                  <p className='text-sm font-medium text-gray-900'>Status</p>
+                  <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full border ${getStatusBadgeClass(selectedKyc)}`}>
+                    {getStatusText(selectedKyc)}
+                  </span>
                 </div>
-                <div>
-                  <p className='text-sm text-gray-500'>Created At</p>
-                  <p className='font-medium'>
+                <div className="space-y-1">
+                  <p className='text-sm font-medium text-gray-900'>Submitted Date</p>
+                  <p className='text-sm text-gray-600'>
                     {selectedKyc.created_at
                       ? new Date(selectedKyc.created_at).toLocaleDateString()
-                      : '-'}
+                      : 'N/A'}
                   </p>
                 </div>
               </div>
@@ -571,14 +687,14 @@ const UsersTable = ({
       {showReasonModal && (
         <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
           <div className='bg-white rounded-xl p-6 max-w-md w-full mx-4'>
-            <h3 className='text-lg font-bold mb-4'>
+            <h3 className='text-lg font-bold mb-4 text-gray-900'>
               Provide Reason for {selectedAction}
             </h3>
             <textarea
               value={reason}
               onChange={e => setReason(e.target.value)}
               placeholder={`Enter reason for ${selectedAction?.toLowerCase()}...`}
-              className='w-full p-3 border rounded-lg mb-4 h-24 resize-none'
+              className='w-full p-3 border border-gray-300 rounded-lg mb-4 h-24 resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
               disabled={isProcessing}
             />
             <div className='flex gap-3 justify-end'>
@@ -589,14 +705,14 @@ const UsersTable = ({
                   setSelectedAction(null)
                   setCurrentKycId(null)
                 }}
-                className='px-4 py-2 text-gray-600 hover:text-gray-800'
+                className='px-4 py-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50'
                 disabled={isProcessing}
               >
                 Cancel
               </button>
               <button
                 onClick={handleReasonSubmit}
-                className='px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50'
+                className='px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 focus:ring-2 focus:ring-blue-500'
                 disabled={isProcessing}
               >
                 {isProcessing ? 'Processing...' : 'Submit'}

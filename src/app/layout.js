@@ -18,7 +18,11 @@ const poppins = Poppins({
 
 export const metadata = {
   title: 'SwiftConnect',
-  description: 'Swiftconnect utility payment platform'
+  description: 'Swiftconnect utility payment platform',
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+  }
 }
 
 export default function RootLayout ({ children }) {

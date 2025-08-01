@@ -30,49 +30,7 @@ const TransactionManagement = () => {
 
   const [activeTabPending, setActiveTabPending] =
     React.useState('All Transaction')
-  const data = [
-    {
-      id: 1,
-      user: 'John Doe',
-      product: 'Airtime',
-      amount: '50,000',
-      date: '2024-03-01',
-      status: 'Completed'
-    },
-    {
-      id: 2,
-      user: 'Jane Smith',
-      product: 'Internet',
-      amount: '10,000',
-      date: '2024-03-02',
-      status: 'Pending'
-    },
-    {
-      id: 3,
-      user: 'Alice Johnson',
-      product: 'Transfer',
-      amount: '20,000',
-      date: '2024-03-03',
-      status: 'Failed'
-    },
-    {
-      id: 4,
-      user: 'Bob Brown',
-      product: 'Cable',
-      amount: '15,000',
-      date: '2024-03-04',
-      status: 'Refunded'
-    },
-    {
-      id: 5,
-      user: 'Charlie Davis',
-      product: 'Electricity',
-      amount: '30,000',
-      date: '2024-03-05',
-      status: 'Completed'
-    }
-  ]
-
+  
   // const [activeTabPending, setActiveTabPending] = useState("Approve KYC");
   const [activeTabTransactions, setActiveTabTransactions] =
     useState('All Transactions')
@@ -85,7 +43,7 @@ const TransactionManagement = () => {
   console.log('Clicked Filtered Optiom', transactionFilter)
 
   const filteredTransactionData = allTransactionData.filter(tx => {
-    if (transactionFilter === 'All') return true
+    if (transactionFilter === 'All' ) return true
     if (transactionFilter === 'Success')
       return tx.status.toLowerCase() === 'completed'
     return tx.status.toLowerCase() === transactionFilter.toLowerCase()
@@ -219,16 +177,116 @@ const TransactionManagement = () => {
   const totalPages = Math.ceil(filteredTransactionData.length / itemsPerPage)
   const [showEdit, setShowEdit] = useState(false)
   const [editData, setEditData] = useState(null)
+  const [editTrxForm, setEditTrxForm] = useState({
+    amount: "",
+    product: "",
+    status: "",
+    // ...add other fields as needed
+  });
 
   const handleEditClick = rowData => {
-    setEditData(rowData)
-    setShowEdit(true)
-    console.log('shit')
-  }
+    setEditData(rowData);
+    setEditTrxForm({
+      amount: rowData.amount || "",
+      product: rowData.product || "",
+      status: rowData.status || "",
+      // ...populate other fields as needed
+    });
+    setShowEdit(true);
+  };
+
+  // Helper to find the correct endpoint for a transaction
+  const findTransactionEndpoint = (trx) => {
+    const endpoints = [
+      '/services/airtime-topups-transactions/',
+      '/services/data-plan-transactions/',
+      '/services/cable-recharges-transactions/',
+      '/services/education-transactions/',
+      '/services/electricity-transactions/',
+      '/services/bulk-sms-transactions/'
+    ];
+    // You may want to improve this logic based on your data structure
+    if (trx?.network) return endpoints[0];
+    if (trx?.data_plan) return endpoints[1];
+    if (trx?.cable_name) return endpoints[2];
+    if (trx?.education_type) return endpoints[3];
+    if (trx?.meter_number) return endpoints[4];
+    if (trx?.sms_count) return endpoints[5];
+    // fallback
+    return endpoints[0];
+  };
+
+  // Edit (update) handler for transactions
+  const handleUpdateTrx = async (e) => {
+    e.preventDefault();
+    if (!editData?.id) return;
+    setIsLoading(true);
+    try {
+      const endpoint = findTransactionEndpoint(editData);
+      await api.put(`${endpoint}${editData.id}/`, editTrxForm);
+      toast.success("Transaction updated successfully.");
+      setShowEdit(false);
+      setEditData(null);
+      // Refresh transactions (quick way)
+      if (typeof window !== 'undefined') {
+        window.location.reload();
+      }
+    } catch (error) {
+      toast.error(error?.response?.data?.detail || "Failed to update transaction.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleCheckedItemsChange = newCheckedItems => {
     setCheckedItems(newCheckedItems)
   }
+
+  // Add this array at the top-level of the component (after useState, before useEffect)
+  const transactionDeleteEndpoints = [
+    '/services/airtime-topups-transactions/',
+    '/services/data-plan-transactions/',
+    '/services/cable-recharges-transactions/',
+    '/services/education-transactions/',
+    '/services/electricity-transactions/',
+    '/services/bulk-sms-transactions/'
+  ];
+
+  // Add delete handler for transactions
+  const handleDeleteSelected = async () => {
+    if (checkedItems.length === 0) return;
+    if (!window.confirm("Are you sure you want to delete the selected transactions?")) return;
+    setIsLoading(true);
+    try {
+      for (const id of checkedItems) {
+        let deleted = false;
+        for (const endpoint of transactionDeleteEndpoints) {
+          try {
+            await api.delete(`${endpoint}${id}/`);
+            deleted = true;
+            break; // Stop after first successful delete
+          } catch (err) {
+            // Try next endpoint if not found
+            if (err?.response?.status !== 404) {
+              throw err;
+            }
+          }
+        }
+        if (!deleted) {
+          toast.error(`Transaction with ID ${id} could not be deleted.`);
+        }
+      }
+      toast.success("Selected transactions deleted successfully.");
+      // Refresh transactions
+      // (re-run fetchDashboardData)yy
+    } catch (error) {
+      console.log(error);
+      
+      toast.error(error?.response?.data?.detail || "Failed to delete transactions.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className='overflow-hidden '>
@@ -240,7 +298,63 @@ const TransactionManagement = () => {
                 Transaction Management <FaChevronRight /> Edit User Transaction
               </h1>
             </div>
-            <EditUserTrx fields={Object.keys(editData || {})} data={editData} />
+            {/* Edit Transaction Form */}
+            <form
+              className="bg-white rounded-lg p-6 w-full max-w-md"
+              onSubmit={handleUpdateTrx}
+            >
+              <h2 className="text-lg font-bold mb-4">Edit Transaction</h2>
+              <div className="mb-3">
+                <label className="block mb-1">Amount*</label>
+                <input
+                  type="number"
+                  required
+                  className="border rounded px-2 py-1 w-full"
+                  value={editTrxForm.amount}
+                  onChange={e => setEditTrxForm(f => ({ ...f, amount: e.target.value }))}
+                />
+              </div>
+              <div className="mb-3">
+                <label className="block mb-1">Product*</label>
+                <input
+                  type="text"
+                  required
+                  className="border rounded px-2 py-1 w-full"
+                  value={editTrxForm.product}
+                  onChange={e => setEditTrxForm(f => ({ ...f, product: e.target.value }))}
+                />
+              </div>
+              <div className="mb-3">
+                <label className="block mb-1">Status</label>
+                <select
+                  className="border rounded px-2 py-1 w-full"
+                  value={editTrxForm.status}
+                  onChange={e => setEditTrxForm(f => ({ ...f, status: e.target.value }))}
+                >
+                  <option value="pending">Pending</option>
+                  <option value="completed">Completed</option>
+                  <option value="failed">Failed</option>
+                </select>
+              </div>
+              {/* Add more fields as needed */}
+              <div className="flex gap-2">
+                <button
+                  type="submit"
+                  className="bg-green-600 text-white px-4 py-2 rounded"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Updating..." : "Update Transaction"}
+                </button>
+                <button
+                  type="button"
+                  className="bg-gray-300 px-4 py-2 rounded"
+                  onClick={() => setShowEdit(false)}
+                  disabled={isLoading}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
           </>
         ) : (
           <>
@@ -256,6 +370,7 @@ const TransactionManagement = () => {
               from='transactionManagement'
               onPress={() => {}}
               selectedRows={checkedItems} // Pass selected rows
+              onDelete={handleDeleteSelected} // Pass delete handler
             />
             <div className='rounded-t-[1em] overflow-auto border border-gray-200 min-h-[50vh]'>
               <TrxManagementTable

@@ -1,4 +1,4 @@
-const BASE_URL = 'https://swiftconnect-backend.onrender.com/'
+const BASE_URL = 'https://aesthetic-mandi-swiftconnect-a9332357.koyeb.app/'
 
 // Generic GET function
 export async function getData (url) {

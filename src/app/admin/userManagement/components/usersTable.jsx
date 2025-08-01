@@ -15,14 +15,9 @@ const UsersTable = ({
     "Account Id",
     "Fullname",
     "Email",
+    "verified",
+    "gender",
     "Phone Number",
-    "Wallet number",
-    "Previous Balance",
-    "Referrals",
-    "Referral Bonus",
-    "Last Login",
-    "Date Joined",
-    "Status",
   ];
 
   const [checkedItems, setCheckedItems] = useState(
@@ -70,7 +65,7 @@ const UsersTable = ({
       ) : selectedData.length === 0 ? (
         <div className="text-center py-8 text-gray-500">No Users yet</div>
       ) : (
-        <table className="w-full text-sm border-collapse">
+        <table className="text-sm border-collapse">
           <thead>
             <tr className="bg-[#F9F8FA] text-left text-[#525252]">
               <th className="py-[1.3em] px-[1.8em] font-semibold text-[#232323]">
@@ -118,28 +113,19 @@ const UsersTable = ({
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
                   {user?.email}
                 </td>
+                <td className={`py-[1.3em] px-[1.8em]  ${user?.email_verified == true ? "text-green-600 " : "text-red-600"}`}>
+                  {user?.email_verified ? "Verified" : "Not Verified"}
+                </td>
+                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
+                  {user?.gender || "Not Specified"}
+                </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
                   {user?.phone_number}
                 </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user?.wallet_number}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user?.previous_balance}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user?.referrals}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user?.referral_bonus}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user?.last_login}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {user?.date_joined}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#fff] relative">
+                
+           
+                <td className="py-[1.3em] px-[1.8em] text-[#fff] relative flex items-center gap-2">
+                  {/*
                   <span
                     className="bg-[#00613A] rounded-xl flex w-fit items-center justify-center gap-2 py-1 px-2 cursor-pointer"
                     onClick={() => handleActionClick(idx)}
@@ -147,6 +133,14 @@ const UsersTable = ({
                     Approved <FaChevronDown />
                   </span>
                   {activeRow === idx && <ActionPopUp />}
+                  */}
+                  <button
+                    type="button"
+                    className="bg-blue-600 hover:bg-blue-700 transition-colors text-white px-4 py-1.5 rounded-md text-xs font-semibold shadow"
+                    onClick={() => setShowEdit(user)}
+                  >
+                    Edit
+                  </button>
                 </td>
               </tr>
             ))}
