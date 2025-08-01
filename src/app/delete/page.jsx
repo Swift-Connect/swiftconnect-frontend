@@ -157,8 +157,8 @@ const AccountDeletionPage = () => {
                 <p className="text-gray-600 text-xs mt-1">Temporarily disable your account</p>
               </button>
               <button className="p-3 bg-white border border-gray-200 rounded-lg text-left hover:border-green-300 transition-colors">
-                <h5 className="font-medium text-gray-900 text-sm">Privacy Settings</h5>
-                <p className="text-gray-600 text-xs mt-1">Control what data we collect</p>
+                <a href="privacy"><h5 className="font-medium text-gray-900 text-sm">Privacy Settings</h5>
+                <p className="text-gray-600 text-xs mt-1">Control what data we collect</p></a>
               </button>
             </div>
           </div>
