@@ -18,6 +18,7 @@ const AccountDeletionPage = () => {
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center">
               <div className="w-40 h-40 rounded-full flex items-center justify-center mr-3">
+                <a href="/">
                 <img 
                   src="/logo.svg" 
                   alt="SwiftConnect Logo" 
@@ -27,6 +28,8 @@ const AccountDeletionPage = () => {
                     e.target.nextSibling.style.display = 'block';
                   }}
                 />
+                </a>
+                
               </div>
              
             </div>
