@@ -76,66 +76,76 @@ export default function DashboardOverview () {
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    async function fetchAnalytics () {
-      setLoading(true)
-      setError(null)
+    const fetchAnalytics = async () => {
+      setLoading(true);
+      setError(null);
+
       try {
-        // Main summary
-        const analytics = await fetchWithAuth('/api/analytics/')
-        // Metrics (optional, for charts)
-        let metrics = []
+        // Fetch main analytics
+        const analytics = await fetchWithAuth("/api/analytics/");
+        
+
+        // Try fetching optional metrics
+        let metrics = [];
         try {
-          metrics = await fetchWithAuth('/api/analytics/metrics/')
-        } catch {}
-        // Compose stats
+          metrics = await fetchWithAuth("/api/analytics/metrics/");
+        } catch (err) {
+          console.warn("Metrics fetch failed:", err.message);
+        }
+
+        // Set analytics summary cards
         setStats([
           {
-            title: 'Total Revenue',
-            value: analytics?.total_revenue ?? '-',
-            icon: <FaDollarSign className='text-blue-600 text-lg' />,
-            bgColor: 'bg-blue-600 text-white',
-            textColor: 'text-white'
+            title: "Total Revenue",
+            value: analytics?.total_revenue ?? "-",
+            icon: <FaDollarSign className="text-blue-600 text-lg" />,
+            bgColor: "bg-blue-600 text-white",
+            textColor: "text-white",
           },
           {
-            title: 'Total Users',
-            value: analytics?.total_users ?? '-',
-            icon: <IoIosStats className='text-blue-600 text-lg' />,
-            bgColor: 'bg-white',
-            textColor: 'text-gray-900'
+            title: "Total Users",
+            value: analytics?.total_users ?? "-",
+            icon: <IoIosStats className="text-blue-600 text-lg" />,
+            bgColor: "bg-white",
+            textColor: "text-gray-900",
           },
           {
-            title: 'Inactive Users',
-            value: analytics?.inactive_users ?? '-',
-            icon: <IoIosStats className='text-blue-600 text-lg' />,
-            bgColor: 'bg-white',
-            textColor: 'text-gray-900'
+            title: "Inactive Users",
+            value: analytics?.inactive_users ?? "-",
+            icon: <IoIosStats className="text-blue-600 text-lg" />,
+            bgColor: "bg-white",
+            textColor: "text-gray-900",
           },
           {
-            title: 'Users Pending KYC',
-            value: analytics?.pending_kyc ?? '-',
-            icon: <IoIosStats className='text-blue-600 text-lg' />,
-            bgColor: 'bg-white',
-            textColor: 'text-gray-900'
+            title: "Users Pending KYC",
+            value: analytics?.pending_kyc ?? "-",
+            icon: <IoIosStats className="text-blue-600 text-lg" />,
+            bgColor: "bg-white",
+            textColor: "text-gray-900",
           },
           {
-            title: 'Total Agents',
-            value: analytics?.total_agents ?? '-',
-            icon: <HiOutlineDocumentText className='text-blue-600 text-lg' />,
-            bgColor: 'bg-white',
-            textColor: 'text-gray-900'
-          }
-        ])
-        setIncomeData(analytics?.income ?? [])
-        setTrafficData(analytics?.traffic ?? [])
-        setUserData(analytics?.user_breakdown ?? [])
+            title: "Total Agents",
+            value: analytics?.total_agents ?? "-",
+            icon: <HiOutlineDocumentText className="text-blue-600 text-lg" />,
+            bgColor: "bg-white",
+            textColor: "text-gray-900",
+          },
+        ]);
+
+        // Set additional data
+        setIncomeData(analytics?.income ?? []);
+        setTrafficData(analytics?.traffic ?? []);
+        setUserData(analytics?.user_breakdown ?? []);
       } catch (err) {
-        setError('Failed to load analytics data')
+        console.error("Failed to load analytics data:", err);
+        setError("Failed to load analytics data");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
-    fetchAnalytics()
-  }, [])
+    };
+
+    fetchAnalytics();
+  }, []);
 
   if (loading) {
     return <div className='p-6 text-center'>Loading analytics...</div>

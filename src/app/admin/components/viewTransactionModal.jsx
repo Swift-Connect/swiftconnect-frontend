@@ -5,6 +5,8 @@ const formatKey = key =>
   key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
 
 export default function ViewTransactionModal({ isOpen, onClose, transaction }) {
+  console.log('Transaction data after click:', transaction);
+  
   if (!transaction) return null
 
   // Filter out 'user' and 'callback_processed'

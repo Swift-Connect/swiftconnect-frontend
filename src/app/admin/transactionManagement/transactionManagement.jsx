@@ -16,6 +16,7 @@ import { useRouter } from 'next/navigation'
 const TransactionManagement = () => {
   const router = useRouter()
   const [token, setToken] = useState(null)
+   const [viewTransaction, setViewTransaction] = useState(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -289,12 +290,12 @@ const TransactionManagement = () => {
   };
 
   return (
-    <div className='overflow-hidden '>
-      <div className='max-md-[400px]:hidden'>
+    <div className="overflow-hidden ">
+      <div className="max-md-[400px]:hidden">
         {showEdit ? (
           <>
             <div>
-              <h1 className='text-[16px] font-semibold mb-8 flex items-center gap-4'>
+              <h1 className="text-[16px] font-semibold mb-8 flex items-center gap-4">
                 Transaction Management <FaChevronRight /> Edit User Transaction
               </h1>
             </div>
@@ -311,7 +312,9 @@ const TransactionManagement = () => {
                   required
                   className="border rounded px-2 py-1 w-full"
                   value={editTrxForm.amount}
-                  onChange={e => setEditTrxForm(f => ({ ...f, amount: e.target.value }))}
+                  onChange={(e) =>
+                    setEditTrxForm((f) => ({ ...f, amount: e.target.value }))
+                  }
                 />
               </div>
               <div className="mb-3">
@@ -321,7 +324,9 @@ const TransactionManagement = () => {
                   required
                   className="border rounded px-2 py-1 w-full"
                   value={editTrxForm.product}
-                  onChange={e => setEditTrxForm(f => ({ ...f, product: e.target.value }))}
+                  onChange={(e) =>
+                    setEditTrxForm((f) => ({ ...f, product: e.target.value }))
+                  }
                 />
               </div>
               <div className="mb-3">
@@ -329,7 +334,9 @@ const TransactionManagement = () => {
                 <select
                   className="border rounded px-2 py-1 w-full"
                   value={editTrxForm.status}
-                  onChange={e => setEditTrxForm(f => ({ ...f, status: e.target.value }))}
+                  onChange={(e) =>
+                    setEditTrxForm((f) => ({ ...f, status: e.target.value }))
+                  }
                 >
                   <option value="pending">Pending</option>
                   <option value="completed">Completed</option>
@@ -358,21 +365,21 @@ const TransactionManagement = () => {
           </>
         ) : (
           <>
-            <h1 className='text-[16px] font-semibold mb-8'>
+            <h1 className="text-[16px] font-semibold mb-8">
               Transaction Management
             </h1>
 
             <TableTabs
-              header={''}
+              header={""}
               setActiveTab={setActiveTabPending}
               activeTab={activeTabPending}
-              tabs={['All Transaction', 'Inactive', 'Recently Added']}
-              from='transactionManagement'
+              tabs={["All Transaction", "Inactive", "Recently Added"]}
+              from="transactionManagement"
               onPress={() => {}}
               selectedRows={checkedItems} // Pass selected rows
               onDelete={handleDeleteSelected} // Pass delete handler
             />
-            <div className='rounded-t-[1em] overflow-auto border border-gray-200 min-h-[50vh]'>
+            <div className="rounded-t-[1em] overflow-auto border border-gray-200 min-h-[50vh]">
               <TrxManagementTable
                 data={filteredTransactionData}
                 currentPage={currentPage}
@@ -380,6 +387,7 @@ const TransactionManagement = () => {
                 setShowEdit={handleEditClick}
                 isLoading={isLoading}
                 onCheckedItemsChange={handleCheckedItemsChange} // Handle checked items
+                setViewTransaction={setViewTransaction}
               />
             </div>
             <Pagination
@@ -387,11 +395,19 @@ const TransactionManagement = () => {
               totalPages={totalPages}
               onPageChange={setCurrentPage}
             />
+            {viewTransaction && (
+              <ViewTransactionModal
+                isOpen={!!viewTransaction}
+                transaction={viewTransaction}
+                onClose={() => setViewTransaction(null)}
+                showAllFields={true}
+              />
+            )}
           </>
         )}
       </div>
     </div>
-  )
+  );
 }
 
 export default TransactionManagement
