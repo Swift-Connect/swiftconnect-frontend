@@ -10,10 +10,11 @@ const TrxManagementTable = ({
   setShowEdit,
   isLoading,
   onCheckedItemsChange, // Notify parent about checked items
+  setViewTransaction,
 }) => {
   const columns = [
     "Product",
-    "Transaction ID",
+    "User",
     "Date",
     "Amount",
     "Status",
@@ -21,7 +22,9 @@ const TrxManagementTable = ({
     "Action",
   ];
 
-  const [viewTransaction, setViewTransaction] = useState(null);
+  console.log("data from trxManagementTable", data);
+
+ 
 
   const [checkedItems, setCheckedItems] = useState(
     new Array(data.length).fill(false)
@@ -105,11 +108,11 @@ const TrxManagementTable = ({
                     onChange={() => handleCheckboxChange(startIndex + idx)}
                   />
                 </td>
-                <td className="py-[1.3em] px-[1.8em] font-semibold text-[#232323]">
+                <td className="py-[1.3em] px-[1.8em] font-semibold text-[#232323] text-nowrap">
                   {transaction.product}
                 </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  #{transaction.transaction_id}
+                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF] text-nowrap">
+                  {transaction.user.username}
                 </td>
                 <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
                   {new Date(transaction.date).toLocaleDateString("en-GB")}
@@ -142,7 +145,10 @@ const TrxManagementTable = ({
                 <td className="py-[1.3em] px-[1.8em]">
                   <button
                     className="text-[#525252] border border-[#525252] text-sm font-semibold py-1 px-5 hover:bg-[#e1e1e1]  text-center   rounded-full"
-                    onClick={() => setViewTransaction(transaction)}
+                    onClick={() => {
+                      setViewTransaction(transaction);
+                      console.log("cliked view");
+                    }}
                   >
                     View
                   </button>
@@ -159,13 +165,6 @@ const TrxManagementTable = ({
             ))}
           </tbody>
         </table>
-      )}
-      {viewTransaction && (
-        <ViewTransactionModal
-          transaction={viewTransaction}
-          onClose={() => setViewTransaction(null)}
-          showAllFields={true}
-        />
       )}
     </>
   );
