@@ -3,6 +3,7 @@ import Image from "next/image";
 import { FaFacebook, FaInstagram, FaTwitter, FaYoutube } from "react-icons/fa";
 
 export default function Footer() {
+  const currentYear = new Date().getFullYear();
   return (
     <footer className="bg-black text-white px-4 py-8 md:px-12 md:py-12">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
@@ -64,7 +65,7 @@ export default function Footer() {
       <hr />
       <div className="flex flex-col md:flex-row justify-between items-center mt-6 gap-4">
         <p className="text-center md:text-left">
-          © 2024 Swift Connect. All Rights Reserved.
+          © {currentYear} Swift Connect. All Rights Reserved.
         </p>
         <div className="flex gap-4 items-center justify-center">
           <FaYoutube className="cursor-pointer hover:text-[#69e169]" />
