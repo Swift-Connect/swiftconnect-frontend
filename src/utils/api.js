@@ -6,7 +6,7 @@ const BASE_URL = "https://aesthetic-mandi-swiftconnect-a9332357.koyeb.app";
 // Create axios instance
 const api = axios.create({
   baseURL: BASE_URL,
-  timeout: 30000,
+  timeout: 300000,
   headers: {
     "Content-Type": "application/json",
   },
