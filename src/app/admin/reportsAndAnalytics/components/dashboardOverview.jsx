@@ -31,7 +31,7 @@ const COLORS = ['#4F46E5', '#22D3EE']
 //   user_breakdown: [{ name, value }]
 // }
 
-export default function DashboardOverview () {
+export default function DashboardOverview ({ analytics }) {
   const [stats, setStats] = useState([
     {
       title: 'Total Revenue',
@@ -76,76 +76,78 @@ export default function DashboardOverview () {
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    const fetchAnalytics = async () => {
-      setLoading(true);
-      setError(null);
+    if (!analytics) return
+    setLoading(true)
+    try {
+      // Map provided DS to cards and charts
+      const totalUsers = analytics?.users?.total_users ?? '-'
+      const inactiveUsers = (analytics?.users?.total_users ?? 0) - ((analytics?.users?.active_users_30d ?? 0))
+      const pendingKyc = analytics?.users?.pending_kyc ?? '-'
+      const totalAgents = analytics?.users?.total_agents ?? analytics?.services?.all_time?.total_wallets ?? '-'
 
-      try {
-        // Fetch main analytics
-        const analytics = await fetchWithAuth("/api/analytics/");
-        
-
-        // Try fetching optional metrics
-        let metrics = [];
-        try {
-          metrics = await fetchWithAuth("/api/analytics/metrics/");
-        } catch (err) {
-          console.warn("Metrics fetch failed:", err.message);
+      setStats([
+        {
+          title: 'Total Revenue',
+          value: analytics?.transactions?.all_time?.total_volume ?? '-',
+          icon: <FaDollarSign className='text-blue-600 text-lg' />,
+          bgColor: 'bg-blue-600 text-white',
+          textColor: 'text-white'
+        },
+        {
+          title: 'Total Users',
+          value: totalUsers,
+          icon: <IoIosStats className='text-blue-600 text-lg' />,
+          bgColor: 'bg-white',
+          textColor: 'text-gray-900'
+        },
+        {
+          title: 'Inactive Users',
+          value: inactiveUsers,
+          icon: <IoIosStats className='text-blue-600 text-lg' />,
+          bgColor: 'bg-white',
+          textColor: 'text-gray-900'
+        },
+        {
+          title: 'Users Pending KYC',
+          value: pendingKyc,
+          icon: <IoIosStats className='text-blue-600 text-lg' />,
+          bgColor: 'bg-white',
+          textColor: 'text-gray-900'
+        },
+        {
+          title: 'Total Agents',
+          value: totalAgents,
+          icon: <HiOutlineDocumentText className='text-blue-600 text-lg' />,
+          bgColor: 'bg-white',
+          textColor: 'text-gray-900'
         }
+      ])
 
-        // Set analytics summary cards
-        setStats([
-          {
-            title: "Total Revenue",
-            value: analytics?.total_revenue ?? "-",
-            icon: <FaDollarSign className="text-blue-600 text-lg" />,
-            bgColor: "bg-blue-600 text-white",
-            textColor: "text-white",
-          },
-          {
-            title: "Total Users",
-            value: analytics?.total_users ?? "-",
-            icon: <IoIosStats className="text-blue-600 text-lg" />,
-            bgColor: "bg-white",
-            textColor: "text-gray-900",
-          },
-          {
-            title: "Inactive Users",
-            value: analytics?.inactive_users ?? "-",
-            icon: <IoIosStats className="text-blue-600 text-lg" />,
-            bgColor: "bg-white",
-            textColor: "text-gray-900",
-          },
-          {
-            title: "Users Pending KYC",
-            value: analytics?.pending_kyc ?? "-",
-            icon: <IoIosStats className="text-blue-600 text-lg" />,
-            bgColor: "bg-white",
-            textColor: "text-gray-900",
-          },
-          {
-            title: "Total Agents",
-            value: analytics?.total_agents ?? "-",
-            icon: <HiOutlineDocumentText className="text-blue-600 text-lg" />,
-            bgColor: "bg-white",
-            textColor: "text-gray-900",
-          },
-        ]);
+      // Compose simple series for charts from DS
+      setIncomeData([
+        { name: '24h', transactions: analytics?.transactions?.last_24h?.total_transactions ?? 0, utility: analytics?.services?.last_24h?.total_wallets ?? 0, agents: analytics?.errors?.last_24h?.total_errors ?? 0 },
+        { name: '7d', transactions: analytics?.transactions?.last_7d?.total_transactions ?? 0, utility: analytics?.services?.last_7d?.total_wallets ?? 0, agents: analytics?.errors?.last_7d?.total_errors ?? 0 },
+        { name: '30d', transactions: analytics?.transactions?.last_30d?.total_transactions ?? 0, utility: analytics?.services?.last_30d?.total_wallets ?? 0, agents: analytics?.errors?.last_30d?.total_errors ?? 0 },
+        { name: 'All', transactions: analytics?.transactions?.all_time?.total_transactions ?? 0, utility: analytics?.services?.all_time?.total_wallets ?? 0, agents: analytics?.errors?.all_time?.total_errors ?? 0 }
+      ])
 
-        // Set additional data
-        setIncomeData(analytics?.income ?? []);
-        setTrafficData(analytics?.traffic ?? []);
-        setUserData(analytics?.user_breakdown ?? []);
-      } catch (err) {
-        console.error("Failed to load analytics data:", err);
-        setError("Failed to load analytics data");
-      } finally {
-        setLoading(false);
-      }
-    };
+      setTrafficData([
+        { name: '24h', visitors: analytics?.users?.active_users_24h ?? 0 },
+        { name: '7d', visitors: analytics?.users?.active_users_7d ?? 0 },
+        { name: '30d', visitors: analytics?.users?.active_users_30d ?? 0 }
+      ])
 
-    fetchAnalytics();
-  }, []);
+      setUserData([
+        { name: 'Active (30d)', value: analytics?.users?.active_users_30d ?? 0 },
+        { name: 'Inactive', value: Math.max((analytics?.users?.total_users ?? 0) - (analytics?.users?.active_users_30d ?? 0), 0) }
+      ])
+    } catch (err) {
+      console.error('Failed to map analytics:', err)
+      setError('Failed to map analytics data')
+    } finally {
+      setLoading(false)
+    }
+  }, [analytics])
 
   if (loading) {
     return <div className='p-6 text-center'>Loading analytics...</div>

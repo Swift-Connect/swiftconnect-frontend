@@ -173,7 +173,7 @@ export default function Sidebar ({
         </div>
         <div className='flex-1 flex flex-col justify-between'>
           <div>
-            <nav className='mt-4 flex flex-col gap-5'>
+            <nav className='mt-4 flex flex-col gap-1'>
               {menuList.map(({ label, icon }, index) => (
                 <React.Fragment key={label}>
                   <button
@@ -181,8 +181,8 @@ export default function Sidebar ({
                       setActiveSidebar(label)
                       if (window.innerWidth <= 768) setHideSideMenu(true)
                     }}
-                    className={`flex px-4 py-2 text-[16px] items-center gap-4 w-full rounded-r-md transition-all duration-150
-                      ${activeSidebar === label ? 'bg-[#F6FCF5] text-[#00613A] font-bold border-l-4 border-[#00613A] shadow-sm' : 'text-gray-600 hover:bg-[#000000c0] hover:text-white'}
+                    className={`flex px-4 py-3 text-[14px] items-center gap-3 w-full rounded-r-md transition-all duration-150 tracking-wide
+                      ${activeSidebar === label ? 'bg-[#F6FCF5] text-[#00613A] font-semibold border-l-4 border-[#00613A] shadow-sm' : 'text-gray-700 hover:bg-black/70 hover:text-white'}
                     `}
                     style={{ outline: 'none' }}
                     tabIndex={0}
@@ -198,10 +198,10 @@ export default function Sidebar ({
                       }
                       width={100}
                       height={100}
-                      className={`w-[1.6em] transition-all duration-150 ${activeSidebar === label ? 'opacity-100' : 'opacity-70'}`}
+                      className={`w-[1.2em] transition-all duration-150 ${activeSidebar === label ? 'opacity-100' : 'opacity-80'}`}
                       alt={`${label} icon`}
                     />
-                    {label}
+                    <span className="truncate text-left">{label}</span>
                   </button>
                   {role === 'admin'
                     ? (index === 2 ||
@@ -210,7 +210,7 @@ export default function Sidebar ({
                         index === 11 ||
                         index === 13 ||
                         label === 'Settings') && (
-                        <hr className='border-t border-gray-300 my-8 w-[90%] mx-auto' />
+                        <hr className='border-t border-gray-200 my-3 w-[90%] mx-auto' />
                       )
                     : ''}
                 </React.Fragment>

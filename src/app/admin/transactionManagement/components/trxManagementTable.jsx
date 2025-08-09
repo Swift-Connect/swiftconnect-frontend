@@ -15,11 +15,10 @@ const TrxManagementTable = ({
   const columns = [
     "Product",
     "User",
-    "Date",
     "Amount",
     "Status",
-    "Receipt",
-    "Action",
+    "Date",
+    "Actions",
   ];
 
   console.log("data from trxManagementTable", data);
@@ -75,7 +74,7 @@ const TrxManagementTable = ({
       ) : (
         <table className="w-full text-sm border-collapse">
           <thead>
-            <tr className="bg-[#F9F8FA] text-left text-[#525252]">
+            <tr className="bg-gray-50 border-b border-gray-200">
               <th className="py-[1.3em] px-[1.8em] font-semibold text-[#232323]">
                 <input
                   type="checkbox"
@@ -84,10 +83,7 @@ const TrxManagementTable = ({
                 />
               </th>
               {columns.map((column, index) => (
-                <th
-                  key={index}
-                  className="py-[1.3em] px-[1.8em] whitespace-nowrap"
-                >
+                <th key={index} className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   {column}
                 </th>
               ))}
@@ -95,12 +91,7 @@ const TrxManagementTable = ({
           </thead>
           <tbody>
             {selectedData.map((transaction, idx) => (
-              <tr
-                key={idx}
-                className={`border-t ${
-                  idx % 2 === 0 ? "bg-white" : "bg-gray-50"
-                }`}
-              >
+              <tr key={transaction.id || idx} className="hover:bg-gray-50">
                 <td className="py-[1.3em] px-[1.8em]">
                   <input
                     type="checkbox"
@@ -108,58 +99,47 @@ const TrxManagementTable = ({
                     onChange={() => handleCheckboxChange(startIndex + idx)}
                   />
                 </td>
-                <td className="py-[1.3em] px-[1.8em] font-semibold text-[#232323] text-nowrap">
-                  {transaction.product}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF] text-nowrap">
-                  {transaction.user.username}
-                </td>
-                <td className="py-[1.3em] px-[1.8em] text-[#9CA3AF]">
-                  {new Date(transaction.date).toLocaleDateString("en-GB")}
-                </td>
-                <td
-                  className={`py-[1.3em] px-[1.8em] font-medium text-${
-                    transaction.status === "Completed" ? "green" : "red"
-                  }-600`}
-                >
-                  {transaction.status === "Completed" ? "+" : "-"}
-                  {transaction.amount}
-                </td>
-                <td className="py-[1.3em] px-[1.8em]">
-                  <div
-                    className={`py-1 text-center text-xs font-medium rounded-full ${
-                      transaction.status === "Completed"
-                        ? "bg-green-100 text-green-600"
-                        : transaction.status === "Failed"
-                        ? "bg-red-100 text-red-600"
-                        : transaction.status === "Pending"
-                        ? "bg-yellow-100 text-yellow-600"
-                        : transaction.status === "Refunded"
-                        ? "bg-[#52525233] text-[#525252]"
-                        : ""
-                    }`}
-                  >
-                    {transaction.status}
+                <td className="py-4 px-4">
+                  <div>
+                    <div className="text-sm font-medium text-gray-900">{transaction.product}</div>
+                    <div className="text-sm text-gray-500">#{transaction.id}</div>
                   </div>
                 </td>
-                <td className="py-[1.3em] px-[1.8em]">
-                  <button
-                    className="text-[#525252] border border-[#525252] text-sm font-semibold py-1 px-5 hover:bg-[#e1e1e1]  text-center   rounded-full"
-                    onClick={() => {
-                      setViewTransaction(transaction);
-                      console.log("cliked view");
-                    }}
-                  >
-                    View
-                  </button>
+                <td className="py-4 px-4 text-sm text-gray-700">{transaction.user?.username || transaction.user || 'N/A'}</td>
+                <td className="py-4 px-4">
+                  <span className={`text-sm font-medium ${transaction.status === 'Completed' ? 'text-green-600' : 'text-red-600'}`}>
+                    {transaction.status === 'Completed' ? '+' : '-'}{transaction.amount}
+                  </span>
                 </td>
-                <td className="py-[1.3em] px-[1.8em]">
-                  <button
-                    className="text-[#525252] bg-[#66f04d67] border border-[#6ccb66] text-sm font-semibold py-1 px-5 hover:bg-[#e1e1e1]  text-center   rounded-full"
-                    onClick={() => setShowEdit(transaction)}
-                  >
-                    edit
-                  </button>
+                <td className="py-4 px-4">
+                  <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full border ${
+                    transaction.status === 'Completed'
+                      ? 'bg-green-100 text-green-800 border-green-200'
+                      : transaction.status === 'Failed'
+                      ? 'bg-red-100 text-red-800 border-red-200'
+                      : transaction.status === 'Pending'
+                      ? 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                      : 'bg-gray-100 text-gray-800 border-gray-200'
+                  }`}>
+                    {transaction.status}
+                  </span>
+                </td>
+                <td className="py-4 px-4 text-sm text-gray-500">{transaction.date}</td>
+                <td className="py-4 px-4">
+                  <div className="flex items-center space-x-2">
+                    <button
+                      className="inline-flex items-center px-3 py-1 text-xs font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      onClick={() => setViewTransaction(transaction)}
+                    >
+                      View
+                    </button>
+                    <button
+                      className="inline-flex items-center px-3 py-1 text-xs font-medium text-gray-700 bg-gray-100 border border-gray-200 rounded-md hover:bg-gray-200"
+                      onClick={() => setShowEdit(transaction)}
+                    >
+                      Edit
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

@@ -32,7 +32,7 @@ const AuditLog = () => {
         const transactionEndpoints = [
           "/services/cable-recharges-transactions/",
           "/services/data-plan-transactions/",
-          "/payments/transactions/",
+          "/payments/admin/transactions/",
           "/services/airtime-topups-transactions/"
         ];
 

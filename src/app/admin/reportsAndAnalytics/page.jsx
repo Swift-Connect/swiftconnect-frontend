@@ -1,36 +1,46 @@
 "use client";
-import api from "@/utils/api";
+import React, { useEffect, useState } from "react";
+import { fetchWithAuth } from "@/utils/api";
 import DashboardOverview from "./components/dashboardOverview";
 import LastSection from "./components/lastSectiion";
 import SalesReport from "./components/salesReport";
 import ServiceRevenue from "./components/servicesRevenue";
-import { use, useEffect } from "react";
+
 export default function ReporstAndAnalytics() {
-  // const fetchAllPages = async (endpoint) => {
-  //   let allData = [];
+  const [analytics, setAnalytics] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  //   try {
-  //     const res = await api.get(endpoint);
-  //     // allData = allData.concat(res.data.results || res.data);
-  //     console.log(res.data);
-      
-  //     // nextPage = res.data.next || null;
-  //   } catch (error) {
-  //     // toast.error(`Error fetching data from /api/analytics/`);
-  //     console.error(`Error fetching /api/analytics/:`, error);
-  //   }
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await fetchWithAuth("/api/analytics/");
+        setAnalytics(data);
+      } catch (err) {
+        setError("Failed to load analytics");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAnalytics();
+  }, []);
 
-  //   return allData;
-  // };
-  // useEffect(() => {
-  //   fetchAllPages("https://swiftconnect-backend.onrender.com/api/analytics/");
-  // }, []);
+  if (loading) {
+    return <div className="p-6 text-center">Loading analytics...</div>;
+  }
+  if (error) {
+    return <div className="p-6 text-center text-red-500">{error}</div>;
+  }
+
   return (
     <main className="min-h-screen bg-[#F5FBF7] ">
-      <DashboardOverview />
-      <SalesReport />
-      <ServiceRevenue />
-      <LastSection />
+      <DashboardOverview analytics={analytics} />
+      <SalesReport analytics={analytics} />
+      <ServiceRevenue analytics={analytics} />
+      <LastSection analytics={analytics} />
     </main>
   );
 }

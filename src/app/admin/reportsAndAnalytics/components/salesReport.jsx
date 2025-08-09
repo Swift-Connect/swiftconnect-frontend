@@ -11,31 +11,29 @@ import {
 } from 'recharts'
 import { fetchWithAuth } from '@/utils/api'
 
-export default function SalesReport () {
+export default function SalesReport ({ analytics }) {
   const [filter, setFilter] = useState('Weekly')
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    async function fetchMetrics () {
-      setLoading(true)
-      setError(null)
-      try {
-        // If the API supports filter, add query param, else just fetch all
-        let url = '/api/analytics/metrics/'
-        // Example: if (filter === "Monthly") url += "?period=monthly";
-        const metrics = await fetchWithAuth(url)
-        // Assume metrics is an array of { name, value } for the chart
-        setData(metrics || [])
-      } catch (err) {
-        setError('Failed to load sales metrics')
-      } finally {
-        setLoading(false)
-      }
+    setLoading(true)
+    try {
+      // Build series from analytics.transactions volumes by period
+      const series = [
+        { name: '24h', value: analytics?.transactions?.last_24h?.total_volume ?? 0 },
+        { name: '7d', value: analytics?.transactions?.last_7d?.total_volume ?? 0 },
+        { name: '30d', value: analytics?.transactions?.last_30d?.total_volume ?? 0 },
+        { name: 'All', value: analytics?.transactions?.all_time?.total_volume ?? 0 }
+      ]
+      setData(series)
+    } catch (err) {
+      setError('Failed to load sales metrics')
+    } finally {
+      setLoading(false)
     }
-    fetchMetrics()
-  }, [filter])
+  }, [analytics, filter])
 
   if (loading) {
     return <div className='p-6 text-center'>Loading sales report...</div>

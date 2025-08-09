@@ -49,6 +49,7 @@ const Dashboard = () => {
   const [stats, setStats] = useState([]);
   const [allTransactionData, setAllTransaactionData] = useState([]);
   const [usersKYCPendingData, setUsersKYCPendingData] = useState([]);
+  const [analytics, setAnalytics] = useState(null);
 
   // Loading states
   const [isLoadingStats, setIsLoadingStats] = useState(true);
@@ -156,8 +157,11 @@ const Dashboard = () => {
     setIsLoadingUsers(true);
     try {
       // Using correct endpoint from swagger
-      const response = await fetchWithAuth("users/");
-      return response?.results || response || [];
+      const data = await fetchWithAuth("users/");
+      // Always return an array
+      if (Array.isArray(data)) return data;
+      if (Array.isArray(data?.results)) return data.results;
+      return [];
     } catch (error) {
       console.error("Error fetching user data:", error);
       return [];
@@ -169,24 +173,11 @@ const Dashboard = () => {
   const fetchKYC = useCallback(async () => {
     setIsLoadingKYC(true);
     try {
-      // Using correct KYC endpoints
-      const [allKycResponse, pendingKycResponse] = await Promise.allSettled([
-        fetchWithAuth("kyc/submissions/"),
-        fetchWithAuth("kyc/pending/"),
+      // Use axios-based helper which already returns JSON data
+      const [allKycData, pendingKycData] = await Promise.all([
+        fetchWithAuth('users/all-kyc/').then((d) => d?.results || d || []),
+        fetchWithAuth('users/pending-kyc-requests/').then((d) => d?.results || d || []),
       ]);
-
-      let allKycData = [];
-      let pendingKycData = [];
-
-      if (allKycResponse.status === "fulfilled") {
-        const data = await allKycResponse.value.json();
-        allKycData = data?.results || data || [];
-      }
-
-      if (pendingKycResponse.status === "fulfilled") {
-        const data = await pendingKycResponse.value.json();
-        pendingKycData = data?.results || data || [];
-      }
 
       return { allKycData, pendingKycData };
     } catch (error) {
@@ -208,24 +199,18 @@ const Dashboard = () => {
         "services/electricity-transactions/",
         "services/education-transactions/",
         "services/bulk-sms-transactions/",
-        "payments/transactions/", // Include wallet transactions
+        "payments/admin/transactions/", // Include wallet transactions
       ];
 
-      const responses = await Promise.allSettled(
-        endpoints.map((endpoint) => fetchWithAuth(endpoint)),
+      const responses = await Promise.all(
+        endpoints.map((endpoint) =>
+          fetchWithAuth(endpoint).then((data) => data?.results || data || []),
+        ),
       );
 
-      let allTransactions = [];
-      for (const response of responses) {
-        if (response.status === "fulfilled") {
-          const data = response.value;
-          const results = data?.results || data || [];
-          allTransactions = allTransactions.concat(results);
-        } else {
-          console.error("Request failed:", response.reason);
-        }
-      }
+      console.log("responses", responses);
 
+      const allTransactions = responses.flat();
       return allTransactions;
     } catch (error) {
       console.error("Error fetching transactions:", error);
@@ -235,8 +220,27 @@ const Dashboard = () => {
     }
   }, []);
 
+  const fetchAnalytics = useCallback(async () => {
+    try {
+      const data = await fetchWithAuth('/api/analytics/');
+      setAnalytics(data || null);
+      return data || null;
+    } catch (error) {
+      console.warn('Analytics fetch failed:', error?.message || error);
+      setAnalytics(null);
+      return null;
+    }
+  }, []);
+
   const processUsers = useCallback((usersData) => {
-    const validUsers = usersData.filter((user) => user?.id);
+    const array = Array.isArray(usersData)
+      ? usersData
+      : Array.isArray(usersData?.results)
+      ? usersData.results
+      : usersData
+      ? [usersData]
+      : [];
+    const validUsers = array.filter((user) => user?.id);
     const processedData = validUsers.map((user) => ({
       id: user?.id,
       username: user?.username || user?.fullname || "N/A",
@@ -275,23 +279,44 @@ const Dashboard = () => {
   }, []);
 
   const processTransactions = useCallback((transactions) => {
-    const processedDataTrx = transactions.map((tx) => ({
-      id: tx.id,
-      product: getProductName(tx),
-      amount: formatCurrency(tx.amount, tx.currency),
-      date: tx.created_at
-        ? new Date(tx.created_at).toLocaleDateString("en-GB")
-        : "N/A",
-      status: tx.status ? capitalizeFirstLetter(tx.status) : "Completed",
-      user: tx.user?.username || tx.user?.email || "N/A",
-      reference: tx.reference || tx.transaction_id || "N/A",
-      created_at: tx.created_at,
-      raw_data: tx,
-    }));
+    console.log("transactions", transactions);
+    if (!Array.isArray(transactions)) return [];
 
-    // Sort by most recent
+    const toNumber = (val) => {
+      if (val == null) return 0;
+      if (typeof val === 'number') return val;
+      if (typeof val === 'string') return parseFloat(val.replace(/[^0-9.-]+/g, '')) || 0;
+      return 0;
+    };
+
+    const normalizeStatus = (status) => {
+      if (!status) return 'Completed';
+      const s = String(status).toLowerCase();
+      if (s === 'completed' || s === 'success' || s === 'successful') return 'Completed';
+      if (s === 'failed' || s === 'error') return 'Failed';
+      if (s === 'pending' || s === 'processing') return 'Pending';
+      if (s === 'refunded') return 'Refunded';
+      return capitalizeFirstLetter(s);
+    };
+
+    const processedDataTrx = transactions
+      .filter((tx) => tx && (tx.id != null || tx.transaction_id))
+      .map((tx) => ({
+        id: tx.id ?? tx.transaction_id,
+        product: getProductName(tx),
+        amount: formatCurrency(toNumber(tx.amount), tx.currency || 'NGN'),
+        date: (tx.created_at || tx.date || tx.timestamp)
+          ? new Date(tx.created_at || tx.date || tx.timestamp).toLocaleDateString('en-GB')
+          : 'N/A',
+        status: normalizeStatus(tx.status),
+        user: tx.user?.username || tx.user?.user_email || tx.user?.email || 'N/A',
+        reference: tx.reference || tx.transaction_id || 'N/A',
+        created_at: tx.created_at || tx.date || tx.timestamp || null,
+        raw_data: tx,
+      }));
+
     processedDataTrx.sort(
-      (a, b) => new Date(b.created_at) - new Date(a.created_at),
+      (a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0),
     );
     return processedDataTrx;
   }, []);
@@ -299,81 +324,135 @@ const Dashboard = () => {
   const fetchStats = useCallback(async () => {
     setIsLoadingStats(true);
     try {
-      // Generate stats from existing data or fetch from dedicated endpoints
-      const totalUsers = userssData.length;
-      const totalTransactions = allTransactionData.length;
-      const totalRevenue = allTransactionData.reduce((sum, tx) => {
-        const amount = parseFloat(tx.amount.replace(/[^0-9.-]+/g, "")) || 0;
-        return sum + amount;
-      }, 0);
+      // Prefer backend analytics if available
+      if (analytics) {
+        const totalUsers = analytics?.users?.total_users ?? userssData.length;
+        const totalRevenue = analytics?.transactions?.all_time?.total_volume ?? 0;
+        const totalTransactions = analytics?.transactions?.all_time?.total_transactions ?? allTransactionData.length;
+        const activeUsers30d = analytics?.users?.active_users_30d ?? 0;
+        const inactiveUsers = Math.max((totalUsers || 0) - (activeUsers30d || 0), 0);
 
-      const statsData = [
-        {
-          title: "Total Users",
-          value: totalUsers.toLocaleString(),
-          icon: <FaUsers className="w-6 h-6" />,
-          bgColor: "bg-blue-500",
-          textColor: "text-white",
-        },
-        {
-          title: "Total Transactions",
-          value: totalTransactions.toLocaleString(),
-          icon: <FaExchangeAlt className="w-6 h-6" />,
-          bgColor: "bg-green-500",
-          textColor: "text-white",
-        },
-        {
-          title: "Total Revenue",
-          value: formatCurrency(totalRevenue),
-          icon: <FaDollarSign className="w-6 h-6" />,
-          bgColor: "bg-purple-500",
-          textColor: "text-white",
-        },
-        {
-          title: "Pending KYC",
-          value: usersKYCPendingData.length.toString(),
-          icon: <HiOutlineDocumentText className="w-6 h-6" />,
-          bgColor: "bg-orange-500",
-          textColor: "text-white",
-        },
-      ];
+        setStats([
+          {
+            title: "Total Users",
+            value: Number(totalUsers).toLocaleString(),
+            icon: <FaUsers className="w-6 h-6" />,
+            bgColor: "bg-blue-500",
+            textColor: "text-white",
+          },
+          {
+            title: "Total Transactions",
+            value: Number(totalTransactions).toLocaleString(),
+            icon: <FaExchangeAlt className="w-6 h-6" />,
+            bgColor: "bg-green-500",
+            textColor: "text-white",
+          },
+          {
+            title: "Total Revenue",
+            value: formatCurrency(totalRevenue),
+            icon: <FaDollarSign className="w-6 h-6" />,
+            bgColor: "bg-purple-500",
+            textColor: "text-white",
+          },
+          {
+            title: "Pending KYC",
+            value: usersKYCPendingData.length.toString(),
+            icon: <HiOutlineDocumentText className="w-6 h-6" />,
+            bgColor: "bg-orange-500",
+            textColor: "text-white",
+          },
+        ]);
 
-      setStats(statsData);
+        setIncomeData([
+          { name: '24h', transactions: analytics?.transactions?.last_24h?.total_transactions ?? 0 },
+          { name: '7d', transactions: analytics?.transactions?.last_7d?.total_transactions ?? 0 },
+          { name: '30d', transactions: analytics?.transactions?.last_30d?.total_transactions ?? 0 },
+          { name: 'All', transactions: analytics?.transactions?.all_time?.total_transactions ?? 0 },
+        ]);
 
-      // Mock chart data - you can enhance this with real API data
-      setIncomeData([
-        { name: "Mon", transactions: 12000, utility: 8000, agents: 3000 },
-        { name: "Tue", transactions: 19000, utility: 12000, agents: 4000 },
-        { name: "Wed", transactions: 15000, utility: 9000, agents: 3500 },
-        { name: "Thu", transactions: 22000, utility: 15000, agents: 5000 },
-        { name: "Fri", transactions: 18000, utility: 11000, agents: 4200 },
-        { name: "Sat", transactions: 25000, utility: 18000, agents: 6000 },
-        { name: "Sun", transactions: 20000, utility: 14000, agents: 4800 },
-      ]);
+        setTrafficData([
+          { name: '24h', visitors: analytics?.users?.active_users_24h ?? 0 },
+          { name: '7d', visitors: analytics?.users?.active_users_7d ?? 0 },
+          { name: '30d', visitors: analytics?.users?.active_users_30d ?? 0 },
+        ]);
 
-      setTrafficData([
-        { name: "Mon", visitors: 1200 },
-        { name: "Tue", visitors: 1900 },
-        { name: "Wed", visitors: 1500 },
-        { name: "Thu", visitors: 2200 },
-        { name: "Fri", visitors: 1800 },
-        { name: "Sat", visitors: 2500 },
-        { name: "Sun", visitors: 2000 },
-      ]);
+        setUserData([
+          { name: "Active Users (30d)", value: activeUsers30d },
+          { name: "Inactive Users", value: inactiveUsers },
+        ]);
+      } else {
+        // Fallback to locally computed when analytics missing
+        const totalUsers = userssData.length;
+        const totalTransactions = allTransactionData.length;
+        const totalRevenue = allTransactionData.reduce((sum, tx) => {
+          const amount = parseFloat(tx.amount.replace(/[^0-9.-]+/g, "")) || 0;
+          return sum + amount;
+        }, 0);
 
-      const activeUsers = Math.floor(totalUsers * 0.7);
-      const inactiveUsers = totalUsers - activeUsers;
+        setStats([
+          {
+            title: "Total Users",
+            value: totalUsers.toLocaleString(),
+            icon: <FaUsers className="w-6 h-6" />,
+            bgColor: "bg-blue-500",
+            textColor: "text-white",
+          },
+          {
+            title: "Total Transactions",
+            value: totalTransactions.toLocaleString(),
+            icon: <FaExchangeAlt className="w-6 h-6" />,
+            bgColor: "bg-green-500",
+            textColor: "text-white",
+          },
+          {
+            title: "Total Revenue",
+            value: formatCurrency(totalRevenue),
+            icon: <FaDollarSign className="w-6 h-6" />,
+            bgColor: "bg-purple-500",
+            textColor: "text-white",
+          },
+          {
+            title: "Pending KYC",
+            value: usersKYCPendingData.length.toString(),
+            icon: <HiOutlineDocumentText className="w-6 h-6" />,
+            bgColor: "bg-orange-500",
+            textColor: "text-white",
+          },
+        ]);
 
-      setUserData([
-        { name: "Active Users", value: activeUsers },
-        { name: "Inactive Users", value: inactiveUsers },
-      ]);
+        setIncomeData([
+          { name: "Mon", transactions: 12000 },
+          { name: "Tue", transactions: 19000 },
+          { name: "Wed", transactions: 15000 },
+          { name: "Thu", transactions: 22000 },
+          { name: "Fri", transactions: 18000 },
+          { name: "Sat", transactions: 25000 },
+          { name: "Sun", transactions: 20000 },
+        ]);
+
+        setTrafficData([
+          { name: "Mon", visitors: 1200 },
+          { name: "Tue", visitors: 1900 },
+          { name: "Wed", visitors: 1500 },
+          { name: "Thu", visitors: 2200 },
+          { name: "Fri", visitors: 1800 },
+          { name: "Sat", visitors: 2500 },
+          { name: "Sun", visitors: 2000 },
+        ]);
+
+        const activeUsers = Math.floor(totalUsers * 0.7);
+        const inactiveUsers = totalUsers - activeUsers;
+        setUserData([
+          { name: "Active Users", value: activeUsers },
+          { name: "Inactive Users", value: inactiveUsers },
+        ]);
+      }
     } catch (error) {
       handleApiError(error, "Failed to fetch stats");
     } finally {
       setIsLoadingStats(false);
     }
-  }, [userssData.length, allTransactionData, usersKYCPendingData.length]);
+  }, [analytics, userssData.length, allTransactionData, usersKYCPendingData.length]);
 
   useEffect(() => {
     if (!token) return;
@@ -384,12 +463,16 @@ const Dashboard = () => {
         const usersPromise = fetchUsers();
         const kycDataPromise = fetchKYC();
         const transactionsPromise = fetchTransactions();
+        const analyticsPromise = fetchAnalytics();
 
         const [users, kycData, transactions] = await Promise.all([
           usersPromise,
           kycDataPromise,
           transactionsPromise,
+          analyticsPromise,
         ]);
+
+        console.log("transactions", transactions);
 
         const processedUsers = processUsers(users);
         setUserssData(processedUsers);
@@ -399,6 +482,7 @@ const Dashboard = () => {
         setUsersKYCPendingData(processedKYC);
 
         const processedTransactions = processTransactions(transactions);
+        console.log("processedTransactions", processedTransactions?.length);
         setAllTransaactionData(processedTransactions);
       } finally {
         setIsLoadingDashboard(false);
@@ -444,6 +528,7 @@ const Dashboard = () => {
 
   const getProductName = (transaction) => {
     if (transaction.reason) return transaction.reason;
+    if (transaction.service_name) return transaction.service_name;
     if (transaction.network) return `${transaction.network} Airtime`;
     if (transaction.cable_name) return `${transaction.cable_name} Cable`;
     if (transaction.service_type) return transaction.service_type;
@@ -684,10 +769,7 @@ const Dashboard = () => {
           />
 
           <TransactionsTable
-            data={filteredTransactionData.slice(
-              (currentPageTrx - 1) * itemsPerPage,
-              currentPageTrx * itemsPerPage,
-            )}
+            data={filteredTransactionData}
             currentPage={currentPageTrx}
             itemsPerPage={itemsPerPage}
             isLoading={isLoadingTransactions}
