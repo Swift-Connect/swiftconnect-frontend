@@ -7,6 +7,8 @@ const Footer = () => {
   const router = usePathname(); // Get the router object
   const isLoginPage = router.includes('login'); 
   const isSignupPage = router.includes('signup'); 
+  const isForgotPasswordPage = router.includes('forgot-password');
+  const isResetPasswordPage = router.includes('reset-password');
 
 
   return (
@@ -26,6 +28,26 @@ const Footer = () => {
         ) : isSignupPage ? (
           <p className="text-gray-600">
             Already have an account?{" "}
+            <Link
+              href="/account/login"
+              className="text-green-700 hover:text-green-800 font-medium"
+            >
+              Log In
+            </Link>
+          </p>
+        ) : isForgotPasswordPage ? (
+          <p className="text-gray-600">
+            Remember your password?{" "}
+            <Link
+              href="/account/login"
+              className="text-green-700 hover:text-green-800 font-medium"
+            >
+              Log In
+            </Link>
+          </p>
+        ) : isResetPasswordPage ? (
+          <p className="text-gray-600">
+            Remember your password?{" "}
             <Link
               href="/account/login"
               className="text-green-700 hover:text-green-800 font-medium"

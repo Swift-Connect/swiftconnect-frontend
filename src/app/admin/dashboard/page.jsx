@@ -199,7 +199,7 @@ const Dashboard = () => {
         "services/electricity-transactions/",
         "services/education-transactions/",
         "services/bulk-sms-transactions/",
-        "payments/admin/transactions/", // Include wallet transactions
+        // "payments/admin/transactions/", // Include wallet transactions
       ];
 
       const responses = await Promise.all(

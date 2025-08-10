@@ -293,6 +293,14 @@ const Page = () => {
               {errors.password && (
                 <p className='text-red-500 text-xl sm:text-sm mt-3'>{errors.password}</p>
               )}
+              <div className='mt-3 text-right'>
+                <Link
+                  href='/account/forgot-password'
+                  className='text-green-700 hover:text-green-800 text-lg sm:text-sm font-medium'
+                >
+                  Forgot Password?
+                </Link>
+              </div>
             </div>
             <div className='flex gap-4 sm:gap-4'>
               <button
