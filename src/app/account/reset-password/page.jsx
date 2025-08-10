@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import Footer from '../components/Footer'
 import { useRouter, useSearchParams } from 'next/navigation'
 
-const Page = () => {
+const ResetPasswordContent = () => {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [errors, setErrors] = useState({})
@@ -277,6 +277,31 @@ const Page = () => {
         <Footer />
       </div>
     </div>
+  )
+}
+
+const Page = () => {
+  return (
+    <Suspense fallback={
+      <div className='flex min-h-screen flex-col w-full items-center justify-center px-2 sm:px-4 bg-[#f8fafc]'>
+        <div className='flex flex-col items-center w-fit gap-8 sm:gap-4 pt-12 sm:pt-0'>
+          <Image
+            src='/logo.svg'
+            alt='Swift Connect'
+            width={280}
+            height={100}
+          />
+          <div className='w-full bg-white rounded-3xl sm:rounded-2xl p-8 sm:p-8 shadow-lg sm:shadow-md border border-gray-100'>
+            <div className='text-center'>
+              <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4'></div>
+              <p className='text-gray-600'>Loading...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    }>
+      <ResetPasswordContent />
+    </Suspense>
   )
 }
 
