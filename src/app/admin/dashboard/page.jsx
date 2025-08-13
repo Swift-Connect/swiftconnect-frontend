@@ -100,7 +100,7 @@ const Dashboard = () => {
 
   const totalPages = Math.ceil(filteredKYCData.length / itemsPerPage);
   const totalPagesTrx = Math.ceil(
-    filteredTransactionData.length / itemsPerPage,
+    filteredTransactionData.length / itemsPerPage
   );
 
   useEffect(() => {
@@ -157,6 +157,7 @@ const Dashboard = () => {
     try {
       // Using correct endpoint from swagger
       const response = await fetchWithAuth("users/");
+      console.log("Raw user fetch response:", response);
       return response?.results || response || [];
     } catch (error) {
       console.error("Error fetching user data:", error);
@@ -198,6 +199,8 @@ const Dashboard = () => {
   }, []);
 
   const fetchTransactions = useCallback(async () => {
+ 
+    
     setIsLoadingTransactions(true);
     try {
       // Using correct transaction endpoints
@@ -212,7 +215,7 @@ const Dashboard = () => {
       ];
 
       const responses = await Promise.allSettled(
-        endpoints.map((endpoint) => fetchWithAuth(endpoint)),
+        endpoints.map((endpoint) => fetchWithAuth(endpoint))
       );
 
       let allTransactions = [];
@@ -236,6 +239,7 @@ const Dashboard = () => {
   }, []);
 
   const processUsers = useCallback((usersData) => {
+    console.log("Processing users data:", usersData);
     const validUsers = usersData.filter((user) => user?.id);
     const processedData = validUsers.map((user) => ({
       id: user?.id,
@@ -250,7 +254,7 @@ const Dashboard = () => {
 
     // Sort by most recent
     processedData.sort(
-      (a, b) => new Date(b.created_at) - new Date(a.created_at),
+      (a, b) => new Date(b.created_at) - new Date(a.created_at)
     );
     return processedData;
   }, []);
@@ -269,7 +273,7 @@ const Dashboard = () => {
 
     // Sort by most recent
     processedUserKYCData.sort(
-      (a, b) => new Date(b.created_at) - new Date(a.created_at),
+      (a, b) => new Date(b.created_at) - new Date(a.created_at)
     );
     return processedUserKYCData;
   }, []);
@@ -291,12 +295,13 @@ const Dashboard = () => {
 
     // Sort by most recent
     processedDataTrx.sort(
-      (a, b) => new Date(b.created_at) - new Date(a.created_at),
+      (a, b) => new Date(b.created_at) - new Date(a.created_at)
     );
     return processedDataTrx;
   }, []);
 
   const fetchStats = useCallback(async () => {
+    console.log("Fetching Stats...");
     setIsLoadingStats(true);
     try {
       // Generate stats from existing data or fetch from dedicated endpoints
@@ -337,6 +342,7 @@ const Dashboard = () => {
           textColor: "text-white",
         },
       ];
+      console.log("Stats data:", statsData);
 
       setStats(statsData);
 
@@ -376,22 +382,28 @@ const Dashboard = () => {
   }, [userssData.length, allTransactionData, usersKYCPendingData.length]);
 
   useEffect(() => {
-    if (!token) return;
+    // if (!token) return;
 
     const fetchData = async () => {
+      console.log("Fetching initial data...");
+      
       setIsLoadingDashboard(true);
       try {
         const usersPromise = fetchUsers();
         const kycDataPromise = fetchKYC();
         const transactionsPromise = fetchTransactions();
 
+        
+        
         const [users, kycData, transactions] = await Promise.all([
           usersPromise,
           kycDataPromise,
           transactionsPromise,
         ]);
+        console.log("kkk",users );
 
         const processedUsers = processUsers(users);
+        console.log("Processed Users:", processedUsers);
         setUserssData(processedUsers);
 
         const { allKycData, pendingKycData } = kycData;
@@ -415,8 +427,13 @@ const Dashboard = () => {
     processKYC,
     processTransactions,
   ]);
+  
 
   useEffect(() => {
+    console.log("bbbbb", userssData, allTransactionData, usersKYCPendingData);
+    
+    fetchStats();
+
     if (
       userssData.length ||
       allTransactionData.length ||
@@ -424,7 +441,7 @@ const Dashboard = () => {
     ) {
       fetchStats();
     }
-  }, [userssData, allTransactionData, usersKYCPendingData, fetchStats]);
+  }, [userssData, allTransactionData, usersKYCPendingData]);
 
   useEffect(() => {
     setCurrentPageTrx(1);
@@ -453,6 +470,8 @@ const Dashboard = () => {
   const capitalizeFirstLetter = (str) => {
     return str.charAt(0).toUpperCase() + str.slice(1);
   };
+
+  console.log("the isloadStats", isLoadingStats, stats);
 
   if (!token) {
     return (
@@ -501,7 +520,7 @@ const Dashboard = () => {
             <div className="mb-4">
               <h2 className="text-3xl font-bold text-gray-900">
                 {formatCurrency(
-                  incomeData.reduce((sum, item) => sum + item.transactions, 0),
+                  incomeData.reduce((sum, item) => sum + item.transactions, 0)
                 )}
               </h2>
               <p className="text-green-600 text-sm font-medium">
@@ -642,7 +661,7 @@ const Dashboard = () => {
           <UsersTable
             userssData={filteredKYCData.slice(
               (currentPage - 1) * itemsPerPage,
-              currentPage * itemsPerPage,
+              currentPage * itemsPerPage
             )}
             currentPage={currentPage}
             itemsPerPage={itemsPerPage}
@@ -686,7 +705,7 @@ const Dashboard = () => {
           <TransactionsTable
             data={filteredTransactionData.slice(
               (currentPageTrx - 1) * itemsPerPage,
-              currentPageTrx * itemsPerPage,
+              currentPageTrx * itemsPerPage
             )}
             currentPage={currentPageTrx}
             itemsPerPage={itemsPerPage}
