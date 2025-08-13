@@ -4,14 +4,22 @@ import Modal from '../../../components/common/Modal'
 const formatKey = key =>
   key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
 
-export default function ViewTransactionModal({ isOpen, onClose, transaction }) {
+export default function ViewTransactionModal({ isOpen, onClose, transaction, showAllFields = true }) {
   console.log('Transaction data after click:', transaction);
   
   if (!transaction) return null
 
-  // Filter out 'user' and 'callback_processed'
-  const entries = Object.entries(transaction).filter(
-    ([key]) => key !== 'user' && key !== 'callback_processed'
+  // Flatten user info for readability
+  const flattened = {
+    ...transaction,
+    user_username: transaction?.user?.username,
+    user_email: transaction?.user?.user_email || transaction?.user?.email,
+    user_id: transaction?.user?.user_id || transaction?.user?.id,
+  }
+
+  // Filter out technical keys
+  const entries = Object.entries(flattened).filter(
+    ([key]) => key !== 'user' && key !== 'callback_processed' && !key.startsWith('__')
   )
 
   // Summary fields to show at the top
@@ -21,12 +29,30 @@ export default function ViewTransactionModal({ isOpen, onClose, transaction }) {
     'product',
     'amount',
     'status',
+    'transaction_type',
     'date',
     'created_at',
     'transaction_type'
   ]
   const summary = entries.filter(([key]) => summaryKeys.includes(key))
   const rest = entries.filter(([key]) => !summaryKeys.includes(key))
+
+  const getStatusBadgeClasses = (status) => {
+    const val = String(status || '').toLowerCase()
+    if (val === 'completed' || val === 'success' || val === 'successful') {
+      return 'bg-green-100 text-green-800 border-green-200'
+    }
+    if (val === 'failed' || val === 'error') {
+      return 'bg-red-100 text-red-800 border-red-200'
+    }
+    if (val === 'pending' || val === 'processing') {
+      return 'bg-yellow-100 text-yellow-800 border-yellow-200'
+    }
+    if (val === 'refunded') {
+      return 'bg-gray-100 text-gray-800 border-gray-200'
+    }
+    return 'bg-gray-100 text-gray-800 border-gray-200'
+  }
 
 
   
@@ -56,23 +82,25 @@ export default function ViewTransactionModal({ isOpen, onClose, transaction }) {
             .map(([key, value]) => (
               <div className='flex justify-between' key={key}>
                 <span className='font-medium'>{formatKey(key)}:</span>
-                <span
-                  className={
-                    key === 'amount'
-                      ? 'font-semibold text-green-600'
-                      : key === 'status' && value === 'Completed'
-                      ? 'font-semibold text-green-600'
-                      : key === 'status'
-                      ? 'font-semibold text-red-600'
-                      : ''
-                  }
-                >
-                  {String(value)}
-                </span>
+                {key === 'status' ? (
+                  <span className={`inline-flex px-2 py-0.5 text-xs font-medium rounded-full border ${getStatusBadgeClasses(value)}`}>
+                    {String(value)}
+                  </span>
+                ) : (
+                  <span
+                    className={
+                      key === 'amount'
+                        ? 'font-semibold text-green-600'
+                        : ''
+                    }
+                  >
+                    {String(value)}
+                  </span>
+                )}
               </div>
             ))}
           {/* The rest of the fields */}
-          {rest
+          {(showAllFields ? rest : rest.slice(0, 20))
             .filter(([key, value]) => value !== null && value !== undefined && value !== '')
             .map(([key, value]) => (
               <div className='flex justify-between' key={key}>

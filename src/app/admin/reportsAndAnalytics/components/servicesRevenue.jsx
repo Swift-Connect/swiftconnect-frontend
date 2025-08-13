@@ -6,26 +6,48 @@ import { fetchWithAuth } from '@/utils/api'
 // Expected API response shape (example):
 // { service_revenue: [ { title, amount, icon, growth, growthText, growthPositive } ] }
 
-export default function ServiceRevenue () {
+export default function ServiceRevenue ({ analytics }) {
   const [services, setServices] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    async function fetchServiceRevenue () {
-      setLoading(true)
-      setError(null)
-      try {
-        const analytics = await fetchWithAuth('/api/analytics/')
-        setServices(analytics?.service_revenue || [])
-      } catch (err) {
-        setError('Failed to load service revenue data')
-      } finally {
-        setLoading(false)
+    setLoading(true)
+    try {
+      // Map DS into a simple services array if present, otherwise compute basic cards
+      if (analytics?.service_revenue) {
+        setServices(analytics.service_revenue)
+      } else {
+        setServices([
+          {
+            title: 'Wallets (All time)',
+            amount: analytics?.services?.all_time?.total_wallets ?? 0,
+            growth: `${analytics?.services?.last_30d?.total_wallets ?? 0}`,
+            growthText: 'in last 30d',
+            growthPositive: true
+          },
+          {
+            title: 'Total Balance (All time)',
+            amount: analytics?.services?.all_time?.total_balance ?? 0,
+            growth: `${analytics?.services?.last_30d?.total_balance ?? 0}`,
+            growthText: 'last 30d',
+            growthPositive: true
+          },
+          {
+            title: 'Avg Wallet Balance',
+            amount: analytics?.services?.all_time?.average_wallet_balance ?? 0,
+            growth: `${analytics?.services?.last_30d?.average_wallet_balance ?? 0}`,
+            growthText: '30d avg',
+            growthPositive: true
+          }
+        ])
       }
+    } catch (err) {
+      setError('Failed to load service revenue data')
+    } finally {
+      setLoading(false)
     }
-    fetchServiceRevenue()
-  }, [])
+  }, [analytics])
 
   if (loading) {
     return <div className='p-6 text-center'>Loading service revenue...</div>

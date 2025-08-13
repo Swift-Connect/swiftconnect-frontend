@@ -328,7 +328,7 @@ export default function WalletCard ({ data, refreshWallet, refreshTransactions }
         <div>
           <p className='text-gray-500 text-[18px] max-md\[400px\]:text-lg'>Total Balance</p>
           <p className='text-[36px] font-semibold text-gray-900 max-md\[400px\]:text-[28px]'>
-            ₦{data?.balance}
+            ₦{data?.balance?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
           </p>
         </div>
         <div className='flex items-center gap-2 max-md\[400px\]:mt-2'>

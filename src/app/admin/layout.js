@@ -16,12 +16,15 @@ export default function RootLayout({ children }) {
       }
 
       try {
-        const res = await fetch(`https://aesthetic-mandi-swiftconnect-a9332357.koyeb.app/users/admin-access-check/`, {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        })
+        const res = await fetch(
+          `https://aesthetic-mandi-swiftconnect-a9332357.koyeb.app/users/admin-access-check/`,
+          {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        )
 
         const isAdmin = await res.json()
         if (!isAdmin) {
@@ -39,11 +42,6 @@ export default function RootLayout({ children }) {
 
   if (authorized === null) return null // or a spinner/skeleton if you prefer
 
-  return (
-    <html lang="en">
-      <body>
-        {children}
-      </body>
-    </html>
-  )
+  // Important: nested layouts should not render <html>/<body>. Use a fragment instead
+  return <>{children}</>
 }

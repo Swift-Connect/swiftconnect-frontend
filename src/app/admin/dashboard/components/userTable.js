@@ -54,6 +54,8 @@ const UsersTable = ({
   const [reason, setReason] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
   const [currentKycId, setCurrentKycId] = useState(null)
+  const [showImagePreview, setShowImagePreview] = useState(false)
+  const [previewImage, setPreviewImage] = useState('')
   const actionMenuRef = useRef(null)
 
   // Fetch KYC data on component mount
@@ -77,6 +79,19 @@ const UsersTable = ({
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [activeRow])
+
+  // Handle ESC key for image preview
+  useEffect(() => {
+    function handleKeyDown (event) {
+      if (event.key === 'Escape' && showImagePreview) {
+        setShowImagePreview(false)
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [showImagePreview])
 
   const fetchKycData = async () => {
     try {
@@ -112,6 +127,11 @@ const UsersTable = ({
   const handleViewKyc = kyc => {
     setSelectedKyc(kyc)
     setShowKycModal(true)
+  }
+
+  const handleImagePreview = (imageUrl) => {
+    setPreviewImage(imageUrl)
+    setShowImagePreview(true)
   }
 
   const handleSearch = async () => {
@@ -253,6 +273,15 @@ const UsersTable = ({
     } else {
       return ['Approve', 'Reject', 'View Details']
     }
+  }
+
+  const getDocumentTypeName = (documentType) => {
+    const documentTypeMap = {
+      'DL': "Driver's License",
+      'NI': "National ID", 
+      'IP': "International Passport"
+    }
+    return documentTypeMap[documentType] || documentType || 'N/A'
   }
 
   if (isLoading) {
@@ -625,7 +654,7 @@ const UsersTable = ({
       </div>
 
       {/* KYC Document Modal */}
-      {showKycModal && selectedKyc && (
+      {showKycModal && selectedKyc && selectedKyc.id && (
         <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
           <div className='bg-white rounded-xl p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto'>
             <div className='flex justify-between items-center mb-6'>
@@ -639,29 +668,46 @@ const UsersTable = ({
             </div>
             <div className='space-y-6'>
               <div className='aspect-video relative bg-gray-100 rounded-lg overflow-hidden'>
-                <Image
-                  src={selectedKyc.id_document}
-                  alt='KYC Document'
-                  fill
-                  className='object-contain'
-                />
+                {selectedKyc.id_document && selectedKyc.id_document !== null ? (
+                  <>
+                    <img
+                      src={selectedKyc.id_document}
+                      alt='KYC Document'
+                      className='w-full h-full object-contain cursor-pointer hover:opacity-90 transition-opacity'
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'flex';
+                      }}
+                      onClick={() => handleImagePreview(selectedKyc.id_document)}
+                    />
+                    <div className='absolute top-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs'>
+                      Click to zoom
+                    </div>
+                  </>
+                ) : null}
+                <div className='absolute inset-0 flex items-center justify-center bg-gray-100' style={{ display: (selectedKyc.id_document && selectedKyc.id_document !== null) ? 'none' : 'flex' }}>
+                  <div className='text-center'>
+                    <FaEye className='w-12 h-12 text-gray-400 mx-auto mb-2' />
+                    <p className='text-gray-500 text-sm'>User did not submit document</p>
+                  </div>
+                </div>
               </div>
               <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                 <div className="space-y-1">
                   <p className='text-sm font-medium text-gray-900'>Full Name</p>
-                  <p className='text-sm text-gray-600'>{selectedKyc.user_fullname}</p>
+                  <p className='text-sm text-gray-600'>{selectedKyc.user_fullname || 'N/A'}</p>
                 </div>
                 <div className="space-y-1">
                   <p className='text-sm font-medium text-gray-900'>Email</p>
-                  <p className='text-sm text-gray-600'>{selectedKyc.user_email}</p>
+                  <p className='text-sm text-gray-600'>{selectedKyc.user_email || 'N/A'}</p>
                 </div>
                 <div className="space-y-1">
                   <p className='text-sm font-medium text-gray-900'>Username</p>
-                  <p className='text-sm text-gray-600'>{selectedKyc.user_username}</p>
+                  <p className='text-sm text-gray-600'>{selectedKyc.user_username || 'N/A'}</p>
                 </div>
                 <div className="space-y-1">
                   <p className='text-sm font-medium text-gray-900'>Document Type</p>
-                  <p className='text-sm text-gray-600'>{selectedKyc.document_type}</p>
+                  <p className='text-sm text-gray-600'>{getDocumentTypeName(selectedKyc.document_type)}</p>
                 </div>
                 <div className="space-y-1">
                   <p className='text-sm font-medium text-gray-900'>Status</p>
@@ -720,6 +766,37 @@ const UsersTable = ({
             </div>
           </div>
         </div>
+      )}
+
+      {/* Image Preview Modal */}
+      {showImagePreview && (
+       <div
+       className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50"
+       onClick={() => setShowImagePreview(false)}
+     >
+       <div
+         className="relative max-w-full max-h-full overflow-auto"
+         onClick={(e) => e.stopPropagation()} // prevent close on image click
+       >
+         <button
+           onClick={() => setShowImagePreview(false)}
+           className="absolute top-4 right-4 z-10 bg-black bg-opacity-50 text-white rounded-full p-2 hover:bg-opacity-70 transition-colors"
+         >
+           <FaTimes className="w-6 h-6" />
+         </button>
+         
+         <img
+           src={previewImage}
+           alt="Preview"
+           className="max-w-none object-contain"
+           style={{ transformOrigin: "center center" }}
+           onWheel={(e) => {
+             e.target.style.transform = `scale(${Math.max(0.5, Math.min(3, (parseFloat(e.target.dataset.scale) || 1) + e.deltaY * -0.001))})`;
+             e.target.dataset.scale = parseFloat(e.target.dataset.scale) || 1;
+           }}
+         />
+       </div>
+     </div>
       )}
     </>
   )

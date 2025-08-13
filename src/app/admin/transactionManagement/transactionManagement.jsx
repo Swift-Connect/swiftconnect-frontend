@@ -1,13 +1,14 @@
 'use client'
 
 import Image from 'next/image'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 // import TrxManagementTable from "./components/TrxManagementTable";
 import Pagination from '../components/pagination'
 import TableTabs from '../components/tableTabs'
 import EditUserTrx from './components/editUserTransaction'
 import { FaChevronRight } from 'react-icons/fa'
 import TrxManagementTable from './components/trxManagementTable'
+import TransactionsTable from "../dashboard/components/TransactionsTable";
 import { toast } from 'react-toastify'
 import api from '@/utils/api'
 import ViewTransactionModal from '../components/viewTransactionModal'
@@ -50,85 +51,107 @@ const TransactionManagement = () => {
     return tx.status.toLowerCase() === transactionFilter.toLowerCase()
   })
 
+  const fetchDashboardData = useCallback(async () => {
+    if (!token) return
+    setIsLoading(true)
+    try {
+      // Fetch all transactions
+      const transactionEndpoints = [
+        '/payments/admin/transactions/',
+        '/services/airtime-topups-transactions/',
+        '/services/data-plan-transactions/',
+        '/services/cable-recharges-transactions/',
+        '/services/education-transactions/',
+        '/services/electricity-transactions/',
+        '/services/bulk-sms-transactions/'
+      ]
+
+      const transactionPromises = transactionEndpoints.map(async endpoint => {
+        try {
+          const items = await fetchAllPages(endpoint)
+          // Tag each transaction with its source endpoint for accurate editing/deleting
+          return items.map(tx => ({ ...tx, __endpoint: endpoint }))
+        } catch (error) {
+          toast.error(`Error fetching ${endpoint}`)
+          console.error(`Error fetching ${endpoint}:`, error)
+          return []
+        }
+      })
+
+      const transactionResults = await Promise.all(transactionPromises)
+      const allTransactions = transactionResults.flat()
+      console.log('Fetched transactions:', allTransactions)
+      // Filter valid transactions
+      const validTransactions = allTransactions.filter(
+        tx =>
+          tx.id &&
+          tx.amount &&
+          tx.created_at &&
+          tx.status &&
+          typeof tx.amount === 'number' // Ensure amount is a number
+      )
+      console.log('Fetched transactions:', allTransactions)
+      console.log('Valid transactions:', validTransactions)
+
+      // Process transactions
+      const processedDataTrx = allTransactions
+        .map(tx => ({
+          id: tx.id ?? '-',
+          product: getProductName(tx) ?? '-',
+          // Display amount for tables/views
+          amount: tx.amount != null ? formatCurrency(tx.amount, tx.currency) : '0',
+          // Keep numeric amount for editing/payloads
+          __amount_numeric: typeof tx.amount === 'number' ? tx.amount : Number(tx.amount) || 0,
+          date: tx.created_at
+            ? new Date(tx.created_at).toLocaleDateString('en-GB')
+            : '-',
+          // Keep original status as helper and display a human version
+          __status_raw: tx.status ?? null,
+          status: tx.status ? capitalizeFirstLetter(String(tx.status)) : '-',
+          transaction_type: (tx.transaction_type && ['credit','debit'].includes(String(tx.transaction_type).toLowerCase()))
+            ? String(tx.transaction_type).toLowerCase()
+            : (() => {
+                const product = (getProductName(tx) || '').toLowerCase();
+                const reason = (tx.reason || '').toLowerCase();
+                const serviceName = (tx.service_name || '').toLowerCase();
+                if (
+                  product.includes('wallet') ||
+                  reason.includes('wallet') ||
+                  serviceName.includes('wallet') ||
+                  product.includes('fund') ||
+                  reason.includes('fund') ||
+                  serviceName.includes('fund')
+                ) return 'credit';
+                return 'debit';
+              })(),
+          transaction_id: tx.transaction_id ?? '-',
+          created_at: tx.created_at ?? null,
+          updated_at: tx.updated_at ?? null,
+          ...tx // include all other fields for modal
+        }))
+        .sort(
+          (a, b) =>
+            new Date(b.created_at || b.updated_at) -
+            new Date(a.created_at || a.updated_at)
+        )
+
+      setAllTransaactionData(processedDataTrx)
+    } catch (error) {
+      if (error.response?.status === 401) {
+        router.push('/account/login')
+      } else {
+        toast.error('Failed to fetch dashboard data. Please try again later.')
+      }
+      console.error('Fetch dashboard data error:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [token])
+
   useEffect(() => {
     if (!token) return
-
-    const fetchDashboardData = async () => {
-      setIsLoading(true)
-      try {
-        // Fetch all transactions
-        const transactionEndpoints = [
-          '/payments/transactions/',
-          '/services/airtime-topups-transactions/',
-          '/services/data-plan-transactions/',
-          '/services/cable-recharges-transactions/',
-          '/services/education-transactions/',
-          '/services/electricity-transactions/',
-          '/services/bulk-sms-transactions/'
-        ]
-
-        const transactionPromises = transactionEndpoints.map(async endpoint => {
-          try {
-            return await fetchAllPages(endpoint)
-          } catch (error) {
-            toast.error(`Error fetching ${endpoint}`)
-            console.error(`Error fetching ${endpoint}:`, error)
-            return []
-          }
-        })
-
-        const transactionResults = await Promise.all(transactionPromises)
-        const allTransactions = transactionResults.flat()
-        console.log('Fetched transactions:', allTransactions)
-        // Filter valid transactions
-        const validTransactions = allTransactions.filter(
-          tx =>
-            tx.id &&
-            tx.amount &&
-            tx.created_at &&
-            tx.status &&
-            typeof tx.amount === 'number' // Ensure amount is a number
-        )
-        console.log('Fetched transactions:', allTransactions)
-        console.log('Valid transactions:', validTransactions)
-
-        // Process transactions
-        const processedDataTrx = allTransactions
-          .map(tx => ({
-            id: tx.id ?? '-',
-            product: getProductName(tx) ?? '-',
-            amount:
-              tx.amount != null ? formatCurrency(tx.amount, tx.currency) : '0',
-            date: tx.created_at
-              ? new Date(tx.created_at).toLocaleDateString('en-GB')
-              : '-',
-            status: tx.status ? capitalizeFirstLetter(tx.status) : '-',
-            transaction_id: tx.transaction_id ?? '-',
-            created_at: tx.created_at ?? null,
-            updated_at: tx.updated_at ?? null,
-            ...tx // include all other fields for modal
-          }))
-          .sort(
-            (a, b) =>
-              new Date(b.created_at || b.updated_at) -
-              new Date(a.created_at || a.updated_at)
-          )
-
-        setAllTransaactionData(processedDataTrx)
-      } catch (error) {
-        if (error.response?.status === 401) {
-          router.push('/account/login')
-        } else {
-          toast.error('Failed to fetch dashboard data. Please try again later.')
-        }
-        console.error('Fetch dashboard data error:', error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
     fetchDashboardData()
-  }, [token])
+  }, [token, fetchDashboardData])
 
   const fetchAllPages = async (endpoint, maxPages = 50) => {
     let allData = []
@@ -179,65 +202,84 @@ const TransactionManagement = () => {
   const [showEdit, setShowEdit] = useState(false)
   const [editData, setEditData] = useState(null)
   const [editTrxForm, setEditTrxForm] = useState({
-    amount: "",
-    product: "",
-    status: "",
-    // ...add other fields as needed
+    amount: '',
+    status: '',
   });
 
+  const parseAmountFromDisplay = (display) => {
+    if (typeof display === 'number') return display
+    if (!display) return 0
+    const parsed = Number(String(display).replace(/[^0-9.-]/g, ''))
+    return Number.isFinite(parsed) ? parsed : 0
+  }
+
   const handleEditClick = rowData => {
-    setEditData(rowData);
+    setEditData(rowData)
     setEditTrxForm({
-      amount: rowData.amount || "",
-      product: rowData.product || "",
-      status: rowData.status || "",
-      // ...populate other fields as needed
-    });
-    setShowEdit(true);
-  };
+      amount: rowData?.__amount_numeric ?? parseAmountFromDisplay(rowData?.amount),
+      status: String(rowData?.__status_raw ?? rowData?.status ?? '').toLowerCase(),
+    })
+    setShowEdit(true)
+  }
 
   // Helper to find the correct endpoint for a transaction
   const findTransactionEndpoint = (trx) => {
-    const endpoints = [
-      '/services/airtime-topups-transactions/',
-      '/services/data-plan-transactions/',
-      '/services/cable-recharges-transactions/',
-      '/services/education-transactions/',
-      '/services/electricity-transactions/',
-      '/services/bulk-sms-transactions/'
-    ];
-    // You may want to improve this logic based on your data structure
-    if (trx?.network) return endpoints[0];
-    if (trx?.data_plan) return endpoints[1];
-    if (trx?.cable_name) return endpoints[2];
-    if (trx?.education_type) return endpoints[3];
-    if (trx?.meter_number) return endpoints[4];
-    if (trx?.sms_count) return endpoints[5];
-    // fallback
-    return endpoints[0];
+    // Prefer explicit source tag if available
+    if (trx?.__endpoint) return trx.__endpoint;
+    const endpoints = {
+      airtime: '/services/airtime-topups-transactions/',
+      data: '/services/data-plan-transactions/',
+      cable: '/services/cable-recharges-transactions/',
+      education: '/services/education-transactions/',
+      electricity: '/services/electricity-transactions/',
+      sms: '/services/bulk-sms-transactions/',
+      wallet: '/payments/admin/transactions/'
+    };
+    if (trx?.plan_id) return endpoints.data;
+    if (trx?.service_name === 'airtime topup') return endpoints.airtime;
+    if (trx?.service_name === 'cable recharge') return endpoints.cable;
+    if (trx?.service_name === 'education') return endpoints.education;
+    if (trx?.service_name === 'electricity') return endpoints.electricity;
+    if (trx?.sms_count) return endpoints.sms;
+    if ((trx?.reason || '').toLowerCase().includes('wallet')) return endpoints.wallet;
+    return endpoints.airtime;
   };
 
   // Edit (update) handler for transactions
   const handleUpdateTrx = async (e) => {
-    e.preventDefault();
-    if (!editData?.id) return;
-    setIsLoading(true);
-    try {
-      const endpoint = findTransactionEndpoint(editData);
-      await api.put(`${endpoint}${editData.id}/`, editTrxForm);
-      toast.success("Transaction updated successfully.");
-      setShowEdit(false);
-      setEditData(null);
-      // Refresh transactions (quick way)
-      if (typeof window !== 'undefined') {
-        window.location.reload();
-      }
-    } catch (error) {
-      toast.error(error?.response?.data?.detail || "Failed to update transaction.");
-    } finally {
-      setIsLoading(false);
+    e.preventDefault()
+    if (!editData?.id) return
+    // Build minimal payload with only changed fields
+    const payload = {}
+    const originalAmount = editData?.__amount_numeric ?? parseAmountFromDisplay(editData?.amount)
+    const originalStatus = String(editData?.__status_raw ?? editData?.status ?? '').toLowerCase()
+    const nextAmount = Number(editTrxForm.amount)
+    const nextStatus = String(editTrxForm.status || '').toLowerCase()
+    if (Number.isFinite(nextAmount) && nextAmount !== originalAmount) {
+      payload.amount = nextAmount
     }
-  };
+    if (nextStatus && nextStatus !== originalStatus) {
+      payload.status = nextStatus
+    }
+    if (Object.keys(payload).length === 0) {
+      toast.info('No changes to update.')
+      return
+    }
+
+    setIsLoading(true)
+    try {
+      const endpoint = findTransactionEndpoint(editData)
+      await api.put(`${endpoint}${editData.id}/`, payload)
+      toast.success('Transaction updated successfully.')
+      await fetchDashboardData()
+      setShowEdit(false)
+      setEditData(null)
+    } catch (error) {
+      toast.error(error?.response?.data?.detail || 'Failed to update transaction.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const handleCheckedItemsChange = newCheckedItems => {
     setCheckedItems(newCheckedItems)
@@ -305,6 +347,10 @@ const TransactionManagement = () => {
               onSubmit={handleUpdateTrx}
             >
               <h2 className="text-lg font-bold mb-4">Edit Transaction</h2>
+              <div className="mb-4 text-sm text-gray-600">
+                <div className="flex justify-between"><span className="font-medium">Product:</span><span>{editData?.product}</span></div>
+                <div className="flex justify-between"><span className="font-medium">Transaction ID:</span><span>{editData?.transaction_id || `#${editData?.id}`}</span></div>
+              </div>
               <div className="mb-3">
                 <label className="block mb-1">Amount*</label>
                 <input
@@ -314,18 +360,6 @@ const TransactionManagement = () => {
                   value={editTrxForm.amount}
                   onChange={(e) =>
                     setEditTrxForm((f) => ({ ...f, amount: e.target.value }))
-                  }
-                />
-              </div>
-              <div className="mb-3">
-                <label className="block mb-1">Product*</label>
-                <input
-                  type="text"
-                  required
-                  className="border rounded px-2 py-1 w-full"
-                  value={editTrxForm.product}
-                  onChange={(e) =>
-                    setEditTrxForm((f) => ({ ...f, product: e.target.value }))
                   }
                 />
               </div>
@@ -379,30 +413,42 @@ const TransactionManagement = () => {
               selectedRows={checkedItems} // Pass selected rows
               onDelete={handleDeleteSelected} // Pass delete handler
             />
-            <div className="rounded-t-[1em] overflow-auto border border-gray-200 min-h-[50vh]">
-              <TrxManagementTable
-                data={filteredTransactionData}
-                currentPage={currentPage}
-                itemsPerPage={itemsPerPage}
-                setShowEdit={handleEditClick}
-                isLoading={isLoading}
-                onCheckedItemsChange={handleCheckedItemsChange} // Handle checked items
-                setViewTransaction={setViewTransaction}
-              />
+            <div className="bg-white rounded-lg shadow-sm border">
+              <div className="p-6">
+                <TableTabs
+                  header={"Recent Transactions"}
+                  setActiveTab={setActiveTabTransactions}
+                  activeTab={activeTabTransactions}
+                  tabs={["All Transactions", "Credit", "Debit"]}
+                  from="dashboard"
+                  filterOptions={[
+                    { label: "Success", value: "Success" },
+                    { label: "Failed", value: "Failed" },
+                    { label: "Refunded", value: "Refunded" },
+                    { label: "Pending", value: "Pending" },
+                  ]}
+                  onFilterChange={setTransactionFilter}
+                />
+
+                <TransactionsTable
+                  data={filteredTransactionData}
+                  currentPage={currentPage}
+                  itemsPerPage={itemsPerPage}
+                  isLoading={isLoading}
+                  activeTabTransactions={activeTabTransactions}
+                  setShowEdit={handleEditClick}
+                />
+
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                  itemsPerPage={itemsPerPage}
+                  totalItems={filteredTransactionData.length}
+                />
+              </div>
             </div>
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-            />
-            {viewTransaction && (
-              <ViewTransactionModal
-                isOpen={!!viewTransaction}
-                transaction={viewTransaction}
-                onClose={() => setViewTransaction(null)}
-                showAllFields={true}
-              />
-            )}
+            {/* View modal is managed inside TransactionsTable */}
           </>
         )}
       </div>

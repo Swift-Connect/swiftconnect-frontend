@@ -14,28 +14,29 @@ import { fetchWithAuth } from '@/utils/api'
 // Expected API response shape (example):
 // { agents: [ { name, referrals, volume, completion } ], engagement: [ { day, active, inactive } ] }
 
-export default function Dashboard () {
+export default function Dashboard ({ analytics }) {
   const [agents, setAgents] = useState([])
   const [engagementData, setEngagementData] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    async function fetchLastSectionData () {
-      setLoading(true)
-      setError(null)
-      try {
-        const analytics = await fetchWithAuth('/api/analytics/')
-        setAgents(analytics?.agents || [])
-        setEngagementData(analytics?.engagement || [])
-      } catch (err) {
-        setError('Failed to load agent/engagement data')
-      } finally {
-        setLoading(false)
-      }
+    setLoading(true)
+    try {
+      setAgents(analytics?.agents || [])
+      setEngagementData(
+        analytics?.engagement || [
+          { day: '24h', active: analytics?.users?.active_users_24h ?? 0, inactive: Math.max((analytics?.users?.total_users ?? 0) - (analytics?.users?.active_users_24h ?? 0), 0) },
+          { day: '7d', active: analytics?.users?.active_users_7d ?? 0, inactive: Math.max((analytics?.users?.total_users ?? 0) - (analytics?.users?.active_users_7d ?? 0), 0) },
+          { day: '30d', active: analytics?.users?.active_users_30d ?? 0, inactive: Math.max((analytics?.users?.total_users ?? 0) - (analytics?.users?.active_users_30d ?? 0), 0) }
+        ]
+      )
+    } catch (err) {
+      setError('Failed to load agent/engagement data')
+    } finally {
+      setLoading(false)
     }
-    fetchLastSectionData()
-  }, [])
+  }, [analytics])
 
   if (loading) {
     return (

@@ -56,7 +56,7 @@ const WalletManagement = () => {
       const [walletsResponse, usersResponse, transactionsResponse] = await Promise.allSettled([
         fetchWithAuth("payments/admin/manage-user-wallet/"),
         fetchWithAuth("users/list-users/"),
-        fetchWithAuth("payments/transactions/")
+        fetchWithAuth("payments/admin/transactions/")
       ]);
 
       // Handle wallets response

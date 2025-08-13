@@ -4,6 +4,7 @@ import { FaEye, FaTrash, FaEdit } from "react-icons/fa";
 import { toast } from "react-toastify";
 import api from "@/utils/api";
 import ViewTransactionModal from "../../components/viewTransactionModal";
+import Modal from "../../../../components/common/Modal";
 
 const TransactionsTable = ({
   data,
@@ -16,12 +17,33 @@ const TransactionsTable = ({
   const [checkedItems, setCheckedItems] = useState([]);
   const [isAllChecked, setIsAllChecked] = useState(false);
   const [viewTransaction, setViewTransaction] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const deriveTransactionType = (t) => {
+    const existing = (t?.transaction_type || '').toString().toLowerCase();
+    if (existing === 'credit' || existing === 'debit') return existing;
+
+    const product = (t?.product || '').toString().toLowerCase();
+    const reason = (t?.reason || '').toString().toLowerCase();
+    const serviceName = (t?.service_name || '').toString().toLowerCase();
+
+    // Heuristics: wallet funding/top-up or credit keywords => credit
+    const looksLikeWalletFunding =
+      product.includes('wallet') ||
+      reason.includes('wallet') ||
+      serviceName.includes('wallet');
+
+    const looksLikeFunding =
+      product.includes('fund') || reason.includes('fund') || serviceName.includes('fund');
+
+    if (looksLikeWalletFunding || looksLikeFunding) return 'credit';
+    return 'debit';
+  };
 
   const dataWithType = data.map((transaction) => ({
     ...transaction,
-    transaction_type: ["Wallet funding"].includes(transaction.product)
-      ? "credit"
-      : "debit",
+    transaction_type: deriveTransactionType(transaction),
   }));
 
   const filteredTransactions =
@@ -57,7 +79,7 @@ const TransactionsTable = ({
     "Data": "services/data-plans-transactions",
     "Education": "services/education-transactions",
     "Electricity": "services/electricity-transactions",
-    "Wallet funding": "payments/transactions",
+    "Wallet funding": "payments/admin/transactions",
   };
 
   const getNormalizedProduct = (product) => {
@@ -109,20 +131,25 @@ const TransactionsTable = ({
     }
   };
 
-  const formatAmount = (amount, status) => {
-    const sign = status === "Completed" ? "+" : "-";
+  const formatAmount = (amount, transactionType) => {
+    const sign = transactionType === 'credit' ? '+' : '-';
     return `${sign}${amount}`;
   };
 
   const getStatusColor = (status) => {
-    switch (status) {
-      case "Completed":
+    const s = (status || '').toString().toLowerCase();
+    switch (s) {
+      case "completed":
+      case "success":
+      case "successful":
         return "bg-green-100 text-green-800 border-green-200";
-      case "Failed":
+      case "failed":
+      case "error":
         return "bg-red-100 text-red-800 border-red-200";
-      case "Pending":
+      case "pending":
+      case "processing":
         return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "Refunded":
+      case "refunded":
         return "bg-gray-100 text-gray-800 border-gray-200";
       default:
         return "bg-gray-100 text-gray-800 border-gray-200";
@@ -168,6 +195,9 @@ const TransactionsTable = ({
                   Product
                 </th>
                 <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  User
+                </th>
+                <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Amount
                 </th>
                 <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -202,11 +232,14 @@ const TransactionsTable = ({
                       </div>
                     </div>
                   </td>
+                  <td className="py-4 px-4 text-sm text-gray-700">
+                    {transaction?.user?.username || transaction?.user?.email || transaction?.user || 'N/A'}
+                  </td>
                   <td className="py-4 px-4">
                     <span className={`text-sm font-medium ${
-                      transaction.status === "Completed" ? "text-green-600" : "text-red-600"
+                      transaction.transaction_type === 'credit' ? "text-green-600" : "text-red-600"
                     }`}>
-                      {formatAmount(transaction.amount, transaction.status)}
+                      {formatAmount(transaction.amount, transaction.transaction_type)}
                     </span>
                   </td>
                   <td className="py-4 px-4">
@@ -226,12 +259,23 @@ const TransactionsTable = ({
                         <FaEye className="mr-1" />
                         View
                       </button>
+                      {typeof setShowEdit === 'function' && (
+                        <button
+                          onClick={() => setShowEdit(transaction)}
+                          className="inline-flex items-center px-3 py-1 text-xs font-medium text-gray-700 bg-gray-100 border border-gray-200 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                          title="Edit"
+                        >
+                          <FaEdit className="mr-1" />
+                          Edit
+                        </button>
+                      )}
                       <button
-                        onClick={() => handleDelete(transaction)}
-                        className="inline-flex items-center px-3 py-1 text-xs font-medium text-red-600 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500"
+                        onClick={() => setDeleteTarget(transaction)}
+                        className="inline-flex items-center p-2 text-xs font-medium text-gray-500 bg-transparent border border-transparent rounded-md hover:bg-gray-100 hover:text-red-600 focus:outline-none"
+                        title="Delete"
+                        aria-label="Delete transaction"
                       >
-                        <FaTrash className="mr-1" />
-                        Delete
+                        <FaTrash />
                       </button>
                     </div>
                   </td>
@@ -266,14 +310,18 @@ const TransactionsTable = ({
                     <div>
                       <span className="text-gray-500">Amount:</span>
                       <span className={`ml-1 font-medium ${
-                        transaction.status === "Completed" ? "text-green-600" : "text-red-600"
+                        transaction.transaction_type === 'credit' ? "text-green-600" : "text-red-600"
                       }`}>
-                        {formatAmount(transaction.amount, transaction.status)}
+                        {formatAmount(transaction.amount, transaction.transaction_type)}
                       </span>
                     </div>
                     <div>
                       <span className="text-gray-500">Date:</span>
                       <span className="ml-1">{transaction.date}</span>
+                    </div>
+                    <div className="col-span-2">
+                      <span className="text-gray-500">User:</span>
+                      <span className="ml-1">{transaction?.user?.username || transaction?.user?.email || transaction?.user || 'N/A'}</span>
                     </div>
                   </div>
                   
@@ -285,12 +333,26 @@ const TransactionsTable = ({
                       <button
                         onClick={() => setViewTransaction(transaction)}
                         className="text-blue-600 text-sm hover:text-blue-800"
+                        title="View"
+                        aria-label="View transaction"
                       >
                         <FaEye />
                       </button>
+                      {typeof setShowEdit === 'function' && (
+                        <button
+                          onClick={() => setShowEdit(transaction)}
+                          className="text-gray-700 text-sm hover:text-gray-900"
+                          title="Edit"
+                          aria-label="Edit transaction"
+                        >
+                          <FaEdit />
+                        </button>
+                      )}
                       <button
-                        onClick={() => handleDelete(transaction)}
-                        className="text-red-600 text-sm hover:text-red-800"
+                        onClick={() => setDeleteTarget(transaction)}
+                        className="text-gray-400 text-sm hover:text-red-600"
+                        title="Delete"
+                        aria-label="Delete transaction"
                       >
                         <FaTrash />
                       </button>
@@ -305,10 +367,46 @@ const TransactionsTable = ({
 
       {viewTransaction && (
         <ViewTransactionModal
+          isOpen={!!viewTransaction}
           transaction={viewTransaction}
           onClose={() => setViewTransaction(null)}
         />
       )}
+
+      {/* Delete Confirmation Modal */}
+      <Modal isOpen={!!deleteTarget} onClose={() => (isDeleting ? null : setDeleteTarget(null))}>
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-gray-900">Delete transaction?</h3>
+          <p className="text-sm text-gray-600">
+            You are about to delete transaction #{deleteTarget?.id}. This action cannot be undone.
+          </p>
+          <div className="flex justify-end gap-3">
+            <button
+              className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              onClick={() => setDeleteTarget(null)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </button>
+            <button
+              className="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
+              onClick={async () => {
+                if (!deleteTarget) return;
+                try {
+                  setIsDeleting(true);
+                  await handleDelete(deleteTarget);
+                } finally {
+                  setIsDeleting(false);
+                  setDeleteTarget(null);
+                }
+              }}
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Deleting..." : "Delete"}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </>
   );
 };
