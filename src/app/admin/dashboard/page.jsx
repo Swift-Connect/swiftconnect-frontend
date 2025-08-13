@@ -157,17 +157,11 @@ const Dashboard = () => {
     setIsLoadingUsers(true);
     try {
       // Using correct endpoint from swagger
-<<<<<<< HEAD
-      const response = await fetchWithAuth("users/");
-      console.log("Raw user fetch response:", response);
-      return response?.results || response || [];
-=======
       const data = await fetchWithAuth("users/");
       // Always return an array
       if (Array.isArray(data)) return data;
       if (Array.isArray(data?.results)) return data.results;
       return [];
->>>>>>> 828c86d1a4ebc19ccca135fda83add49970dfaf5
     } catch (error) {
       console.error("Error fetching user data:", error);
       return [];
@@ -210,15 +204,10 @@ const Dashboard = () => {
         // "payments/admin/transactions/", // Include wallet transactions
       ];
 
-<<<<<<< HEAD
-      const responses = await Promise.allSettled(
-        endpoints.map((endpoint) => fetchWithAuth(endpoint))
-=======
       const responses = await Promise.all(
         endpoints.map((endpoint) =>
           fetchWithAuth(endpoint).then((data) => data?.results || data || []),
         ),
->>>>>>> 828c86d1a4ebc19ccca135fda83add49970dfaf5
       );
 
       console.log("responses", responses);
@@ -246,10 +235,6 @@ const Dashboard = () => {
   }, []);
 
   const processUsers = useCallback((usersData) => {
-<<<<<<< HEAD
-    console.log("Processing users data:", usersData);
-    const validUsers = usersData.filter((user) => user?.id);
-=======
     const array = Array.isArray(usersData)
       ? usersData
       : Array.isArray(usersData?.results)
@@ -258,7 +243,6 @@ const Dashboard = () => {
       ? [usersData]
       : [];
     const validUsers = array.filter((user) => user?.id);
->>>>>>> 828c86d1a4ebc19ccca135fda83add49970dfaf5
     const processedData = validUsers.map((user) => ({
       id: user?.id,
       username: user?.username || user?.fullname || "N/A",
@@ -334,11 +318,7 @@ const Dashboard = () => {
       }));
 
     processedDataTrx.sort(
-<<<<<<< HEAD
-      (a, b) => new Date(b.created_at) - new Date(a.created_at)
-=======
       (a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0),
->>>>>>> 828c86d1a4ebc19ccca135fda83add49970dfaf5
     );
     return processedDataTrx;
   }, []);
@@ -355,39 +335,6 @@ const Dashboard = () => {
         const activeUsers30d = analytics?.users?.active_users_30d ?? 0;
         const inactiveUsers = Math.max((totalUsers || 0) - (activeUsers30d || 0), 0);
 
-<<<<<<< HEAD
-      const statsData = [
-        {
-          title: "Total Users",
-          value: totalUsers.toLocaleString(),
-          icon: <FaUsers className="w-6 h-6" />,
-          bgColor: "bg-blue-500",
-          textColor: "text-white",
-        },
-        {
-          title: "Total Transactions",
-          value: totalTransactions.toLocaleString(),
-          icon: <FaExchangeAlt className="w-6 h-6" />,
-          bgColor: "bg-green-500",
-          textColor: "text-white",
-        },
-        {
-          title: "Total Revenue",
-          value: formatCurrency(totalRevenue),
-          icon: <FaDollarSign className="w-6 h-6" />,
-          bgColor: "bg-purple-500",
-          textColor: "text-white",
-        },
-        {
-          title: "Pending KYC",
-          value: usersKYCPendingData.length.toString(),
-          icon: <HiOutlineDocumentText className="w-6 h-6" />,
-          bgColor: "bg-orange-500",
-          textColor: "text-white",
-        },
-      ];
-      console.log("Stats data:", statsData);
-=======
         setStats([
           {
             title: "Total Users",
@@ -418,7 +365,6 @@ const Dashboard = () => {
             textColor: "text-white",
           },
         ]);
->>>>>>> 828c86d1a4ebc19ccca135fda83add49970dfaf5
 
         setIncomeData([
           { name: '24h', transactions: analytics?.transactions?.last_24h?.total_transactions ?? 0 },
@@ -839,14 +785,7 @@ const Dashboard = () => {
           />
 
           <TransactionsTable
-<<<<<<< HEAD
-            data={filteredTransactionData.slice(
-              (currentPageTrx - 1) * itemsPerPage,
-              currentPageTrx * itemsPerPage
-            )}
-=======
             data={filteredTransactionData}
->>>>>>> 828c86d1a4ebc19ccca135fda83add49970dfaf5
             currentPage={currentPageTrx}
             itemsPerPage={itemsPerPage}
             isLoading={isLoadingTransactions}
