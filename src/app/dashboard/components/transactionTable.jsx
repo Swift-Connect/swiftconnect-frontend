@@ -38,7 +38,7 @@ const TransactionsTable = ({ refreshTransactions }) => {
   );
 
   return (
-    <div className='pt-4 w-[90%] max-md-[400px]:w-full max-md-[400px]:text-xl overflow-scroll'>
+    <div className='pt-4 w-[90%] max-md-[400px]:w-full max-md-[400px]:text-xl overflow-scrol'>
       <div className=''>
         <h1 className='text-base sm:text-lg max-md-[400px]:text-xl font-semibold mb-2'>Recent Transactions</h1>
         <div className='flex  flex-col justify-between mb-2'>
@@ -116,7 +116,7 @@ const TransactionsTable = ({ refreshTransactions }) => {
           </div>
         </div>
 
-        <div className='rounded-t-lg overflow-scroll border border-gray-200'>
+        <div className='rounded-t-lg overflow-scrol border border-gray-200'>
           {filteredTransactions.length === 0 ? (
             <div className='text-center py-8 text-gray-500'>
               No Transactions yet
@@ -126,7 +126,7 @@ const TransactionsTable = ({ refreshTransactions }) => {
               <thead>
                 <tr className='bg-[#F9F8FA] text-left text-[#525252]'>
                   <th className='py-2 px-2 sm:py-3 sm:px-4'>Product</th>
-                  <th className='py-2 px-2 sm:py-3 sm:px-4'>Transaction ID</th>
+                  <th className='py-2 px-2 sm:py-3 sm:px-4'>Transaction Reference</th>
                   <th className='py-2 px-2 sm:py-3 sm:px-4'>Date</th>
                   <th className='py-2 px-2 sm:py-3 sm:px-4'>Amount</th>
                   <th className='py-2 px-2 sm:py-3 sm:px-4'>Status</th>
@@ -141,12 +141,12 @@ const TransactionsTable = ({ refreshTransactions }) => {
                       idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'
                     }`}
                   >
-                    {/* {console.log(transaction)} */}
+                    {console.log(transaction)}
                     <td className='py-2 px-2 sm:py-3 sm:px-4 font-semibold text-[#232323]'>
                       {transaction.reason}
                     </td>
                     <td className='py-2 px-2 sm:py-3 sm:px-4 text-[#9CA3AF]'>
-                      #{transaction.transaction_id}
+                      {transaction.tx_ref}
                     </td>
                     <td className='py-2 px-2 sm:py-3 sm:px-4 text-[#9CA3AF]'>
                       {new Date(transaction.created_at).toLocaleDateString(
