@@ -39,6 +39,11 @@ const WalletManagement = () => {
   const [showBulkModal, setShowBulkModal] = useState(false);
   const [bulkAction, setBulkAction] = useState("");
   const [selectedWallets, setSelectedWallets] = useState([]);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [showTransactionModal, setShowTransactionModal] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const [walletTransactions, setWalletTransactions] = useState([]);
+  const [loadingTransactions, setLoadingTransactions] = useState(false);
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalWalletBalance: 0,
@@ -265,6 +270,23 @@ const WalletManagement = () => {
     }
   };
 
+  const fetchWalletTransactionHistory = async (walletId) => {
+    setLoadingTransactions(true);
+    try {
+      const response = await fetchWithAuth(`payments/admin/manage-user-wallet/${walletId}/transaction_history/`);
+      const transactions = response?.data || [];
+      setWalletTransactions(transactions);
+    } catch (error) {
+      console.error("Error fetching wallet transaction history:", error);
+      toast.error("Failed to fetch transaction history");
+      setWalletTransactions([]);
+    } finally {
+      setLoadingTransactions(false);
+    }
+  };
+
+
+
   const handleExportData = () => {
     try {
       const csvData = wallets.map(wallet => ({
@@ -487,8 +509,9 @@ const WalletManagement = () => {
                             </button>
                             <button
                               onClick={() => {
-                                // View wallet details functionality
-                                console.log("View wallet details:", wallet);
+                                setSelectedWallet(wallet);
+                                setShowViewModal(true);
+                                fetchWalletTransactionHistory(wallet.id);
                               }}
                               className="flex items-center px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
                             >
@@ -748,6 +771,301 @@ const WalletManagement = () => {
           </div>
         </div>
       )}
+
+      {/* View Wallet Modal */}
+      {showViewModal && selectedWallet && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-medium">Wallet Details</h3>
+              <button
+                onClick={() => setShowViewModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <FaTimes />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Wallet ID</label>
+                  <p className="text-sm text-gray-900 font-mono">#{selectedWallet.id}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">User Email</label>
+                  <p className="text-sm text-gray-900">{selectedWallet.user_email}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Current Balance</label>
+                  <p className="text-lg font-bold text-green-600">₦{parseFloat(selectedWallet.balance || 0).toLocaleString()}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Last Updated</label>
+                  <p className="text-sm text-gray-900">
+                    {selectedWallet.last_updated ? new Date(selectedWallet.last_updated).toLocaleString() : 'N/A'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Transaction History */}
+              <div className="mt-6">
+                <h4 className="text-md font-medium text-gray-900 mb-3">
+                  Complete Transaction History ({walletTransactions.length} transactions)
+                </h4>
+                {loadingTransactions ? (
+                  <div className="border rounded-lg p-6 text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                    <p className="text-sm text-gray-500 mt-2">Loading transaction history...</p>
+                  </div>
+                ) : walletTransactions.length > 0 ? (
+                  <div className="border rounded-lg overflow-hidden max-h-96 overflow-y-auto">
+                    <table className="w-full">
+                      <thead className="bg-gray-50 sticky top-0">
+                        <tr>
+                          <th className="text-left p-3 text-sm font-medium text-gray-700">Type</th>
+                          <th className="text-left p-3 text-sm font-medium text-gray-700">Amount</th>
+                          <th className="text-left p-3 text-sm font-medium text-gray-700">Status</th>
+                          <th className="text-left p-3 text-sm font-medium text-gray-700">Reason</th>
+                          <th className="text-left p-3 text-sm font-medium text-gray-700">Date</th>
+                          <th className="text-left p-3 text-sm font-medium text-gray-700">Reference</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {walletTransactions.map((tx, index) => (
+                          <tr 
+                            key={tx.id || index} 
+                            className="border-t hover:bg-gray-50 cursor-pointer"
+                            onClick={() => {
+                              setSelectedTransaction(tx);
+                              setShowTransactionModal(true);
+                            }}
+                          >
+                            <td className="p-3">
+                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                tx.transaction_type === 'credit' 
+                                  ? 'bg-green-100 text-green-800' 
+                                  : 'bg-red-100 text-red-800'
+                              }`}>
+                                {tx.transaction_type}
+                              </span>
+                            </td>
+                            <td className="p-3 font-medium">
+                              {tx.transaction_type === 'credit' ? '+' : '-'}
+                              ₦{parseFloat(tx.amount).toLocaleString()}
+                            </td>
+                            <td className="p-3">
+                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                tx.status === 'completed' 
+                                  ? 'bg-green-100 text-green-800' 
+                                  : tx.status === 'pending'
+                                  ? 'bg-yellow-100 text-yellow-800'
+                                  : 'bg-red-100 text-red-800'
+                              }`}>
+                                {tx.status}
+                              </span>
+                            </td>
+                            <td className="p-3 text-sm text-gray-600">
+                              {tx.reason || 'N/A'}
+                            </td>
+                            <td className="p-3 text-sm text-gray-600">
+                              {tx.created_at ? new Date(tx.created_at).toLocaleDateString() : 'N/A'}
+                            </td>
+                            <td className="p-3 text-sm text-gray-600 font-mono">
+                              {tx.tx_ref || tx.monify_tx_refrefrence || tx.transaction_id || 'N/A'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className="border rounded-lg p-6 text-center">
+                    <div className="text-gray-400 mb-2">
+                      <FaExchangeAlt className="mx-auto h-8 w-8" />
+                    </div>
+                    <p className="text-sm text-gray-500">No transactions found for this wallet.</p>
+                    <p className="text-xs text-gray-400 mt-1">This wallet has not had any transactions yet.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="flex justify-end mt-6">
+              <button
+                onClick={() => {
+                  setShowViewModal(false);
+                  setWalletTransactions([]);
+                }}
+                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Transaction Detail Modal */}
+      {showTransactionModal && selectedTransaction && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-medium">Transaction Details</h3>
+              <button
+                onClick={() => setShowTransactionModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <FaTimes />
+              </button>
+            </div>
+            <div className="space-y-4">
+              {/* Transaction ID and Status */}
+              <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                <div>
+                  <h4 className="text-sm font-medium text-gray-700">Transaction ID</h4>
+                  <p className="text-lg font-mono text-gray-900">#{selectedTransaction.id}</p>
+                </div>
+                <div className="text-right">
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    selectedTransaction.status === 'completed' 
+                      ? 'bg-green-100 text-green-800' 
+                      : selectedTransaction.status === 'pending'
+                      ? 'bg-yellow-100 text-yellow-800'
+                      : 'bg-red-100 text-red-800'
+                  }`}>
+                    {selectedTransaction.status}
+                  </span>
+                </div>
+              </div>
+
+              {/* User Information */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">User Email</label>
+                  <p className="text-sm text-gray-900">{selectedTransaction.user_email}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">User ID</label>
+                  <p className="text-sm text-gray-900">#{selectedTransaction.user_id}</p>
+                </div>
+                {selectedTransaction.user?.fullname && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                    <p className="text-sm text-gray-900">{selectedTransaction.user.fullname}</p>
+                  </div>
+                )}
+                {selectedTransaction.user?.username && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                    <p className="text-sm text-gray-900">{selectedTransaction.user.username}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Transaction Details */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Transaction Type</label>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    selectedTransaction.transaction_type === 'credit' 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-red-100 text-red-800'
+                  }`}>
+                    {selectedTransaction.transaction_type}
+                  </span>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Amount</label>
+                  <p className="text-lg font-bold text-gray-900">
+                    {selectedTransaction.transaction_type === 'credit' ? '+' : '-'}
+                    ₦{parseFloat(selectedTransaction.amount).toLocaleString()}
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Currency</label>
+                  <p className="text-sm text-gray-900">{selectedTransaction.currency || 'NGN'}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Payment Type</label>
+                  <p className="text-sm text-gray-900 capitalize">{selectedTransaction.payment_type || 'N/A'}</p>
+                </div>
+              </div>
+
+              {/* Reason */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Reason</label>
+                <p className="text-sm text-gray-900 bg-gray-50 p-3 rounded-lg">
+                  {selectedTransaction.reason || 'No reason provided'}
+                </p>
+              </div>
+
+              {/* Reference Information */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Transaction Reference</label>
+                  <p className="text-sm text-gray-900 font-mono bg-gray-50 p-2 rounded">
+                    {selectedTransaction.tx_ref || 'N/A'}
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Monify Reference</label>
+                  <p className="text-sm text-gray-900 font-mono bg-gray-50 p-2 rounded">
+                    {selectedTransaction.monify_tx_refrefrence || 'N/A'}
+                  </p>
+                </div>
+                {selectedTransaction.transaction_id && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Transaction ID</label>
+                    <p className="text-sm text-gray-900 font-mono bg-gray-50 p-2 rounded">
+                      {selectedTransaction.transaction_id}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Timestamps */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Created At</label>
+                  <p className="text-sm text-gray-900">
+                    {selectedTransaction.created_at ? new Date(selectedTransaction.created_at).toLocaleString() : 'N/A'}
+                  </p>
+                </div>
+                {selectedTransaction.updated_at && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Updated At</label>
+                    <p className="text-sm text-gray-900">
+                      {new Date(selectedTransaction.updated_at).toLocaleString()}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Additional Details */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Callback Processed</label>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    selectedTransaction.callback_processed 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-gray-100 text-gray-800'
+                  }`}>
+                    {selectedTransaction.callback_processed ? 'Yes' : 'No'}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end mt-6">
+              <button
+                onClick={() => setShowTransactionModal(false)}
+                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
