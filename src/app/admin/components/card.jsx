@@ -3,7 +3,7 @@ import React from 'react';
 
 const Card = ({ title, value, icon, bgColor = 'bg-blue-500', textColor = 'text-white', trend, trendValue }) => {
   return (
-    <div className={`${bgColor} ${textColor} p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300`}>
+    <div className={`${bgColor} ${textColor} p-6 rounded-lg shadow-lg w-full hover:shadow-xl transition-shadow duration-300`}>
       <div className="flex items-center justify-between">
         <div className="flex-1">
           <h3 className="text-sm font-medium opacity-90 mb-1">{title}</h3>

@@ -26,6 +26,7 @@ import {
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { fetchWithAuth, handleApiError } from "@/utils/api";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import UsersTable from "./components/userTable";
 import TransactionsTable from "./components/TransactionsTable";
 import TableTabs from "../components/tableTabs";
@@ -42,17 +43,24 @@ const Dashboard = () => {
     useState("All Transactions");
 
   // Data states
-  const [incomeData, setIncomeData] = useState([]);
-  const [trafficData, setTrafficData] = useState([]);
-  const [userData, setUserData] = useState([]);
   const [userssData, setUserssData] = useState([]);
-  const [stats, setStats] = useState([]);
   const [allTransactionData, setAllTransaactionData] = useState([]);
   const [usersKYCPendingData, setUsersKYCPendingData] = useState([]);
-  const [analytics, setAnalytics] = useState(null);
+  
+  // Analytics hook
+  const {
+    analytics,
+    loading: analyticsLoading,
+    error: analyticsError,
+    getStatsCards,
+    getTransactionData,
+    getUserActivityData,
+    getUserBreakdownData,
+    getTrafficData,
+    formatCurrency
+  } = useAnalytics();
 
   // Loading states
-  const [isLoadingStats, setIsLoadingStats] = useState(true);
   const [isLoadingUsers, setIsLoadingUsers] = useState(true);
   const [isLoadingKYC, setIsLoadingKYC] = useState(true);
   const [isLoadingTransactions, setIsLoadingTransactions] = useState(true);
@@ -70,7 +78,7 @@ const Dashboard = () => {
 
   // Filtered and searched data
   const filteredTransactionData = allTransactionData.filter((tx) => {
-    console.log("all transactions data", allTransactionData);
+    // console.log("all transactions data", allTransactionData);
     const matchesFilter =
       transactionFilter === "All" ||
       (transactionFilter === "Success" &&
@@ -222,17 +230,7 @@ const Dashboard = () => {
     }
   }, []);
 
-  const fetchAnalytics = useCallback(async () => {
-    try {
-      const data = await fetchWithAuth('/api/analytics/');
-      setAnalytics(data || null);
-      return data || null;
-    } catch (error) {
-      console.warn('Analytics fetch failed:', error?.message || error);
-      setAnalytics(null);
-      return null;
-    }
-  }, []);
+
 
   const processUsers = useCallback((usersData) => {
     const array = Array.isArray(usersData)
@@ -323,139 +321,7 @@ const Dashboard = () => {
     return processedDataTrx;
   }, []);
 
-  const fetchStats = useCallback(async () => {
-    console.log("Fetching Stats...");
-    setIsLoadingStats(true);
-    try {
-      // Prefer backend analytics if available
-      if (analytics) {
-        const totalUsers = analytics?.users?.total_users ?? userssData.length;
-        const totalRevenue = analytics?.transactions?.all_time?.total_volume ?? 0;
-        const totalTransactions = analytics?.transactions?.all_time?.total_transactions ?? allTransactionData.length;
-        const activeUsers30d = analytics?.users?.active_users_30d ?? 0;
-        const inactiveUsers = Math.max((totalUsers || 0) - (activeUsers30d || 0), 0);
 
-        setStats([
-          {
-            title: "Total Users",
-            value: Number(totalUsers).toLocaleString(),
-            icon: <FaUsers className="w-6 h-6" />,
-            bgColor: "bg-blue-500",
-            textColor: "text-white",
-          },
-          {
-            title: "Total Transactions",
-            value: Number(totalTransactions).toLocaleString(),
-            icon: <FaExchangeAlt className="w-6 h-6" />,
-            bgColor: "bg-green-500",
-            textColor: "text-white",
-          },
-          {
-            title: "Total Revenue",
-            value: formatCurrency(totalRevenue),
-            icon: <FaDollarSign className="w-6 h-6" />,
-            bgColor: "bg-purple-500",
-            textColor: "text-white",
-          },
-          {
-            title: "Pending KYC",
-            value: usersKYCPendingData.length.toString(),
-            icon: <HiOutlineDocumentText className="w-6 h-6" />,
-            bgColor: "bg-orange-500",
-            textColor: "text-white",
-          },
-        ]);
-
-        setIncomeData([
-          { name: '24h', transactions: analytics?.transactions?.last_24h?.total_transactions ?? 0 },
-          { name: '7d', transactions: analytics?.transactions?.last_7d?.total_transactions ?? 0 },
-          { name: '30d', transactions: analytics?.transactions?.last_30d?.total_transactions ?? 0 },
-          { name: 'All', transactions: analytics?.transactions?.all_time?.total_transactions ?? 0 },
-        ]);
-
-        setTrafficData([
-          { name: '24h', visitors: analytics?.users?.active_users_24h ?? 0 },
-          { name: '7d', visitors: analytics?.users?.active_users_7d ?? 0 },
-          { name: '30d', visitors: analytics?.users?.active_users_30d ?? 0 },
-        ]);
-
-        setUserData([
-          { name: "Active Users (30d)", value: activeUsers30d },
-          { name: "Inactive Users", value: inactiveUsers },
-        ]);
-      } else {
-        // Fallback to locally computed when analytics missing
-        const totalUsers = userssData.length;
-        const totalTransactions = allTransactionData.length;
-        const totalRevenue = allTransactionData.reduce((sum, tx) => {
-          const amount = parseFloat(tx.amount.replace(/[^0-9.-]+/g, "")) || 0;
-          return sum + amount;
-        }, 0);
-
-        setStats([
-          {
-            title: "Total Users",
-            value: totalUsers.toLocaleString(),
-            icon: <FaUsers className="w-6 h-6" />,
-            bgColor: "bg-blue-500",
-            textColor: "text-white",
-          },
-          {
-            title: "Total Transactions",
-            value: totalTransactions.toLocaleString(),
-            icon: <FaExchangeAlt className="w-6 h-6" />,
-            bgColor: "bg-green-500",
-            textColor: "text-white",
-          },
-          {
-            title: "Total Revenue",
-            value: formatCurrency(totalRevenue),
-            icon: <FaDollarSign className="w-6 h-6" />,
-            bgColor: "bg-purple-500",
-            textColor: "text-white",
-          },
-          {
-            title: "Pending KYC",
-            value: usersKYCPendingData.length.toString(),
-            icon: <HiOutlineDocumentText className="w-6 h-6" />,
-            bgColor: "bg-orange-500",
-            textColor: "text-white",
-          },
-        ]);
-
-        setIncomeData([
-          { name: "Mon", transactions: 12000 },
-          { name: "Tue", transactions: 19000 },
-          { name: "Wed", transactions: 15000 },
-          { name: "Thu", transactions: 22000 },
-          { name: "Fri", transactions: 18000 },
-          { name: "Sat", transactions: 25000 },
-          { name: "Sun", transactions: 20000 },
-        ]);
-
-        setTrafficData([
-          { name: "Mon", visitors: 1200 },
-          { name: "Tue", visitors: 1900 },
-          { name: "Wed", visitors: 1500 },
-          { name: "Thu", visitors: 2200 },
-          { name: "Fri", visitors: 1800 },
-          { name: "Sat", visitors: 2500 },
-          { name: "Sun", visitors: 2000 },
-        ]);
-
-        const activeUsers = Math.floor(totalUsers * 0.7);
-        const inactiveUsers = totalUsers - activeUsers;
-        setUserData([
-          { name: "Active Users", value: activeUsers },
-          { name: "Inactive Users", value: inactiveUsers },
-        ]);
-      }
-    } catch (error) {
-      handleApiError(error, "Failed to fetch stats");
-    } finally {
-      setIsLoadingStats(false);
-    }
-  }, [analytics, userssData.length, allTransactionData, usersKYCPendingData.length]);
 
   useEffect(() => {
     // if (!token) return;
@@ -468,22 +334,14 @@ const Dashboard = () => {
         const usersPromise = fetchUsers();
         const kycDataPromise = fetchKYC();
         const transactionsPromise = fetchTransactions();
-        const analyticsPromise = fetchAnalytics();
 
-        
-        
         const [users, kycData, transactions] = await Promise.all([
           usersPromise,
           kycDataPromise,
           transactionsPromise,
-          analyticsPromise,
         ]);
-        console.log("kkk",users );
-
-        console.log("transactions", transactions);
 
         const processedUsers = processUsers(users);
-        console.log("Processed Users:", processedUsers);
         setUserssData(processedUsers);
 
         const { allKycData, pendingKycData } = kycData;
@@ -491,7 +349,6 @@ const Dashboard = () => {
         setUsersKYCPendingData(processedKYC);
 
         const processedTransactions = processTransactions(transactions);
-        console.log("processedTransactions", processedTransactions?.length);
         setAllTransaactionData(processedTransactions);
       } finally {
         setIsLoadingDashboard(false);
@@ -510,34 +367,31 @@ const Dashboard = () => {
   ]);
   
 
-  useEffect(() => {
-    console.log("bbbbb", userssData, allTransactionData, usersKYCPendingData);
-    
-    fetchStats();
 
-    if (
-      userssData.length ||
-      allTransactionData.length ||
-      usersKYCPendingData.length
-    ) {
-      fetchStats();
-    }
-  }, [userssData, allTransactionData, usersKYCPendingData]);
 
   useEffect(() => {
     setCurrentPageTrx(1);
   }, [transactionFilter, searchTerm, dateRange]);
 
-  const formatCurrency = (amount, currency = "NGN") => {
-    const numAmount =
-      typeof amount === "string"
-        ? parseFloat(amount.replace(/[^0-9.-]+/g, ""))
-        : amount;
 
-    return new Intl.NumberFormat("en-NG", {
-      style: "currency",
-      currency: currency,
-    }).format(numAmount || 0);
+
+  const getIconForStat = (iconType) => {
+    switch (iconType) {
+      case 'users':
+        return <FaUsers className="w-6 h-6" />;
+      case 'active-users':
+        return <FaUsers className="w-6 h-6" />;
+      case 'revenue':
+        return <FaDollarSign className="w-6 h-6" />;
+      case 'transactions':
+        return <FaExchangeAlt className="w-6 h-6" />;
+      case 'kyc':
+        return <HiOutlineDocumentText className="w-6 h-6" />;
+      case 'wallets':
+        return <FaCreditCard className="w-6 h-6" />;
+      default:
+        return <IoIosStats className="w-6 h-6" />;
+    }
   };
 
   const getProductName = (transaction) => {
@@ -553,7 +407,7 @@ const Dashboard = () => {
     return str.charAt(0).toUpperCase() + str.slice(1);
   };
 
-  console.log("the isloadStats", isLoadingStats, stats);
+
 
   if (!token) {
     return (
@@ -567,18 +421,22 @@ const Dashboard = () => {
     <div className="overflow-hidden bg-gray-50 min-h-screen">
       {/* Stats Cards */}
       <div className="mb-8">
-        {isLoadingStats ? (
+        {analyticsLoading ? (
           <div className="text-center py-8">
             <div className="animate-pulse">Loading dashboard stats...</div>
           </div>
+        ) : analyticsError ? (
+          <div className="text-center py-8 text-red-500">
+            Error loading analytics: {analyticsError}
+          </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {stats.map((stat, index) => (
+          <div className="grid grid-cols-1 w-full justify-between md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {getStatsCards().map((stat, index) => (
               <Card
                 key={index}
                 title={stat.title}
                 value={stat.value}
-                icon={stat.icon}
+                icon={getIconForStat(stat.icon)}
                 bgColor={stat.bgColor}
                 textColor={stat.textColor}
               />
@@ -588,30 +446,30 @@ const Dashboard = () => {
       </div>
 
       {/* Charts Section */}
-      {!isLoadingStats && (
+      {!analyticsLoading && !analyticsError && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* Income Chart */}
+          {/* Transaction Volume Chart */}
           <div className="bg-white p-6 rounded-lg shadow-sm border">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold text-gray-800">
-                Income Overview
+                Transaction Volume
               </h3>
-              <span className="text-sm text-gray-500">This Week</span>
+              <span className="text-sm text-gray-500">Overview</span>
             </div>
 
             <div className="mb-4">
               <h2 className="text-3xl font-bold text-gray-900">
                 {formatCurrency(
-                  incomeData.reduce((sum, item) => sum + item.transactions, 0)
+                  getTransactionData().reduce((sum, item) => sum + item.volume, 0)
                 )}
               </h2>
               <p className="text-green-600 text-sm font-medium">
-                Total Income +2.45%
+                Total Volume
               </p>
             </div>
 
             <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={incomeData}>
+              <LineChart data={getTransactionData()}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                 <XAxis dataKey="name" stroke="#6b7280" fontSize={12} />
                 <YAxis stroke="#6b7280" fontSize={12} />
@@ -624,7 +482,7 @@ const Dashboard = () => {
                 />
                 <Line
                   type="monotone"
-                  dataKey="transactions"
+                  dataKey="volume"
                   stroke="#1D4ED8"
                   strokeWidth={3}
                   dot={{ fill: "#1D4ED8" }}
@@ -635,32 +493,32 @@ const Dashboard = () => {
             <div className="flex justify-between text-sm mt-4 pt-4 border-t">
               <div className="flex items-center">
                 <div className="w-3 h-3 bg-blue-700 rounded-full mr-2"></div>
-                <span className="text-gray-600">Transactions</span>
+                <span className="text-gray-600">Volume (NGN)</span>
               </div>
             </div>
           </div>
 
-          {/* Traffic Chart */}
+          {/* User Activity Chart */}
           <div className="bg-white p-6 rounded-lg shadow-sm border">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold text-gray-800">
-                Daily Traffic
+                User Activity
               </h3>
             </div>
 
             <div className="mb-4">
               <h2 className="text-3xl font-bold text-gray-900">
-                {trafficData
-                  .reduce((sum, item) => sum + item.visitors, 0)
+                {getUserActivityData()
+                  .reduce((sum, item) => sum + item.active, 0)
                   .toLocaleString()}
               </h2>
               <p className="text-green-600 text-sm font-medium">
-                Visitors +2.45%
+                Active Users
               </p>
             </div>
 
             <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={trafficData}>
+              <BarChart data={getUserActivityData()}>
                 <XAxis dataKey="name" stroke="#6b7280" fontSize={12} />
                 <YAxis stroke="#6b7280" fontSize={12} />
                 <Tooltip
@@ -670,7 +528,7 @@ const Dashboard = () => {
                     borderRadius: "8px",
                   }}
                 />
-                <Bar dataKey="visitors" fill="#10b981" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="active" fill="#10b981" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -684,7 +542,7 @@ const Dashboard = () => {
             <ResponsiveContainer width="100%" height={200}>
               <PieChart>
                 <Pie
-                  data={userData}
+                  data={getUserBreakdownData()}
                   cx="50%"
                   cy="50%"
                   outerRadius={80}
@@ -694,10 +552,10 @@ const Dashboard = () => {
                     `${name}: ${(percent * 100).toFixed(0)}%`
                   }
                 >
-                  {userData.map((entry, index) => (
+                  {getUserBreakdownData().map((entry, index) => (
                     <Cell
                       key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
+                      fill={entry.color}
                     />
                   ))}
                 </Pie>
@@ -706,14 +564,12 @@ const Dashboard = () => {
             </ResponsiveContainer>
 
             <div className="space-y-2 mt-4 pt-4 border-t">
-              {userData.map((item, index) => (
+              {getUserBreakdownData().map((item, index) => (
                 <div key={item.name} className="flex justify-between text-sm">
                   <div className="flex items-center">
                     <span
-                      className={`w-3 h-3 rounded-full mr-2`}
-                      style={{
-                        backgroundColor: COLORS[index % COLORS.length],
-                      }}
+                      className="w-3 h-3 rounded-full mr-2"
+                      style={{ backgroundColor: item.color }}
                     ></span>
                     <span className="text-gray-600">{item.name}</span>
                   </div>

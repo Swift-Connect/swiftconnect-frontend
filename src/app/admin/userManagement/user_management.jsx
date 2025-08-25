@@ -1,419 +1,848 @@
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import UsersTable from "./components/usersTable";
 import Pagination from "../components/pagination";
 import TableTabs from "../components/tableTabs";
 import UserForm from "./components/editUser";
-import { FaChevronRight } from "react-icons/fa";
+import DeleteConfirmationModal from "./components/deleteConfirmationModal";
+import { FaChevronRight, FaPlus, FaTrashAlt, FaEye } from "react-icons/fa";
 import { toast } from "react-toastify";
 import api from "@/utils/api";
 import { useRouter } from "next/navigation";
+import { useUsers } from "@/hooks/useUsers";
 
 const UserManagement = () => {
   const router = useRouter();
-  const token = localStorage.getItem("access_token");
-  const [activeTabPending, setActiveTabPending] = React.useState("Active");
+  const { users: allUsersData, loading: isLoading, searchUsers } = useUsers();
+  const [token, setToken] = useState(null);
+  const [activeTab, setActiveTab] = useState("All Users");
   const [showEdit, setShowEdit] = useState(false);
+  const [showView, setShowView] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteData, setDeleteData] = useState(null);
   const [editData, setEditData] = useState(null);
-  const [usersData, setUserData] = useState([]);
-  const [isLoading, setIsLoading] = useState();
-  const [selectedUserIds, setSelectedUserIds] = useState([]); // Track selected rows
+  const [viewData, setViewData] = useState(null);
+  const [usersData, setUsersData] = useState([]); // Filtered users for display
+  const [selectedUserIds, setSelectedUserIds] = useState([]);
   const [showAddUser, setShowAddUser] = useState(false);
-  const [addUserLoading, setAddUserLoading] = useState(false);
-  const [addUserError, setAddUserError] = useState("");
-  const [addUserForm, setAddUserForm] = useState({
-    username: "",
-    email: "",
-    role: "user",
-    is_active: true,
-  });
-  const [editUserLoading, setEditUserLoading] = useState(false);
-  const [editUserError, setEditUserError] = useState("");
-  const [editUserForm, setEditUserForm] = useState({
-    username: "",
-    email: "",
-    role: "user",
-    is_active: true,
-  });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [itemsPerPage] = useState(50);
+  const [detailedUserCache, setDetailedUserCache] = useState({});
 
   useEffect(() => {
-    if (!token) {
-      router.push("/account/login");
-      return;
-    }
-
-    const fetchUsers = async () => {
-      setIsLoading(true);
-      try {
-        const usersData = await fetchAllPages("/users/list-users/");
-        // Filter valid users
-        const validUsers = usersData.filter((user) => user?.id);
-        console.log("Fetched users:", usersData);
-        console.log("Valid users:", validUsers);
-
-        // Process users to match table structure
-        const processedData = validUsers.map((user) => ({
-          id: user?.id,
-          username: user?.username,
-          account_id: user?.account_id,
-          created_at: user?.created_at,
-          api_response: user?.api_response || "N/A",
-          status: user?.status || "Not Approved", // Default to match action
-        }));
-        console.log("processed data from user managament", validUsers);
-
-        setUserData(validUsers);
-        // setCheckedItems(new Array(processedData.length).fill(false));
-      } catch (error) {
-        if (error.response?.status === 401) {
-          router.push("/account/login");
-        } else {
-          toast.error("Failed to fetch users. Please try again later.");
-        }
-        console.error("Fetch users error:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchUsers();
-  }, []);
-
-  const fetchAllPages = async (endpoint) => {
-    let allData = [];
-    let nextPage = endpoint;
-    while (nextPage) {
-      try {
-        const res = await api.get(nextPage);
-        allData = allData.concat(res.data.results || res.data);
-        nextPage = res.data.next || null;
-      } catch (error) {
-        toast.error(`Error fetching data from ${nextPage}`);
-        console.error(`Error fetching ${nextPage}:`, error);
-        break;
+    if (typeof window !== 'undefined') {
+      const accessToken = localStorage.getItem('access_token');
+      setToken(accessToken);
+      
+      if (!accessToken) {
+        router.push('/account/login');
       }
     }
-    return allData;
-  };
+  }, [router]);
 
-  console.log("user data from the endpoint", usersData);
+  // Filter users based on search and tab
+  useEffect(() => {
+    filterUsers();
+  }, [allUsersData, searchTerm, activeTab]);
 
-  const editUser = true;
-  const itemsPerPage = 10;
-  const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = Math.ceil(usersData.length / itemsPerPage);
-
-  const handleEditClick = (rowData) => {
-    setEditData(rowData);
-    setEditUserForm({
-      username: rowData.username || "",
-      email: rowData.email || "",
-      role: rowData.role || "user",
-      is_active: rowData.is_active !== undefined ? rowData.is_active : true,
-    });
-    setShowEdit(true);
-  };
-
-  const handleSelectedUsersChange = (selectedIds) => {
-    setSelectedUserIds(selectedIds);
-  };
-
-  // Add user handler
-  const handleAddUser = async (e) => {
-    e.preventDefault();
-    setAddUserLoading(true);
-    setAddUserError("");
-    try {
-      await api.post("/users/role-admin/", addUserForm);
-      toast.success("User added successfully.");
-      setShowAddUser(false);
-      setAddUserForm({
-        username: "",
-        email: "",
-        role: "user",
-        is_active: true,
-      });
-      // Refresh user list
-      const usersData = await fetchAllPages("/users/list-users/");
-      const validUsers = usersData.filter((user) => user?.id);
-      setUserData(validUsers);
-    } catch (error) {
-      setAddUserError(error?.response?.data?.detail || "Failed to add user.");
-    } finally {
-      setAddUserLoading(false);
-    }
-  };
-
-  // Update user handler
-  const handleUpdateUser = async (e) => {
-    e.preventDefault();
-    if (!editData?.id) return;
-    setEditUserLoading(true);
-    setEditUserError("");
-    try {
-      await api.put(`/users/role-admin/${editData.id}/`, editUserForm); // changed to PUT
-      toast.success("User updated successfully.");
-      setShowEdit(false);
-      setEditData(null);
-      // Refresh user list
-      const usersData = await fetchAllPages("/users/list-users/");
-      const validUsers = usersData.filter((user) => user?.id);
-      setUserData(validUsers);
-    } catch (error) {
-      setEditUserError(
-        error?.response?.data?.detail || "Failed to update user."
-      );
-    } finally {
-      setEditUserLoading(false);
-    }
-  };
-
-  // Add delete handler
-  const handleDeleteSelected = async () => {
-    if (selectedUserIds.length === 0) return;
-    if (!window.confirm("Are you sure you want to delete the selected users?"))
-      return;
+  const fetchAllUsers = async () => {
     setIsLoading(true);
     try {
-      for (const id of selectedUserIds) {
-        console.log("in the delete function", id);
+      // Build query parameters for initial load
+      const params = new URLSearchParams({
+        page_size: '1000', // Get more users initially
+      });
 
-        await api.delete(`/users/role-admin/${id}/`);
-      }
-      toast.success("Selected users deleted successfully.");
-      // Refresh user list
-      const usersData = await fetchAllPages("/users/list-users/");
-      const validUsers = usersData.filter((user) => user?.id);
-      setUserData(validUsers);
-      setSelectedUserIds([]);
+      const response = await api.get(`/users/list-users/?${params.toString()}`);
+      
+      // Handle paginated response
+      const { results, count, next, previous } = response.data;
+      const users = results || [];
+      
+      // Process users with basic data structure
+      const processedUsers = users.map(user => ({
+        id: user.id,
+        username: user.username || 'N/A',
+        email: user.email || 'N/A',
+        phone_number: user.phone_number || 'N/A',
+        fullname: user.fullname || 'N/A',
+        
+        // Basic verification status
+        email_verified: user.email_verified || false,
+        phone_verified: user.phone_verified || false,
+        kyc_verified: user.kyc_verified || false,
+        
+        // Account status
+        is_active: user.is_active !== undefined ? user.is_active : true,
+        is_staff: user.is_staff || false,
+        is_superuser: user.is_superuser || false,
+        role: user.role || 'user',
+        
+        // Basic dates
+        date_joined: user.date_joined ? new Date(user.date_joined).toLocaleDateString() : 'N/A',
+        last_login: user.last_login ? new Date(user.last_login).toLocaleDateString() : 'Never',
+        
+        // Basic KYC status
+        kyc_status: user.kyc_status || {
+          has_kyc: false,
+          status: 'not_submitted',
+          approved: false,
+          document_type: null,
+          submitted_at: null
+        },
+        
+        // Basic referral info
+        referral_code: user.referral_code || 'N/A',
+        total_referrals: user.total_referrals || 0,
+        total_referral_earnings: user.total_referral_earnings || '0.00',
+        
+        // Security
+        has_transaction_pin: user.has_transaction_pin || false,
+        
+        // Raw data for reference
+        raw_data: user
+      }));
+
+      setAllUsersData(processedUsers);
+      setTotalUsers(count || 0);
+      setHasLoadedAllUsers(true);
+      
     } catch (error) {
-      toast.error(error?.response?.data.detail);
-      console.error(
-        "Delete users error:",
-        error?.response?.data.detail || error
-      );
+      if (error.response?.status === 401) {
+        router.push('/account/login');
+      } else {
+        toast.error('Failed to fetch users');
+        console.error('Error fetching users:', error);
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
+  const filterUsers = () => {
+    let filtered = searchUsers(searchTerm);
+    
+    // Filter by tab
+    switch (activeTab) {
+      case 'Active':
+        filtered = filtered.filter(user => user.is_active);
+        break;
+      case 'Inactive':
+        filtered = filtered.filter(user => !user.is_active);
+        break;
+      case 'Verified':
+        filtered = filtered.filter(user => user.email_verified && user.phone_verified);
+        break;
+      case 'Unverified':
+        filtered = filtered.filter(user => !user.email_verified || !user.phone_verified);
+        break;
+      case 'KYC Approved':
+        filtered = filtered.filter(user => user.kyc_verified);
+        break;
+      case 'KYC Pending':
+        filtered = filtered.filter(user => user.kyc_status?.has_kyc && !user.kyc_verified);
+        break;
+      case 'Recently Added':
+        filtered = filtered.filter(user => {
+          const createdDate = new Date(user.raw_data?.date_joined);
+          const weekAgo = new Date();
+          weekAgo.setDate(weekAgo.getDate() - 7);
+          return createdDate > weekAgo;
+        });
+        break;
+      case 'Staff':
+        filtered = filtered.filter(user => user.is_staff || user.is_superuser);
+        break;
+      default:
+        // All Users - no filtering
+        break;
+    }
+    
+    setUsersData(filtered);
+    setTotalPages(Math.ceil(filtered.length / itemsPerPage));
+    setCurrentPage(1); // Reset to first page when filtering
+  };
+
+  const preloadNextPage = async () => {
+    if (isLoadingNextPage) return;
+    
+    setIsLoadingNextPage(true);
+    try {
+      const params = new URLSearchParams({
+        page: (currentPage + 1).toString(),
+        page_size: itemsPerPage.toString(),
+      });
+
+      const response = await api.get(`/users/list-users/?${params.toString()}`);
+      const { results, count } = response.data;
+      const users = results || [];
+      
+      const processedUsers = users.map(user => ({
+        id: user.id,
+        username: user.username || 'N/A',
+        email: user.email || 'N/A',
+        phone_number: user.phone_number || 'N/A',
+        fullname: user.fullname || 'N/A',
+        
+        // Basic verification status
+        email_verified: user.email_verified || false,
+        phone_verified: user.phone_verified || false,
+        kyc_verified: user.kyc_verified || false,
+        
+        // Account status
+        is_active: user.is_active !== undefined ? user.is_active : true,
+        is_staff: user.is_staff || false,
+        is_superuser: user.is_superuser || false,
+        role: user.role || 'user',
+        
+        // Basic dates
+        date_joined: user.date_joined ? new Date(user.date_joined).toLocaleDateString() : 'N/A',
+        last_login: user.last_login ? new Date(user.last_login).toLocaleDateString() : 'Never',
+        
+        // Basic KYC status
+        kyc_status: user.kyc_status || {
+          has_kyc: false,
+          status: 'not_submitted',
+          approved: false,
+          document_type: null,
+          submitted_at: null
+        },
+        
+        // Basic referral info
+        referral_code: user.referral_code || 'N/A',
+        total_referrals: user.total_referrals || 0,
+        total_referral_earnings: user.total_referral_earnings || '0.00',
+        
+        // Security
+        has_transaction_pin: user.has_transaction_pin || false,
+        
+        // Raw data for reference
+        raw_data: user
+      }));
+
+      // Add new users to allUsersData
+      setAllUsersData(prev => {
+        const existingIds = new Set(prev.map(user => user.id));
+        const newUsers = processedUsers.filter(user => !existingIds.has(user.id));
+        return [...prev, ...newUsers];
+      });
+      
+    } catch (error) {
+      console.error('Error preloading next page:', error);
+    } finally {
+      setIsLoadingNextPage(false);
+    }
+  };
+
+  // Get paginated data for current page
+  const paginatedUsers = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return usersData.slice(startIndex, endIndex);
+  }, [usersData, currentPage, itemsPerPage]);
+
+  // Function to fetch detailed user information when needed
+  const fetchDetailedUserInfo = async (userId) => {
+    // Check if we already have detailed info cached
+    if (detailedUserCache[userId]) {
+      return detailedUserCache[userId];
+    }
+
+    try {
+      const response = await api.get(`/users/admin/user/${userId}/`);
+      const user = response.data;
+      
+      // Process detailed user data
+      const detailedUser = {
+        id: user.id,
+        username: user.username || 'N/A',
+        email: user.email || 'N/A',
+        phone_number: user.phone_number || 'N/A',
+        fullname: user.fullname || 'N/A',
+        date_of_birth: user.date_of_birth || 'N/A',
+        gender: user.gender || 'Not Specified',
+        residential_address: user.residential_address || 'N/A',
+        
+        // Verification status
+        email_verified: user.email_verified || false,
+        phone_verified: user.phone_verified || false,
+        kyc_verified: user.kyc_verified || false,
+        
+        // Account status
+        is_active: user.is_active !== undefined ? user.is_active : true,
+        is_staff: user.is_staff || false,
+        is_superuser: user.is_superuser || false,
+        role: user.role || 'user',
+        
+        // Dates
+        date_joined: user.date_joined ? new Date(user.date_joined).toLocaleDateString() : 'N/A',
+        last_login: user.last_login ? new Date(user.last_login).toLocaleDateString() : 'Never',
+        
+        // KYC information
+        kyc_status: user.kyc_status || {
+          has_kyc: false,
+          status: 'not_submitted',
+          approved: false,
+          document_type: null,
+          submitted_at: null
+        },
+        kyc_details: user.kyc_details || null,
+        
+        // Referral information
+        referral_code: user.referral_code || 'N/A',
+        referred_by_username: user.referred_by_username || null,
+        total_referrals: user.referral_stats?.total_referrals || 0,
+        total_referral_earnings: user.referral_stats?.total_earnings || '0.00',
+        pending_referral_earnings: user.referral_stats?.pending_earnings || '0.00',
+        referral_stats: user.referral_stats || {
+          total_referrals: 0,
+          total_earnings: "0.00",
+          pending_earnings: "0.00"
+        },
+        recent_activity: user.recent_activity || {
+          recent_referrals: []
+        },
+        
+        // Security
+        has_transaction_pin: user.has_transaction_pin || false,
+        
+        // Account status object
+        account_status: user.account_status || {
+          account_created: null,
+          last_activity: null,
+          email_verified: false,
+          phone_verified: false,
+          kyc_verified: false,
+          has_transaction_pin: false,
+          profile_complete: false,
+          account_active: false,
+          has_admin_access: false
+        },
+        
+        // Raw data for reference
+        raw_data: user
+      };
+
+      // Cache the detailed user info
+      setDetailedUserCache(prev => ({
+        ...prev,
+        [userId]: detailedUser
+      }));
+
+      return detailedUser;
+    } catch (error) {
+      console.error('Error fetching detailed user info:', error);
+      toast.error('Failed to fetch detailed user information');
+      return null;
+    }
+  };
+
+  const handleEditClick = async (rowData) => {
+    // Fetch detailed user info for editing
+    const detailedUser = await fetchDetailedUserInfo(rowData.id);
+    if (detailedUser) {
+      setEditData(detailedUser);
+      setShowEdit(true);
+    }
+  };
+
+  const handleViewClick = async (rowData) => {
+    // Fetch detailed user info for viewing
+    const detailedUser = await fetchDetailedUserInfo(rowData.id);
+    if (detailedUser) {
+      setViewData(detailedUser);
+      setShowView(true);
+    }
+  };
+
+  const handleDeleteClick = (rowData) => {
+    setDeleteData(rowData);
+    setShowDeleteModal(true);
+  };
+
+  const handleUpdateUser = async (updatedData) => {
+    try {
+      await api.patch(`/users/${updatedData.id}/`, {
+        username: updatedData.username,
+        email: updatedData.email,
+        role: updatedData.role,
+        is_active: updatedData.is_active,
+        is_staff: updatedData.is_staff,
+        is_superuser: updatedData.is_superuser
+      });
+      
+      toast.success('User updated successfully');
+      setShowEdit(false);
+      
+      // Clear cache for this user and refetch
+      setDetailedUserCache(prev => {
+        const newCache = { ...prev };
+        delete newCache[updatedData.id];
+        return newCache;
+      });
+      
+      // Update the user in allUsersData
+      setAllUsersData(prev => 
+        prev.map(user => 
+          user.id === updatedData.id 
+            ? { ...user, ...updatedData }
+            : user
+        )
+      );
+    } catch (error) {
+      toast.error('Failed to update user');
+      console.error('Error updating user:', error);
+    }
+  };
+
+  const handleBulkAction = async (action) => {
+    if (selectedUserIds.length === 0) {
+      toast.warning('Please select users to perform this action');
+      return;
+    }
+
+    try {
+      const promises = selectedUserIds.map(userId => {
+        switch (action) {
+          case 'activate':
+            return api.patch(`/users/${userId}/`, { is_active: true });
+          case 'deactivate':
+            return api.patch(`/users/${userId}/`, { is_active: false });
+          case 'delete':
+            return api.delete(`/users/${userId}/`);
+          default:
+            return Promise.resolve();
+        }
+      });
+
+      await Promise.all(promises);
+      toast.success(`Successfully ${action}d ${selectedUserIds.length} users`);
+      setSelectedUserIds([]);
+      
+      // Clear cache and refetch all users
+      setDetailedUserCache({});
+      setHasLoadedAllUsers(false);
+      fetchAllUsers();
+    } catch (error) {
+      toast.error(`Failed to ${action} users`);
+      console.error(`Error ${action}ing users:`, error);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteData) return;
+
+    try {
+      await api.delete(`/users/${deleteData.id}/`);
+      toast.success(`User ${deleteData.username} deleted successfully`);
+      setShowDeleteModal(false);
+      setDeleteData(null);
+      
+      // Clear cache for this user and refetch
+      setDetailedUserCache(prev => {
+        const newCache = { ...prev };
+        delete newCache[deleteData.id];
+        return newCache;
+      });
+      
+      // Remove user from allUsersData
+      setAllUsersData(prev => prev.filter(user => user.id !== deleteData.id));
+    } catch (error) {
+      toast.error('Failed to delete user');
+      console.error('Error deleting user:', error);
+    }
+  };
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+    setSelectedUserIds([]); // Clear selection when changing pages
+  };
+
+  const handleSearchChange = (newSearchTerm) => {
+    setSearchTerm(newSearchTerm);
+    // No need to reset page or clear cache - filtering handles it
+  };
+
+  const handleTabChange = (newTab) => {
+    setActiveTab(newTab);
+    setSelectedUserIds([]); // Clear selection when changing tabs
+  };
+
   return (
-    <div className="overflow-hidden ">
-      {/* Add User Modal */}
-      {showAddUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-          <form
-            className="bg-white rounded-lg p-6 w-full max-w-md"
-            onSubmit={handleAddUser}
-          >
-            <h2 className="text-lg font-bold mb-4">Add User</h2>
-            <div className="mb-3">
-              <label className="block mb-1">Username*</label>
-              <input
-                type="text"
-                required
-                minLength={1}
-                maxLength={255}
-                className="border rounded px-2 py-1 w-full"
-                value={addUserForm.username}
-                onChange={(e) =>
-                  setAddUserForm((f) => ({ ...f, username: e.target.value }))
-                }
-              />
-            </div>
-            <div className="mb-3">
-              <label className="block mb-1">Email*</label>
-              <input
-                type="email"
-                required
-                minLength={1}
-                maxLength={254}
-                className="border rounded px-2 py-1 w-full"
-                value={addUserForm.email}
-                onChange={(e) =>
-                  setAddUserForm((f) => ({ ...f, email: e.target.value }))
-                }
-              />
-            </div>
-            <div className="mb-3">
-              <label className="block mb-1">Role</label>
-              <select
-                className="border rounded px-2 py-1 w-full"
-                value={addUserForm.role}
-                onChange={(e) =>
-                  setAddUserForm((f) => ({ ...f, role: e.target.value }))
-                }
-              >
-                <option value="user">User</option>
-                <option value="admin">Admin</option>
-                <option value="manager">Manager</option>
-                <option value="superadmin">Superadmin</option>
-              </select>
-            </div>
-            <div className="mb-3 flex items-center">
-              <input
-                type="checkbox"
-                id="is_active"
-                checked={addUserForm.is_active}
-                onChange={(e) =>
-                  setAddUserForm((f) => ({ ...f, is_active: e.target.checked }))
-                }
-              />
-              <label htmlFor="is_active" className="ml-2">
-                Active
-              </label>
-            </div>
-            {addUserError && (
-              <div className="text-red-500 mb-2">{addUserError}</div>
-            )}
-            <div className="flex gap-2">
-              <button
-                type="submit"
-                className="bg-[#00613A]  text-white px-4 py-2 rounded"
-                disabled={addUserLoading}
-              >
-                {addUserLoading ? "Adding..." : "Add User"}
-              </button>
-              <button
-                type="button"
-                className="bg-gray-300 px-4 py-2 rounded"
-                onClick={() => setShowAddUser(false)}
-                disabled={addUserLoading}
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
+    <div className="overflow-hidden">
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setDeleteData(null);
+        }}
+        onConfirm={handleConfirmDelete}
+        userData={deleteData}
+      />
+
       <div className="max-md-[400px]:hidden">
         {showEdit ? (
           <>
             <div>
               <h1 className="text-[16px] font-semibold mb-8 flex items-center gap-4">
-                User Management <FaChevronRight /> Edit User
+                <span 
+                  className="text-gray-500 cursor-pointer hover:text-gray-700"
+                  onClick={() => setShowEdit(false)}
+                >
+                  User Management
+                </span>
+                <FaChevronRight />
+                Edit User: {editData?.username}
               </h1>
             </div>
-            {/* Edit User Form */}
-            <form
-              className="bg-white rounded-lg p-6 w-full max-w-md"
-              onSubmit={handleUpdateUser}
-            >
-              <h2 className="text-lg font-bold mb-4">Edit User</h2>
-              <div className="mb-3">
-                <label className="block mb-1">Username*</label>
-                <input
-                  type="text"
-                  required
-                  minLength={1}
-                  maxLength={255}
-                  className="border rounded px-2 py-1 w-full"
-                  value={editUserForm.username}
-                  onChange={(e) =>
-                    setEditUserForm((f) => ({ ...f, username: e.target.value }))
-                  }
-                />
-              </div>
-              <div className="mb-3">
-                <label className="block mb-1">Email*</label>
-                <input
-                  type="email"
-                  required
-                  minLength={1}
-                  maxLength={254}
-                  className="border rounded px-2 py-1 w-full"
-                  value={editUserForm.email}
-                  onChange={(e) =>
-                    setEditUserForm((f) => ({ ...f, email: e.target.value }))
-                  }
-                />
-              </div>
-              <div className="mb-3">
-                <label className="block mb-1">Role</label>
-                <select
-                  className="border rounded px-2 py-1 w-full"
-                  value={editUserForm.role}
-                  onChange={(e) =>
-                    setEditUserForm((f) => ({ ...f, role: e.target.value }))
-                  }
+            <UserForm 
+              data={editData} 
+              onSave={handleUpdateUser}
+              onCancel={() => setShowEdit(false)}
+            />
+          </>
+        ) : showView ? (
+          <>
+            <div>
+              <h1 className="text-[16px] font-semibold mb-8 flex items-center gap-4">
+                <span 
+                  className="text-gray-500 cursor-pointer hover:text-gray-700"
+                  onClick={() => setShowView(false)}
                 >
-                  <option value="user">User</option>
-                  <option value="admin">Admin</option>
-                  <option value="manager">Manager</option>
-                  <option value="superadmin">Superadmin</option>
-                </select>
-              </div>
-              <div className="mb-3 flex items-center">
-                <input
-                  type="checkbox"
-                  id="edit_is_active"
-                  checked={editUserForm.is_active}
-                  onChange={(e) =>
-                    setEditUserForm((f) => ({
-                      ...f,
-                      is_active: e.target.checked,
-                    }))
-                  }
-                />
-                <label htmlFor="edit_is_active" className="ml-2">
-                  Active
-                </label>
-              </div>
-              {editUserError && (
-                <div className="text-red-500 mb-2">{editUserError}</div>
-              )}
-              <div className="flex gap-2">
-                <button
-                  type="submit"
-                  className="bg-[#00613A] text-white px-4 py-2 rounded"
-                  disabled={editUserLoading}
-                >
-                  {editUserLoading ? "Updating..." : "Update User"}
-                </button>
-                <button
-                  type="button"
-                  className="bg-gray-300 px-4 py-2 rounded"
-                  onClick={() => setShowEdit(false)}
-                  disabled={editUserLoading}
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
+                  User Management
+                </span>
+                <FaChevronRight />
+                View User: {viewData?.username}
+              </h1>
+            </div>
+            <UserDetailView 
+              data={viewData} 
+              onClose={() => setShowView(false)}
+              onEdit={() => {
+                setShowView(false);
+                handleEditClick(viewData);
+              }}
+            />
           </>
         ) : (
           <>
-            <h1 className="text-[16px] font-semibold mb-8">User Management</h1>
-            <TableTabs
-              header={""}
-              setActiveTab={setActiveTabPending}
-              activeTab={activeTabPending}
-              tabs={["Active", "Inactive", "Recently Added"]}
-              onPress={() => setShowAddUser(true)} // Open modal on add
-              selectedRows={selectedUserIds}
-              from={"userManagement"}
-              onDelete={handleDeleteSelected}
-            />
-            <p className="mb-2 text-gray-500 text-sm">
-              Double-click a user row to edit their details.
-            </p>
-            <div className="rounded-t-[1em] overflow-x-scroll    border border-gray-200 min-h-[50vh]">
-              <UsersTable
-                data={usersData}
-                currentPage={currentPage}
-                itemsPerPage={itemsPerPage}
-                setShowEdit={handleEditClick}
-                isLoading={isLoading}
-                onCheckedItemsChange={handleSelectedUsersChange} // Handle selected rows
-              />
+            <div className="flex justify-between items-center mb-8">
+              <h1 className="text-[16px] font-semibold">
+                User Management
+              </h1>
+              
+              <div className="flex items-center gap-4">
+                {selectedUserIds.length > 0 && (
+                  <div className="flex items-center gap-2">
+                    <select 
+                      className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      onChange={(e) => handleBulkAction(e.target.value)}
+                      defaultValue=""
+                    >
+                      <option value="" disabled>Bulk Actions</option>
+                      <option value="activate">Activate Selected</option>
+                      <option value="deactivate">Deactivate Selected</option>
+                      <option value="delete">Delete Selected</option>
+                    </select>
+                    
+                    <span className="text-sm text-gray-500">
+                      ({selectedUserIds.length} selected)
+                    </span>
+                  </div>
+                )}
+                
+                <button
+                  onClick={() => setShowAddUser(true)}
+                  className="bg-[#00613A] text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2 hover:bg-[#004d2e]"
+                >
+                  <FaPlus />
+                  Add User
+                </button>
+              </div>
             </div>
+
+            <TableTabs
+              header=""
+              setActiveTab={handleTabChange}
+              activeTab={activeTab}
+              tabs={["All Users", "Active", "Inactive", "Verified", "Unverified", "KYC Approved", "KYC Pending", "Staff", "Recently Added"]}
+              from="userManagement"
+              onPress={() => setShowAddUser(true)}
+              searchValue={searchTerm}
+              onSearchChange={handleSearchChange}
+            />
+            
+            <div className="rounded-t-[1em] overflow-auto border border-gray-200 min-h-[50vh]">
+              {isLoading ? (
+                <div className="text-center py-8">Loading users...</div>
+              ) : (
+                <UsersTable
+                  data={paginatedUsers}
+                  currentPage={currentPage}
+                  itemsPerPage={itemsPerPage}
+                  setShowEdit={handleEditClick}
+                  setShowView={handleViewClick}
+                  setShowDelete={handleDeleteClick}
+                  selectedUserIds={selectedUserIds}
+                  setSelectedUserIds={setSelectedUserIds}
+                  isLoading={isLoading}
+                />
+              )}
+            </div>
+            
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
-              onPageChange={setCurrentPage}
+              onPageChange={handlePageChange}
             />
           </>
         )}
+      </div>
+    </div>
+  );
+};
+
+// User Detail View Component
+const UserDetailView = ({ data, onClose, onEdit }) => {
+  if (!data) return null;
+
+  return (
+    <div className="bg-white rounded-lg shadow-lg p-8 max-w-6xl mx-auto">
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h2 className="text-3xl font-bold text-gray-900">
+            User Details: {data.username}
+          </h2>
+          <p className="text-gray-600 mt-2">Complete user information and account status</p>
+        </div>
+        <div className="flex gap-3">
+          <button
+            onClick={onEdit}
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+          >
+            Edit User
+          </button>
+          <button
+            onClick={onClose}
+            className="bg-gray-300 text-gray-700 px-6 py-3 rounded-lg text-sm font-medium hover:bg-gray-400 transition-colors"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Basic Information */}
+        <div className="bg-gray-50 p-6 rounded-lg">
+          <h3 className="text-xl font-semibold text-gray-900 border-b border-gray-200 pb-3 mb-6">Basic Information</h3>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+              <p className="text-lg font-semibold text-gray-900">{data.username}</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+              <p className="text-lg text-gray-900">{data.fullname || 'Not provided'}</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <p className="text-lg text-gray-900">{data.email}</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+              <p className="text-lg text-gray-900">{data.phone_number || 'Not provided'}</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+              <p className="text-lg text-gray-900">{data.gender || 'Not specified'}</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
+              <p className="text-lg text-gray-900">{data.date_of_birth || 'Not provided'}</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+              <p className="text-lg text-gray-900">{data.residential_address || 'Not provided'}</p>
+            </div>
+          </div>
+        </div>
+        
+        {/* Account Status */}
+        <div className="bg-gray-50 p-6 rounded-lg">
+          <h3 className="text-xl font-semibold text-gray-900 border-b border-gray-200 pb-3 mb-6">Account Status</h3>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+              <span className={`inline-flex px-3 py-1 text-sm font-medium rounded-full ${
+                data.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+              }`}>
+                {data.is_active ? 'Active' : 'Inactive'}
+              </span>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+              <p className="text-lg capitalize text-gray-900">{data.role}</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Staff Access</label>
+              <span className={`inline-flex px-3 py-1 text-sm font-medium rounded-full ${
+                data.is_staff ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
+              }`}>
+                {data.is_staff ? 'Staff' : 'Regular User'}
+              </span>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Super User</label>
+              <span className={`inline-flex px-3 py-1 text-sm font-medium rounded-full ${
+                data.is_superuser ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800'
+              }`}>
+                {data.is_superuser ? 'Super User' : 'Regular User'}
+              </span>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email Verification</label>
+              <span className={`inline-flex px-3 py-1 text-sm font-medium rounded-full ${
+                data.email_verified ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+              }`}>
+                {data.email_verified ? 'Verified' : 'Not Verified'}
+              </span>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Phone Verification</label>
+              <span className={`inline-flex px-3 py-1 text-sm font-medium rounded-full ${
+                data.phone_verified ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+              }`}>
+                {data.phone_verified ? 'Verified' : 'Not Verified'}
+              </span>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Transaction PIN</label>
+              <span className={`inline-flex px-3 py-1 text-sm font-medium rounded-full ${
+                data.has_transaction_pin ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+              }`}>
+                {data.has_transaction_pin ? 'Set' : 'Not Set'}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* KYC Information */}
+        <div className="bg-gray-50 p-6 rounded-lg">
+          <h3 className="text-xl font-semibold text-gray-900 border-b border-gray-200 pb-3 mb-6">KYC Information</h3>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">KYC Status</label>
+              <span className={`inline-flex px-3 py-1 text-sm font-medium rounded-full ${
+                data.kyc_verified ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+              }`}>
+                {data.kyc_verified ? 'Approved' : data.kyc_status?.has_kyc ? 'Pending' : 'Not Submitted'}
+              </span>
+            </div>
+            {data.kyc_details && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Document Type</label>
+                <p className="text-lg text-gray-900">{data.kyc_details.document_type}</p>
+              </div>
+            )}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">KYC Details</label>
+              <p className="text-sm text-gray-600">
+                {data.kyc_status?.has_kyc 
+                  ? `Status: ${data.kyc_status.status}${data.kyc_details?.created_at ? ` - Submitted on ${new Date(data.kyc_details.created_at).toLocaleDateString()}` : ''}`
+                  : 'No KYC documents submitted'
+                }
+              </p>
+            </div>
+            {data.kyc_details?.document_url && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Document</label>
+                <div className="mt-2">
+                  <img 
+                    src={data.kyc_details.document_url} 
+                    alt="KYC Document"
+                    className="w-full max-w-md h-auto rounded-lg border border-gray-200 shadow-sm"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'block';
+                    }}
+                  />
+                  <div 
+                    className="hidden w-full max-w-md p-4 bg-gray-100 rounded-lg border border-gray-200 text-center text-gray-500"
+                    style={{ display: 'none' }}
+                  >
+                    <p className="text-sm">Image could not be loaded</p>
+                    <a 
+                      href={data.kyc_details.document_url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 text-sm underline mt-2 inline-block"
+                    >
+                      View Document
+                    </a>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Referral Information */}
+        <div className="bg-gray-50 p-6 rounded-lg">
+          <h3 className="text-xl font-semibold text-gray-900 border-b border-gray-200 pb-3 mb-6">Referral Information</h3>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Referral Code</label>
+              <p className="text-lg font-mono text-gray-900">{data.referral_code}</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Referred By</label>
+              <p className="text-lg text-gray-900">{data.referred_by_username || 'None'}</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Total Referrals</label>
+              <p className="text-lg text-gray-900">{data.referral_stats?.total_referrals || 0}</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Total Earnings</label>
+              <p className="text-lg font-semibold text-green-600">₦{parseFloat(data.referral_stats?.total_earnings || '0.00').toLocaleString()}</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Pending Earnings</label>
+              <p className="text-lg font-semibold text-orange-600">₦{parseFloat(data.referral_stats?.pending_earnings || '0.00').toLocaleString()}</p>
+            </div>
+            {data.recent_activity?.recent_referrals && data.recent_activity.recent_referrals.length > 0 && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Recent Referrals</label>
+                <div className="space-y-2">
+                  {data.recent_activity.recent_referrals.slice(0, 3).map((referral, index) => (
+                    <div key={index} className="text-sm text-gray-600 bg-white p-2 rounded border">
+                      {referral.username || referral.email || 'Unknown User'}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Timeline Information */}
+      <div className="mt-8 bg-gray-50 p-6 rounded-lg">
+        <h3 className="text-xl font-semibold text-gray-900 border-b border-gray-200 pb-3 mb-6">Timeline</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Date Joined</label>
+            <p className="text-lg text-gray-900">{data.date_joined}</p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Last Login</label>
+            <p className="text-lg text-gray-900">{data.last_login}</p>
+          </div>
+        </div>
       </div>
     </div>
   );

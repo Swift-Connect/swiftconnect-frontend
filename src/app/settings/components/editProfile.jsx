@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { getUserProfile, updateUserProfile } from '../../../api/index.js'
 import CountrySelector from '../../../utils/countrySelector'
 import { parsePhoneNumberFromString } from 'libphonenumber-js'
+import { AlertTriangle, Lock } from 'lucide-react'
 
 export default function EditProfile({ user }) {
   // Parse initial phone number
@@ -39,6 +40,12 @@ export default function EditProfile({ user }) {
   const [success, setSuccess] = useState('')
   const [error, setError] = useState('')
   const [phoneError, setPhoneError] = useState('')
+  const [showEmailWarning, setShowEmailWarning] = useState(false)
+  const [showPhoneWarning, setShowPhoneWarning] = useState(false)
+  const [emailVerificationCode, setEmailVerificationCode] = useState('')
+  const [phoneVerificationCode, setPhoneVerificationCode] = useState('')
+  const [showEmailVerification, setShowEmailVerification] = useState(false)
+  const [showPhoneVerification, setShowPhoneVerification] = useState(false)
 
   useEffect(() => {
     if (!user) {
@@ -63,6 +70,16 @@ export default function EditProfile({ user }) {
   // Handle input change
   const handleInputChange = field => e => {
     const newValue = e.target.value
+    
+    // Security check for email and phone changes
+    if (field === 'email' && newValue !== (user?.email || '')) {
+      setShowEmailWarning(true)
+      setShowEmailVerification(true)
+    } else if (field === 'phoneNumber' && newValue !== initial.number) {
+      setShowPhoneWarning(true)
+      setShowPhoneVerification(true)
+    }
+    
     setProfile(prev => {
       const updatedProfile = { ...prev, [field]: newValue }
       const hasChanges =
@@ -116,6 +133,17 @@ export default function EditProfile({ user }) {
   // Handle save button
   const handleSave = async () => {
     if (!validatePhoneNumber()) return
+    
+    // Check if email or phone verification is required
+    if (showEmailVerification && !emailVerificationCode) {
+      setError('Please enter email verification code.')
+      return
+    }
+    if (showPhoneVerification && !phoneVerificationCode) {
+      setError('Please enter phone verification code.')
+      return
+    }
+    
     setLoading(true)
     setSuccess('')
     setError('')
@@ -123,14 +151,40 @@ export default function EditProfile({ user }) {
       const payload = {}
       if (profile.name !== (user?.fullname || '')) payload.fullname = profile.name
       if (profile.username !== (user?.username || '')) payload.username = profile.username
-      if (profile.email !== (user?.email || '')) payload.email = profile.email
+      
+      // Only allow email change if verified
+      if (profile.email !== (user?.email || '')) {
+        if (emailVerificationCode) {
+          payload.email = profile.email
+          payload.email_verification_code = emailVerificationCode
+        } else {
+          setError('Email verification required for email changes.')
+          setLoading(false)
+          return
+        }
+      }
+      
       const formattedPhone = formatPhoneNumberForBackend(profile.phoneNumber, selectedCountry.code)
       if (formattedPhone !== (user?.phone_number || '')) {
-        payload.phone_number = formattedPhone
+        if (phoneVerificationCode) {
+          payload.phone_number = formattedPhone
+          payload.phone_verification_code = phoneVerificationCode
+        } else {
+          setError('Phone verification required for phone number changes.')
+          setLoading(false)
+          return
+        }
       }
+      
       await updateUserProfile(payload)
       setSuccess('Profile updated successfully!')
       setIsChanged(false)
+      setShowEmailWarning(false)
+      setShowPhoneWarning(false)
+      setShowEmailVerification(false)
+      setShowPhoneVerification(false)
+      setEmailVerificationCode('')
+      setPhoneVerificationCode('')
     } catch (err) {
       setError('Failed to update profile.')
     } finally {
@@ -154,7 +208,7 @@ export default function EditProfile({ user }) {
           <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
             <div>
               <label className='block text-sm font-semibold text-gray-700'>
-                Your Name
+                Full Name
               </label>
               <input
                 type='text'
@@ -165,7 +219,7 @@ export default function EditProfile({ user }) {
             </div>
             <div>
               <label className='block text-sm font-semibold text-gray-700'>
-                User Name
+                Username
               </label>
               <input
                 type='text'
@@ -177,8 +231,9 @@ export default function EditProfile({ user }) {
           </div>
           <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
             <div>
-              <label className='block text-sm font-semibold text-gray-700'>
+              <label className='block text-sm font-semibold text-gray-700 flex items-center gap-2'>
                 Email
+                <Lock className="w-4 h-4 text-gray-500" />
               </label>
               <input
                 type='email'
@@ -186,10 +241,38 @@ export default function EditProfile({ user }) {
                 onChange={handleInputChange('email')}
                 className='mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:border-black focus:ring-black text-base'
               />
+              {showEmailWarning && (
+                <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <div className="flex items-start gap-2">
+                    <AlertTriangle className="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm text-yellow-800 font-medium">Security Notice</p>
+                      <p className="text-xs text-yellow-700 mt-1">
+                        Changing your email requires verification. A verification code will be sent to your new email address.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {showEmailVerification && (
+                <div className="mt-2">
+                  <label className='block text-sm font-semibold text-gray-700'>
+                    Email Verification Code
+                  </label>
+                  <input
+                    type='text'
+                    value={emailVerificationCode}
+                    onChange={(e) => setEmailVerificationCode(e.target.value)}
+                    placeholder="Enter verification code"
+                    className='mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:border-black focus:ring-black text-base'
+                  />
+                </div>
+              )}
             </div>
             <div>
-              <label className='block text-sm font-semibold text-gray-700'>
+              <label className='block text-sm font-semibold text-gray-700 flex items-center gap-2'>
                 Phone Number
+                <Lock className="w-4 h-4 text-gray-500" />
               </label>
               <div
                 className={`mt-2 flex w-full py-1 border rounded-lg shadow-sm text-base ${
@@ -213,6 +296,33 @@ export default function EditProfile({ user }) {
               {phoneError && (
                 <div className='text-red-500 text-sm mt-1'>{phoneError}</div>
               )}
+              {showPhoneWarning && (
+                <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <div className="flex items-start gap-2">
+                    <AlertTriangle className="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm text-yellow-800 font-medium">Security Notice</p>
+                      <p className="text-xs text-yellow-700 mt-1">
+                        Changing your phone number requires verification. A verification code will be sent to your new phone number.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {showPhoneVerification && (
+                <div className="mt-2">
+                  <label className='block text-sm font-semibold text-gray-700'>
+                    Phone Verification Code
+                  </label>
+                  <input
+                    type='text'
+                    value={phoneVerificationCode}
+                    onChange={(e) => setPhoneVerificationCode(e.target.value)}
+                    placeholder="Enter verification code"
+                    className='mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:border-black focus:ring-black text-base'
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -220,18 +330,26 @@ export default function EditProfile({ user }) {
       <div className='mt-8 flex justify-end'>
         <button
           onClick={handleSave}
-          className={`bg-black text-white px-4 py-2 rounded-lg shadow text-base font-semibold ${
-            !isChanged || loading ? 'opacity-50 cursor-not-allowed' : ''
-          }`}
           disabled={!isChanged || loading}
+          className={`px-6 py-3 rounded-lg font-semibold text-white transition-colors ${
+            isChanged && !loading
+              ? 'bg-[#00613A] hover:bg-[#004d2e]'
+              : 'bg-gray-400 cursor-not-allowed'
+          }`}
         >
-          {loading ? 'Saving...' : 'Save'}
+          {loading ? 'Saving...' : 'Save Changes'}
         </button>
       </div>
       {success && (
-        <div className='text-green-600 text-base mt-4'>{success}</div>
+        <div className='mt-4 p-4 bg-green-100 border border-green-400 text-green-800 rounded-lg'>
+          {success}
+        </div>
       )}
-      {error && <div className='text-red-600 text-base mt-4'>{error}</div>}
+      {error && (
+        <div className='mt-4 p-4 bg-red-100 border border-red-400 text-red-800 rounded-lg'>
+          {error}
+        </div>
+      )}
     </>
   )
 }

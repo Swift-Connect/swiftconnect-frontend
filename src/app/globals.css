@@ -33,39 +33,127 @@
   font-display: swap;
 }
 
-/* html, body {
-  font-size: 14px;
-  line-height: 1.4;
+/* Responsive typography and spacing */
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
 }
 
+body {
+  font-size: 1rem;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
-input, button, select, textarea {
-  font-size: 1em;
-  padding: 0.5em 0.75em;
-} */
-/* 
-h1 {
-  font-size: 1.5rem;
-}
-h2 {
-  font-size: 1.25rem;
-}
-h3 {
-  font-size: 1.1rem;
-} */
-
-/* .p-8, .px-8, .py-8 {
-  padding: 1.5rem !important;
-}
-.p-6, .px-6, .py-6 {
-  padding: 1rem !important;
-}
-.rounded-2xl {
-  border-radius: 1rem !important;
-} */
-
-  @media (max-width: 640px) {
-    html, body {
-      font-size: 12px;
-    }
+/* Mobile-first responsive design */
+@media (max-width: 640px) {
+  html {
+    font-size: 14px;
   }
+  
+  /* Ensure proper touch targets */
+  button, a, input, select, textarea {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Improve form elements on mobile */
+  input, select, textarea {
+    font-size: 16px; /* Prevents zoom on iOS */
+    padding: 0.75rem;
+  }
+  
+  /* Better spacing for mobile */
+  .p-8, .px-8, .py-8 {
+    padding: 1rem !important;
+  }
+  
+  .p-6, .px-6, .py-6 {
+    padding: 0.75rem !important;
+  }
+  
+  .rounded-2xl {
+    border-radius: 0.75rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  html {
+    font-size: 13px;
+  }
+  
+  /* Even more compact spacing for very small screens */
+  .p-8, .px-8, .py-8 {
+    padding: 0.75rem !important;
+  }
+  
+  .p-6, .px-6, .py-6 {
+    padding: 0.5rem !important;
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 641px) and (max-width: 1024px) {
+  html {
+    font-size: 15px;
+  }
+}
+
+/* Desktop optimizations */
+@media (min-width: 1025px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+/* Ensure proper viewport behavior */
+* {
+  box-sizing: border-box;
+}
+
+/* Improve focus states for accessibility */
+button:focus,
+input:focus,
+select:focus,
+textarea:focus,
+a:focus {
+  outline: 2px solid #00613A;
+  outline-offset: 2px;
+}
+
+/* Better loading states */
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Improved dropdown positioning */
+.dropdown-menu {
+  z-index: 1000;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* Better mobile navigation */
+@media (max-width: 768px) {
+  .mobile-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+  }
+  
+  .mobile-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 40;
+  }
+}
