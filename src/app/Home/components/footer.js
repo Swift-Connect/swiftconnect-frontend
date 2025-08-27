@@ -54,9 +54,9 @@ export default function Footer() {
               Contact Info
             </p>
             <ul className="flex flex-col gap-2 md:gap-4">
-              <li className="list-none">Email: info@architectura.com</li>
-              <li>Phone: +1 123-456-7890</li>
-              <li>Address: 123 Architecture Lane, Design City, Country</li>
+              <li className="list-none">Email: Contact@swiftconnect.com.ng</li>
+              <li>Phone: +234 904 094 0080</li>
+              <li>Address: No 119 Oke Amola, Ikirun</li>
             </ul>
           </div>
         </div>
