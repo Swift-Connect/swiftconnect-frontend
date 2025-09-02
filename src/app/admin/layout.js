@@ -17,7 +17,7 @@ export default function RootLayout({ children }) {
 
       try {
         const res = await fetch(
-          `https://aesthetic-mandi-swiftconnect-a9332357.koyeb.app/users/admin-access-check/`,
+          `http://127.0.0.1:8000/users/admin-access-check/`,
           {
             method: 'GET',
             headers: {

@@ -22,8 +22,9 @@ const UserForm = ({ data, onSave, onCancel }) => {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
+    console.log('UserForm useEffect triggered with data:', data);
     if (data) {
-      setFormData({
+      const initialFormData = {
         id: data.id,
         username: data.username || "",
         email: data.email || "",
@@ -36,7 +37,9 @@ const UserForm = ({ data, onSave, onCancel }) => {
         is_active: data.is_active !== undefined ? data.is_active : true,
         is_staff: data.is_staff || false,
         is_superuser: data.is_superuser || false,
-      });
+      };
+      console.log('Setting initial form data:', initialFormData);
+      setFormData(initialFormData);
     }
   }, [data]);
 
@@ -52,6 +55,7 @@ const UserForm = ({ data, onSave, onCancel }) => {
   };
 
   const validateForm = () => {
+    console.log('Validating form with data:', formData);
     const newErrors = {};
     
     if (!formData.username.trim()) {
@@ -76,23 +80,34 @@ const UserForm = ({ data, onSave, onCancel }) => {
       newErrors.role = "Role is required";
     }
     
+    console.log('Validation errors:', newErrors);
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    const isValid = Object.keys(newErrors).length === 0;
+    console.log('Form is valid:', isValid);
+    return isValid;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    console.log('Form submitted with data:', formData);
+    
     if (!validateForm()) {
+      console.log('Form validation failed');
       toast.error("Please fix the errors before saving");
       return;
     }
 
+    console.log('Form validation passed, calling onSave...');
     setLoading(true);
+    
     try {
+      console.log('Calling onSave with:', formData);
       await onSave(formData);
+      console.log('onSave completed successfully');
     } catch (error) {
       console.error('Error saving user:', error);
+      toast.error('Failed to save user. Please try again.');
     } finally {
       setLoading(false);
     }

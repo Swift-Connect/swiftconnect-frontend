@@ -5,7 +5,35 @@ import Pagination from "../components/pagination";
 import TableTabs from "../components/tableTabs";
 import UserForm from "./components/editUser";
 import DeleteConfirmationModal from "./components/deleteConfirmationModal";
-import { FaChevronRight, FaPlus, FaTrashAlt, FaEye } from "react-icons/fa";
+import { 
+  FaChevronRight, 
+  FaPlus, 
+  FaTrashAlt, 
+  FaEye, 
+  FaUsers, 
+  FaUserCheck, 
+  FaUserTimes, 
+  FaShieldAlt, 
+  FaClock, 
+  FaCrown,
+  FaSearch,
+  FaFilter,
+  FaDownload,
+  FaChartLine,
+  FaUserEdit,
+  FaUserPlus,
+  FaBan,
+  FaCheckCircle,
+  FaExclamationTriangle,
+  FaIdCard,
+  FaPhone,
+  FaEnvelope,
+  FaCalendarAlt,
+  FaMapMarkerAlt,
+  FaMoneyBillWave,
+  FaShareAlt,
+  FaTimes
+} from "react-icons/fa";
 import { toast } from "react-toastify";
 import api from "@/utils/api";
 import { useRouter } from "next/navigation";
@@ -13,7 +41,7 @@ import { useUsers } from "@/hooks/useUsers";
 
 const UserManagement = () => {
   const router = useRouter();
-  const { users: allUsersData, loading: isLoading, searchUsers } = useUsers();
+  const { users: allUsersData, loading: isLoading, searchUsers, refreshUsers } = useUsers();
   const [token, setToken] = useState(null);
   const [activeTab, setActiveTab] = useState("All Users");
   const [showEdit, setShowEdit] = useState(false);
@@ -31,6 +59,9 @@ const UserManagement = () => {
   const [totalUsers, setTotalUsers] = useState(0);
   const [itemsPerPage] = useState(50);
   const [detailedUserCache, setDetailedUserCache] = useState({});
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
+  const [isLoadingNextPage, setIsLoadingNextPage] = useState(false);
+  const [hasLoadedAllUsers, setHasLoadedAllUsers] = useState(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -49,11 +80,11 @@ const UserManagement = () => {
   }, [allUsersData, searchTerm, activeTab]);
 
   const fetchAllUsers = async () => {
-    setIsLoading(true);
+    setIsLoadingUsers(true);
     try {
       // Build query parameters for initial load
       const params = new URLSearchParams({
-        page_size: '1000', // Get more users initially
+        page_size: '50', // Get more users initially
       });
 
       const response = await api.get(`/users/list-users/?${params.toString()}`);
@@ -106,8 +137,8 @@ const UserManagement = () => {
         raw_data: user
       }));
 
-      setAllUsersData(processedUsers);
-      setTotalUsers(count || 0);
+      // Update the users through the useUsers hook
+      // The hook will handle the state management
       setHasLoadedAllUsers(true);
       
     } catch (error) {
@@ -118,7 +149,7 @@ const UserManagement = () => {
         console.error('Error fetching users:', error);
       }
     } finally {
-      setIsLoading(false);
+      setIsLoadingUsers(false);
     }
   };
 
@@ -223,12 +254,8 @@ const UserManagement = () => {
         raw_data: user
       }));
 
-      // Add new users to allUsersData
-      setAllUsersData(prev => {
-        const existingIds = new Set(prev.map(user => user.id));
-        const newUsers = processedUsers.filter(user => !existingIds.has(user.id));
-        return [...prev, ...newUsers];
-      });
+      // Users are managed by the useUsers hook
+      // No need to manually update local state
       
     } catch (error) {
       console.error('Error preloading next page:', error);
@@ -341,11 +368,15 @@ const UserManagement = () => {
   };
 
   const handleEditClick = async (rowData) => {
+    console.log('handleEditClick called with:', rowData);
     // Fetch detailed user info for editing
     const detailedUser = await fetchDetailedUserInfo(rowData.id);
+    console.log('Detailed user data fetched:', detailedUser);
     if (detailedUser) {
       setEditData(detailedUser);
       setShowEdit(true);
+    } else {
+      toast.error('Failed to fetch user details for editing');
     }
   };
 
@@ -365,14 +396,70 @@ const UserManagement = () => {
 
   const handleUpdateUser = async (updatedData) => {
     try {
-      await api.patch(`/users/${updatedData.id}/`, {
-        username: updatedData.username,
-        email: updatedData.email,
-        role: updatedData.role,
-        is_active: updatedData.is_active,
-        is_staff: updatedData.is_staff,
-        is_superuser: updatedData.is_superuser
-      });
+      console.log('handleUpdateUser called with:', updatedData);
+      
+      // Clean and prepare the update payload - only include non-empty, non-N/A values
+      const updatePayload = {};
+      
+      // Helper function to check if a value should be included
+      const shouldIncludeField = (value) => {
+        if (value === null || value === undefined) return false;
+        if (typeof value === 'string') {
+          const trimmed = value.trim();
+          return trimmed !== '' && trimmed !== 'N/A' && trimmed !== 'n/a';
+        }
+        if (typeof value === 'boolean') return true; // Always include boolean fields
+        return value !== '';
+      };
+
+      // Only include fields that have meaningful values
+      if (shouldIncludeField(updatedData.username)) {
+        updatePayload.username = updatedData.username.trim();
+      }
+      if (shouldIncludeField(updatedData.email)) {
+        updatePayload.email = updatedData.email.trim();
+      }
+      if (shouldIncludeField(updatedData.phone_number)) {
+        updatePayload.phone_number = updatedData.phone_number.trim();
+      }
+      if (shouldIncludeField(updatedData.fullname)) {
+        updatePayload.fullname = updatedData.fullname.trim();
+      }
+      if (shouldIncludeField(updatedData.date_of_birth)) {
+        updatePayload.date_of_birth = updatedData.date_of_birth;
+      }
+      if (shouldIncludeField(updatedData.gender)) {
+        updatePayload.gender = updatedData.gender;
+      }
+      if (shouldIncludeField(updatedData.residential_address)) {
+        updatePayload.residential_address = updatedData.residential_address.trim();
+      }
+      if (shouldIncludeField(updatedData.role)) {
+        updatePayload.role = updatedData.role;
+      }
+      // Always include boolean fields as they have meaningful values
+      updatePayload.is_active = updatedData.is_active;
+      updatePayload.is_staff = updatedData.is_staff;
+      updatePayload.is_superuser = updatedData.is_superuser;
+
+      console.log('Cleaned update payload:', updatePayload);
+      console.log('API endpoint:', `/users/${updatedData.id}/`);
+
+      // Try different endpoint variations
+      let response;
+      try {
+        response = await api.patch(`/users/${updatedData.id}/`, updatePayload);
+      } catch (endpointError) {
+        console.log('First endpoint failed, trying alternative...');
+        try {
+          response = await api.patch(`/users/${updatedData.id}`, updatePayload);
+        } catch (secondError) {
+          console.log('Second endpoint failed, trying admin endpoint...');
+          response = await api.patch(`/users/admin/user/${updatedData.id}/`, updatePayload);
+        }
+      }
+      
+      console.log('Update response:', response);
       
       toast.success('User updated successfully');
       setShowEdit(false);
@@ -384,17 +471,39 @@ const UserManagement = () => {
         return newCache;
       });
       
-      // Update the user in allUsersData
-      setAllUsersData(prev => 
-        prev.map(user => 
-          user.id === updatedData.id 
-            ? { ...user, ...updatedData }
-            : user
-        )
-      );
+      // Refresh the data to show updated information
+      try {
+        await refreshUsers();
+      } catch (refreshError) {
+        console.log('Manual refresh failed, but update was successful');
+      }
     } catch (error) {
-      toast.error('Failed to update user');
       console.error('Error updating user:', error);
+      console.error('Error response:', error.response);
+      console.error('Error message:', error.message);
+      
+      // Provide more specific error messages
+      if (error.response?.status === 400) {
+        const errorData = error.response.data;
+        console.log('Validation errors:', errorData);
+        if (errorData.username) {
+          toast.error(`Username error: ${Array.isArray(errorData.username) ? errorData.username.join(', ') : errorData.username}`);
+        } else if (errorData.email) {
+          toast.error(`Email error: ${Array.isArray(errorData.email) ? errorData.email.join(', ') : errorData.email}`);
+        } else if (errorData.phone_number) {
+          toast.error(`Phone error: ${Array.isArray(errorData.phone_number) ? errorData.phone_number.join(', ') : errorData.phone_number}`);
+        } else {
+          toast.error('Validation error: Please check your input');
+        }
+      } else if (error.response?.status === 403) {
+        toast.error('Permission denied: You cannot update this user');
+      } else if (error.response?.status === 404) {
+        toast.error('User not found');
+      } else if (error.response?.status === 500) {
+        toast.error('Server error: Please try again later');
+      } else {
+        toast.error(`Failed to update user: ${error.message || 'Unknown error'}`);
+      }
     }
   };
 
@@ -448,8 +557,12 @@ const UserManagement = () => {
         return newCache;
       });
       
-      // Remove user from allUsersData
-      setAllUsersData(prev => prev.filter(user => user.id !== deleteData.id));
+      // Refresh the users list after successful deletion
+      try {
+        await refreshUsers();
+      } catch (refreshError) {
+        console.log('Manual refresh failed, but delete was successful');
+      }
     } catch (error) {
       toast.error('Failed to delete user');
       console.error('Error deleting user:', error);
@@ -611,146 +724,212 @@ const UserDetailView = ({ data, onClose, onEdit }) => {
   if (!data) return null;
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-8 max-w-6xl mx-auto">
+    <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-7xl mx-auto border border-gray-200">
+      {/* Enhanced Header Section */}
       <div className="flex items-center justify-between mb-8">
-        <div>
-          <h2 className="text-3xl font-bold text-gray-900">
-            User Details: {data.username}
-          </h2>
-          <p className="text-gray-600 mt-2">Complete user information and account status</p>
+        <div className="flex items-center gap-4">
+          <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
+            <span className="text-3xl font-bold text-white">
+              {data.username?.charAt(0).toUpperCase()}
+            </span>
+          </div>
+          <div>
+            <h2 className="text-4xl font-bold text-gray-900">
+              {data.username}
+            </h2>
+            <p className="text-gray-600 text-lg mt-1">User ID: #{data.id}</p>
+            <div className="flex items-center gap-3 mt-3">
+              <span className={`inline-flex px-4 py-2 text-sm font-medium rounded-xl ${
+                data.is_active ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-red-100 text-red-800 border border-red-200'
+              }`}>
+                {data.is_active ? '✓ Active' : '✗ Inactive'}
+              </span>
+              <span className={`inline-flex px-4 py-2 text-sm font-medium rounded-xl ${
+                data.kyc_verified ? 'bg-purple-100 text-purple-800 border border-purple-200' : 'bg-yellow-100 text-yellow-800 border border-yellow-200'
+              }`}>
+                {data.kyc_verified ? '✓ KYC Approved' : '⏳ KYC Pending'}
+              </span>
+            </div>
+          </div>
         </div>
         <div className="flex gap-3">
           <button
             onClick={onEdit}
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+            className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-3 rounded-xl text-sm font-medium hover:from-blue-700 hover:to-blue-800 transform hover:scale-105 transition-all duration-200 shadow-lg flex items-center gap-2"
           >
+            <FaUserEdit />
             Edit User
           </button>
           <button
             onClick={onClose}
-            className="bg-gray-300 text-gray-700 px-6 py-3 rounded-lg text-sm font-medium hover:bg-gray-400 transition-colors"
+            className="bg-gray-100 text-gray-700 px-8 py-3 rounded-xl text-sm font-medium hover:bg-gray-200 transition-all duration-200 flex items-center gap-2"
           >
+            <FaTimes />
             Close
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
         {/* Basic Information */}
-        <div className="bg-gray-50 p-6 rounded-lg">
-          <h3 className="text-xl font-semibold text-gray-900 border-b border-gray-200 pb-3 mb-6">Basic Information</h3>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
-              <p className="text-lg font-semibold text-gray-900">{data.username}</p>
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 sm:p-6 lg:p-8 rounded-2xl border border-blue-200 shadow-sm">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
+              <FaUserEdit className="text-white text-sm sm:text-base" />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-              <p className="text-lg text-gray-900">{data.fullname || 'Not provided'}</p>
+            <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Basic Information</h3>
+          </div>
+          <div className="space-y-4 sm:space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div className="min-w-0">
+                <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                  <FaUserEdit className="text-blue-500 flex-shrink-0" />
+                  <span className="truncate">Username</span>
+                </label>
+                <p className="text-sm sm:text-base font-semibold text-gray-900 bg-white px-3 sm:px-4 py-2 rounded-lg border border-blue-200 break-words overflow-hidden">{data.username}</p>
+              </div>
+              <div className="min-w-0">
+                <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                  <FaUserEdit className="text-blue-500 flex-shrink-0" />
+                  <span className="truncate">Full Name</span>
+                </label>
+                <p className="text-sm sm:text-base text-gray-900 bg-white px-3 sm:px-4 py-2 rounded-lg border border-blue-200 break-words overflow-hidden">{data.fullname || 'Not provided'}</p>
+              </div>
+              <div className="min-w-0 sm:col-span-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                  <FaEnvelope className="text-blue-500 flex-shrink-0" />
+                  <span className="truncate">Email</span>
+                </label>
+                <p className="text-sm sm:text-base text-gray-900 bg-white px-3 sm:px-4 py-2 rounded-lg border border-blue-200 break-words overflow-hidden">{data.email}</p>
+              </div>
+              <div className="min-w-0">
+                <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                  <FaPhone className="text-blue-500 flex-shrink-0" />
+                  <span className="truncate">Phone Number</span>
+                </label>
+                <p className="text-sm sm:text-base text-gray-900 bg-white px-3 sm:px-4 py-2 rounded-lg border border-blue-200 break-words overflow-hidden">{data.phone_number || 'Not provided'}</p>
+              </div>
+              <div className="min-w-0">
+                <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                  <FaUserEdit className="text-blue-500 flex-shrink-0" />
+                  <span className="truncate">Gender</span>
+                </label>
+                <p className="text-sm sm:text-base text-gray-900 bg-white px-3 sm:px-4 py-2 rounded-lg border border-blue-200 break-words overflow-hidden">{data.gender || 'Not specified'}</p>
+              </div>
+              <div className="min-w-0">
+                <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                  <FaCalendarAlt className="text-blue-500 flex-shrink-0" />
+                  <span className="truncate">Date of Birth</span>
+                </label>
+                <p className="text-sm sm:text-base text-gray-900 bg-white px-3 sm:px-4 py-2 rounded-lg border border-blue-200 break-words overflow-hidden">{data.date_of_birth || 'Not provided'}</p>
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-              <p className="text-lg text-gray-900">{data.email}</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-              <p className="text-lg text-gray-900">{data.phone_number || 'Not provided'}</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
-              <p className="text-lg text-gray-900">{data.gender || 'Not specified'}</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
-              <p className="text-lg text-gray-900">{data.date_of_birth || 'Not provided'}</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-              <p className="text-lg text-gray-900">{data.residential_address || 'Not provided'}</p>
+            <div className="min-w-0">
+              <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                <FaMapMarkerAlt className="text-blue-500 flex-shrink-0" />
+                <span className="truncate">Address</span>
+              </label>
+              <p className="text-sm sm:text-base text-gray-900 bg-white px-3 sm:px-4 py-2 rounded-lg border border-blue-200 break-words overflow-hidden">{data.residential_address || 'Not provided'}</p>
             </div>
           </div>
         </div>
         
         {/* Account Status */}
-        <div className="bg-gray-50 p-6 rounded-lg">
-          <h3 className="text-xl font-semibold text-gray-900 border-b border-gray-200 pb-3 mb-6">Account Status</h3>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-              <span className={`inline-flex px-3 py-1 text-sm font-medium rounded-full ${
-                data.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-              }`}>
-                {data.is_active ? 'Active' : 'Inactive'}
-              </span>
+        <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 sm:p-6 lg:p-8 rounded-2xl border border-green-200 shadow-sm">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-500 rounded-lg flex items-center justify-center flex-shrink-0">
+              <FaShieldAlt className="text-white text-sm sm:text-base" />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
-              <p className="text-lg capitalize text-gray-900">{data.role}</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Staff Access</label>
-              <span className={`inline-flex px-3 py-1 text-sm font-medium rounded-full ${
-                data.is_staff ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
-              }`}>
-                {data.is_staff ? 'Staff' : 'Regular User'}
-              </span>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Super User</label>
-              <span className={`inline-flex px-3 py-1 text-sm font-medium rounded-full ${
-                data.is_superuser ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800'
-              }`}>
-                {data.is_superuser ? 'Super User' : 'Regular User'}
-              </span>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email Verification</label>
-              <span className={`inline-flex px-3 py-1 text-sm font-medium rounded-full ${
-                data.email_verified ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-              }`}>
-                {data.email_verified ? 'Verified' : 'Not Verified'}
-              </span>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Phone Verification</label>
-              <span className={`inline-flex px-3 py-1 text-sm font-medium rounded-full ${
-                data.phone_verified ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-              }`}>
-                {data.phone_verified ? 'Verified' : 'Not Verified'}
-              </span>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Transaction PIN</label>
-              <span className={`inline-flex px-3 py-1 text-sm font-medium rounded-full ${
-                data.has_transaction_pin ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-              }`}>
-                {data.has_transaction_pin ? 'Set' : 'Not Set'}
-              </span>
+            <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Account Status</h3>
+          </div>
+          <div className="space-y-4 sm:space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div className="min-w-0">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+                <span className={`inline-flex px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-xl ${
+                  data.is_active ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-red-100 text-red-800 border border-red-200'
+                }`}>
+                  {data.is_active ? '✓ Active' : '✗ Inactive'}
+                </span>
+              </div>
+              <div className="min-w-0">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Role</label>
+                <p className="text-sm sm:text-base capitalize text-gray-900 bg-white px-3 sm:px-4 py-2 rounded-lg border border-green-200 break-words overflow-hidden">{data.role}</p>
+              </div>
+              <div className="min-w-0">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Staff Access</label>
+                <span className={`inline-flex px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-xl ${
+                  data.is_staff ? 'bg-blue-100 text-blue-800 border border-blue-200' : 'bg-gray-100 text-gray-800 border border-gray-200'
+                }`}>
+                  {data.is_staff ? '✓ Staff' : 'Regular User'}
+                </span>
+              </div>
+              <div className="min-w-0">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Super User</label>
+                <span className={`inline-flex px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-xl ${
+                  data.is_superuser ? 'bg-purple-100 text-purple-800 border border-purple-200' : 'bg-gray-100 text-gray-800 border border-gray-200'
+                }`}>
+                  {data.is_superuser ? '✓ Super User' : 'Regular User'}
+                </span>
+              </div>
+              <div className="min-w-0">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Email Verification</label>
+                <span className={`inline-flex px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-xl ${
+                  data.email_verified ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-yellow-100 text-yellow-800 border border-yellow-200'
+                }`}>
+                  {data.email_verified ? '✓ Verified' : '⚠ Not Verified'}
+                </span>
+              </div>
+              <div className="min-w-0">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Phone Verification</label>
+                <span className={`inline-flex px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-xl ${
+                  data.phone_verified ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-yellow-100 text-yellow-800 border border-yellow-200'
+                }`}>
+                  {data.phone_verified ? '✓ Verified' : '⚠ Not Verified'}
+                </span>
+              </div>
+              <div className="min-w-0">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Transaction PIN</label>
+                <span className={`inline-flex px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-xl ${
+                  data.has_transaction_pin ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-red-100 text-red-800 border border-red-200'
+                }`}>
+                  {data.has_transaction_pin ? '✓ Set' : '✗ Not Set'}
+                </span>
+              </div>
             </div>
           </div>
         </div>
 
         {/* KYC Information */}
-        <div className="bg-gray-50 p-6 rounded-lg">
-          <h3 className="text-xl font-semibold text-gray-900 border-b border-gray-200 pb-3 mb-6">KYC Information</h3>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">KYC Status</label>
-              <span className={`inline-flex px-3 py-1 text-sm font-medium rounded-full ${
-                data.kyc_verified ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-              }`}>
-                {data.kyc_verified ? 'Approved' : data.kyc_status?.has_kyc ? 'Pending' : 'Not Submitted'}
-              </span>
+        <div className="bg-gradient-to-br from-purple-50 to-violet-50 p-4 sm:p-6 lg:p-8 rounded-2xl border border-purple-200 shadow-sm">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-purple-500 rounded-lg flex items-center justify-center flex-shrink-0">
+              <FaIdCard className="text-white text-sm sm:text-base" />
             </div>
-            {data.kyc_details && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Document Type</label>
-                <p className="text-lg text-gray-900">{data.kyc_details.document_type}</p>
+            <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">KYC Information</h3>
+          </div>
+          <div className="space-y-4 sm:space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div className="min-w-0">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">KYC Status</label>
+                <span className={`inline-flex px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-xl ${
+                  data.kyc_verified ? 'bg-green-100 text-green-800 border border-green-200' : 
+                  data.kyc_status?.has_kyc ? 'bg-yellow-100 text-yellow-800 border border-yellow-200' : 
+                  'bg-gray-100 text-gray-800 border border-gray-200'
+                }`}>
+                  {data.kyc_verified ? '✓ Approved' : data.kyc_status?.has_kyc ? '⏳ Pending' : '❌ Not Submitted'}
+                </span>
               </div>
-            )}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">KYC Details</label>
-              <p className="text-sm text-gray-600">
+              {data.kyc_details && (
+                <div className="min-w-0">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Document Type</label>
+                  <p className="text-sm sm:text-base text-gray-900 bg-white px-3 sm:px-4 py-2 rounded-lg border border-purple-200 break-words overflow-hidden">{data.kyc_details.document_type}</p>
+                </div>
+              )}
+            </div>
+            <div className="min-w-0">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">KYC Details</label>
+              <p className="text-sm text-gray-600 bg-white px-3 sm:px-4 py-2 rounded-lg border border-purple-200 break-words overflow-hidden">
                 {data.kyc_status?.has_kyc 
                   ? `Status: ${data.kyc_status.status}${data.kyc_details?.created_at ? ` - Submitted on ${new Date(data.kyc_details.created_at).toLocaleDateString()}` : ''}`
                   : 'No KYC documents submitted'
@@ -758,20 +937,20 @@ const UserDetailView = ({ data, onClose, onEdit }) => {
               </p>
             </div>
             {data.kyc_details?.document_url && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Document</label>
+              <div className="min-w-0">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Document</label>
                 <div className="mt-2">
                   <img 
                     src={data.kyc_details.document_url} 
                     alt="KYC Document"
-                    className="w-full max-w-md h-auto rounded-lg border border-gray-200 shadow-sm"
+                    className="w-full max-w-full sm:max-w-md h-auto rounded-xl border border-purple-200 shadow-sm"
                     onError={(e) => {
                       e.target.style.display = 'none';
                       e.target.nextSibling.style.display = 'block';
                     }}
                   />
                   <div 
-                    className="hidden w-full max-w-md p-4 bg-gray-100 rounded-lg border border-gray-200 text-center text-gray-500"
+                    className="hidden w-full max-w-full sm:max-w-md p-4 bg-gray-100 rounded-xl border border-purple-200 text-center text-gray-500"
                     style={{ display: 'none' }}
                   >
                     <p className="text-sm">Image could not be loaded</p>
@@ -779,7 +958,7 @@ const UserDetailView = ({ data, onClose, onEdit }) => {
                       href={data.kyc_details.document_url} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800 text-sm underline mt-2 inline-block"
+                      className="text-purple-600 hover:text-purple-800 text-sm underline mt-2 inline-block"
                     >
                       View Document
                     </a>
@@ -791,36 +970,44 @@ const UserDetailView = ({ data, onClose, onEdit }) => {
         </div>
 
         {/* Referral Information */}
-        <div className="bg-gray-50 p-6 rounded-lg">
-          <h3 className="text-xl font-semibold text-gray-900 border-b border-gray-200 pb-3 mb-6">Referral Information</h3>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Referral Code</label>
-              <p className="text-lg font-mono text-gray-900">{data.referral_code}</p>
+        <div className="bg-gradient-to-br from-pink-50 to-rose-50 p-4 sm:p-6 lg:p-8 rounded-2xl border border-pink-200 shadow-sm">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-pink-500 rounded-lg flex items-center justify-center flex-shrink-0">
+              <FaShareAlt className="text-white text-sm sm:text-base" />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Referred By</label>
-              <p className="text-lg text-gray-900">{data.referred_by_username || 'None'}</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Total Referrals</label>
-              <p className="text-lg text-gray-900">{data.referral_stats?.total_referrals || 0}</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Total Earnings</label>
-              <p className="text-lg font-semibold text-green-600">₦{parseFloat(data.referral_stats?.total_earnings || '0.00').toLocaleString()}</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Pending Earnings</label>
-              <p className="text-lg font-semibold text-orange-600">₦{parseFloat(data.referral_stats?.pending_earnings || '0.00').toLocaleString()}</p>
+            <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Referral Information</h3>
+          </div>
+          <div className="space-y-4 sm:space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div className="min-w-0">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Referral Code</label>
+                <p className="text-sm sm:text-base font-mono text-gray-900 bg-white px-3 sm:px-4 py-2 rounded-lg border border-pink-200 break-words overflow-hidden">{data.referral_code}</p>
+              </div>
+              <div className="min-w-0">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Referred By</label>
+                <p className="text-sm sm:text-base text-gray-900 bg-white px-3 sm:px-4 py-2 rounded-lg border border-pink-200 break-words overflow-hidden">{data.referred_by_username || 'None'}</p>
+              </div>
+              <div className="min-w-0">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Total Referrals</label>
+                <p className="text-sm sm:text-base text-gray-900 bg-white px-3 sm:px-4 py-2 rounded-lg border border-pink-200 break-words overflow-hidden">{data.referral_stats?.total_referrals || 0}</p>
+              </div>
+              <div className="min-w-0">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Total Earnings</label>
+                <p className="text-sm sm:text-base font-semibold text-green-600 bg-white px-3 sm:px-4 py-2 rounded-lg border border-pink-200 break-words overflow-hidden">₦{parseFloat(data.referral_stats?.total_earnings || '0.00').toLocaleString()}</p>
+              </div>
+              <div className="min-w-0">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Pending Earnings</label>
+                <p className="text-sm sm:text-base font-semibold text-orange-600 bg-white px-3 sm:px-4 py-2 rounded-lg border border-pink-200 break-words overflow-hidden">₦{parseFloat(data.referral_stats?.pending_earnings || '0.00').toLocaleString()}</p>
+              </div>
             </div>
             {data.recent_activity?.recent_referrals && data.recent_activity.recent_referrals.length > 0 && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Recent Referrals</label>
+              <div className="min-w-0">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Recent Referrals</label>
                 <div className="space-y-2">
                   {data.recent_activity.recent_referrals.slice(0, 3).map((referral, index) => (
-                    <div key={index} className="text-sm text-gray-600 bg-white p-2 rounded border">
-                      {referral.username || referral.email || 'Unknown User'}
+                    <div key={index} className="text-sm text-gray-600 bg-white p-3 rounded-lg border border-pink-200 flex items-center gap-2">
+                      <FaUserPlus className="text-pink-500 flex-shrink-0" />
+                      <span className="break-words overflow-hidden">{referral.username || referral.email || 'Unknown User'}</span>
                     </div>
                   ))}
                 </div>
@@ -831,16 +1018,27 @@ const UserDetailView = ({ data, onClose, onEdit }) => {
       </div>
 
       {/* Timeline Information */}
-      <div className="mt-8 bg-gray-50 p-6 rounded-lg">
-        <h3 className="text-xl font-semibold text-gray-900 border-b border-gray-200 pb-3 mb-6">Timeline</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Date Joined</label>
-            <p className="text-lg text-gray-900">{data.date_joined}</p>
+      <div className="mt-8 bg-gradient-to-br from-amber-50 to-orange-50 p-4 sm:p-6 lg:p-8 rounded-2xl border border-amber-200 shadow-sm">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-amber-500 rounded-lg flex items-center justify-center flex-shrink-0">
+            <FaClock className="text-white text-sm sm:text-base" />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Last Login</label>
-            <p className="text-lg text-gray-900">{data.last_login}</p>
+          <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Account Timeline</h3>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+          <div className="bg-white p-3 sm:p-4 rounded-xl border border-amber-200 min-w-0">
+            <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+              <FaCalendarAlt className="text-amber-500 flex-shrink-0" />
+              <span className="truncate">Date Joined</span>
+            </label>
+            <p className="text-sm sm:text-base font-semibold text-gray-900 break-words overflow-hidden">{data.date_joined}</p>
+          </div>
+          <div className="bg-white p-3 sm:p-4 rounded-xl border border-amber-200 min-w-0">
+            <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+              <FaClock className="text-amber-500 flex-shrink-0" />
+              <span className="truncate">Last Login</span>
+            </label>
+            <p className="text-sm sm:text-base font-semibold text-gray-900 break-words overflow-hidden">{data.last_login}</p>
           </div>
         </div>
       </div>

@@ -99,7 +99,7 @@ export default function SendToOtherBanksModal({
     
     try {
       console.log('Validating account:', { accountNumber, bankCode });
-      const response = await fetch('https://aesthetic-mandi-swiftconnect-a9332357.koyeb.app/payments/verify-bank-account/', {
+      const response = await fetch('http://127.0.0.1:8000/payments/verify-bank-account/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
