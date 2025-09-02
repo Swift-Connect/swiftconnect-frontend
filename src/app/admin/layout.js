@@ -26,13 +26,16 @@ export default function RootLayout({ children }) {
           }
         )
 
-        const isAdmin = await res.json()
-        if (!isAdmin) {
+        const data = await res.json()
+        const hasAccess = !!(data && (data.has_admin_access === true || data.isAdmin === true))
+        if (!hasAccess) {
+          setAuthorized(false)
           router.push('/')
-        } else {
-          setAuthorized(true)
+          return
         }
+        setAuthorized(true)
       } catch (error) {
+        setAuthorized(false)
         router.push('/')
       }
     }
@@ -40,7 +43,7 @@ export default function RootLayout({ children }) {
     checkAdmin()
   }, [router])
 
-  if (authorized === null) return null // or a spinner/skeleton if you prefer
+  if (authorized !== true) return null // block render until explicitly authorized
 
   // Important: nested layouts should not render <html>/<body>. Use a fragment instead
   return <>{children}</>

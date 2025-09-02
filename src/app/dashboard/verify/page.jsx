@@ -13,9 +13,9 @@ const VerifyPaymentContent = () => {
   useEffect(() => {
     if (hasVerified.current) return
 
-    const tx_ref = searchParams.get('tx_ref')
-    const transaction_id = searchParams.get('transaction_id')
-    const payment_type = searchParams.get('payment_type')
+    const tx_ref = searchParams.get('tx_ref') || searchParams.get('txRef') || searchParams.get('reference')
+    const transaction_id = searchParams.get('transaction_id') || searchParams.get('transactionId')
+    const payment_type = (searchParams.get('payment_type') || searchParams.get('provider') || '').toLowerCase()
 
     if (!tx_ref) {
       toast.error('Transaction reference is missing.')
@@ -78,7 +78,21 @@ const VerifyPaymentContent = () => {
       ) : (
         <div className='bg-white rounded-2xl p-6 w-full max-w-lg'>
           <h2 className='text-xl font-bold mb-4'>Payment Verification</h2>
-          <p>Payment verification process has completed.</p>
+          <p className='mb-4'>Payment verification process has completed.</p>
+          <div className='flex gap-3 justify-end'>
+            <button
+              className='px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50'
+              onClick={() => router.back()}
+            >
+              Go Back
+            </button>
+            <button
+              className='px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700'
+              onClick={() => router.push('/dashboard')}
+            >
+              Go Home
+            </button>
+          </div>
         </div>
       )}
     </div>
