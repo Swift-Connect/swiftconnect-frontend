@@ -52,6 +52,13 @@ const SignupPage = () => {
       .catch(error => console.error('Error fetching default country:', error))
   }, [])
 
+  // Input sanitizers
+  const sanitizeEmail = (value) => value.replace(/\s+/g, '').toLowerCase()
+  const sanitizePhone = (value) => value.replace(/\D/g, '')
+  const sanitizeReferral = (value) => value.replace(/\s+/g, '').toUpperCase()
+  const sanitizeOtp = (value) => value.replace(/\D/g, '').slice(0, 4)
+  const sanitizeUsername = (value) => value.replace(/\s+/g, ' ').trim()
+
   useEffect(() => {
     let timer
     if (!canResendOtp && countdown > 0) {
@@ -68,10 +75,12 @@ const SignupPage = () => {
     setIsStep1Valid(true)
     const newErrors = {}
     console.log('errororrs', newErrors)
-    if (!email && !phoneNumber) {
+    const emailClean = sanitizeEmail(email)
+    const phoneClean = sanitizePhone(phoneNumber)
+    if (!emailClean && !phoneClean) {
       newErrors.contact = 'Email or Phone number is required'
     }
-    if (phoneNumber && !/^\d+$/.test(phoneNumber)) {
+    if (phoneClean && !/^\d+$/.test(phoneClean)) {
       newErrors.phoneNumber = 'Phone number must be numeric'
     }
     setErrors(newErrors)
@@ -88,9 +97,9 @@ const SignupPage = () => {
     const loadingToast = toast.loading('Sending OTP...')
 
     const signupData = {
-      email,
-      phone_number: `${phoneNumber ? selectedCountry.code + phoneNumber : ''}`,
-      referral_code: referralCode || ''
+      email: sanitizeEmail(email),
+      phone_number: `${phoneNumber ? selectedCountry.code + sanitizePhone(phoneNumber) : ''}`,
+      referral_code: sanitizeReferral(referralCode || '')
     }
 
     try {
@@ -141,8 +150,11 @@ const SignupPage = () => {
 
   const validateStep2 = () => {
     const newErrors = {}
-    if (!otp) {
+    const otpClean = sanitizeOtp(otp)
+    if (!otpClean) {
       newErrors.otp = 'OTP is required'
+    } else if (otpClean.length !== 4) {
+      newErrors.otp = 'OTP must be 4 digits'
     }
     setErrors(newErrors)
     const isValid = Object.keys(newErrors).length === 0
@@ -158,8 +170,8 @@ const SignupPage = () => {
     const loadingToast = toast.loading('Verifying OTP...')
 
     const otpData = {
-      email: email || `${selectedCountry.code}${phoneNumber}`,
-      otp
+      email: sanitizeEmail(email) || `${selectedCountry.code}${sanitizePhone(phoneNumber)}`,
+      otp: sanitizeOtp(otp)
     }
 
     try {
@@ -280,8 +292,8 @@ const SignupPage = () => {
     const completeProfileData = {
       username,
       password,
-      email: user?.email,
-      referral_code: referralCode || ''
+      email: sanitizeEmail(user?.email || email),
+      referral_code: sanitizeReferral(referralCode || '')
     }
 
     try {
@@ -487,7 +499,7 @@ const SignupPage = () => {
                   <input
                     type='email'
                     value={email}
-                    onChange={e => setEmail(e.target.value)}
+                    onChange={e => setEmail(sanitizeEmail(e.target.value))}
                     className={`w-full border border-gray-300 rounded-lg p-3 focus:border-green-600 focus:ring-1 focus:ring-green-600 focus:outline-none ${
                       errors.contact ? 'border-red-500' : ''
                     }`}
@@ -514,7 +526,7 @@ const SignupPage = () => {
                     <input
                       type='tel'
                       value={phoneNumber}
-                      onChange={e => setPhoneNumber(e.target.value)}
+                      onChange={e => setPhoneNumber(sanitizePhone(e.target.value))}
                       className={`flex border-0 p-3 focus:ring-0 rounded-xl focus:outline-none w-full ${
                         errors.phoneNumber ? 'border-red-500' : ''
                       }`}
@@ -534,7 +546,7 @@ const SignupPage = () => {
                   <input
                     type='text'
                     value={referralCode}
-                    onChange={e => setReferralCode(e.target.value)}
+                    onChange={e => setReferralCode(sanitizeReferral(e.target.value))}
                     className='w-full border border-gray-300 rounded-lg p-3 focus:border-green-600 focus:ring-1 focus:ring-green-600 focus:outline-none'
                     placeholder='Enter Referral Code'
                   />
@@ -580,7 +592,7 @@ const SignupPage = () => {
                   <input
                     type='text'
                     value={otp}
-                    onChange={e => setOtp(e.target.value)}
+                    onChange={e => setOtp(sanitizeOtp(e.target.value))}
                     inputMode="numeric"
                     pattern="[0-9]*"
                     autoComplete="one-time-code"
@@ -635,7 +647,7 @@ const SignupPage = () => {
                   <input
                     type='text'
                     value={username}
-                    onChange={e => setUsername(e.target.value)}
+                    onChange={e => setUsername(sanitizeUsername(e.target.value))}
                     className={`w-full border border-gray-300 rounded-lg p-3 focus:border-green-600 focus:ring-1 focus:ring-green-600 focus:outline-none ${
                       errors.username ? 'border-red-500' : ''
                     }`}

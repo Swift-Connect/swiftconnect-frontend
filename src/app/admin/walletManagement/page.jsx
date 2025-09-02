@@ -77,10 +77,19 @@ const WalletManagement = () => {
 
       // Handle users response
       let usersData = [];
+      let usersCount = 0;
       if (usersResponse.status === "fulfilled") {
         const responseData = usersResponse.value;
-        // Handle the nested response structure
-        usersData = responseData?.data || responseData?.results || responseData || [];
+        // Prefer paginated shape if available (count/results)
+        if (typeof responseData?.count === 'number' && Array.isArray(responseData?.results)) {
+          usersCount = responseData.count;
+          usersData = responseData.results;
+        } else {
+          // Handle other nested response structures
+          const maybeArray = responseData?.data || responseData?.results || responseData || [];
+          usersData = Array.isArray(maybeArray) ? maybeArray : [];
+          usersCount = usersData.length;
+        }
       } else {
         console.error("Failed to fetch users:", usersResponse.reason);
         toast.error("Failed to fetch users data");
@@ -101,8 +110,8 @@ const WalletManagement = () => {
       setUsers(usersData);
       setTransactions(transactionsData);
 
-      // Calculate stats
-      const totalUsers = usersData.length;
+      // Calculate stats (use server-reported total when available)
+      const totalUsers = usersCount || usersData.length;
       const totalWalletBalance = walletsData.reduce((sum, wallet) => sum + parseFloat(wallet.balance || 0), 0);
       const totalTransactions = transactionsData.length;
       const pendingTransactions = transactionsData.filter(t => t.status === 'pending').length;
