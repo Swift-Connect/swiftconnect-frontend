@@ -330,7 +330,11 @@ const WalletManagement = () => {
 
   const filteredWallets = (Array.isArray(wallets) ? wallets : []).filter(wallet =>
     wallet.user_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    wallet.id?.toString().includes(searchTerm)
+    wallet.user?.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    wallet.user?.phone_number?.includes(searchTerm) ||
+    wallet.user?.fullname?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    wallet.id?.toString().includes(searchTerm) ||
+    wallet.balance?.toString().includes(searchTerm)
   );
 
   const filteredTransactions = (Array.isArray(transactions) ? transactions : []).filter(tx =>
