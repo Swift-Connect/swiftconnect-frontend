@@ -41,15 +41,15 @@ export default function Header({ setHideSideMenu, user, setActiveSidebar, search
   const unreadMessages = messages.filter(m => m.unread).length;
 
   return (
-    <header className="flex max-md-[400px]:w-full justify-between items-center bg-white py-4 px-8 max-md-[400px]:px-2 header-shadow max-md-[400px]:gap-4 sticky top-0 z-30">
+    <header className="flex w-full justify-between items-center bg-white py-4 px-4 sm:px-8 header-shadow gap-2 sm:gap-4 sticky top-0 z-30">
       <Menu
         onClick={() => setHideSideMenu(false)}
-        className="max-md-[400px]:block hidden cursor-pointer"
+        className="md:hidden block cursor-pointer w-6 h-6"
       />
-      <h1 className="text-[1em] text-[#101828] font-semibold">
+      <h1 className="text-sm sm:text-base text-[#101828] font-semibold">
         Welcome back, {user?.username}
       </h1>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 sm:gap-4">
         <SearchBar
           setActiveSidebar={setActiveSidebar}
           searchItems={searchItems}
@@ -65,9 +65,9 @@ export default function Header({ setHideSideMenu, user, setActiveSidebar, search
             className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors"
             aria-label="Messages"
           >
-            <MessageSquare className="w-6 h-6 text-gray-600" />
+            <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600" />
             {unreadMessages > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center">
                 {unreadMessages}
               </span>
             )}

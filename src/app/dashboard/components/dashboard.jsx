@@ -57,11 +57,11 @@ const Dashboard = ({ setActiveSidebar, data, user, refreshWallet }) => {
     case 'dashboard':
       return (
 
-        <div className="flex flex-col overflow-hidden items-center justify-center gap-y-12 py-8 max-md-[400px]:p-2">
+        <div className="flex flex-col overflow-hidden items-center justify-center gap-y-12 py-8 w-full max-w-full px-4 sm:px-0 dashboard-container">
 
-          <div className='flex gap-8 justify-between max-md-[400px]:flex-col max-md-[400px]:w-full w-full'>
+          <div className='flex gap-8 justify-between max-md-[400px]:flex-col w-full'>
             <WalletCard data={data} refreshWallet={refreshWallet} />
-            <div className='grid grid-cols-2 gap-8 max-md-[400px]:grid-cols-2 w-full'>
+            <div className='grid grid-cols-2 gap-4 sm:gap-8 max-md-[400px]:grid-cols-2 w-full max-w-full dashboard-grid'>
               <DashboardCard
                 title='Airtime'
                 icon='/airtime.svg'

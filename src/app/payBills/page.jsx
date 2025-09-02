@@ -23,7 +23,7 @@ const PayBills = ({ setActiveSidebar }) => {
     case 'dashboard':
       return (
         <>
-          <div className=' flex gap-4 w-[90%] justify-between max-md-[400px]:w-full'>
+          <div className='flex gap-4 w-full px-4 justify-between'>
             <div className='grid grid-cols-2 w-full gap-4'>
               <DashboardCard
                 title='Airtime'

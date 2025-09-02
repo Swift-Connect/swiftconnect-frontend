@@ -322,16 +322,16 @@ export default function WalletCard ({ data, refreshWallet, refreshTransactions }
   }
 
   return (
-    <div className='p-8 max-md\[400px\]:p-6 max-md\[400px\]:text-xl bg-[#ffffff] rounded-[1.2em] border-[0.5px] border-[#efefef] w-full max-w-full flex flex-col justify-between'>
+    <div className='p-8 bg-[#ffffff] rounded-[1.2em] border-[0.5px] border-[#efefef] w-full flex flex-col justify-between'>
       <ToastContainer />
-      <div className='flex justify-between items-center max-md\[400px\]:flex-col max-md\[400px\]:items-start max-md\[400px\]:gap-2'>
+      <div className='flex justify-between items-center w-full'>
         <div>
-          <p className='text-gray-500 text-[18px] max-md\[400px\]:text-lg'>Total Balance</p>
-          <p className='text-[36px] font-semibold text-gray-900 max-md\[400px\]:text-[28px]'>
+          <p className='text-gray-500 text-[18px] '>Total Balance</p>
+          <p className='text-[2.5em] font-semibold text-gray-900'>
             ₦{data?.balance?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
           </p>
         </div>
-        <div className='flex items-center gap-2 max-md\[400px\]:mt-2'>
+        <div className='flex items-center gap-2 max-md-[400px]:mt-2'>
           <Image
             src={'mastercard.svg'}
             alt='mastercard logo'
@@ -339,12 +339,12 @@ export default function WalletCard ({ data, refreshWallet, refreshTransactions }
             height={100}
             className='w-[2.4em]'
           />
-          <span className='text-gray-500 text-[18px] max-md\[400px\]:text-base'>**** 3241</span>
+          <span className='text-gray-500 text-[18px] max-md-[400px]:text-base'>**** 3241</span>
         </div>
       </div>
-      <div className='flex gap-4 mt-4 text-[#104F01] max-md\[400px\]:flex-col max-md\[400px\]:gap-2'>
+      <div className='flex gap-4 mt-4 text-[#104F01] max-md-[400px]:flex-col max-md-[400px]:gap-2'>
         <button
-          className='flex-1 bg-[#D3F1CC] py-4 rounded-lg font-bold shadow hover:bg-green-200 max-md\[400px\]:py-3 max-md\[400px\]:text-lg'
+          className='flex-1 bg-[#D3F1CC] py-4 rounded-lg font-bold shadow hover:bg-green-200 max-md-[400px]:py-3 max-md-[400px]:text-lg'
           onClick={() => {
             setIsModalOpen(true)
           }}
@@ -352,7 +352,7 @@ export default function WalletCard ({ data, refreshWallet, refreshTransactions }
           Send <span className='ml-1'>↑</span>
         </button>
         <button
-          className='flex-1 bg-[#D3F1CC] py-2 rounded-lg font-bold shadow hover:bg-green-200 max-md\[400px\]:py-3 max-md\[400px\]:text-lg'
+          className='flex-1 bg-[#D3F1CC] py-2 rounded-lg font-bold shadow hover:bg-green-200 max-md-[400px]:py-3 max-md-[400px]:text-lg'
           onClick={() => setIsRecieveMoneyModalOpen(true)}
         >
           Top Up <span className='ml-1'>↓</span>

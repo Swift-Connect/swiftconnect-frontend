@@ -38,7 +38,7 @@ const TransactionsTable = ({ refreshTransactions }) => {
   );
 
   return (
-    <div className='pt-4 w-[90%] max-md-[400px]:w-full max-md-[400px]:text-xl overflow-scrol'>
+    <div className='pt-4 w-full max-md-[400px]:text-xl overflow-x-auto'>
       <div className=''>
         <h1 className='text-base sm:text-lg max-md-[400px]:text-xl font-semibold mb-2'>Recent Transactions</h1>
         <div className='flex  flex-col justify-between mb-2'>
@@ -75,7 +75,7 @@ const TransactionsTable = ({ refreshTransactions }) => {
             </li>
           </ul>
           <div className='flex items-center justify-between'>
-            <div className='flex items-center w-[60%] border rounded-full px-2 py-1'>
+            <div className='flex items-center w-full sm:w-[60%] border rounded-full px-2 py-1'>
               <Image
                 src={'/search.svg'}
                 alt='search icon'
@@ -116,21 +116,22 @@ const TransactionsTable = ({ refreshTransactions }) => {
           </div>
         </div>
 
-        <div className='rounded-t-lg overflow-scrol border border-gray-200'>
+        {/* Desktop Table View */}
+        <div className='hidden md:block rounded-t-lg overflow-x-auto border border-gray-200 w-full max-w-full transaction-table-container'>
           {filteredTransactions.length === 0 ? (
             <div className='text-center py-8 text-gray-500'>
               No Transactions yet
             </div>
           ) : (
-            <table className='w-full text-xs sm:text-sm border-collapse max-md-[400px]:scale-[3em] overflow-scroll'>
+            <table className='w-full text-xs sm:text-sm border-collapse overflow-x-auto min-w-full'>
               <thead>
                 <tr className='bg-[#F9F8FA] text-left text-[#525252]'>
-                  <th className='py-2 px-2 sm:py-3 sm:px-4'>Product</th>
-                  <th className='py-2 px-2 sm:py-3 sm:px-4'>Transaction Reference</th>
-                  <th className='py-2 px-2 sm:py-3 sm:px-4'>Date</th>
-                  <th className='py-2 px-2 sm:py-3 sm:px-4'>Amount</th>
-                  <th className='py-2 px-2 sm:py-3 sm:px-4'>Status</th>
-                  <th className='py-2 px-2 sm:py-3 sm:px-4'>Receipt</th>
+                  <th className='py-2 px-2 sm:py-3 sm:px-4 min-w-[120px]'>Product</th>
+                  <th className='py-2 px-2 sm:py-3 sm:px-4 min-w-[150px]'>Transaction Reference</th>
+                  <th className='py-2 px-2 sm:py-3 sm:px-4 min-w-[100px]'>Date</th>
+                  <th className='py-2 px-2 sm:py-3 sm:px-4 min-w-[100px]'>Amount</th>
+                  <th className='py-2 px-2 sm:py-3 sm:px-4 min-w-[100px]'>Status</th>
+                  <th className='py-2 px-2 sm:py-3 sm:px-4 min-w-[80px]'>Receipt</th>
                 </tr>
               </thead>
               <tbody>
@@ -142,13 +143,13 @@ const TransactionsTable = ({ refreshTransactions }) => {
                     }`}
                   >
                     {console.log(transaction)}
-                    <td className='py-2 px-2 sm:py-3 sm:px-4 font-semibold text-[#232323]'>
+                    <td className='py-2 px-2 sm:py-3 sm:px-4 font-semibold text-[#232323] min-w-[120px]'>
                       {transaction.reason}
                     </td>
-                    <td className='py-2 px-2 sm:py-3 sm:px-4 text-[#9CA3AF]'>
+                    <td className='py-2 px-2 sm:py-3 sm:px-4 text-[#9CA3AF] min-w-[150px]'>
                       {transaction.tx_ref}
                     </td>
-                    <td className='py-2 px-2 sm:py-3 sm:px-4 text-[#9CA3AF]'>
+                    <td className='py-2 px-2 sm:py-3 sm:px-4 text-[#9CA3AF] min-w-[100px]'>
                       {new Date(transaction.created_at).toLocaleDateString(
                         'en-GB'
                       )}
@@ -159,12 +160,12 @@ const TransactionsTable = ({ refreshTransactions }) => {
                         transaction.transaction_type === 'credit'
                           ? 'green'
                           : 'red'
-                      }-600`}
+                      }-600 min-w-[100px]`}
                     >
                       {transaction.transaction_type === 'credit' ? '+' : '-'}₦
                       {transaction.amount}
                     </td>
-                    <td className='py-2 px-2 sm:py-3 sm:px-4'>
+                    <td className='py-2 px-2 sm:py-3 sm:px-4 min-w-[100px]'>
                       <div
                         className={`py-1 text-center text-xs font-medium rounded-full ${
                           transaction.status === 'completed'
@@ -181,7 +182,7 @@ const TransactionsTable = ({ refreshTransactions }) => {
                         {transaction.status}
                       </div>
                     </td>
-                    <td className='py-2 px-2 sm:py-3 sm:px-4'>
+                    <td className='py-2 px-2 sm:py-3 sm:px-4 min-w-[80px]'>
                       <button
                         className='text-[#525252] border border-[#525252] text-sm font-semibold py-1 px-5 hover:bg-[#e1e1e1]  text-center   rounded-full'
                         onClick={() => setViewTransaction(transaction)}
@@ -194,19 +195,87 @@ const TransactionsTable = ({ refreshTransactions }) => {
               </tbody>
             </table>
           )}
-          {viewTransaction && (
-            <ViewTransactionModal
-              isOpen={!!viewTransaction}
-              transaction={viewTransaction}
-              onClose={() => setViewTransaction(null)}
-            />
-          )}
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-          />
         </div>
+
+        {/* Mobile Card View */}
+        <div className='md:hidden space-y-3'>
+          {filteredTransactions.length === 0 ? (
+            <div className='text-center py-8 text-gray-500'>
+              No Transactions yet
+            </div>
+          ) : (
+            selectedData.map((transaction, idx) => (
+              <div
+                key={idx}
+                className='bg-white rounded-lg border border-gray-200 p-4 shadow-sm'
+              >
+                <div className='flex items-center justify-between mb-3'>
+                  <div className='flex-1'>
+                    <h3 className='font-semibold text-[#232323] text-sm'>
+                      {transaction.reason}
+                    </h3>
+                    <p className='text-[#9CA3AF] text-xs mt-1'>
+                      {transaction.tx_ref}
+                    </p>
+                  </div>
+                  <div className='text-right'>
+                    <div
+                      className={`font-semibold text-lg ${
+                        transaction.transaction_type === 'credit'
+                          ? 'text-green-600'
+                          : 'text-red-600'
+                      }`}
+                    >
+                      {transaction.transaction_type === 'credit' ? '+' : '-'}₦
+                      {transaction.amount}
+                    </div>
+                    <div className='text-[#9CA3AF] text-xs mt-1'>
+                      {new Date(transaction.created_at).toLocaleDateString('en-GB')}
+                    </div>
+                  </div>
+                </div>
+                
+                <div className='flex items-center justify-between'>
+                  <div
+                    className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      transaction.status === 'completed'
+                        ? 'bg-green-100 text-green-600'
+                        : transaction.status === 'Failed'
+                        ? 'bg-red-100 text-red-600'
+                        : transaction.status === 'Pending'
+                        ? 'bg-yellow-100 text-yellow-600'
+                        : transaction.status === 'Refunded'
+                        ? 'bg-[#52525233] text-[#525252]'
+                        : ''
+                    }`}
+                  >
+                    {transaction.status}
+                  </div>
+                  <button
+                    className='text-[#00613A] border border-[#00613A] text-sm font-semibold py-2 px-4 hover:bg-[#00613A] hover:text-white transition-colors rounded-lg'
+                    onClick={() => setViewTransaction(transaction)}
+                  >
+                    View Details
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+        
+        {viewTransaction && (
+          <ViewTransactionModal
+            isOpen={!!viewTransaction}
+            transaction={viewTransaction}
+            onClose={() => setViewTransaction(null)}
+          />
+        )}
+        
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
       </div>
     </div>
   )

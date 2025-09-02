@@ -156,19 +156,19 @@ export default function Sidebar ({
           ${
             hideSideMenu
               ? 'max-md:hidden'
-              : 'max-md:fixed max-md:top-0 max-md:left-0 max-md:bottom-0 max-md:h-full max-md:w-[70%] max-md:z-20 max-md: overflow-y-auto'
+              : 'max-md:fixed max-md:top-0 max-md:left-0 max-md:bottom-0 max-md:h-full max-md:w-[80%] max-md:z-20 max-md:overflow-y-auto'
           }
         `}
         aria-label="Sidebar navigation"
       >
         <div className='flex items-center justify-between p-4 gap-4'>
-          <img src='/logo.svg' alt='Logo' className='w-30' />
+          <img src='/logo.svg' alt='Logo' className='w-24 sm:w-30' />
           <p
             onClick={() => {
               setHideSideMenu(true)
             }}
           >
-            <X className='max-md-[400px]:block hidden cursor-pointer' />
+            <X className='md:hidden block cursor-pointer w-6 h-6' />
           </p>
         </div>
         <div className='flex-1 flex flex-col justify-between'>

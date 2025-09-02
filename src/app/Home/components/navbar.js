@@ -17,7 +17,7 @@ export default function Navbar() {
           <Image
             src={"./SWIFT_LOGO_White.svg"}
             alt="Watermark Logo"
-            className="w-28 md:w-32 object-contain"
+            className="w-24 md:w-32 object-contain"
             width={0}
             height={0}
           />
@@ -55,7 +55,7 @@ export default function Navbar() {
           </a>
           <a
             href={`/account/signup `}
-            className="bg-white text-gray-900 px-6 py-2 rounded-full font-semibold hover:bg-gray-100 transition-colors"
+            className="bg-white text-gray-900 px-4 md:px-6 py-2 rounded-full font-semibold hover:bg-gray-100 transition-colors text-sm md:text-base"
           >
             Sign Up
           </a>
@@ -63,42 +63,42 @@ export default function Navbar() {
 
         {/* Hamburger Icon */}
         <button
-          className="md:hidden flex items-center justify-center focus:outline-none"
+          className="md:hidden flex items-center justify-center focus:outline-none p-2"
           onClick={() => setMobileOpen((prev) => !prev)}
           aria-label="Toggle navigation"
         >
           {mobileOpen ? (
-            <FiX className="w-8 h-8" />
+            <FiX className="w-6 h-6" />
           ) : (
-            <FiMenu className="w-8 h-8" />
+            <FiMenu className="w-6 h-6" />
           )}
         </button>
       </div>
 
       {/* Mobile Nav */}
       <div
-        className={`md:hidden absolute left-0 right-0 top-[8%] z-50 bg-gray-900 rounded-b-2xl px-6 py-4 shadow-lg transition-all duration-300 ${
+        className={`md:hidden absolute left-0 right-0 top-[8%] z-50 bg-gray-900 rounded-b-2xl px-4 md:px-6 py-4 shadow-lg transition-all duration-300 ${
           mobileOpen ? "block" : "hidden"
         }`}
       >
-        <nav className="flex flex-col space-y-4">
+        <nav className="flex flex-col space-y-3 md:space-y-4">
           <a
             href="Personal"
-            className="text-gray-300 hover:text-white transition-colors"
+            className="text-gray-300 hover:text-white transition-colors py-2 text-base"
             onClick={() => setMobileOpen(false)}
           >
             Personal
           </a>
           <a
             href="Agent"
-            className="text-gray-300 hover:text-white transition-colors"
+            className="text-gray-300 hover:text-white transition-colors py-2 text-base"
             onClick={() => setMobileOpen(false)}
           >
             Agent
           </a>
           <a
             href="AboutUs"
-            className="text-gray-300 hover:text-white transition-colors"
+            className="text-gray-300 hover:text-white transition-colors py-2 text-base"
             onClick={() => setMobileOpen(false)}
           >
             About Us
@@ -106,14 +106,14 @@ export default function Navbar() {
           <div className="flex flex-col gap-2 mt-2">
             <a
               href={`/account/login?next=${encodeURIComponent(pathname)}`}
-              className="text-gray-300 hover:text-white transition-colors font-semibold"
+              className="text-gray-300 hover:text-white transition-colors font-semibold py-2 text-base"
               onClick={() => setMobileOpen(false)}
             >
               Login
             </a>
             <a
               href={`/account/signup?next=${encodeURIComponent(pathname)}`}
-              className="bg-white text-gray-900 px-6 py-2 rounded-full font-semibold hover:bg-gray-100 transition-colors"
+              className="bg-white text-gray-900 px-4 py-2 rounded-full font-semibold hover:bg-gray-100 transition-colors text-sm text-center"
               onClick={() => setMobileOpen(false)}
             >
               Sign Up

@@ -133,7 +133,7 @@ export default function Home () {
     }
   }
   return (
-    <div className='flex bg-full h-full overflow-y-hidden'>
+    <div className='flex bg-full h-full overflow-y-hidden max-w-full'>
       <Sidebar
         setActiveSidebar={handleSidebarChange}
         activeSidebar={activeSidebar}
@@ -143,14 +143,14 @@ export default function Home () {
         user={user}
         role='user'
       />
-      <main className='flex-1 ml-[20%] max-md:ml-0'>
+      <main className='flex-1 ml-[20%] max-md:ml-0 max-w-full overflow-x-hidden'>
         <Header
           setHideSideMenu={setHideSideMenu}
           user={user}
           setActiveSidebar={setActiveSidebar}
           searchItems={searchItems}
         />
-        <section className=' px-2 w-full custom-scroll bg-[#F6FCF5] h-full overflow-y-auto'
+        <section className='px-2 w-full custom-scroll bg-[#F6FCF5] h-full overflow-y-auto max-w-full'
           key={activeSidebar + '-' + version}
         >
           {renderComponent()}
