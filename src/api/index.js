@@ -1,4 +1,4 @@
-const BASE_URL = 'http://127.0.0.1:8000/'
+const BASE_URL = 'https://aesthetic-mandi-swiftconnect-a9332357.koyeb.app//'
 
 // Generic GET function
 export async function getData (url) {

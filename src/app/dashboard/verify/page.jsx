@@ -32,7 +32,7 @@ const VerifyPaymentContent = () => {
       try {
         hasVerified.current = true
         const response = await fetch(
-          'http://127.0.0.1:8000/payments/payment-callback/',
+          'https://aesthetic-mandi-swiftconnect-a9332357.koyeb.app//payments/payment-callback/',
           {
             method: 'POST',
             headers: {

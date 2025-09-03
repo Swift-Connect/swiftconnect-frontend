@@ -69,7 +69,7 @@ const AgentKycComponent = ({ setActiveSidebar }) => {
         formData.append('id_document', editForm.id_document)
       }
       await axios.put(
-        `http://127.0.0.1:8000/users/kyc-status/me/`,
+        `https://aesthetic-mandi-swiftconnect-a9332357.koyeb.app//users/kyc-status/me/`,
         formData,
         {
           headers: {

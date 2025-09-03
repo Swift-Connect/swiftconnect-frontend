@@ -91,7 +91,7 @@ export default function WalletCard ({ data, refreshWallet, refreshTransactions }
 
     try {
       const response = await fetch(
-        'http://127.0.0.1:8000/payments/transfer-funds/',
+        'https://aesthetic-mandi-swiftconnect-a9332357.koyeb.app//payments/transfer-funds/',
         {
           method: 'POST',
           headers: {
@@ -202,7 +202,7 @@ export default function WalletCard ({ data, refreshWallet, refreshTransactions }
               }
               setSwiftConnectLoading(true);
               try {
-                const response = await fetch(`http://127.0.0.1:8000/payments/get-swiftconnect-recipient/?email=${encodeURIComponent(inputValue)}`, {
+                const response = await fetch(`https://aesthetic-mandi-swiftconnect-a9332357.koyeb.app//payments/get-swiftconnect-recipient/?email=${encodeURIComponent(inputValue)}`, {
                   method: 'GET',
                   headers: {
                     'Content-Type': 'application/json',

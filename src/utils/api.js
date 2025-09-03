@@ -1,7 +1,7 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 
-const BASE_URL = "http://127.0.0.1:8000";
+const BASE_URL = "https://aesthetic-mandi-swiftconnect-a9332357.koyeb.app/";
 
 // Create axios instance
 const api = axios.create({

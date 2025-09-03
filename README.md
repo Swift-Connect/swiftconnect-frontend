@@ -293,7 +293,7 @@ src/
 ## 🔄 Backend Integration
 
 The frontend integrates with the SwiftConnect backend API:
-- **Base URL**: `http://127.0.0.1:8000`
+- **Base URL**: `https://aesthetic-mandi-swiftconnect-a9332357.koyeb.app/`
 - **Authentication**: JWT token-based
 - **Real-time**: WebSocket support for notifications
 - **RBAC**: Role and permission management endpoints

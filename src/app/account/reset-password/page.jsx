@@ -70,7 +70,7 @@ const ResetPasswordContent = () => {
 
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/users/reset-password/`,
+        `https://aesthetic-mandi-swiftconnect-a9332357.koyeb.app//users/reset-password/`,
         {
           method: 'POST',
           headers: {
