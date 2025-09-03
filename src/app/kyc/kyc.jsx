@@ -80,7 +80,7 @@ const KYCForm = ({ setActiveSidebar }) => {
 
     try {
       const response = await axios.post(
-        'https://aesthetic-mandi-swiftconnect-a9332357.koyeb.app//users/submit-kyc/',
+        'https://aesthetic-mandi-swiftconnect-a9332357.koyeb.app/users/submit-kyc/',
         submitData,
         {
           headers: {

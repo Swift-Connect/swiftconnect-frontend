@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const axiosInstance = axios.create({
-  baseURL: 'https://aesthetic-mandi-swiftconnect-a9332357.koyeb.app/',
+  baseURL: 'https://aesthetic-mandi-swiftconnect-a9332357.koyeb.app',
   headers: {
     'Content-Type': 'application/json'
     // "Content-Type": "multipart/form-data",

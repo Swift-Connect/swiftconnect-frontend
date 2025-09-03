@@ -43,7 +43,7 @@ const ReceiveMoneyModal = ({ isOpen, onClose }) => {
     const loadingToast = toast.loading('Processing payment...')
     try {
       const response = await fetch(
-        'https://aesthetic-mandi-swiftconnect-a9332357.koyeb.app//payments/credit-wallet/',
+        'https://aesthetic-mandi-swiftconnect-a9332357.koyeb.app/payments/credit-wallet/',
         {
           method: 'POST',
           headers: {
