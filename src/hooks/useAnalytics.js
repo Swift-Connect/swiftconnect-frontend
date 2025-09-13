@@ -113,7 +113,7 @@ export const useAnalytics = () => {
       },
       {
         title: 'Total Wallets',
-        value: services?.all_time?.total_wallets?.toLocaleString() || '0',
+        value: users?.total_users?.toLocaleString() || '0',
         icon: 'wallets',
         bgColor: 'bg-indigo-500',
         textColor: 'text-white',

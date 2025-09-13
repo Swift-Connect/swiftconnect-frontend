@@ -1,6 +1,7 @@
 import { X } from 'lucide-react'
 import Image from 'next/image'
-import { FaFacebook, FaInstagram, FaTwitter, FaYoutube } from 'react-icons/fa'
+import { FaFacebook, FaInstagram, FaTwitter, FaYoutube, FaWhatsapp } from 'react-icons/fa'
+import { createWhatsAppLink, getSupportPhone } from '@/utils/whatsappSupport'
 
 export default function Footer () {
   const currentYear = new Date().getFullYear()
@@ -55,7 +56,17 @@ export default function Footer () {
             </p>
             <ul className='flex flex-col gap-2 md:gap-4'>
               <li className='list-none'>Email: Contact@swiftconnect.com.ng</li>
-              <li>Phone: +234 904 094 0080</li>
+              <li>
+                <a 
+                  href={createWhatsAppLink()} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 hover:text-green-400 transition-colors"
+                >
+                  <FaWhatsapp className="text-green-400" />
+                  WhatsApp: {getSupportPhone()}
+                </a>
+              </li>
               <li>Address: No 119 Oke Amola, Ikirun</li>
             </ul>
           </div>

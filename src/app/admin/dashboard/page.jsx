@@ -28,20 +28,17 @@ import { useRouter } from "next/navigation";
 import { fetchWithAuth, handleApiError } from "@/utils/api";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import UsersTable from "./components/userTable";
-import TransactionsTable from "./components/TransactionsTable";
 import TableTabs from "../components/tableTabs";
 import Card from "../components/card";
 import Pagination from "../components/pagination";
+import TransactionManagement from "../transactionManagement/transactionManagement";
 
 const COLORS = ["#1D4ED8", "#60A5FA"];
 
-const Dashboard = () => {
+const Dashboard = ({ setActiveSidebar }) => {
   const router = useRouter();
   const [token, setToken] = useState(null);
   const [activeTabPending, setActiveTabPending] = useState("Approve KYC");
-  const [activeTabTransactions, setActiveTabTransactions] =
-    useState("All Transactions");
-
   // Data states
   const [userssData, setUserssData] = useState([]);
   const [allTransactionData, setAllTransaactionData] = useState([]);
@@ -66,38 +63,15 @@ const Dashboard = () => {
   const [isLoadingTransactions, setIsLoadingTransactions] = useState(true);
 
   // Filter states
-  const [transactionFilter, setTransactionFilter] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
-  const [dateRange, setDateRange] = useState({ start: "", end: "" });
   const [actionItem, setActionItem] = useState(null);
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
-  const [currentPageTrx, setCurrentPageTrx] = useState(1);
   const itemsPerPage = 10;
 
   // Filtered and searched data
-  const filteredTransactionData = allTransactionData.filter((tx) => {
-    // console.log("all transactions data", allTransactionData);
-    const matchesFilter =
-      transactionFilter === "All" ||
-      (transactionFilter === "Success" &&
-        tx.status.toLowerCase() === "completed") ||
-      tx.status.toLowerCase() === transactionFilter.toLowerCase();
-
-    const matchesSearch =
-      !searchTerm ||
-      tx.product.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tx.id.toString().includes(searchTerm);
-
-    const matchesDate =
-      !dateRange.start ||
-      !dateRange.end ||
-      (new Date(tx.date) >= new Date(dateRange.start) &&
-        new Date(tx.date) <= new Date(dateRange.end));
-
-    return matchesFilter && matchesSearch && matchesDate;
-  });
+  const filteredTransactionData = allTransactionData;
 
   const filteredKYCData = usersKYCPendingData.filter((user) => {
     return (
@@ -108,9 +82,6 @@ const Dashboard = () => {
   });
 
   const totalPages = Math.ceil(filteredKYCData.length / itemsPerPage);
-  const totalPagesTrx = Math.ceil(
-    filteredTransactionData.length / itemsPerPage
-  );
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -369,9 +340,6 @@ const Dashboard = () => {
 
 
 
-  useEffect(() => {
-    setCurrentPageTrx(1);
-  }, [transactionFilter, searchTerm, dateRange]);
 
 
 
@@ -618,45 +586,8 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Recent Transactions Table */}
-      <div className="bg-white rounded-lg shadow-sm border">
-        <div className="p-6">
-          <TableTabs
-            header={"Recent Transactions"}
-            setActiveTab={setActiveTabTransactions}
-            activeTab={activeTabTransactions}
-            tabs={["All Transactions", "Credit", "Debit"]}
-            from="dashboard"
-            filterOptions={[
-              { label: "Success", value: "Success" },
-              { label: "Failed", value: "Failed" },
-              { label: "Refunded", value: "Refunded" },
-              { label: "Pending", value: "Pending" },
-            ]}
-            onFilterChange={setTransactionFilter}
-            onSearchChange={setSearchTerm}
-            onDateRangeChange={setDateRange}
-            searchValue={searchTerm}
-            dateRange={dateRange}
-          />
-
-          <TransactionsTable
-            data={filteredTransactionData}
-            currentPage={currentPageTrx}
-            itemsPerPage={itemsPerPage}
-            isLoading={isLoadingTransactions}
-            activeTabTransactions={activeTabTransactions}
-          />
-
-          <Pagination
-            currentPage={currentPageTrx}
-            totalPages={totalPagesTrx}
-            onPageChange={setCurrentPageTrx}
-            itemsPerPage={itemsPerPage}
-            totalItems={filteredTransactionData.length}
-          />
-        </div>
-      </div>
+      {/* Transaction Management Component */}
+      <TransactionManagement />
     </div>
   );
 };

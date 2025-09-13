@@ -15,6 +15,8 @@ import {
   Menu,
   X
 } from 'lucide-react';
+import { FaWhatsapp } from 'react-icons/fa';
+import { createWhatsAppLink, SUPPORT_MESSAGES } from '@/utils/whatsappSupport';
 
 const PrivacyPolicyPage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -196,7 +198,17 @@ const PrivacyPolicyPage = () => {
                   <p><strong>SwiftConnect</strong></p>
                   <p>No 119, Oke-Amola, Ikirun, Osun State Nigeria</p>
                   <p>Email: <a href="mailto:privacy@swiftconnect.com.ng" className="text-green-400 hover:text-green-300 break-words">privacy@swiftconnect.com.ng</a></p>
-                  <p>Phone: <a href="tel:+2349040940090" className="text-green-400 hover:text-green-300">+234 904 094 0090</a></p>
+                  <p>
+                    WhatsApp: <a 
+                      href={createWhatsAppLink(SUPPORT_MESSAGES.GENERAL)} 
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-green-400 hover:text-green-300 flex items-center gap-1"
+                    >
+                      <FaWhatsapp />
+                      +234 904 094 0080
+                    </a>
+                  </p>
                 </div>
                 <p className="mt-3 lg:mt-4 text-xs lg:text-sm text-gray-300">
                   You may also lodge a complaint with the Nigeria Data Protection Commission (NDPC) if you believe we have not addressed your concerns adequately.

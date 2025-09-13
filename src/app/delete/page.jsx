@@ -7,7 +7,9 @@ import {
   CheckCircle,
   ArrowLeft
 } from 'lucide-react';
+import { FaWhatsapp } from 'react-icons/fa';
 import image from 'next/image';
+import { createWhatsAppLink, SUPPORT_MESSAGES } from '@/utils/whatsappSupport';
 const AccountDeletionPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
@@ -137,10 +139,13 @@ const AccountDeletionPage = () => {
                 <span>support@swiftconnect.com.ng</span>
               </a>
               <a 
-                href="tel:+2349040940090" 
+                href={createWhatsAppLink(SUPPORT_MESSAGES.ACCOUNT)} 
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex items-center space-x-2 text-green-600 hover:text-green-700 font-medium"
               >
-                <span>+234 904 094 0090</span>
+                <FaWhatsapp className="text-green-500" />
+                <span>WhatsApp Support</span>
               </a>
             </div>
           </div>
