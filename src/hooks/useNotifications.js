@@ -192,7 +192,27 @@ export const useNotifications = (isAdmin = false) => {
     if (!isAdmin) return false;
     
     try {
-      const response = await api.post('/notifications/admin/create-bulk/', notificationData);
+      const {
+        send_to_all,
+        title,
+        message,
+        category,
+        priority,
+        send_email,
+        send_in_app,
+        user_ids
+      } = notificationData || {};
+
+      // Decide endpoint and payload based on send_to_all flag
+      const endpoint = send_to_all
+        ? '/notifications/admin/create-bulk-all/'
+        : '/notifications/admin/create-bulk/';
+
+      const payload = send_to_all
+        ? { title, message, category, priority, send_email, send_in_app }
+        : { user_ids, title, message, category, priority, send_email, send_in_app };
+
+      const response = await api.post(endpoint, payload);
       return response.data;
     } catch (error) {
       console.error('Error sending bulk notifications:', error);

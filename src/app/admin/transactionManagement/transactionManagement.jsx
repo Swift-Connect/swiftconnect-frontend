@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useCallback, useRef } from 'react'
 // import TrxManagementTable from "./components/TrxManagementTable";
 import Pagination from '../components/pagination'
 import TableTabs from '../components/tableTabs'
@@ -39,6 +39,10 @@ const TransactionManagement = () => {
 
   const [isLoading, setIsLoading] = useState(true)
   const [allTransactionData, setAllTransaactionData] = useState([])
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
+  const [hasMore, setHasMore] = useState(true)
+  const [nextUrls, setNextUrls] = useState([])
+  const sentinelRef = useRef(null)
   const [transactionFilter, setTransactionFilter] = useState('All')
   const [checkedItems, setCheckedItems] = useState([]) // Track selected rows
   // Filtered transaction data based on the selected filter
@@ -66,32 +70,28 @@ const TransactionManagement = () => {
         '/services/bulk-sms-transactions/'
       ]
 
-      const transactionPromises = transactionEndpoints.map(async endpoint => {
+      // First-page fetch for progressive loading (50 per request)
+      const firstPagePromises = transactionEndpoints.map(async endpoint => {
         try {
-          const items = await fetchAllPages(endpoint)
-          // Tag each transaction with its source endpoint for accurate editing/deleting
-          return items.map(tx => ({ ...tx, __endpoint: endpoint }))
+          const res = await api.get(`${endpoint}${endpoint.includes('?') ? '&' : '?'}page_size=50`)
+          const results = res.data.results || res.data || []
+          const next = res.data.next || null
+          return { items: results.map(tx => ({ ...tx, __endpoint: endpoint })), next, endpoint }
         } catch (error) {
           toast.error(`Error fetching ${endpoint}`)
           console.error(`Error fetching ${endpoint}:`, error)
-          return []
+          return { items: [], next: null, endpoint }
         }
       })
 
-      const transactionResults = await Promise.all(transactionPromises)
-      const allTransactions = transactionResults.flat()
-      console.log('Fetched transactions:', allTransactions)
-      // Filter valid transactions
-      const validTransactions = allTransactions.filter(
-        tx =>
-          tx.id &&
-          tx.amount &&
-          tx.created_at &&
-          tx.status &&
-          typeof tx.amount === 'number' // Ensure amount is a number
-      )
-      console.log('Fetched transactions:', allTransactions)
-      console.log('Valid transactions:', validTransactions)
+      const firstPages = await Promise.all(firstPagePromises)
+      const allTransactions = firstPages.flatMap(p => p.items)
+
+      // Track next URLs to enable lazy loading more
+      const initialNexts = firstPages
+        .map(p => ({ endpoint: p.endpoint, next: p.next }))
+        .filter(p => !!p.next)
+      setNextUrls(initialNexts)
 
       // Process transactions
       const processedDataTrx = allTransactions
@@ -136,6 +136,7 @@ const TransactionManagement = () => {
         )
 
       setAllTransaactionData(processedDataTrx)
+      setHasMore(initialNexts.length > 0)
     } catch (error) {
       if (error.response?.status === 401) {
         router.push('/account/login')
@@ -153,29 +154,83 @@ const TransactionManagement = () => {
     fetchDashboardData()
   }, [token, fetchDashboardData])
 
-  const fetchAllPages = async (endpoint, maxPages = 50) => {
-    let allData = []
-    let nextPage = endpoint
-    let pageCount = 0
-
+  // Load next batches (50) for all endpoints with a next URL
+  const loadMore = useCallback(async () => {
+    if (isLoadingMore || !hasMore) return
+    setIsLoadingMore(true)
     try {
-      while (nextPage && pageCount < maxPages) {
-        const res = await api.get(nextPage)
-        allData = allData.concat(res.data.results || res.data)
-        nextPage = res.data.next || null
-        pageCount++
+      const batch = await Promise.all(
+        nextUrls.map(async ({ endpoint, next }) => {
+          try {
+            const url = next.includes('page_size=') ? next : `${next}${next.includes('?') ? '&' : '?'}page_size=50`
+            const res = await api.get(url)
+            const results = res.data.results || res.data || []
+            const nextUrl = res.data.next || null
+            return { endpoint, items: results.map(tx => ({ ...tx, __endpoint: endpoint })), next: nextUrl }
+          } catch (err) {
+            console.error('Error loading more for', endpoint, err)
+            return { endpoint, items: [], next: null }
+          }
+        })
+      )
+
+      const newItems = batch.flatMap(b => b.items)
+      if (newItems.length > 0) {
+        const processed = newItems.map(tx => ({
+          id: tx.id ?? '-',
+          product: getProductName(tx) ?? '-',
+          amount: tx.amount != null ? formatCurrency(tx.amount, tx.currency) : '0',
+          __amount_numeric: typeof tx.amount === 'number' ? tx.amount : Number(tx.amount) || 0,
+          date: tx.created_at ? new Date(tx.created_at).toLocaleDateString('en-GB') : '-',
+          __status_raw: tx.status ?? null,
+          status: tx.status ? capitalizeFirstLetter(String(tx.status)) : '-',
+          transaction_type: (tx.transaction_type && ['credit','debit'].includes(String(tx.transaction_type).toLowerCase()))
+            ? String(tx.transaction_type).toLowerCase()
+            : (() => {
+                const product = (getProductName(tx) || '').toLowerCase();
+                const reason = (tx.reason || '').toLowerCase();
+                const serviceName = (tx.service_name || '').toLowerCase();
+                if (
+                  product.includes('wallet') ||
+                  reason.includes('wallet') ||
+                  serviceName.includes('wallet') ||
+                  product.includes('fund') ||
+                  reason.includes('fund') ||
+                  serviceName.includes('fund')
+                ) return 'credit';
+                return 'debit';
+              })(),
+          transaction_id: tx.transaction_id ?? '-',
+          created_at: tx.created_at ?? null,
+          updated_at: tx.updated_at ?? null,
+          ...tx
+        }))
+        setAllTransaactionData(prev => {
+          const merged = [...prev, ...processed]
+          return merged.sort((a, b) => new Date(b.created_at || b.updated_at) - new Date(a.created_at || a.updated_at))
+        })
       }
 
-      if (pageCount >= maxPages) {
-        console.warn(`Reached max page limit (${maxPages}) for ${endpoint}`)
-      }
-    } catch (error) {
-      toast.error(`Error fetching data from ${endpoint}`)
-      console.error(`Error fetching ${endpoint}:`, error)
+      const updatedNexts = batch.map(b => ({ endpoint: b.endpoint, next: b.next })).filter(p => !!p.next)
+      setNextUrls(updatedNexts)
+      setHasMore(updatedNexts.length > 0)
+    } finally {
+      setIsLoadingMore(false)
     }
+  }, [nextUrls, hasMore, isLoadingMore])
 
-    return allData
-  }
+  // IntersectionObserver to auto-load more
+  useEffect(() => {
+    if (!sentinelRef.current) return
+    const node = sentinelRef.current
+    const observer = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) {
+        loadMore()
+      }
+    }, { root: null, rootMargin: '200px', threshold: 0 })
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [loadMore])
 
   const formatCurrency = (amount, currency = 'NGN') => {
     return new Intl.NumberFormat('en-NG', {
@@ -446,6 +501,9 @@ const TransactionManagement = () => {
                   itemsPerPage={itemsPerPage}
                   totalItems={filteredTransactionData.length}
                 />
+                <div ref={sentinelRef} className="flex items-center justify-center py-4 text-sm text-gray-500">
+                  {isLoadingMore ? 'Loading more…' : (hasMore ? 'Scroll to load more' : 'No more transactions')}
+                </div>
               </div>
             </div>
             {/* View modal is managed inside TransactionsTable */}
